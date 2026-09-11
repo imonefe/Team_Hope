@@ -1,4 +1,7 @@
 # Team\_Hope
 
-didgudtjr rmsms rkagl wjstjfdlfk gkftn dTek
+팀원
+양형석\_2022280018
+
+정지원\_2022280007
 
