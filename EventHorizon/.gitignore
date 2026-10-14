@@ -104,3 +104,6 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# 정리 대기 폴더 (삭제 예정, 깃허브에 올리지 않음)
+/_to_delete/
