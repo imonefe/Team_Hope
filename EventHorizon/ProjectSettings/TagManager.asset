@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Weapon
+  - Item
+  - sp
+  - Box
+  - box_sp
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Player
+  - Water
+  - UI
+  - Enemy
+  - Item
+  - Pickup
+  - BossBody
+  - "\uC6D0\uACBD"
+  - "\uC911\uACBD"
+  - dropping
+  - "\uADFC\uACBD"
+  - 
+  - Room3D
+  - HitEffect
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - Box_sp
+  - Box
+  - Trap
+  - Player_hitbox
+  - Enemy_hitbox
+  - platform
+  - ground
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: "\uC6D0\uACBD"
+    uniqueID: 1
+    locked: 0
+  - name: "\uC911\uACBD"
+    uniqueID: 2
+    locked: 0
+  - name: "\uADFC\uACBD"
+    uniqueID: 3
+    locked: 0
+  - name: "\uADFC\uACBD2D"
+    uniqueID: 4
+    locked: 0

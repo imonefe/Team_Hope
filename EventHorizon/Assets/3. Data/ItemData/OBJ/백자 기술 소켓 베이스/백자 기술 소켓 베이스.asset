@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 백자 기술 소켓 베이스
+  m_EditorClassIdentifier: 
+  itemName: 백자 기술 소켓 베이스
+  description: 매우 희귀하고 값비싼 백자 기술 소켓 베이스.
+  icon: {fileID: -1905039644, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 3
+  element: 4
+  power: 6
+  effects:
+  - {fileID: 11400000, guid: ede505804c8842b49f79f25614543d91, type: 2}

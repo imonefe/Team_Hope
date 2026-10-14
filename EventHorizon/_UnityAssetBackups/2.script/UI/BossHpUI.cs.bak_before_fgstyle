@@ -1,0 +1,283 @@
+using UnityEngine;
+using UnityEngine.UI;
+using DG.Tweening;
+
+// 보스룸(Room_Boss)에 있는 HP 캔버스를 보스의 Stats.OnHpChanged에 연결해서
+// 체력이 줄어들 때마다 Slider 값을 DOTween으로 애니메이션한다. 플레이어 체력바(HpUI.cs)와 같은 방식.
+// 보스가 이 오브젝트보다 늦게(방 진입 트리거 이후) 스폰되는 경우를 대비해서
+// 보스를 찾을 때까지 주기적으로 재시도한다.
+public class BossHpUI : MonoBehaviour
+{
+    public Slider hpSlider;
+
+    [Header("데미지 / 회복 애니메이션 (느낌을 다르게)")]
+    [Tooltip("데미지(체력 감소)일 때 걸리는 시간(초) - 너무 빨리 '뚝' 떨어지면 부자연스러워서 좀 더 여유있게")]
+    public float damageDuration = 0.3f;
+    public Ease damageEase = Ease.OutQuad;
+    [Tooltip("회복(체력 증가)일 때 걸리는 시간(초) - 천천히 부드럽게 차오르는 느낌")]
+    public float healDuration = 0.45f;
+    public Ease healEase = Ease.OutSine;
+
+    [Tooltip("보스를 찾는 재시도 간격(초)")]
+    public float findRetryInterval = 0.5f;
+
+    [Header("데미지 잔상 바 (선택)")]
+    [Tooltip("체력바의 Fill Area 안에 있는 보조 Image. 데미지를 입으면 잠깐 그대로 남아있다가 " +
+             "천천히 새 체력 값까지 줄어들어서, 방금 깎인 양을 잔상처럼 보여준다. 비워두면 이 기능은 꺼짐.")]
+    public Image trailFillImage;
+    [Tooltip("잔상 바 색상. 흰색/빨간색 등 원하는 색으로 자유롭게 변경 가능")]
+    public Color trailColor = Color.white;
+    [Tooltip("데미지를 입은 뒤 잔상 바가 줄어들기 시작하기까지 대기하는 시간(초)")]
+    public float trailDelay = 0.2f;
+    [Tooltip("잔상 바가 새 체력 값까지 줄어드는 데 걸리는 시간(초)")]
+    public float trailDuration = 0.5f;
+
+    [Header("피격 반응 효과 (선택)")]
+    [Tooltip("맞았을 때 체력바가 살짝 하얗게 번쩍이고 통통 튀는 연출을 켤지 여부")]
+    public bool enableHitReaction = true;
+    [Tooltip("맞았을 때 번쩍이는 색")]
+    public Color hitFlashColor = Color.white;
+    [Tooltip("번쩍이는 데 걸리는 시간(초). 갔다가 돌아오는 왕복이라 실제 체감 시간은 이 값의 2배")]
+    public float hitFlashDuration = 0.08f;
+    [Tooltip("맞았을 때 체력바가 커지는 정도(0.03 = 3%). 너무 크면 화면이 덜컹거리는 느낌이라 작게 잡음")]
+    [Range(0f, 0.3f)] public float hitPunchScale = 0.03f;
+    [Tooltip("펀치(커졌다 돌아오는) 애니메이션 시간(초)")]
+    public float hitPunchDuration = 0.25f;
+
+    [Header("체력 낮으면 색 변화 (선택)")]
+    [Tooltip("체력 비율에 따라 채워진 바 색을 초록 -> 노랑 -> 빨강으로 자연스럽게 바꿀지 여부")]
+    public bool enableLowHpColor = true;
+    public Color fullHpColor = new Color(0.25f, 0.85f, 0.3f);
+    public Color midHpColor = new Color(0.95f, 0.8f, 0.15f);
+    public Color lowHpColor = new Color(0.9f, 0.15f, 0.15f);
+    [Range(0f, 1f)] public float midHpThreshold = 0.5f;
+    [Range(0f, 1f)] public float lowHpThreshold = 0.25f;
+
+    Stats bossStats;
+    BossController bossRef;
+    Image fillImage;
+    Vector3 baseScale = Vector3.one; // 피격 펀치 효과가 끝나면 돌아올 "원래" 스케일(Awake에서 실제 값으로 채움)
+
+    // 데미지로 잔상 바가 "천천히 따라 내려가는 중"인 동안에는 true — 이 동안엔 Update()가
+    // 잔상 바를 건드리지 않는다(트윈 진행을 방해하지 않기 위해).
+    bool trailCatchingUp;
+
+    // 피격 번쩍임이 재생 중인 동안에는 true — 이 동안엔 체력 낮음 색 갱신이 fillImage.color를
+    // 건드리지 않는다(번쩍임 트윈이랑 서로 색을 덮어써서 깜빡이는 걸 막기 위해).
+    bool flashingHit;
+
+    void Awake()
+    {
+        // 인스펙터에서 따로 연결 안 해놔도 같은 오브젝트의 Slider를 자동으로 사용 —
+        // 씬/프리팹 저장 과정에서 필드 연결이 날아가는 경우가 있어서, 컴포넌트만 붙어있으면
+        // 항상 동작하도록 코드에서 직접 보정한다.
+        if (hpSlider == null)
+            hpSlider = GetComponent<Slider>();
+
+        if (trailFillImage != null)
+            trailFillImage.color = trailColor;
+
+        if (hpSlider != null && hpSlider.fillRect != null)
+            fillImage = hpSlider.fillRect.GetComponent<Image>();
+
+        // 피격 펀치 효과가 이 오브젝트 "원래" 스케일을 기준으로 갔다 오도록, 시작할 때
+        // 실제 스케일을 기억해둔다(예전엔 무조건 Vector3.one으로 초기화해버려서, 원래
+        // 스케일이 1이 아닌 오브젝트는 첫 피격 이후 펀치가 끝나면 1배 크기로 영구히
+        // 줄어붙는 버그가 있었음).
+        if (hpSlider != null)
+            baseScale = hpSlider.transform.localScale;
+    }
+
+    void OnEnable()
+    {
+        bossStats = null;
+        InvokeRepeating(nameof(TryFindBoss), 0f, findRetryInterval);
+    }
+
+    void Update()
+    {
+        // 회복 중이거나 평소에는 잔상 바가 항상 현재 체력 바 값을 실시간으로 따라가게 해서
+        // 초록(빨강) 바보다 앞서 나가는 일이 없게 한다. 데미지로 "천천히 따라 내려가는" 중일 땐 건드리지 않음.
+        if (trailFillImage != null && hpSlider != null && !trailCatchingUp)
+            SetTrailRatio(hpSlider.value);
+    }
+
+    void TryFindBoss()
+    {
+        if (bossStats != null)
+        {
+            CancelInvoke(nameof(TryFindBoss));
+            return;
+        }
+
+        BossController boss = FindObjectOfType<BossController>();
+        if (boss == null) return;
+
+        Stats s = boss.GetComponent<Stats>();
+        if (s == null) return;
+
+        bossStats = s;
+        bossStats.OnHpChanged += UpdateHp;
+
+        // 처음 찾았을 때는 트윈 없이 바로 반영
+        if (hpSlider != null)
+        {
+            hpSlider.DOKill();
+            float ratio = bossStats.maxHp > 0 ? (float)bossStats.currentHp / bossStats.maxHp : 0f;
+            hpSlider.value = ratio;
+            UpdateFillColor(ratio);
+
+            if (trailFillImage != null)
+            {
+                trailFillImage.DOKill();
+                trailCatchingUp = false;
+                SetTrailRatio(ratio);
+            }
+        }
+
+        bossRef = boss;
+        bossRef.OnDied += HandleBossDied;
+
+        CancelInvoke(nameof(TryFindBoss));
+    }
+
+    // 보스가 진짜로 사망하면(부활 전 임시 사망 말고) HP 캔버스 자체를 화면에서 치운다
+    void HandleBossDied()
+    {
+        Canvas parentCanvas = GetComponentInParent<Canvas>(true);
+        if (parentCanvas != null)
+            parentCanvas.gameObject.SetActive(false);
+        else
+            gameObject.SetActive(false);
+    }
+
+    void UpdateHp(int current, int max)
+    {
+        if (hpSlider == null) return;
+
+        float target = max > 0 ? (float)current / max : 0f;
+
+        // 지금 화면에 보이는 값(이전 트윈이 아직 진행 중이었다면 그 중간값)을 기준으로 판단
+        float beforeRatio = hpSlider.value;
+        bool isDamage = target < beforeRatio;
+
+        hpSlider.DOKill();
+        float duration = isDamage ? damageDuration : healDuration;
+        Ease ease = isDamage ? damageEase : healEase;
+        hpSlider.DOValue(target, duration).SetEase(ease)
+            .OnUpdate(() =>
+            {
+                if (enableLowHpColor && !flashingHit)
+                    UpdateFillColor(hpSlider.value);
+            });
+
+        if (isDamage && enableHitReaction)
+            PlayHitReaction();
+
+        if (trailFillImage != null)
+        {
+            trailFillImage.DOKill();
+
+            if (isDamage)
+            {
+                // 데미지: 잔상 바를 지금 값에 잠깐 고정해뒀다가, 살짝 대기 후 천천히 새 값까지 따라 내려간다.
+                trailCatchingUp = true;
+                SetTrailRatio(beforeRatio);
+                DOTween.To(GetTrailRatio, SetTrailRatio, target, trailDuration)
+                    .SetDelay(trailDelay)
+                    .SetEase(Ease.OutQuad)
+                    .SetTarget(trailFillImage)
+                    .OnComplete(() => trailCatchingUp = false);
+            }
+            else
+            {
+                // 회복(또는 변화 없음): 잔상 없이 Update()가 매 프레임 체력 바를 그대로 따라가게 둔다.
+                trailCatchingUp = false;
+            }
+        }
+    }
+
+    // 맞는 순간 체력바가 살짝 하얗게 번쩍이고 통통 튀는(펀치) 타격감 연출.
+    void PlayHitReaction()
+    {
+        if (hpSlider == null) return;
+
+        hpSlider.transform.DOKill();
+        hpSlider.transform.localScale = baseScale;
+        hpSlider.transform.DOPunchScale(baseScale * hitPunchScale, hitPunchDuration, 8, 0.7f)
+            .SetUpdate(true);
+
+        if (fillImage != null)
+        {
+            fillImage.DOKill();
+            flashingHit = true;
+            fillImage.DOColor(hitFlashColor, hitFlashDuration)
+                .SetLoops(2, LoopType.Yoyo)
+                .SetEase(Ease.OutQuad)
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    flashingHit = false;
+                    if (enableLowHpColor) UpdateFillColor(hpSlider.value);
+                });
+        }
+    }
+
+    // 체력 비율에 맞춰 채워진 바 색을 초록(가득) -> 노랑(중간) -> 빨강(위험)으로 부드럽게 보간.
+    void UpdateFillColor(float ratio)
+    {
+        if (fillImage == null) return;
+
+        Color c;
+        if (ratio >= midHpThreshold)
+        {
+            float t = midHpThreshold >= 1f ? 1f : Mathf.InverseLerp(midHpThreshold, 1f, ratio);
+            c = Color.Lerp(midHpColor, fullHpColor, t);
+        }
+        else if (ratio >= lowHpThreshold)
+        {
+            float t = Mathf.InverseLerp(lowHpThreshold, midHpThreshold, ratio);
+            c = Color.Lerp(lowHpColor, midHpColor, t);
+        }
+        else
+        {
+            c = lowHpColor;
+        }
+        fillImage.color = c;
+    }
+
+    float GetTrailRatio()
+    {
+        if (trailFillImage == null) return 0f;
+        return trailFillImage.rectTransform.anchorMax.x;
+    }
+
+    void SetTrailRatio(float ratio)
+    {
+        if (trailFillImage == null) return;
+        RectTransform rt = trailFillImage.rectTransform;
+        rt.anchorMin = new Vector2(0f, 0f);
+        rt.anchorMax = new Vector2(Mathf.Clamp01(ratio), 1f);
+    }
+
+    void OnDisable()
+    {
+        CancelInvoke(nameof(TryFindBoss));
+        if (hpSlider != null)
+        {
+            hpSlider.DOKill();
+            hpSlider.transform.DOKill();
+        }
+        if (trailFillImage != null)
+            trailFillImage.DOKill();
+        if (fillImage != null)
+            fillImage.DOKill();
+        if (bossStats != null)
+            bossStats.OnHpChanged -= UpdateHp;
+        bossStats = null;
+
+        if (bossRef != null)
+            bossRef.OnDied -= HandleBossDied;
+        bossRef = null;
+    }
+}

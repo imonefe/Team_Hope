@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 163d3dca2f53def4bbd56b83a0cc5407, type: 3}
+  m_Name: CombatMap
+  m_EditorClassIdentifier: 
+  tier: 0
+  type: 0
+  roomPrefabs:
+  - {fileID: 8548028022454420013, guid: 756672a21392a7a49a7c7f2c7b2c6b5d, type: 3}
+  - {fileID: 8548028022454420013, guid: 0cf3185a9f7de6c4da7d74b01b058288, type: 3}
+  - {fileID: 8548028022454420013, guid: c013a88d85c7a3d4cb1111ab79a7dbb2, type: 3}

@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5679059527635833244
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4443097970234881548}
+  - component: {fileID: 9216865448950508661}
+  m_Layer: 0
+  m_Name: Skill_SwordSlash_Test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4443097970234881548
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5679059527635833244}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9216865448950508661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5679059527635833244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2d0bcb2638383048b089655a506c8b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillType: 1
+  icon: {fileID: -598861243, guid: 939d0d8a0d4246645965c31278afa7c3, type: 3}
+  skillName: "\uAC80\uACA9 \uBC1C\uC0AC (\uD14C\uC2A4\uD2B8)"
+  description: "J\uD0A4 \uD14C\uC2A4\uD2B8\uC6A9 - \uAC80\uACA9 \uD22C\uC0AC\uCCB4\uAC00
+    \uC804\uBC29\uC73C\uB85C \uB0A0\uC544\uAC11\uB2C8\uB2E4."
+  cooldown: 1
+  spawnOffset: {x: 0.8, y: 0.3}
+  lifetime: 0.5
+  flipByFacing: 1
+  spawnOnLaunch: 1
+  spawnEntries:
+  - prefab: {fileID: 5070505303599927812, guid: 2bf313874e6045abaafb0d1ce2087f59, type: 3}
+    offset: {x: 0, y: 1.1}
+    count: 1
+    pattern: 1
+    patternRadius: 0.9
+    patternAngle: 60
+    lineSpacing: 0.5
+    extraRandomRadius: 0
+    flipByFacing: 1
+    parentToSkill: 0
+    lifetime: 0
+  - prefab: {fileID: 5070505303599927812, guid: 2bf313874e6045abaafb0d1ce2087f59, type: 3}
+    offset: {x: 0, y: 0}
+    count: 1
+    pattern: 1
+    patternRadius: 0.9
+    patternAngle: 60
+    lineSpacing: 0.5
+    extraRandomRadius: 0
+    flipByFacing: 1
+    parentToSkill: 0
+    lifetime: 0
+  - prefab: {fileID: 5070505303599927812, guid: 2bf313874e6045abaafb0d1ce2087f59, type: 3}
+    offset: {x: 0, y: -1.1}
+    count: 1
+    pattern: 1
+    patternRadius: 0.9
+    patternAngle: 60
+    lineSpacing: 0.5
+    extraRandomRadius: 0
+    flipByFacing: 1
+    parentToSkill: 0
+    lifetime: 0

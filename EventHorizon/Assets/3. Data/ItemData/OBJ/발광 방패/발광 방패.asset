@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 발광 방패
+  m_EditorClassIdentifier: 
+  itemName: 발광 방패
+  description: 빛나는 것 외엔 별다른 기능이 없는 방패.
+  icon: {fileID: 417693198, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 0
+  element: 0
+  power: 0
+  effects:
+  - {fileID: 11400000, guid: dbbc96d7a2514cd2bf57f96a6fac9653, type: 2}

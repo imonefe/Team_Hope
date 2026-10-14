@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 전투 보급상자
+  m_EditorClassIdentifier: 
+  itemName: 전투 보급상자
+  description: 생존에 필요한 물자가 골고루 담긴 보급상자.
+  icon: {fileID: -1231900933, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 1
+  element: 3
+  power: 2
+  effects:
+  - {fileID: 11400000, guid: 6ae7b4d89beb42a9bd4e39e74c4ccc82, type: 2}

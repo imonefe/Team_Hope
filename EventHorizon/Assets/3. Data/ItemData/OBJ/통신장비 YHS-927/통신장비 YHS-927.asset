@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 통신장비 YHS-927
+  m_EditorClassIdentifier: 
+  itemName: 통신장비 YHS-927
+  description: 악담이 가득 들려오는 낡은 통신장비. 그래도 없는 것보단 낫다.
+  icon: {fileID: -559534462, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 0
+  element: 4
+  power: 1
+  effects:
+  - {fileID: 11400000, guid: 3964b5c4a640469b842dadcf300c8736, type: 2}

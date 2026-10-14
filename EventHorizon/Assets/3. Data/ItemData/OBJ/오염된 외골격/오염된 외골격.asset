@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 오염된 외골격
+  m_EditorClassIdentifier: 
+  itemName: 오염된 외골격
+  description: 과하게 개조된 외골격. 공격력과 기동성은 오르지만 오염된 부위 탓에 방어가 약해진다.
+  icon: {fileID: 942211375, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 2
+  element: 1
+  power: 4
+  effects:
+  - {fileID: 11400000, guid: d91dfd4c894041d698528ba65dc40819, type: 2}

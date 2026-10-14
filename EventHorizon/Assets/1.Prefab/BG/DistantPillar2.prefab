@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &2594621590527286354
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -5921505478000457673, guid: e0708ec3a1cb4444db3414df3b9339ea, type: 3}
+      propertyPath: m_Name
+      value: Middle
+      objectReference: {fileID: 0}
+    - target: {fileID: -7202464317774104332, guid: e0708ec3a1cb4444db3414df3b9339ea, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a2e3f2b0749c46eaa9b34d413145af4c, type: 2}
+    - target: {fileID: -8764077512085610462, guid: e0708ec3a1cb4444db3414df3b9339ea, type: 3}
+      propertyPath: m_Name
+      value: Fence
+      objectReference: {fileID: 0}
+    - target: {fileID: -7849268929617644440, guid: e0708ec3a1cb4444db3414df3b9339ea, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 027ab4539fcd4ea384bc0e55f9a0a732, type: 2}
+    - target: {fileID: -7324904602054250430, guid: e0708ec3a1cb4444db3414df3b9339ea, type: 3}
+      propertyPath: m_Name
+      value: Top
+      objectReference: {fileID: 0}
+    - target: {fileID: -1644006083177895602, guid: e0708ec3a1cb4444db3414df3b9339ea, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c2120585bb94c8e87e3ca1597e579c8, type: 2}
+    - target: {fileID: -174176745975339065, guid: e0708ec3a1cb4444db3414df3b9339ea, type: 3}
+      propertyPath: m_Name
+      value: Bottom
+      objectReference: {fileID: 0}
+    - target: {fileID: -879077019449755227, guid: e0708ec3a1cb4444db3414df3b9339ea, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ac6cdf999207400dbc370393848808f4, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e0708ec3a1cb4444db3414df3b9339ea, type: 3}

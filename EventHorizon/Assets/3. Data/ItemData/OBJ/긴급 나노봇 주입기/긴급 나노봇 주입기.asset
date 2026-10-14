@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 긴급 나노봇 주입기
+  m_EditorClassIdentifier: 
+  itemName: 긴급 나노봇 주입기
+  description: 체력이 낮아지면 즉시 활성화되는 긴급 치유용 나노봇.
+  icon: {fileID: -2040624248, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 1
+  element: 5
+  power: 3
+  effects:
+  - {fileID: 11400000, guid: b96cae780434449c85dc29c51077fd6c, type: 2}

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 기억 추출 헤일로
+  m_EditorClassIdentifier: 
+  itemName: 기억 추출 헤일로
+  description: 기억을 추출해 순식간에 신체를 개조하는 희귀 장치.
+  icon: {fileID: 1115552433, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 3
+  element: 4
+  power: 6
+  effects:
+  - {fileID: 11400000, guid: 8143e746b58b49d5862178476f4821d9, type: 2}

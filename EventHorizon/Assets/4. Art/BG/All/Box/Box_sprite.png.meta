@@ -1,0 +1,747 @@
+fileFormatVersion: 2
+guid: 47b24c2d0df754a4397e0d84ae1ec5ef
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 500
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Box_sprite_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 11529
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f36e43997969764c8f8a0eee9febe37
+      internalID: -1327031313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_1
+      rect:
+        serializedVersion: 2
+        x: 1647
+        y: 11529
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e43f586be8df4fb4da8f8b0e78af7205
+      internalID: -1940922826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_2
+      rect:
+        serializedVersion: 2
+        x: 3294
+        y: 11529
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4414a5870645f6e47a2027cbf5b0d52d
+      internalID: 1002033304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_3
+      rect:
+        serializedVersion: 2
+        x: 4941
+        y: 11529
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a69c3467ca095864ea5cf0b519c0a679
+      internalID: 23349097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 9882
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 47892951c79c3664ca3f530ea0435e77
+      internalID: -932787954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_5
+      rect:
+        serializedVersion: 2
+        x: 1647
+        y: 9882
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3f250584afcf0a14b99b517a11bc75f6
+      internalID: 484983355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_6
+      rect:
+        serializedVersion: 2
+        x: 3294
+        y: 9882
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c15cdb1ea84c3b40805a1cd4f4812f0
+      internalID: -1561883451
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 8235
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 559655114a3803842b5a7996dadeae55
+      internalID: -417134902
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_9
+      rect:
+        serializedVersion: 2
+        x: 1647
+        y: 8235
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 94e10246f23aa5e47b3e6454110a0fd8
+      internalID: -638613968
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_10
+      rect:
+        serializedVersion: 2
+        x: 3294
+        y: 8235
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2aa5b988743162a4da5c3ccda8e37cda
+      internalID: -1120144530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_11
+      rect:
+        serializedVersion: 2
+        x: 4941
+        y: 8235
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bd6ac77620e3bce4a95143b29365a03a
+      internalID: -271392450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 6588
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a03d73fc20ab9094bbc2110ef0bac5c1
+      internalID: -1318147472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_13
+      rect:
+        serializedVersion: 2
+        x: 1647
+        y: 6588
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ab23fe904be358c41988122446cf5640
+      internalID: -1649125897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_14
+      rect:
+        serializedVersion: 2
+        x: 3294
+        y: 6588
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e181b38cc8bbe554f9a0bad45a07cc67
+      internalID: 892892764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4941
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ac4927c46b331bc45b51237f4a4937f6
+      internalID: -1911901767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_17
+      rect:
+        serializedVersion: 2
+        x: 1647
+        y: 4941
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 934b7b718f73c674ebc41e0d993f8882
+      internalID: -1504700158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_18
+      rect:
+        serializedVersion: 2
+        x: 3294
+        y: 4941
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b69e5e3c6a773664fae376ee07b29899
+      internalID: 2041244066
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_19
+      rect:
+        serializedVersion: 2
+        x: 4941
+        y: 4941
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b5b6a4a8700002f4ab63bbb1e4aa1596
+      internalID: -2047586604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3294
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 22085b0c99f7e384ba7e8a71b2273760
+      internalID: -836463145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_21
+      rect:
+        serializedVersion: 2
+        x: 1647
+        y: 3294
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 51cd2c5af84b1aa40ae46184ce6328b9
+      internalID: 225514498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_22
+      rect:
+        serializedVersion: 2
+        x: 3294
+        y: 3294
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9f1d63ac16864c64586adf0a65df03df
+      internalID: -1011686677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1647
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 84194ba890f0e4142adf5ea9d829776e
+      internalID: -1843363122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_25
+      rect:
+        serializedVersion: 2
+        x: 1647
+        y: 1647
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0eb075a471f566f4fa8e340bd53fd0d1
+      internalID: 726022025
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_26
+      rect:
+        serializedVersion: 2
+        x: 3294
+        y: 1647
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 56d55f98c3384294aba239062c8c4d0b
+      internalID: -470342235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_27
+      rect:
+        serializedVersion: 2
+        x: 4941
+        y: 1647
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 482f2169aa3782a43ab787bae1d62e05
+      internalID: -874041217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_28
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 29a8cc675d6839a47a6fd340d4565961
+      internalID: -1046623031
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_29
+      rect:
+        serializedVersion: 2
+        x: 1647
+        y: 0
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b7c4cbf2c0e3074ba7a0712ca89c6eb
+      internalID: 114608523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Box_sprite_30
+      rect:
+        serializedVersion: 2
+        x: 3294
+        y: 0
+        width: 1647
+        height: 1637
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a83d2a7d115dcf943b4d408ca1376861
+      internalID: -1422979090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Box_sprite_0: -1327031313
+      Box_sprite_1: -1940922826
+      Box_sprite_10: -1120144530
+      Box_sprite_11: -271392450
+      Box_sprite_12: -1318147472
+      Box_sprite_13: -1649125897
+      Box_sprite_14: 892892764
+      Box_sprite_15: 433408189
+      Box_sprite_16: -1911901767
+      Box_sprite_17: -1504700158
+      Box_sprite_18: 2041244066
+      Box_sprite_19: -2047586604
+      Box_sprite_2: 1002033304
+      Box_sprite_20: -836463145
+      Box_sprite_21: 225514498
+      Box_sprite_22: -1011686677
+      Box_sprite_23: 321591686
+      Box_sprite_24: -1843363122
+      Box_sprite_25: 726022025
+      Box_sprite_26: -470342235
+      Box_sprite_27: -874041217
+      Box_sprite_28: -1046623031
+      Box_sprite_29: 114608523
+      Box_sprite_3: 23349097
+      Box_sprite_30: -1422979090
+      Box_sprite_31: 1270087802
+      Box_sprite_4: -932787954
+      Box_sprite_5: 484983355
+      Box_sprite_6: -1561883451
+      Box_sprite_7: -553047927
+      Box_sprite_8: -417134902
+      Box_sprite_9: -638613968
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

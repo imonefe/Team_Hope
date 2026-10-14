@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: LitDust3D_Bokeh
+  m_Shader: {fileID: 4800000, guid: d734027c38024206b243f152899582d3, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _AmbientWeight: 0
+    - _CoreRadius: 0.9
+    - _ForwardScatter: 0.35
+    - _HaloStrength: 0
+    - _HaloWidth: 3
+    - _Intensity: 0.22
+    - _LightGain: 0.15
+    - _LightThreshold: 0.15
+    - _MainLightWeight: 0
+    - _MaxBrightness: 2.5
+    - _Saturation: 0.9
+    - _Softness: 0.85
+    - _TwinkleAmount: 0.25
+    - _TwinkleScale: 0.9
+    - _TwinkleSpeed: 0.6
+    m_Colors:
+    - _Color: {r: 1, g: 0.95, b: 0.85, a: 1}
+  m_BuildTextureStacks: []

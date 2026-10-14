@@ -1,0 +1,63 @@
+using UnityEngine;
+using DG.Tweening;
+
+/// <summary>
+/// 패널이 SetActive(true)로 켜질 때마다(=OnEnable) 페이드인 + 살짝 스케일업(예: 0.9 → 1)으로
+/// 등장하는 연출을 자동으로 재생해주는 공용 컴포넌트.
+///
+/// 붙이는 방법: 인벤토리/아이템 정보 팝업/일시정지·설정/게임오버·크레딧/맵 화면 등,
+/// SetActive(true/false)로 열고 닫는 "패널의 루트 오브젝트"에 그대로 붙이면 끝 —
+/// 여는 쪽 스크립트(GameMenuController, ItemInfoPopup 등)는 전혀 몰라도 된다.
+///
+/// CanvasGroup이 없으면 자동으로 추가해서 페이드에 사용한다.
+/// Time.timeScale이 0인 상태(일시정지 메뉴 등)에서도 애니메이션이 재생되도록
+/// DOTween 트윈에 SetUpdate(true)를 사용한다.
+/// </summary>
+[RequireComponent(typeof(RectTransform))]
+public class UIPanelAnimator : MonoBehaviour
+{
+    [Header("등장 애니메이션")]
+    public float duration = 0.25f;
+    public Ease ease = Ease.OutBack;
+    [Range(0.5f, 1f)] public float startScale = 0.9f;
+    public bool useFade = true;
+
+    RectTransform rt;
+    CanvasGroup cg;
+
+    void Awake()
+    {
+        rt = GetComponent<RectTransform>();
+        if (useFade)
+        {
+            cg = GetComponent<CanvasGroup>();
+            if (cg == null) cg = gameObject.AddComponent<CanvasGroup>();
+        }
+    }
+
+    void OnEnable()
+    {
+        if (rt == null) rt = GetComponent<RectTransform>();
+
+        rt.DOKill();
+        rt.localScale = Vector3.one * startScale;
+        rt.DOScale(1f, duration).SetEase(ease).SetUpdate(true);
+
+        if (useFade)
+        {
+            if (cg == null) cg = GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                cg.DOKill();
+                cg.alpha = 0f;
+                cg.DOFade(1f, duration).SetUpdate(true);
+            }
+        }
+    }
+
+    void OnDisable()
+    {
+        if (rt != null) rt.DOKill();
+        if (cg != null) cg.DOKill();
+    }
+}

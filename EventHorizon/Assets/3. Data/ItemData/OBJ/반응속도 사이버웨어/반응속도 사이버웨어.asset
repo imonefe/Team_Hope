@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 반응속도 사이버웨어
+  m_EditorClassIdentifier: 
+  itemName: 반응속도 사이버웨어
+  description: 반응속도를 높여주는 사이버웨어. 몸이 빨라지고 판단도 빨라진다.
+  icon: {fileID: -1177572294, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 1
+  element: 2
+  power: 3
+  effects:
+  - {fileID: 11400000, guid: 5e4268ecc15c4241aea3a514b6f763b8, type: 2}

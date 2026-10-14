@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 월계목
+  m_EditorClassIdentifier: 
+  itemName: 월계목
+  description: 주변에 은은한 치유 기운을 퍼뜨리는 월계목. 조건 없이 상시 체력을 회복시킨다.
+  icon: {fileID: -86254571, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 2
+  element: 5
+  power: 4
+  effects:
+  - {fileID: 11400000, guid: c4ff71e755f5466d9fea4b8215d4e070, type: 2}

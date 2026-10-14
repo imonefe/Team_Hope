@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a27a1ecd26f45a492f7961d5d7a62b1, type: 3}
+  m_Name: UISoundSettings
+  m_EditorClassIdentifier: 
+  playClickSound: 1
+  volume: 0.8
+  pitchVariation: 0
+  clickClip: {fileID: 8300000, guid: f2b97e2025404705ac5c8ac47290f2a1, type: 3}
+  confirmClip: {fileID: 8300000, guid: 14e113404bb64b98908e724e3274136c, type: 3}
+  cancelClip: {fileID: 8300000, guid: 8587058e0dd24c509ba423ccc6a11868, type: 3}
+  mapNodeClip: {fileID: 8300000, guid: 1731ff1b22f146b981dce219652e8815, type: 3}
+  confirmKeywords:
+  - "start"
+  - "restart"
+  - "retry"
+  - "new"
+  - "play"
+  - "confirm"
+  - "시작"
+  - "새 게임"
+  - "다시"
+  - "확인"
+  cancelKeywords:
+  - "quit"
+  - "exit"
+  - "back"
+  - "close"
+  - "cancel"
+  - "resume"
+  - "continue"
+  - "종료"
+  - "뒤로"
+  - "닫기"
+  - "취소"
+  - "계속"
+  includeCustomClickables: 0
+  outputMixerGroup: {fileID: 0}

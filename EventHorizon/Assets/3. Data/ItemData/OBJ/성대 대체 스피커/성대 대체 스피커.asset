@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 성대 대체 스피커
+  m_EditorClassIdentifier: 
+  itemName: 성대 대체 스피커
+  description: 손상된 성대를 대체하는 소형 스피커.
+  icon: {fileID: -352095082, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 0
+  element: 4
+  power: 1
+  effects:
+  - {fileID: 11400000, guid: 5c9c0a64602a43d4ba93602b368f9973, type: 2}

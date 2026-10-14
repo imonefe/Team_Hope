@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cef889a6b2888c94794898333f7699b2, type: 3}
+  m_Name: Gun
+  m_EditorClassIdentifier: 
+  weapontype: 4
+  advantage: 3
+  animatorOverride: {fileID: 22100000, guid: 97a04b63fa50ce147ae73b25c31bfced, type: 2}
+  statBonus:
+    hp: 0
+    atk: 0
+    def: 0
+    spd: 0
+    focus: 0
+    atkPercent: 0
+    defPercent: 0
+    spdPercent: 0
+    focusPercent: 0
+    hpPercent: 0
+  hitboxPrefab: {fileID: 0}
+  damageMultiplier: 1
+  pauseGaugePerHit: 2.5
+  swingSfx:
+    clips:
+    - {fileID: 8300000, guid: 05da4353320d85247b5061ca02a5e372, type: 3}
+    - {fileID: 8300000, guid: ddb928e75f73c1a459160a610dced617, type: 3}
+    - {fileID: 8300000, guid: 3b27f0141e5f9064eaba56742d069be4, type: 3}
+    - {fileID: 8300000, guid: 39491cdd1537a354d86fde5316b10509, type: 3}
+  hitSfx:
+    clips:
+    - {fileID: 8300000, guid: 4cc88050ba3fa3b4d9a30d8862f67ddf, type: 3}
+    - {fileID: 8300000, guid: 18433f1d6d9eec746b34f1b3088cd981, type: 3}
+    - {fileID: 8300000, guid: cbe9a80c88f5f7845a5554f307dee523, type: 3}
+    - {fileID: 8300000, guid: 6e6811137907a9b47ac0d302b56cfb53, type: 3}
+  criticalSfx:
+    clips: []
+  comboEffects:
+  - sfx:
+      clips: []
+    pieces:
+    - prefab: {fileID: 3904326371425299336, guid: ebb6960cf75568b42ad2e39ce8d924b8, type: 3}
+      posOffset: {x: -0.15, y: 0.1, z: 0}
+      rotationZ: 0
+      flipX: 0
+      lifetime: 0
+  - sfx:
+      clips: []
+    pieces:
+    - prefab: {fileID: 3904326371425299336, guid: ebb6960cf75568b42ad2e39ce8d924b8, type: 3}
+      posOffset: {x: -0.2, y: -0.17, z: 0}
+      rotationZ: 0
+      flipX: 0
+      lifetime: 0
+  - sfx:
+      clips: []
+    pieces:
+    - prefab: {fileID: 3904326371425299336, guid: ebb6960cf75568b42ad2e39ce8d924b8, type: 3}
+      posOffset: {x: -0.2, y: -0.18, z: 0}
+      rotationZ: 0
+      flipX: 0
+      lifetime: 0
+  gunRange: 5
+  gunBeamPrefab: {fileID: 7686810532887543366, guid: 6fedaadceebb7b94c9d961144da19035, type: 3}
+  gunBeamDuration: 0.5
+  gunBeamAngleJitter: 1
+  gunBeamMuzzleOffsets:
+  - {x: -0.2, y: 0.1}
+  - {x: -0.2, y: -0.15}
+  - {x: -0.25, y: -0.15}

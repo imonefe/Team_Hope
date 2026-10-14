@@ -1,0 +1,92 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+/// <summary>
+/// 인벤토리 데이터. 패시브·일반 아이템을 관리한다.
+/// - 배열은 획득순 정렬(리스트 끝에 추가).
+///
+/// (퍼즈 투척 아이템 관리 기능은 제거됨 — 퍼즈 아이템 시스템 자체가 게임에서 빠지면서 함께 제거)
+///
+/// 빈 오브젝트(예: InventoryManager)에 붙여 싱글턴으로 접근한다.
+/// </summary>
+public class Inventory : MonoBehaviour
+{
+    public static Inventory Instance;
+
+    [Header("인벤토리 UI 창 열기/닫기")]
+    [Tooltip("인벤토리 UI 전체의 최상위 오브젝트 (예: InventoryPanel). 평소엔 인스펙터에서 꺼둘 것.")]
+    public GameObject panelRoot;
+    [Tooltip("인벤토리 창을 열고 닫는 키")]
+    public KeyCode toggleKey = KeyCode.I;
+
+    [Header("보유 목록 (획득순)")]
+    public List<ItemData> passives = new List<ItemData>();   // 패시브 아이템
+    // (일반 아이템 목록(generals)/AddGeneral()은 제거됨 — 현재 게임에 존재하는 아이템은
+    //  전부 패시브 타입이라 실제로 채워지는 곳이 없던 죽은 기능이었음)
+
+    // 변경 알림 (UI 갱신용)
+    public event System.Action OnInventoryChanged;
+
+    void Awake()
+    {
+        Instance = this;
+
+        // 인벤토리 창 등장 애니메이션 (열릴 때마다 자동 재생)
+        if (panelRoot != null && panelRoot.GetComponent<UIPanelAnimator>() == null)
+            panelRoot.AddComponent<UIPanelAnimator>();
+    }
+
+    /// <summary>인벤토리 창이 지금 열려있는지. UILoader 등 다른 스크립트가 ESC 처리 우선순위를 정할 때 참고.</summary>
+    public bool IsOpen => panelRoot != null && panelRoot.activeSelf;
+
+    void Update()
+    {
+        // Inventory(매니저)는 인벤토리 창의 자식이 아니라 별도 오브젝트이므로,
+        // 창을 SetActive로 꺼도 이 Update()는 계속 돌아서 다시 열 수 있다.
+        if (panelRoot != null && Input.GetKeyDown(toggleKey))
+        {
+            if (IsOpen) Close();
+            else if (CanOpen()) Open();
+        }
+    }
+
+    // [2026-10-10 추가] 다른 창(ESC 메뉴·노드맵·게임오버)이 떠 있거나 대화 중이면 열지 않는다.
+    // (노드맵 위에서 열면 창이 노드맵 뒤에 가려져 보이지 않았고, 게임오버 중에 열고 닫으면 게임이 다시 흘렀음)
+    bool CanOpen()
+    {
+        if (GamePause.Has(GamePause.Menu) || GamePause.Has(GamePause.Map) || GamePause.Has(GamePause.GameOver)) return false;
+        if (NPC.AnyTalking) return false;
+        return true;
+    }
+
+    /// <summary>인벤토리 창 열기 + 전투 UI 잠금. 이미 열려있으면 아무 것도 안 함.</summary>
+    public void Open()
+    {
+        if (panelRoot == null || IsOpen) return;
+        panelRoot.SetActive(true);
+        CombatUIGate.Block();
+        GamePause.Push(GamePause.Inventory);
+        if (PlayerController.Instance != null) PlayerController.Instance.LockControl(this);
+    }
+
+    /// <summary>인벤토리 창 닫기 + 전투 UI 잠금 해제. 이미 닫혀있으면 아무 것도 안 함.
+    /// ESC로 설정 메뉴 대신 인벤토리부터 닫아야 할 때(UILoader) 등 외부에서도 호출한다.</summary>
+    public void Close()
+    {
+        if (panelRoot == null || !IsOpen) return;
+        UIUtil.HidePanel(panelRoot, () =>
+        {
+            CombatUIGate.Unblock();
+            GamePause.Pop(GamePause.Inventory);
+            if (PlayerController.Instance != null) PlayerController.Instance.ResumeControl(this);
+        });
+    }
+
+    // ── 획득 (획득순으로 끝에 추가) ──
+    public void AddPassive(ItemData item)
+    {
+        if (item == null) return;
+        passives.Add(item);
+        OnInventoryChanged?.Invoke();
+    }
+}

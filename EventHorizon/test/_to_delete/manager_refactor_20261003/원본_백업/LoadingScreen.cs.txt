@@ -1,0 +1,78 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
+
+/// <summary>
+/// 씬을 비동기로 불러오면서 진행바를 보여주는 로딩 화면.
+/// MainMenuController.StartGame()이 SceneManager.LoadScene()을 즉시 부르는 대신
+/// LoadingScreen.Instance.LoadScene(sceneName)을 호출하도록 바꿔서 사용한다.
+/// DontDestroyOnLoad라 씬이 넘어가는 동안에도(intro → 본게임) 화면이 유지된다.
+/// </summary>
+public class LoadingScreen : MonoBehaviour
+{
+    public static LoadingScreen Instance;
+
+    [Header("UI")]
+    [Tooltip("로딩 화면 전체 루트 (평소 꺼둠)")]
+    public GameObject root;
+    public Slider progressBar;
+    [Tooltip("선택 — \"63%\" 같은 텍스트")]
+    public TMP_Text progressText;
+
+    [Header("연출")]
+    [Tooltip("씬 로드가 실제로는 순식간에 끝나도 최소 이만큼은 로딩 화면을 보여준다")]
+    public float minDisplayTime = 0.5f;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+        if (root != null) root.SetActive(false);
+    }
+
+    public void LoadScene(string sceneName)
+    {
+        StartCoroutine(LoadRoutine(sceneName));
+    }
+
+    IEnumerator LoadRoutine(string sceneName)
+    {
+        if (root != null) root.SetActive(true);
+        SetProgress(0f);
+
+        float startTime = Time.unscaledTime;
+
+        AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
+        op.allowSceneActivation = false;
+
+        while (op.progress < 0.9f)
+        {
+            // op.progress는 0~0.9 구간이 실제 로딩 진행률이고, 0.9에서 멈춘 채 활성화 신호를 기다린다.
+            SetProgress(op.progress / 0.9f);
+            yield return null;
+        }
+
+        SetProgress(1f);
+
+        // 최소 표시 시간 보장 — 너무 빨리 끝나면 로딩화면이 깜빡이듯 지나가는 걸 방지
+        float elapsed = Time.unscaledTime - startTime;
+        if (elapsed < minDisplayTime)
+            yield return new WaitForSecondsRealtime(minDisplayTime - elapsed);
+
+        op.allowSceneActivation = true;
+
+        while (!op.isDone)
+            yield return null;
+
+        if (root != null) root.SetActive(false);
+    }
+
+    void SetProgress(float t)
+    {
+        if (progressBar != null) progressBar.value = t;
+        if (progressText != null) progressText.text = $"{Mathf.RoundToInt(t * 100f)}%";
+    }
+}

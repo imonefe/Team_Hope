@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 현상 재생기
+  m_EditorClassIdentifier: 
+  itemName: 현상 재생기
+  description: 반경 3미터의 현상을 기록하고 재생하는, 값비싼 최고급 장치.
+  icon: {fileID: 806680714, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 2
+  element: 4
+  power: 4
+  effects:
+  - {fileID: 11400000, guid: d716adff81924392b697831f62ab8aca, type: 2}

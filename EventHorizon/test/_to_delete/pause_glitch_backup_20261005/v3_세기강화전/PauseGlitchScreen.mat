@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PauseGlitchScreen
+  m_Shader: {fileID: 4800000, guid: ad717bc961cd49b890d94e30cec60208, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _BandAmount: 0.3
+    - _BandCount: 18
+    - _BandShift: 0.04
+    - _BoltChance: 0.6
+    - _BoltCount: 5
+    - _BoltFlow: 4
+    - _BoltGlow: 1.2
+    - _BoltGlowWidth: 0.02
+    - _BoltGrow: 0.25
+    - _BoltIntensity: 0
+    - _BoltJag: 0.22
+    - _BoltLength: 0.32
+    - _BoltLifeMax: 0.7
+    - _BoltLifeMin: 0.35
+    - _BoltOutside: 0.06
+    - _BoltSeed: 0
+    - _BoltShake: 0.35
+    - _BoltTime: 0
+    - _BoltWidth: 0.0025
+    - _ColorIntensity: 0
+    - _EdgeNoise: 0.04
+    - _EdgeWidth: 0.08
+    - _Flash: 0
+    - _FlashAmount: 0.85
+    - _Grain: 0.35
+    - _GrainSize: 2
+    - _Intensity: 0
+    - _LineCount: 260
+    - _Scanline: 0.25
+    - _ScreenTint: 0.35
+    - _Seed: 0
+    - _Shift: 0.016
+    - _Shock: 0
+    - _ShockAmount: 0
+    - _ShockDistort: 0.05
+    - _ShockGlow: 0.6
+    - _ShockRadius: 1.1
+    - _ShockSplit: 0.012
+    - _ShockWidth: 0.07
+    - _Split: 0.01
+    - _Tint: 0.45
+    - _Vignette: 0.35
+    - _VignetteWidth: 0.35
+    m_Colors:
+    - _BoltColor: {r: 0.25, g: 0.6, b: 1, a: 1}
+    - _BoltCoreColor: {r: 0.85, g: 0.95, b: 1, a: 1}
+    - _FlashColor: {r: 0.8, g: 0.92, b: 1, a: 1}
+    - _ScreenColor: {r: 0.35, g: 0.6, b: 1, a: 1}
+    - _ShockColor: {r: 0.5, g: 0.8, b: 1, a: 1}
+    - _TintColor: {r: 0.2, g: 0.55, b: 1, a: 1}
+    - _VignetteColor: {r: 0.15, g: 0.45, b: 1, a: 1}
+  m_BuildTextureStacks: []
