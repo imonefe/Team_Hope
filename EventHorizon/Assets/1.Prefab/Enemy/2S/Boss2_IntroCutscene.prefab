@@ -50,7 +50,8 @@ MonoBehaviour:
   proCam: {fileID: 0}
   proCamShake: {fileID: 0}
   dialogueBox: {fileID: 0}
-  dialogueFont: {fileID: 12800000, guid: ec78623d883338445bd6d143f2873926, type: 3}
+  dialogueFont: {fileID: 12800000, guid: 255c0f33cae3cea489e9989b06ed2a14, type: 3}
+  dialogueSpeakerFont: {fileID: 12800000, guid: 1e95fcd50148a3a489d0311aa91d3553, type: 3}
   steps:
   - label: "\uC870\uC791 \uC7A0\uAE08"
     type: 7

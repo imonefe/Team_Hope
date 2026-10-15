@@ -189,6 +189,8 @@ public class CutsceneSequencer : MonoBehaviour
     public CutsceneDialogueBox dialogueBox;
     [Tooltip("대사창을 자동으로 만들 때 쓸 글꼴 (비워두면 유니티 기본 글꼴)")]
     public Font dialogueFont;
+    [Tooltip("[2026-10-15] 대사창 이름표(말하는 사람) 글꼴. 비워두면 위 대사 글꼴을 굵게 그림")]
+    public Font dialogueSpeakerFont;
 
     [Header("컷신 스텝 목록 (위에서부터 순서대로 재생)")]
     public List<CutsceneStep> steps = new List<CutsceneStep>();
@@ -259,7 +261,7 @@ public class CutsceneSequencer : MonoBehaviour
         if (dialogueBox == null)
         {
             bool needsBox = steps.Exists(s => s.type == CutsceneStepType.Dialogue);
-            if (needsBox) dialogueBox = CutsceneOverlay.Get().GetDialogueBox(dialogueFont);
+            if (needsBox) dialogueBox = CutsceneOverlay.Get().GetDialogueBox(dialogueFont, dialogueSpeakerFont);
         }
     }
 

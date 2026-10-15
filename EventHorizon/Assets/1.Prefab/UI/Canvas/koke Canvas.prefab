@@ -428,8 +428,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uB2E4\uB78C\uC950 \uD5DB \uCCC7\uBC14\uD034 \uAD74\uB7EC\uAC00\uC2E0\uB2E4."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: efc3f01c46b5bcf40859f6a35aa9e97f, type: 2}
-  m_sharedMaterial: {fileID: -8239440978514810468, guid: efc3f01c46b5bcf40859f6a35aa9e97f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
+  m_sharedMaterial: {fileID: 7224087456951919524, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

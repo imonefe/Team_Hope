@@ -124,8 +124,9 @@ public class CutsceneOverlay : MonoBehaviour
         fadeImage.DOColor(end, Mathf.Max(0.01f, duration)).SetEase(Ease.InOutSine).SetUpdate(true);
     }
 
-    /// <summary>화면 아래쪽 대사창 (없으면 만든다)</summary>
-    public CutsceneDialogueBox GetDialogueBox(Font font)
+    /// <summary>화면 아래쪽 대사창 (없으면 만든다).
+    /// speakerFont: [2026-10-15] 이름표 글꼴 — 비워두면 대사 글꼴을 굵게 그린다 (이미 굵은 글꼴을 주면 그대로 씀)</summary>
+    public CutsceneDialogueBox GetDialogueBox(Font font, Font speakerFont = null)
     {
         if (dialogueBox != null) return dialogueBox;
         if (font == null) font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -149,7 +150,9 @@ public class CutsceneOverlay : MonoBehaviour
         lrt.anchorMin = new Vector2(0f, 1f); lrt.anchorMax = new Vector2(1f, 1f);
         lrt.pivot = new Vector2(0.5f, 1f); lrt.sizeDelta = new Vector2(0f, 3f); lrt.anchoredPosition = Vector2.zero;
 
-        var speaker = MakeText(box.transform, "Speaker", font, 34, new Color(0.93f, 0.8f, 0.5f), FontStyle.Bold);
+        var speaker = speakerFont != null
+            ? MakeText(box.transform, "Speaker", speakerFont, 34, new Color(0.93f, 0.8f, 0.5f), FontStyle.Normal)
+            : MakeText(box.transform, "Speaker", font, 34, new Color(0.93f, 0.8f, 0.5f), FontStyle.Bold);
         var srt = speaker.rectTransform;
         srt.anchorMin = new Vector2(0f, 1f); srt.anchorMax = new Vector2(1f, 1f);
         srt.pivot = new Vector2(0f, 1f); srt.sizeDelta = new Vector2(-80f, 50f); srt.anchoredPosition = new Vector2(40f, -16f);
