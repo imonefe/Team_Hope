@@ -20,7 +20,7 @@ using Com.LuisPedroFonseca.ProCamera2D;
 /// </summary>
 public static class DialogueBeatTestSceneBuilder
 {
-    const string Root = "Assets/test/DialogueBeatTest";
+    const string Root = "Assets/_Test/DialogueBeatTest";
     const string Gen = Root + "/Generated";
     const string ScenePath = Root + "/DialogueBeatTest.unity";
     const string FontPath = "Assets/Etc/Font/BlackGFCRedSpirit SDF.asset";

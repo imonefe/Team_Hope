@@ -16,6 +16,11 @@ using UnityEngine;
 ///   호출되면 그때 비로소 캔버스를 실제로 Destroy 하고, 다음 스테이지 풀에서
 ///   새 캔버스를 랜덤으로 다시 뽑는다.
 ///
+/// [2026-10-15 추가] 스타트룸 노드와 내 위치 핀
+/// - 캔버스 안에 isStartRoom 이 체크된 버튼(1번 노드)이 있으면, 캔버스가 열릴 때부터 그 버튼이 '지금 있는 곳'이다.
+///   (없는 캔버스는 예전처럼 다른 노드가 가리키지 않는 버튼들이 처음 고를 수 있는 노드)
+/// - 지금 있는 노드 위에 금색 마름모 핀(MapPositionMarker)이 떠 있고, 노드를 고르면 핀이 그 노드로 옮겨 간 뒤 화면이 전환된다.
+///
 /// 빈 오브젝트에 붙이기.
 /// </summary>
 public class MapManager : PersistentSingleton<MapManager>
@@ -46,12 +51,30 @@ public class MapManager : PersistentSingleton<MapManager>
     [Header("현재 캔버스에서 자동으로 찾은 시작 노드 (읽기 전용 / 확인용)")]
     [SerializeField] List<MapButton> startButtons = new List<MapButton>();
 
+    [Header("내 위치 핀 (지금 있는 노드 위에 뜨는 금색 마름모)")]
+    [Tooltip("핀 그림. 비워 두면 Resources 폴더의 UINodeMarker 그림을 쓴다")]
+    public Sprite positionMarkerSprite;
+    [Tooltip("핀 크기 (픽셀, 1920×1080 기준). 그림 비율은 그대로 유지된다")]
+    public Vector2 positionMarkerSize = new Vector2(64f, 96f);
+    [Tooltip("노드 가운데에서 핀 아래 꼭짓점까지의 높이 (노드 크기 180 기준, 80 이면 노드 위 꼭짓점 바로 위)")]
+    public float positionMarkerHeight = 80f;
+    [Tooltip("핀이 위아래로 흔들리는 폭 (픽셀)")]
+    public float positionMarkerBob = 8f;
+    [Tooltip("핀이 1초에 몇 번 흔들리는지")]
+    public float positionMarkerBobSpeed = 0.9f;
+    [Tooltip("다른 노드를 골랐을 때 핀이 옮겨 가는 시간 (초, 실제 시간). 0 이면 옮겨 가는 연출 없이 바로 전환")]
+    public float positionMarkerMoveTime = 0.35f;
+    [Tooltip("옮겨 가는 동안 살짝 뛰어오르는 높이 (픽셀, 0 = 직선)")]
+    public float positionMarkerHop = 30f;
+
     /// <summary>0부터 시작하는 현재 스테이지 인덱스. 보스를 잡을 때마다 1씩 증가한다.</summary>
     public int CurrentStageIndex { get; private set; } = 0;
 
     GameObject currentCanvasInstance; // 현재 스테이지 동안 유지되는 캔버스 인스턴스
     MapButton currentButton;          // 지금 플레이 중인(마지막으로 선택한) 노드
     bool mapPausing = false;          // [2026-10-10] 노드맵이 시간 정지·조작 잠금·전투 UI 숨김을 걸고 있는지
+    MapPositionMarker positionMarker; // [2026-10-15] 지금 있는 노드 위의 핀 (캔버스 안에 만들어지고 캔버스와 함께 사라짐)
+    bool selecting = false;           // [2026-10-15] 핀이 옮겨 가는 중·화면 전환 중에 노드가 또 눌리지 않도록
 
     // 이번 스테이지에서 이미 사용한 룸 프리팹 기록 (타입 상관없이, 중복 방 방지)
     HashSet<GameObject> usedRoomPrefabs = new HashSet<GameObject>();
@@ -161,6 +184,47 @@ public class MapManager : PersistentSingleton<MapManager>
 
         AutoDetectStartButtons();
         currentButton = null; // 새 캔버스 = 새 진행. 시작 노드들만 선택 가능한 상태로 시작
+        selecting = false;
+
+        // [2026-10-15] 스타트룸 노드가 있으면 처음부터 그 노드에 서 있는 상태로 시작
+        // → RefreshAllButtons 가 스타트룸에서 이어진 노드들만 고를 수 있게 만든다
+        MapButton startRoom = FindStartRoomButton();
+        if (startRoom != null)
+        {
+            currentButton = startRoom;
+            startRoom.isCurrent = true;
+            startRoom.isSelectable = false;
+            startRoom.isCompleted = false;
+        }
+
+        CreatePositionMarker();
+    }
+
+    // [2026-10-15] 캔버스 안에서 isStartRoom 이 체크된 버튼 (없으면 null)
+    MapButton FindStartRoomButton()
+    {
+        if (currentCanvasInstance == null) return null;
+        foreach (var b in currentCanvasInstance.GetComponentsInChildren<MapButton>(true))
+            if (b.isStartRoom) return b;
+        return null;
+    }
+
+    // [2026-10-15] 캔버스 안에 내 위치 핀을 만든다 (캔버스가 사라지면 같이 사라짐)
+    void CreatePositionMarker()
+    {
+        positionMarker = null;
+        if (currentCanvasInstance == null) return;
+
+        Sprite sprite = positionMarkerSprite != null ? positionMarkerSprite : Resources.Load<Sprite>("UINodeMarker");
+        if (sprite == null)
+        {
+            Debug.LogWarning("[MapManager] 내 위치 핀 그림이 없습니다. (Resources 폴더의 UINodeMarker 또는 인스펙터의 positionMarkerSprite)");
+            return;
+        }
+
+        positionMarker = MapPositionMarker.Create(currentCanvasInstance.transform, sprite, positionMarkerSize,
+                                                  positionMarkerHeight, positionMarkerBob, positionMarkerBobSpeed);
+        positionMarker.SnapTo(currentButton);
     }
 
     // ── 시작 노드 자동 탐지 ───────────────────────────────
@@ -205,11 +269,18 @@ public class MapManager : PersistentSingleton<MapManager>
     // ── 버튼 선택 ─────────────────────────────────────────
     public void SelectButton(MapButton selected)
     {
+        if (selecting) return;   // [2026-10-15] 핀이 옮겨 가는 중·화면 전환 중에는 무시
         StartCoroutine(SelectButtonRoutine(selected));
     }
 
     IEnumerator SelectButtonRoutine(MapButton selected)
     {
+        selecting = true;
+
+        // [2026-10-15] 핀이 지금 노드에서 고른 노드로 옮겨 간 뒤에 화면 전환
+        if (positionMarker != null && positionMarkerMoveTime > 0f)
+            yield return positionMarker.MoveTo(selected, positionMarkerMoveTime, positionMarkerHop);
+
         // 이전 현재 버튼 → 완료 처리
         if (currentButton != null)
         {
@@ -250,6 +321,7 @@ public class MapManager : PersistentSingleton<MapManager>
         }
 
         RefreshAllButtons();
+        selecting = false;
     }
 
     // ── 전체 버튼 상태 갱신 ───────────────────────────────
@@ -298,6 +370,10 @@ public class MapManager : PersistentSingleton<MapManager>
 
         foreach (var btn in allButtons)
             btn.RefreshVisual();
+
+        // [2026-10-15] 핀을 지금 있는 노드 위로 (지금 있는 노드가 없으면 숨김)
+        if (positionMarker != null)
+            positionMarker.SnapTo(currentButton);
     }
 
     // ── 런 초기화 (죽었을 때 / 새 게임) ───────────────────
@@ -319,6 +395,8 @@ public class MapManager : PersistentSingleton<MapManager>
 
         // 씬을 다시 불러오면 GamePause·CombatUIGate는 저절로 초기화되므로 기록만 지운다
         mapPausing = false;
+        selecting = false;
+        positionMarker = null;
 
         CurrentStageIndex = 0;
         currentButton = null;

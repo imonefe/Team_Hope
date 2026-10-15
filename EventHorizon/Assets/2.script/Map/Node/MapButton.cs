@@ -21,6 +21,12 @@ public class MapButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     [Header("맵 데이터")]
     public MapRoomData roomData;
 
+    [Header("스타트룸 노드")]
+    [Tooltip("체크하면 이 버튼이 노드 캔버스의 1번(스타트룸) 노드가 된다.\n" +
+             "캔버스가 처음 열릴 때부터 '지금 있는 곳'으로 표시되고(위치 핀이 이 위에 뜸), 여기서 이어진 노드들만 고를 수 있다.\n" +
+             "방 데이터는 비워 둔다 (눌러서 이동하는 노드가 아님).")]
+    public bool isStartRoom = false;
+
     [Header("연결된 다음 버튼들 (인스펙터에서 연결)")]
     public List<MapButton> connectedButtons = new List<MapButton>();
 

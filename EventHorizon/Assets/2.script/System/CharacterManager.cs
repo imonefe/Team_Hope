@@ -85,6 +85,15 @@ public class CharacterManager : MonoBehaviour
         get { return CurrentCharacter != null ? CurrentCharacter.GetComponent<Stats>() : null; }
     }
 
+    /// <summary>
+    /// [2026-10-15 추가] 남은 캐릭터와 상관없이 바로 게임오버 화면을 띄운다.
+    /// 보스 컷씬(CutsceneSequencer의 KillPlayer 스텝)처럼 연출로 플레이어를 처리할 때 사용.
+    /// </summary>
+    public void ForceGameOver()
+    {
+        GameOver();
+    }
+
     void GameOver()
     {
         Debug.Log("[CharacterManager] 게임오버!");

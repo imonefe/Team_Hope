@@ -2766,12 +2766,17 @@ MonoBehaviour:
   - stageName: 1S
     lobbyPrefab: {fileID: 8548028022454420013, guid: 1fb0d7fec94fd6d41b8a06998086120d, type: 3}
     canvasPrefabs:
-    - {fileID: 7750935379095565957, guid: ea031f28ec4800517beccdd7b812123d, type: 3}
-    - {fileID: 137687497159502501, guid: 2aeae548f4113fc9ed419872d2dfe297, type: 3}
-    - {fileID: 3207294084055176148, guid: 5e01388bc1cf461a96d775efcb29e251, type: 3}
+    - {fileID: 3207294084055176148, guid: 3812362af634ef045907381fd9f4dac5, type: 3}
   canvasParent: {fileID: 0}
   startButtons:
   - {fileID: 0}
+  positionMarkerSprite: {fileID: 0}
+  positionMarkerSize: {x: 64, y: 96}
+  positionMarkerHeight: 80
+  positionMarkerBob: 8
+  positionMarkerBobSpeed: 0.9
+  positionMarkerMoveTime: 0.35
+  positionMarkerHop: 30
 --- !u!1 &899395079
 GameObject:
   m_ObjectHideFlags: 0
@@ -3152,7 +3157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5c7df923ad210d47b5e3c93b8c87a7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startRoomPrefab: {fileID: 8548028022454420013, guid: 699e6b1da72cc4343a0de5e4158b4c2a, type: 3}
+  startRoomPrefab: {fileID: 8548028022454420013, guid: efabdfbe5465a2a49981c704317a4b08, type: 3}
 --- !u!1 &944859783
 GameObject:
   m_ObjectHideFlags: 0
@@ -6991,6 +6996,68 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
+--- !u!1 &2026101500001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2026101500002}
+  - component: {fileID: 2026101500003}
+  m_Layer: 5
+  m_Name: RoomMinimap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2026101500002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026101500001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2026101500003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026101500001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf4764d5d1194b0da5464fac84fea1af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panelSize: {x: 364, y: 234}
+  margin: {x: 28, y: 28}
+  padding: 10
+  viewHeight: 16
+  followSpeed: 8
+  backgroundColor: {r: 0.03, g: 0.04, b: 0.07, a: 0.62}
+  frameColor: {r: 0.86, g: 0.72, b: 0.42, a: 0.85}
+  wallColor: {r: 0.78, g: 0.8, b: 0.86, a: 0.85}
+  playerColor: {r: 0.45, g: 0.9, b: 1, a: 1}
+  enemyColor: {r: 1, g: 0.32, b: 0.28, a: 1}
+  bossColor: {r: 1, g: 0.15, b: 0.2, a: 1}
+  portalColor: {r: 0.75, g: 0.45, b: 1, a: 1}
+  playerDotSize: 14
+  enemyDotSize: 11
+  bossDotSize: 21
+  portalDotSize: 16
+  toggleKey: 109
+  listRefreshInterval: 0.4
 --- !u!224 &17760890942355114
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9457,6 +9524,7 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 2026101500002}
   - {fileID: 1171168683}
   - {fileID: 1991266681}
   - {fileID: 1650191082}

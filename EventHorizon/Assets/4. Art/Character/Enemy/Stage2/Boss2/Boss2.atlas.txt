@@ -1,0 +1,85 @@
+Boss2.png
+size:1863,1413
+filter:Linear,Linear
+pma:true
+Golden ring
+bounds:2,685,726,786
+rotate:90
+L arm
+bounds:625,486,150,197
+offsets:2,5,156,207
+L calf
+bounds:1564,265,264,347
+offsets:5,8,271,363
+L cape
+bounds:1695,19,120,244
+offsets:4,1,125,248
+L front cape
+bounds:625,152,140,332
+offsets:0,4,144,340
+L front gold
+bounds:777,202,409,514
+offsets:0,0,410,530
+rotate:90
+L front hair
+bounds:1125,614,255,396
+offsets:5,0,268,398
+rotate:90
+L hair behind
+bounds:790,613,333,798
+offsets:5,4,338,804
+L thighs
+bounds:1293,11,275,194
+offsets:5,18,291,222
+L top arm
+bounds:613,76,74,54
+offsets:5,5,84,64
+rotate:90
+R book
+bounds:946,29,171,217
+offsets:4,4,179,224
+rotate:90
+R gold
+bounds:1293,207,269,405
+offsets:0,2,269,411
+R hair
+bounds:1125,871,372,540
+offsets:5,40,529,584
+R lag
+bounds:416,24,195,364
+offsets:4,53,201,444
+Rbehindcape
+bounds:1499,884,121,211
+offsets:5,4,129,218
+rotate:90
+Rbook
+bounds:1564,209,129,54
+offsets:5,5,139,64
+a hat
+bounds:1712,898,149,107
+offsets:5,5,175,153
+body
+bounds:2,2,386,412
+offsets:21,168,699,697
+rotate:90
+chain
+bounds:1570,11,196,115
+offsets:4,0,200,117
+rotate:90
+chair
+bounds:1523,614,294,268
+offsets:5,5,305,281
+front hair
+bounds:1165,17,183,115
+offsets:3,9,191,128
+rotate:90
+head
+bounds:767,28,177,172
+offsets:5,5,188,182
+rope
+bounds:1499,1007,404,338
+offsets:5,5,414,348
+rotate:90
+vail
+bounds:2,390,621,293
+offsets:4,3,628,300

@@ -37,18 +37,31 @@ public class Room : MonoBehaviour
         foreach (var bs in boxSpawners)
             if (bs != null) bs.SetActive(false);
 
+        HoldBossCamera();
+
+        InvokeRepeating(nameof(CheckClear), 0.5f, 0.2f);
+    }
+
+    /// <summary>
+    /// 보스방이면 카메라가 방 전체를 잡게 한다.
+    /// [2026-10-15] Start()에 있던 코드를 함수로 뺌 — 보스 컷씬이 카메라 고정을 잠시 풀었다가 끝나면 다시 걸 때 호출.
+    /// </summary>
+    public void HoldBossCamera()
+    {
+        if (portalOpened) return;
         if (isBossRoom && CameraFollow.Instance != null)
         {
             Vector3 center = roomCameraCenter != null ? roomCameraCenter.position : transform.position;
             CameraFollow.Instance.HoldRoom(center, roomCameraSize);
         }
-
-        InvokeRepeating(nameof(CheckClear), 0.5f, 0.2f);
     }
 
     void CheckClear()
     {
         if (portalOpened) return;
+
+        // [2026-10-15] 컷신이 재생되는 동안에는 클리어 판정을 미룬다 (몬스터 없는 보스방에서 포탈이 바로 열리던 문제)
+        if (CutsceneSequencer.IsAnyPlaying) return;
 
         // CleanupTrigger 발동 후 → 몬스터만 감지
         if (cleanupMode)

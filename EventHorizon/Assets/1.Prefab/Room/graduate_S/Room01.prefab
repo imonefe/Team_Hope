@@ -12471,7 +12471,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 513858930107489612, guid: ad8ee8c5dea3bdbc5da2dcf5e0088470, type: 3}
       propertyPath: m_Name
-      value: "\uCC45\uC7A5 2 \uCD5C\uC885 2 (1)"
+      value: BookshelfFinal2 (1)
       objectReference: {fileID: 0}
     - target: {fileID: 513858930107489612, guid: ad8ee8c5dea3bdbc5da2dcf5e0088470, type: 3}
       propertyPath: m_Layer
@@ -13959,7 +13959,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 990652842308028288, guid: 0170d2eaac26fe74dfb0a65b4c2c15e0, type: 3}
       propertyPath: m_Name
-      value: "\uCC45\uC7A5 1 \uCD5C\uC885 (3)"
+      value: BookshelfFinal1 (3)
       objectReference: {fileID: 0}
     - target: {fileID: 990652842308028288, guid: 0170d2eaac26fe74dfb0a65b4c2c15e0, type: 3}
       propertyPath: m_Layer
@@ -14041,7 +14041,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 983009796266122403, guid: 5180fbaf570b6de81cb8b8f2e6e232ac, type: 3}
       propertyPath: m_Name
-      value: "\uC911\uAC04 low 1"
+      value: BookshelfMidLow
       objectReference: {fileID: 0}
     - target: {fileID: 983009796266122403, guid: 5180fbaf570b6de81cb8b8f2e6e232ac, type: 3}
       propertyPath: m_Layer
@@ -14317,7 +14317,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 990652842308028288, guid: 0170d2eaac26fe74dfb0a65b4c2c15e0, type: 3}
       propertyPath: m_Name
-      value: "\uCC45\uC7A5 1 \uCD5C\uC885 (4)"
+      value: BookshelfFinal1 (4)
       objectReference: {fileID: 0}
     - target: {fileID: 990652842308028288, guid: 0170d2eaac26fe74dfb0a65b4c2c15e0, type: 3}
       propertyPath: m_Layer
@@ -15311,7 +15311,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 990652842308028288, guid: 0170d2eaac26fe74dfb0a65b4c2c15e0, type: 3}
       propertyPath: m_Name
-      value: "\uCC45\uC7A5 1 \uCD5C\uC885 (2)"
+      value: BookshelfFinal1 (2)
       objectReference: {fileID: 0}
     - target: {fileID: 990652842308028288, guid: 0170d2eaac26fe74dfb0a65b4c2c15e0, type: 3}
       propertyPath: m_Layer
@@ -15723,7 +15723,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 683357786138526551, guid: 5f016afbc56690637bb29c0b20333dbf, type: 3}
       propertyPath: m_Name
-      value: "\uCC45\uC7A5 3 \uCD5C\uC885 (1)"
+      value: BookshelfFinal3 (1)
       objectReference: {fileID: 0}
     - target: {fileID: 683357786138526551, guid: 5f016afbc56690637bb29c0b20333dbf, type: 3}
       propertyPath: m_Layer
