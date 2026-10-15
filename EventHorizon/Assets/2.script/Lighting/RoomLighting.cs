@@ -91,13 +91,20 @@ public static class LightingDarkness
     static float curReflection = 0f, curFogStart, curFogEnd, lastFadeOut = 0.5f;
     static bool curOverrideFog;
     static RoomLighting curSource;
+    // [2026-10-15] 플레이 종료·게임 종료 중인지. 이때는 씬 조명 설정(RenderSettings)이 먼저 사라져 있어서 건드리면 오류가 난다
+    static bool quitting;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatics()
     {
         sources.Clear(); swapped.Clear(); skyboxInstance = null; baseSkybox = null;
         driver = null; fade = 0f; captured = false; hasAppliedFog = false; curSource = null;
+        quitting = false;
+        Application.quitting -= OnQuitting;
+        Application.quitting += OnQuitting;
     }
+
+    static void OnQuitting() { quitting = true; }
 
     public static void Register(RoomLighting s)
     {
@@ -134,7 +141,19 @@ public static class LightingDarkness
     class Driver : MonoBehaviour
     {
         void LateUpdate() { Tick(Time.unscaledDeltaTime); }
-        void OnDestroy() { if (driver == gameObject) driver = null; RestoreAll(); }
+        void OnDestroy()
+        {
+            if (driver == gameObject) driver = null;
+            if (quitting)
+            {
+                // [2026-10-15] 종료 중: 씬 조명은 유니티가 알아서 원래대로 돌리므로 건드리지 않는다.
+                // 스프라이트 밝기 전역값만은 플레이가 끝나도 편집 화면에 남기 때문에 되돌린다.
+                Shader.SetGlobalFloat(SpriteBlendId, 0f);
+                captured = false; hasAppliedFog = false; fade = 0f;
+                return;
+            }
+            RestoreAll();
+        }
     }
 
     static void Tick(float dt)

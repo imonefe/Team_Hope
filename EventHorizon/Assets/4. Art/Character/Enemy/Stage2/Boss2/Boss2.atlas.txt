@@ -1,5 +1,5 @@
 Boss2.png
-size:1863,1413
+size:1864,1416
 filter:Linear,Linear
 pma:true
 Golden ring

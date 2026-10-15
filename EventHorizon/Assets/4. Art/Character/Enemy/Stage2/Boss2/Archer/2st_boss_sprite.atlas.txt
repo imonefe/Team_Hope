@@ -1,5 +1,5 @@
 2st_boss_sprite.png
-size:1659,1310
+size:1660,1312
 filter:Linear,Linear
 pma:true
 궁수대기몸파츠

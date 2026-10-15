@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
+using TMPro;
 
 /// <summary>
 /// [2026-10-15 추가] 화면 우측 상단 미니맵 — 지금 있는 방 하나만 보여준다.
@@ -25,6 +26,10 @@ public class RoomMinimap : MonoBehaviour
     public float viewHeight = 16f;
     [Tooltip("플레이어를 따라가는 부드러움 (클수록 빠르게 따라감)")]
     public float followSpeed = 8f;
+    [Tooltip("[2026-10-15] 미니맵 카메라 위치 조정 (월드 칸 단위). y를 음수로 하면 카메라가 내려가 플레이어 아래쪽이 더 보인다. 플레이 중에 바꿔도 바로 반영")]
+    public Vector2 viewOffset = Vector2.zero;
+    [Tooltip("[2026-10-15] 켜 두면 방 바깥 빈 공간이 보이지 않게 방 가장자리에서 카메라가 멈춘다. 끄면 viewOffset 만큼 방 밖까지도 움직인다")]
+    public bool clampToRoom = true;
 
     [Header("색")]
     public Color backgroundColor = new Color(0.03f, 0.04f, 0.07f, 0.62f);
@@ -34,6 +39,22 @@ public class RoomMinimap : MonoBehaviour
     public Color enemyColor = new Color(1f, 0.32f, 0.28f, 1f);
     public Color bossColor = new Color(1f, 0.15f, 0.2f, 1f);
     public Color portalColor = new Color(0.75f, 0.45f, 1f, 1f);
+
+    [Header("테두리 그림 (낡은 놋쇠 관측 장치) — [2026-10-15 추가]")]
+    [Tooltip("테두리 그림. 비워 두면 Resources 폴더의 UIMinimapFrame 그림을 쓴다. 그림이 없으면 예전처럼 frameColor 단색 테두리")]
+    public Sprite frameSprite;
+    [Tooltip("테두리 그림이 미니맵 안쪽 바깥으로 나가는 크기 (x=왼쪽, y=오른쪽, z=위, w=아래 / 픽셀). 그림을 바꾸면 같이 맞춘다")]
+    public Vector4 frameArtExtents = new Vector4(24f, 24f, 32f, 24f);
+    [Tooltip("위쪽 이름판에 쓸 글자 (비우면 글자 없음)")]
+    public string frameLabel = "AREA SCAN";
+    [Tooltip("이름판 글꼴. 비워 두면 TextMeshPro 기본 글꼴 (한글은 예비 글꼴인 돋움으로 나옴)")]
+    public TMP_FontAsset frameLabelFont;
+    public Color frameLabelColor = new Color(0.82f, 0.75f, 0.58f, 1f);
+    public float frameLabelSize = 17f;
+
+    [Header("점 위치 조정 — [2026-10-15 추가]")]
+    [Tooltip("문(포탈) 점 위치 조정 (월드 칸 단위). 점은 문 판정 범위의 가운데에 찍히고, 여기서 더 옮길 수 있다")]
+    public Vector2 portalDotOffset = Vector2.zero;
 
     [Header("점 크기 (픽셀)")]
     public float playerDotSize = 14f;
@@ -120,8 +141,45 @@ public class RoomMinimap : MonoBehaviour
         dotLayer.anchorMin = Vector2.zero; dotLayer.anchorMax = Vector2.one;
         dotLayer.offsetMin = Vector2.zero; dotLayer.offsetMax = Vector2.zero;
 
+        BuildFrameArt(cgo.transform, frame);
+
         dotSprite = MakeCircleSprite(32);
         group.alpha = 0f;
+    }
+
+    // [2026-10-15 추가] 단색 테두리 대신 테두리 그림을 미니맵 위에 덮는다 (그림 가운데는 비어 있어 지도가 보임)
+    void BuildFrameArt(Transform canvasRoot, Image plainFrame)
+    {
+        Sprite art = frameSprite != null ? frameSprite : Resources.Load<Sprite>("UIMinimapFrame");
+        if (art == null) return;            // 그림이 없으면 예전 단색 테두리 그대로
+
+        plainFrame.color = Color.clear;     // 단색 테두리는 숨김 (안쪽 패널·지도는 그대로)
+
+        var img = MakeImage(canvasRoot, "FrameArt", Color.white);
+        img.sprite = art;
+        var rt = img.rectTransform;
+        rt.anchorMin = rt.anchorMax = rt.pivot = Vector2.one;   // 화면 오른쪽 위 기준
+        Vector4 e = frameArtExtents;
+        rt.sizeDelta = panelSize + new Vector2(e.x + e.y, e.z + e.w);
+        rt.anchoredPosition = -margin + new Vector2(e.y, e.z);  // 패널 오른쪽 위 모서리에서 그림 여백만큼 바깥
+
+        if (string.IsNullOrEmpty(frameLabel)) return;
+        var go = new GameObject("FrameLabel", typeof(RectTransform));
+        go.transform.SetParent(rt, false);
+        var label = go.AddComponent<TextMeshProUGUI>();
+        if (frameLabelFont != null) label.font = frameLabelFont;
+        label.text = frameLabel;
+        label.fontSize = frameLabelSize;
+        label.color = frameLabelColor;
+        label.alignment = TextAlignmentOptions.Center;
+        label.enableWordWrapping = false;
+        label.raycastTarget = false;
+        var lrt = label.rectTransform;
+        // 이름판 가운데 = 패널 왼쪽 위에서 오른쪽 90, 위로 17 (그림 기준, 패널 크기에 맞춰 가로 비율 조정)
+        lrt.anchorMin = lrt.anchorMax = new Vector2(0f, 1f);
+        lrt.pivot = new Vector2(0.5f, 0.5f);
+        lrt.sizeDelta = new Vector2(120f * panelSize.x / 364f, 22f);
+        lrt.anchoredPosition = new Vector2(e.x + 90f * panelSize.x / 364f, -(e.z - 17f));
     }
 
     static Image MakeImage(Transform parent, string name, Color color)
@@ -186,9 +244,14 @@ public class RoomMinimap : MonoBehaviour
         Transform player = CurrentPlayer();
         Vector2 uv = new Vector2(0.5f, 0.5f);
         if (player != null && worldRect.width > 0f && worldRect.height > 0f)
-            uv = new Vector2(Mathf.Clamp01((player.position.x - worldRect.x) / worldRect.width),
-                             Mathf.Clamp01((player.position.y - worldRect.y) / worldRect.height));
+        {
+            // [2026-10-15] 카메라가 비추는 곳 = 플레이어 위치 + viewOffset
+            Vector2 focus = (Vector2)player.position + viewOffset;
+            uv = new Vector2((focus.x - worldRect.x) / worldRect.width, (focus.y - worldRect.y) / worldRect.height);
+            if (clampToRoom) { uv.x = Mathf.Clamp01(uv.x); uv.y = Mathf.Clamp01(uv.y); }
+        }
         Vector2 pos = -Vector2.Scale(uv, size);
+        if (!clampToRoom) return pos;   // 방 밖 빈 공간이 보여도 그대로 따라감
         // 그림이 패널보다 크면 가장자리에서 멈추고, 작으면 가운데 정렬
         pos.x = size.x > half.x * 2f ? Mathf.Clamp(pos.x, half.x - size.x, -half.x) : -size.x * 0.5f;
         pos.y = size.y > half.y * 2f ? Mathf.Clamp(pos.y, half.y - size.y, -half.y) : -size.y * 0.5f;
@@ -287,7 +350,7 @@ public class RoomMinimap : MonoBehaviour
         dotsUsed = 0;
         foreach (var p in portals)
             if (p != null && p.portalCollider != null && p.portalCollider.enabled)
-                PlaceDot(p.transform.position, portalColor, portalDotSize);
+                PlaceDot((Vector3)((Vector2)p.portalCollider.bounds.center + portalDotOffset), portalColor, portalDotSize);   // [2026-10-15] 문 판정 범위 가운데 (예전: 포탈 기준점 = 바닥)
         foreach (var e in enemies)
             if (e != null) PlaceDot(e.position, enemyColor, enemyDotSize);
         float blink = 0.65f + 0.35f * Mathf.Sin(Time.unscaledTime * 6f);

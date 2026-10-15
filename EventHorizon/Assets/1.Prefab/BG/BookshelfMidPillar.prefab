@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &413199768569780505
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 919132149155446097, guid: 4fd698abef653c31d919e9ed77225515, type: 3}
+      propertyPath: m_Name
+      value: BookshelfMidPillar
+      objectReference: {fileID: 0}
+    - target: {fileID: -4680354012706758499, guid: 4fd698abef653c31d919e9ed77225515, type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 4fd698abef653c31d919e9ed77225515, type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 6719895764214928177, guid: 4fd698abef653c31d919e9ed77225515, type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: -3878768675575394892, guid: 4fd698abef653c31d919e9ed77225515, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 5242692607166eed3f03ba691c0daddb, type: 2}
+    - target: {fileID: 1106030347861467714, guid: 4fd698abef653c31d919e9ed77225515, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 5242692607166eed3f03ba691c0daddb, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4fd698abef653c31d919e9ed77225515, type: 3}
