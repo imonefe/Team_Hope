@@ -110,6 +110,9 @@ public class Box : ProximityInteractable
 
     // [2026-09-29 변경] Player 태그 감지 + F키 입력 처리(Update/OnTrigger)는 공용 베이스
     // ProximityInteractable로 이동. 여기서는 "지금 열 수 있는 상태인가"만 판단한다.
+    // [2026-10-17 추가] 가까이 가면 머리 위에 "[F] 열기"
+    protected override string PromptLabel => "열기";
+
     protected override bool CanInteract() => isActive && !isOpened;
 
     protected override void Interact()

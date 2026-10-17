@@ -16,10 +16,6 @@ public class HealObject : MonoBehaviour
     [Header("힐 이펙트 (선택 — 이 자리에 고정)")]
     public GameObject healEffectPrefab;
 
-    [Header("고정 회복량 오버라이드 (0 이하면 미사용 — 위 healPercent 대신 이 값 사용)")]
-    [Tooltip("금속 속성 드랍처럼 %가 아닌 고정 HP량으로 회복시켜야 할 때 코드에서 SetFixedHeal()로 설정")]
-    public int fixedHealAmount = 0;
-
     [Header("소멸")]
     [Tooltip("켜면 먹은 뒤 오브젝트를 실제로 Destroy함. 꺼두면 스프라이트는 그대로 남고 콜라이더만 비활성화됨(재사용 방지)")]
     public bool destroyAfterUse = false;
@@ -27,11 +23,6 @@ public class HealObject : MonoBehaviour
     public float destroyDelay = 0.5f;
 
     bool used = false;
-
-    public void SetFixedHeal(int amount)
-    {
-        fixedHealAmount = amount;
-    }
 
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -45,10 +36,8 @@ public class HealObject : MonoBehaviour
 
         used = true;
 
-        // 최대 HP의 n% 회복 (캐릭터 힐 이펙트 포함) — 고정 회복량이 설정되어 있으면 그걸 우선 사용
-        int healAmount = fixedHealAmount > 0
-            ? fixedHealAmount
-            : Mathf.RoundToInt(stats.maxHp * healPercent);
+        // 최대 HP의 n% 회복 (캐릭터 힐 이펙트 포함)
+        int healAmount = Mathf.RoundToInt(stats.maxHp * healPercent);
         stats.HealWithEffect(healAmount);
 
         // 콜라이더 비활성화 (중복 방지)

@@ -36,6 +36,12 @@ public class InventoryUI : MonoBehaviour
     [Tooltip("emptyLabel 칸이 비어 있을 때 자동으로 찾을 오브젝트 이름 (대소문자 무시)")]
     public string emptyLabelName = "noneitem";
 
+    [Header("빈 칸 채우기 (2026-10-17 추가)")]
+    [Tooltip("아이템이 하나라도 있으면 나머지 자리를 빈 칸으로 채워 그리드 모양을 보여준다")]
+    public bool fillEmptySlots = true;
+    [Tooltip("최소 칸 수. 0 이면 스크롤 영역에 보이는 줄 수만큼 자동으로 채움")]
+    public int minSlotCount = 0;
+
     void Start()
     {
         FindEmptyLabelIfMissing();
@@ -66,6 +72,15 @@ public class InventoryUI : MonoBehaviour
         foreach (ItemData item in Inventory.Instance.passives)
             CreateItemSlot(item);
 
+        // [2026-10-17 추가] 아이템이 하나라도 있으면 남은 자리를 빈 칸으로 채운다
+        int count = Inventory.Instance.passives.Count;
+        if (fillEmptySlots && count > 0)
+        {
+            int total = GetFilledSlotCount(count);
+            for (int i = count; i < total; i++)
+                CreateItemSlot(null);   // 아이템 없음 → 아이콘 꺼짐, 호버·클릭 반응 없음 (ItemSlotUI)
+        }
+
         // 아이템이 하나도 없으면 "아이템 없음" 안내를 켜고, 하나라도 있으면 끈다
         // (안내 글자는 Content 밖에 둬야 함 — Content 자식은 위 ClearChildren에서 매번 지워짐)
         if (emptyLabel != null)
@@ -91,6 +106,35 @@ public class InventoryUI : MonoBehaviour
             emptyLabel = t.gameObject;
             return;
         }
+    }
+
+    // 채울 전체 칸 수 = max(아이템 수를 한 줄 단위로 올림, 스크롤 영역에 보이는 줄 수 × 한 줄 칸 수, 최소 칸 수)
+    int GetFilledSlotCount(int itemCount)
+    {
+        GridLayoutGroup grid = generalContent.GetComponent<GridLayoutGroup>();
+        int columns = (grid != null && grid.constraint == GridLayoutGroup.Constraint.FixedColumnCount)
+            ? Mathf.Max(1, grid.constraintCount) : 1;
+
+        int total = Mathf.CeilToInt(itemCount / (float)columns) * columns;
+
+        if (minSlotCount > 0)
+        {
+            total = Mathf.Max(total, minSlotCount);
+        }
+        else if (grid != null)
+        {
+            // 스크롤 영역(Content 의 부모 = Viewport)에 보이는 줄 수
+            RectTransform viewport = generalContent.parent as RectTransform;
+            if (viewport != null)
+            {
+                float usable = viewport.rect.height - grid.padding.top - grid.padding.bottom + grid.spacing.y;
+                int rows = Mathf.FloorToInt(usable / Mathf.Max(1f, grid.cellSize.y + grid.spacing.y));
+                total = Mathf.Max(total, rows * columns);
+            }
+        }
+
+        // 마지막 줄도 꽉 채우기
+        return Mathf.CeilToInt(total / (float)columns) * columns;
     }
 
     void CreateItemSlot(ItemData item)

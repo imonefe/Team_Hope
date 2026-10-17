@@ -17,6 +17,13 @@ public class NPC : MonoBehaviour
     [Header("초상화")]
     public Image[] portraits;
 
+    [Header("이름표 (2026-10-17 추가)")]
+    [Tooltip("말하는 사람 이름을 띄울 이름표 오브젝트 (이름이 비어 있으면 숨김)")]
+    public GameObject namePlate;
+    public TextMeshProUGUI nameText;
+    [Tooltip("portraits 와 같은 순서로 말하는 사람 이름 (대사의 speakerIndex 번호로 고름)")]
+    public string[] speakerNames;
+
     [Header("대사 세트")]
     public DialogueSet[] dialogueSets;
 
@@ -197,6 +204,8 @@ public class NPC : MonoBehaviour
 
     void UpdatePortraits()
     {
+        UpdateSpeakerName();
+
         if (portraits == null || portraits.Length == 0) return;
         if (speakers == null || speakers.Length == 0) return;
 
@@ -207,5 +216,19 @@ public class NPC : MonoBehaviour
             float brightness = (i == currentSpeaker) ? 1f : 0.3f;
             portraits[i].color = new Color(brightness, brightness, brightness, 1f);
         }
+    }
+
+    // [2026-10-17 추가] 지금 말하는 사람 이름을 이름표에 띄움. 이름이 없으면 이름표를 숨김
+    void UpdateSpeakerName()
+    {
+        if (nameText == null && namePlate == null) return;
+
+        int speaker = (speakers != null && index < speakers.Length) ? speakers[index] : 0;
+        string speakerName = (speakerNames != null && speaker >= 0 && speaker < speakerNames.Length)
+            ? speakerNames[speaker] : null;
+        bool show = !string.IsNullOrEmpty(speakerName);
+
+        if (nameText != null) nameText.text = show ? speakerName : "";
+        if (namePlate != null) namePlate.SetActive(show);
     }
 }

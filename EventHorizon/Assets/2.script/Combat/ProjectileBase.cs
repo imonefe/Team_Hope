@@ -95,8 +95,6 @@ public abstract class ProjectileBase : MonoBehaviour
             int finalDamage = CalcDamage(damage, health);
             health.TakeDamage(finalDamage, dir, knockbackX, knockbackY);
 
-            // (반응형 원소 효과 호출은 제거됨 — 속성 시스템 자체가 게임에서 빠지면서 함께 제거)
-
             if (hitEffectPrefab != null)
                 Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
 

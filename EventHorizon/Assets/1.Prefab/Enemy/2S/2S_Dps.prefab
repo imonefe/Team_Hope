@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Enemyeye: 6.18
-  attackRange: 1.82
+  attackRange: 3
   knockbackForce: 3
   knockbackDuration: 0.5
   hitFlashTime: 0.1
@@ -120,8 +120,8 @@ MonoBehaviour:
   attackEffectPoint: {fileID: 0}
   effectFlipByFacing: 1
   attackDash: 1
-  attackDashSpeed: 9
-  attackDashDistance: 2.4
+  attackDashSpeed: 12
+  attackDashDistance: 4
   attackDashDelay: 1.4166666
   hitboxFollowAttacker: 1
   attackVariations: 1

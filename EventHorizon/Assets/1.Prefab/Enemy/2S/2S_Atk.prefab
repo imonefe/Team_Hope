@@ -256,7 +256,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Enemyeye: 3.48
-  attackRange: 1.66
+  attackRange: 3
+  chaseHoldTime: 0.5
   knockbackForce: 4
   knockbackDuration: 0.5
   hitFlashTime: 0.1
@@ -272,9 +273,11 @@ MonoBehaviour:
   attackEffectPrefab: {fileID: 0}
   attackEffectPoint: {fileID: 0}
   effectFlipByFacing: 1
-  attackDash: 0
-  attackDashSpeed: 6
-  attackDashDistance: 1.5
+  attackDash: 1
+  attackDashSpeed: 11
+  attackDashDistance: 2.5
+  attackDashDelay: 1.2
+  hitboxFollowAttacker: 1
   attackVariations: 1
   isGrounded: 0
   spawnIdleTime: 0.5
@@ -282,8 +285,13 @@ MonoBehaviour:
   laserRenderer: {fileID: 0}
   laserLength: 10
   laserColor: {r: 1, g: 0, b: 0, a: 0.8}
+  aimHoldAfterAttack: 0
   attackCooldown: 3
   attackDuration: 0.8
+  attackEndTimeout: 2
+  aimAtPlayer: 1
+  maxAimAngle: 45
+  attackExitTime: 0.8125
 --- !u!114 &6795846513839313806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -322,6 +330,8 @@ MonoBehaviour:
   hitParticlePrefab: {fileID: 7003526924982483664, guid: 3488b4805fc720c468db1550b5bea590, type: 3}
   randomOffset: 0.8
   enemyDeathEffectPrefab: {fileID: 3904326371425299336, guid: 33c6ca78d2a0379439dbb91839997618, type: 3}
+  minCurrencyDrop: 8
+  maxCurrencyDrop: 16
   invincibleTime: 0
 --- !u!50 &7399741341257212592
 Rigidbody2D:

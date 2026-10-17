@@ -92,7 +92,6 @@ public class Health : MonoBehaviour
         if (isPlayer && !ignoreInvincibility && invincibleTime > 0f)
             invincibleTimer = invincibleTime;
 
-        // (물 속성 방어막 흡수 로직은 제거됨 — 속성 시스템 자체가 게임에서 빠지면서 함께 제거)
         stats.TakeDamage(damage);
 
         // 플레이어 피격 시 퍼즈 게이지 3% 충전

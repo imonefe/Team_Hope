@@ -20,15 +20,6 @@ public class Enemy : MonoBehaviour
     [Tooltip("꺼두면 맞아도 피격 애니메이션(isHit)이 재생되지 않음. 넉백·경직 자체는 이 값과 무관하게 그대로 적용됨")]
     public bool playHitAnimation = true;
 
-    [Header("냉기 속성 (선택 — 나중에 파티클 연결)")]
-    [Tooltip("냉기 속성 타격마다 튀는 파편. 동결(스턴) 시작 순간에도 같은 걸로 1회 더 스폰됨")]
-    public GameObject iceShardPrefab;
-    [Tooltip("동결 중 랜더러에 씌울 색")]
-    public Color frostTintColor = new Color(0.4f, 0.7f, 1f, 1f);
-    [Range(0f, 1f)] public float frostTintAmount = 0.6f;
-    [Tooltip("동결 중 계속 붙어있는 얼음 비주얼 (얼음에 갇힌 느낌). 동결 시작 시 스프라이트 자식으로 붙었다가 풀리면 사라짐")]
-    public GameObject frozenVisualPrefab;
-
     public GameObject hitboxPrefab;
     public Transform hitboxPoint;
     public GameObject projectilePrefab; // 원거리 투사체 (없으면 미사용)
@@ -70,8 +61,6 @@ public class Enemy : MonoBehaviour
     bool isHit = false;
     bool isKnockback = false;
     bool isChasing = false;
-    bool isFrozen = false;       // 냉기 스턴 중
-    int frostStacks = 0;         // 냉기 속성 누적 스택
     bool isDirectionLocked = false;  // 조준 중 방향 고정
     int lockedDir = 1;       // 고정된 방향  // 플레이어 추적 중 여부
 
@@ -201,14 +190,6 @@ public class Enemy : MonoBehaviour
                 rigid.velocity = pauseSavedVelocity;
             }
             anim.speed = 1f;
-        }
-
-        // 냉기 동결 중엔 완전 정지
-        if (isFrozen)
-        {
-            anim.speed = 0f;
-            rigid.velocity = Vector2.zero;
-            return;
         }
 
         GroundCheck();
@@ -655,70 +636,9 @@ public class Enemy : MonoBehaviour
         if (playHitAnimation) anim.SetBool("isHit", false);
     }
 
-    /// <summary>냉기 속성 히트마다 호출. requiredStacks 도달 시 stunDuration 만큼 동결.</summary>
-    // 스프라이트(자식)가 있으면 그 위치, 없으면 루트 위치 — 루트엔 빈 더미 SpriteRenderer만 있는
-    // 프리팹이 있어서(위 Awake 주석 참고) 얼음 파편이 몸통이 아니라 발밑/원점 근처에서 튀는 문제 방지.
-    Vector3 IceShardSpawnPos()
-    {
-        return sr != null ? sr.transform.position : transform.position;
-    }
-
-    public void ApplyFrostStack(int requiredStacks, float stunDuration)
-    {
-        if (isFrozen) return;
-
-        frostStacks++;
-        if (iceShardPrefab != null)
-            Instantiate(iceShardPrefab, IceShardSpawnPos(), Quaternion.identity);
-
-        if (frostStacks >= requiredStacks)
-        {
-            frostStacks = 0;
-            StartCoroutine(FreezeRoutine(stunDuration));
-        }
-    }
-
-    IEnumerator FreezeRoutine(float duration)
-    {
-        isFrozen = true;
-
-        if (iceShardPrefab != null)
-            Instantiate(iceShardPrefab, IceShardSpawnPos(), Quaternion.identity);
-
-        // 동결 중 계속 표시되는 얼음 비주얼 — 스프라이트를 따라다니도록 그 자식으로 붙임
-        GameObject frozenVisual = null;
-        if (frozenVisualPrefab != null)
-        {
-            Transform parent = sr != null ? sr.transform : transform;
-            frozenVisual = Instantiate(frozenVisualPrefab, parent.position, Quaternion.identity, parent);
-        }
-
-        float t = 0f;
-        while (t < duration)
-        {
-            if (rigid != null) rigid.velocity = Vector2.zero;
-
-            // 히트플래시(흰색)가 매 프레임 덮어써도 다음 프레임에 다시 파란 틴트로 복구됨
-            // 동결 틴트는 조명을 받게 함(_FlashLit 1) → 어두운 방에서 혼자 빛나지 않음
-            ApplyFlash(frostTintColor, frostTintAmount, 1f);
-
-            t += Time.deltaTime;
-            yield return null;
-        }
-
-        isFrozen = false;
-
-        if (frozenVisual != null)
-            Destroy(frozenVisual);
-
-        ClearFlash();
-    }
-
     IEnumerator HitFlash()
     {
-        // _FlashColor를 명시적으로 흰색으로 지정 — 안 그러면 직전 냉기 동결(파란 틴트)이 남긴
-        // _FlashColor 값을 그대로 물려받아서, 얼렸다 푼 직후 피격 시 흰색이 아니라 파란색으로 반짝임
-        // 피격 흰색은 조명과 상관없이 보이게 함(_FlashLit 0)
+        // _FlashColor를 명시적으로 흰색으로 지정, 피격 흰색은 조명과 상관없이 보이게 함(_FlashLit 0)
         ApplyFlash(Color.white, 1f, 0f);
 
         yield return new WaitForSeconds(hitFlashTime);
@@ -726,7 +646,7 @@ public class Enemy : MonoBehaviour
         ClearFlash();
     }
 
-    // ── 피격 반짝임 / 동결 틴트 공통 처리 ──
+    // ── 피격 반짝임 처리 ──
     // 지금 머티리얼이 반짝임을 직접 지원하면(어두운 방에서 쓰는 SpriteLit3D) 머티리얼은 그대로 두고 값만 넣음 → 조명이 유지됨
     // 지원하지 않으면 기존처럼 flashMaterial 로 잠시 바꾸고, 끝나면 "바꾸기 직전" 머티리얼로 되돌림
     // (예전에는 시작할 때 기억한 머티리얼로 되돌려서, 어두운 방에서 바뀐 조명용 머티리얼이 벗겨졌음)

@@ -292,6 +292,5 @@ public class Hitbox : MonoBehaviour
         // 데미지 숫자 팝업 (플로팅 텍스트)
         FloatingTextSpawner.SpawnDamage(other.transform.position, finalDamage, isCrit);
 
-        // (반응형 원소 효과 호출은 제거됨 — 속성 시스템 자체가 게임에서 빠지면서 함께 제거)
     }
 }

@@ -15,6 +15,10 @@ public class Portal : ProximityInteractable
     public Animator animator;
     public string openTrigger = "Open";
 
+    [Header("이동할 방 (선택, 2026-10-17 추가)")]
+    [Tooltip("비워두면 노드맵을 연다. 방 프리팹을 넣으면 노드맵 대신 그 방으로 바로 이동한다 (예: 로비 → 첫 방)")]
+    public GameObject targetRoom;
+
     bool isActive = false;
     bool transitioning = false; // [2026-10-10] 페이드 진행 중 F를 다시 눌러 전환이 겹치지 않게
 
@@ -46,7 +50,32 @@ public class Portal : ProximityInteractable
 
     protected override void Interact()
     {
-        StartCoroutine(OpenMapWithFade());
+        if (targetRoom != null)
+            StartCoroutine(LoadRoomWithFade());
+        else
+            StartCoroutine(OpenMapWithFade());
+    }
+
+    // [2026-10-17 추가] 노드맵을 거치지 않고 정해진 방으로 바로 이동 (로비 → 첫 방)
+    // 방이 바뀌면 이 포탈(지금 방의 자식)도 같이 지워지므로, 페이드는 씬에 계속 남는
+    // TransitionCanvas 쪽에서 돌린다 (포탈에서 돌리면 화면이 까만 채로 멈춤)
+    IEnumerator LoadRoomWithFade()
+    {
+        if (RoomManager.Instance == null)
+        {
+            Debug.LogWarning("[Portal] RoomManager 없음!");
+            yield break;
+        }
+
+        transitioning = true;
+        GameObject room = targetRoom;
+        if (TransitionCanvas.Instance != null)
+            TransitionCanvas.Instance.StartCoroutine(TransitionCanvas.Instance.Transition(() =>
+            {
+                RoomManager.Instance.LoadRoom(room);
+            }));
+        else
+            RoomManager.Instance.LoadRoom(room);
     }
 
     IEnumerator OpenMapWithFade()

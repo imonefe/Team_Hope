@@ -1399,8 +1399,9 @@ public class PlayerController : MonoBehaviour
         }
 
         // ── 스킬 획득 (박스 등에서 드랍된 SkillPickup에 닿으면 즉시 습득) ──
+        // [2026-10-17] F키 줍기가 켜진 스킬 구슬은 SkillPickup 쪽에서 팝업 + F키로 처리하므로 여기서는 건너뜀
         SkillPickup skillPickup = obj.GetComponentInParent<SkillPickup>();
-        if (skillPickup != null && skillPickup.skillPrefab != null)
+        if (skillPickup != null && skillPickup.skillPrefab != null && !skillPickup.pickupWithKey)
         {
             CharacterSkills skills = GetComponent<CharacterSkills>();
             if (skills != null && skills.AcquireSkill(skillPickup.skillPrefab))

@@ -39,8 +39,6 @@ public class CharacterPanelUI : MonoBehaviour
     public float tweenDuration = 0.35f;
     public Ease tweenEase = Ease.OutQuad;
 
-    // (방어막/물 속성 UI는 제거됨 — 속성 시스템 자체가 게임에서 빠지면서 함께 제거)
-
     [Header("스탯 - 나머지 (수치)")]
     public TextMeshProUGUI atkText;
     public TextMeshProUGUI defText;

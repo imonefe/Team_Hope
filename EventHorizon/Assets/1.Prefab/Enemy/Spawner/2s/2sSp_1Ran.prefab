@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 5366704872317069322, guid: e2e293e74f4719c4198086646c19648e, type: 3}
   spawnPoint: {fileID: 1361984288244511298}
-  spawnEffectPrefab: {fileID: 0}
+  spawnEffectPrefab: {fileID: 260016359388483733, guid: 5f94b98c97b40b94eac326b72e5938c9, type: 3}
   snapToGround: 1
   groundRayDistance: 30
   groundOffsetY: 0.4

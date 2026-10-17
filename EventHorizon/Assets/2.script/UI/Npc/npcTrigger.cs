@@ -18,6 +18,9 @@ public class npcTrigger : ProximityInteractable
     // ProximityInteractable로 이동. (참고: 기존엔 Player 태그여도 PlayerController 컴포넌트가
     // 없으면 playerNearby 자체가 안 켜졌는데, 지금은 playerNearby는 켜지되 nearbyPlayer가 null로
     // 남아서 CanInteract()가 막아준다 — 동작 결과는 동일함)
+    // [2026-10-17 추가] 가까이 가면 머리 위에 "[F] 대화"
+    protected override string PromptLabel => "대화";
+
     protected override bool CanInteract() => nearbyPlayer != null && (npcScript == null || !npcScript.IsTalking);
 
     protected override void Interact()
