@@ -104,15 +104,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Enemyeye: 6.18
   attackRange: 3
+  chaseHoldTime: 0.5
   knockbackForce: 3
   knockbackDuration: 0.5
   hitFlashTime: 0.1
   flashMaterial: {fileID: 2100000, guid: 27766ac43c36d4f487e09e491baf06fb, type: 2}
   playHitAnimation: 1
-  iceShardPrefab: {fileID: 5244563724159452596, guid: d0d75d2c8c8188443bd5e37e879fcb65, type: 3}
-  frostTintColor: {r: 0.4, g: 0.7, b: 1, a: 1}
-  frostTintAmount: 0.6
-  frozenVisualPrefab: {fileID: 0}
   hitboxPrefab: {fileID: 7527073567594890566, guid: aa80901e76ff4413964899afae3b45a4, type: 3}
   hitboxPoint: {fileID: 8451731654083964768}
   projectilePrefab: {fileID: 0}
@@ -120,9 +117,9 @@ MonoBehaviour:
   attackEffectPoint: {fileID: 0}
   effectFlipByFacing: 1
   attackDash: 1
-  attackDashSpeed: 12
-  attackDashDistance: 4
-  attackDashDelay: 1.4166666
+  attackDashSpeed: 7
+  attackDashDistance: 15
+  attackDashDelay: 1.4
   hitboxFollowAttacker: 1
   attackVariations: 1
   isGrounded: 0
@@ -131,8 +128,13 @@ MonoBehaviour:
   laserRenderer: {fileID: 0}
   laserLength: 10
   laserColor: {r: 1, g: 0, b: 0, a: 0.8}
+  aimHoldAfterAttack: 0
   attackCooldown: 3
   attackDuration: 0.8
+  attackEndTimeout: 2
+  aimAtPlayer: 1
+  maxAimAngle: 45
+  attackExitTime: 0.8125
 --- !u!114 &3196864200078311310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,6 +173,8 @@ MonoBehaviour:
   hitParticlePrefab: {fileID: 7003526924982483664, guid: 3488b4805fc720c468db1550b5bea590, type: 3}
   randomOffset: 0.8
   enemyDeathEffectPrefab: {fileID: 3904326371425299336, guid: 33c6ca78d2a0379439dbb91839997618, type: 3}
+  minCurrencyDrop: 8
+  maxCurrencyDrop: 16
   invincibleTime: 0
 --- !u!50 &6675472273354913407
 Rigidbody2D:

@@ -91,7 +91,7 @@ public class ItemPickupEffect : MonoBehaviour
         if (showIcon && data != null && data.icon != null) StartCoroutine(Icon(data.icon));
         if (showName && data != null && !string.IsNullOrEmpty(data.itemName))
             FloatingTextSpawner.SpawnText(transform.position + nameOffset, data.itemName, c);
-        if (sfx != null) AudioSource.PlayClipAtPoint(sfx, transform.position, sfxVolume);
+        if (sfx != null) AudioSource.PlayClipAtPoint(sfx, transform.position, sfxVolume * GameSettings.SfxVolume);   // [2026-10-18] 설정 창의 효과음 크기 적용
 
         float life = Mathf.Max(flashDuration, ringDuration, sparkLifetime, showIcon ? iconDuration : 0f) + 0.2f;
         Destroy(gameObject, life);

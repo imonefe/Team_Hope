@@ -6,6 +6,9 @@ public class RoomManager : MonoBehaviour
 {
     public static RoomManager Instance;
 
+    // [2026-10-18 추가] 새 방을 열 때마다 알림 (새 방, 게임 시작 때 여는 첫 방인지). RoomBGM 이 방 종류별 배경음을 바꾸는 데 씀
+    public static event System.Action<Room, bool> OnRoomLoaded;
+
     [SerializeField] private GameObject startRoomPrefab;
 
     private GameObject currentRoomObj;
@@ -100,6 +103,8 @@ public class RoomManager : MonoBehaviour
         {
             testMaster.RefreshSpawners();
         }
+
+        OnRoomLoaded?.Invoke(room, roomPrefab == startRoomPrefab);   // [2026-10-18 추가]
     }
 
     // 맵 전환 시 호출 — 이전 맵에서 스폰된 것들 중 게임 시작부터 있던 영구 오브젝트가 아닌 건 전부 삭제.

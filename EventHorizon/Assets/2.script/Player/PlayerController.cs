@@ -113,6 +113,11 @@ public class PlayerController : MonoBehaviour
     /// <summary>대화·메뉴 등으로 조작이 잠겨 있는지 (스킬 입력 등 다른 스크립트에서 확인용)</summary>
     public bool IsControlLocked => controlLocked;
 
+    // [2026-10-18 추가] 무기 정보 칸(WeaponStripUI)이 읽기만 하는 값
+    /// <summary>지금 공격력 = 공격력(Atk) × 무기 배율 × 공격 버프 (적 방어·치명타·상성 적용 전, 공격할 때와 같은 식)</summary>
+    public int CurrentAttackPower =>
+        stats != null ? Mathf.RoundToInt(stats.Atk * (EquippedWeapon != null ? EquippedWeapon.damageMultiplier : 1f) * attackBuffDamageMultiplier) : 0;
+
     public void LockControl(object owner = null)
     {
         bool wasLocked = controlLocked;
@@ -378,7 +383,7 @@ public class PlayerController : MonoBehaviour
     void PlaySfx(AudioClip clip)
     {
         if (clip != null && audioSource != null)
-            audioSource.PlayOneShot(clip);
+            audioSource.PlayOneShot(clip, GameSettings.SfxVolume);   // [2026-10-18] 설정 창의 효과음 크기 적용
     }
 
     // 1단 점프 = jumpSfx / 2단 점프 = doubleJumpSfx (비어 있으면 jumpSfx)
@@ -422,7 +427,7 @@ public class PlayerController : MonoBehaviour
 
         swingAudioSource.enabled = audioSource == null || audioSource.enabled;
         swingAudioSource.pitch = pitch;
-        swingAudioSource.PlayOneShot(clip);
+        swingAudioSource.PlayOneShot(clip, GameSettings.SfxVolume);   // [2026-10-18] 설정 창의 효과음 크기 적용
     }
 
     // ── 이동 ──────────────────────────────────────────────

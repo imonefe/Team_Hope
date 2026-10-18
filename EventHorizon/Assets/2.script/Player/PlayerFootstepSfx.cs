@@ -107,7 +107,7 @@ public class PlayerFootstepSfx : MonoBehaviour
 
         source.pitch = pitch + Random.Range(-pitchRandom, pitchRandom);
         float vol = Mathf.Clamp01(volume + Random.Range(-volumeRandom, volumeRandom));
-        source.PlayOneShot(clips[index], vol);
+        source.PlayOneShot(clips[index], vol * GameSettings.SfxVolume);   // [2026-10-18] 설정 창의 효과음 크기 적용
     }
 
     // ───────── 랜덤 선택 ─────────

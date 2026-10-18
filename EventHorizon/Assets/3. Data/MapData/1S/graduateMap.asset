@@ -15,8 +15,6 @@ MonoBehaviour:
   tier: 0
   type: 0
   roomPrefabs:
-  - {fileID: 8548028022454420013, guid: d7d4327ca7ed1904db26d78315684788, type: 3}
-  - {fileID: 8548028022454420013, guid: 699e6b1da72cc4343a0de5e4158b4c2a, type: 3}
   - {fileID: 8548028022454420013, guid: df63a90ef43949e8b46d1c276b3b7dd0, type: 3}
   - {fileID: 8548028022454420013, guid: c51409b1aaaf42ffbc2401e7caaf120e, type: 3}
   - {fileID: 8548028022454420013, guid: eaa73686d54f46e9a0eb7c1973a5130e, type: 3}

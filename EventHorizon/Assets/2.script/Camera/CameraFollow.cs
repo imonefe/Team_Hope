@@ -96,6 +96,10 @@ public class CameraFollow : MonoBehaviour
     {
         if (Instance == null || Instance.proCamShake == null) return;
 
+        // [2026-10-18 추가] 설정 창의 '화면 흔들림' 배율 (0% 면 흔들지 않음)
+        magnitude *= GameSettings.ShakeScale;
+        if (magnitude <= 0f) return;
+
         Instance.proCamShake.Shake(duration, new Vector2(magnitude, magnitude), smoothness: ShakeSmoothness);
     }
 

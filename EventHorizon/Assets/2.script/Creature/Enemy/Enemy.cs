@@ -273,10 +273,16 @@ public class Enemy : MonoBehaviour
         {
             isChasing = true;
             float dx = player.position.x - transform.position.x;
+            float dy = player.position.y - transform.position.y;
 
             // 좌우로는 이미 공격 범위 안인데 (위아래 차이 때문에) 공격이 안 닿는 경우
             // → 계속 쫓으면 플레이어 밑에서 좌우로 왔다 갔다 하므로 잠시 제자리에서 기다린다
-            if (chaseHoldTime > 0f && Mathf.Abs(dx) < attackRange)
+            // [2026-10-18 수정] 예전엔 '가로 거리 < 공격 범위'만 보고 멈춰서, 높이 차가 조금만 있어도
+            // (가로는 범위 안, 직선거리는 범위 밖) 다가가지도 공격하지도 않고 서 있었다 → 돌진형 적의 돌진이 막힘.
+            // 이제 세로 차이가 공격 범위보다 커서 다가가도 절대 닿지 않을 때, 또는 플레이어가 거의 바로 위/아래일 때만 멈춘다.
+            bool unreachableVertically = Mathf.Abs(dy) > attackRange;
+            bool almostAbove = Mathf.Abs(dx) < 0.3f;
+            if (chaseHoldTime > 0f && Mathf.Abs(dx) < attackRange && (unreachableVertically || almostAbove))
                 chaseHoldTimer = chaseHoldTime;
 
             if (chaseHoldTimer > 0f)

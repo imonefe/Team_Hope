@@ -9,6 +9,7 @@ public class MainMenuController : MonoBehaviour
 
     [Header("UI Buttons")]
     [SerializeField] private Button startButton;
+    [SerializeField] private Button settingsButton; // [2026-10-18 추가] 설정 창 열기
     [SerializeField] private Button creditButton;   // [2026-10-18 추가]
     [SerializeField] private Button quitButton;
 
@@ -29,6 +30,9 @@ public class MainMenuController : MonoBehaviour
         if (creditButton != null)
             creditButton.onClick.AddListener(OpenCredit);
 
+        if (settingsButton != null)
+            settingsButton.onClick.AddListener(OpenSettings);
+
         if (creditCloseButton != null)
             creditCloseButton.onClick.AddListener(CloseCredit);
 
@@ -39,13 +43,22 @@ public class MainMenuController : MonoBehaviour
         UIButtonJuice.Attach(startButton);
         UIButtonJuice.Attach(quitButton);
         if (creditButton != null) UIButtonJuice.Attach(creditButton);
+        if (settingsButton != null) UIButtonJuice.Attach(settingsButton);
     }
 
     private void Update()
     {
+        if (SettingsWindow.BlocksEscape) return;   // [2026-10-18] 설정 창의 ESC 와 겹치지 않게
+
         // 크레딧 창이 열려 있으면 ESC로 닫기
         if (creditPanel != null && creditPanel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
             CloseCredit();
+    }
+
+    /// <summary>[2026-10-18 추가] 설정 창 열기</summary>
+    public void OpenSettings()
+    {
+        SettingsWindow.Open();
     }
 
     public void OpenCredit()

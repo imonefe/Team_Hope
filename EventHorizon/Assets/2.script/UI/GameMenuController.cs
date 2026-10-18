@@ -109,6 +109,7 @@ public class GameMenuController : MonoBehaviour
     void Update()
     {
         if (closing) return;
+        if (SettingsWindow.BlocksEscape) return;   // [2026-10-18] 설정 창이 열려 있거나 방금 ESC 로 닫혔으면 메뉴는 그대로 둔다
         if (!Input.GetKeyDown(KeyCode.Escape)) return;
 
         if (creditsPanel != null && creditsPanel.activeSelf)
@@ -173,6 +174,12 @@ public class GameMenuController : MonoBehaviour
         // 예전에는 씬만 다시 불러와서 획득 아이템·재화·통계·맵 진행도가 이전 판 그대로 남았다.
         // 게임오버 "다시하기"와 같은 재시작 함수를 써서 판 데이터까지 함께 초기화한다.
         RunManager.RestartRun();
+    }
+
+    /// <summary>[2026-10-18 추가] 설정 버튼 — 설정 창을 메뉴 위에 연다 (닫으면 메뉴로 돌아옴)</summary>
+    public void OpenSettings()
+    {
+        SettingsWindow.Open();
     }
 
     public void ShowCredits()

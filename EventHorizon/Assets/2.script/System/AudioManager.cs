@@ -17,6 +17,10 @@ public class AudioManager : PersistentSingleton<AudioManager>
     {
         if (!InitSingleton()) return;
 
+        // [2026-10-18 추가] 설정 창에서 저장한 배경음·효과음 크기를 불러온다 (인스펙터 값보다 우선)
+        bgmVolume = GameSettings.BgmVolume;
+        sfxVolume = GameSettings.SfxVolume;
+
         // 코드로 자동 생성된 경우(씬에 AudioManager가 없는 인트로 등)엔 BGM용 AudioSource도 직접 만든다
         if (bgmSource == null)
         {

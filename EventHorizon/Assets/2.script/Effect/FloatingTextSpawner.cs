@@ -20,6 +20,7 @@ public class FloatingTextSpawner : MonoBehaviour
 
     public static void SpawnDamage(Vector3 pos, int amount, bool isCrit)
     {
+        if (!GameSettings.ShowDamageNumbers) return;   // [2026-10-18] 설정 창에서 데미지 숫자를 끈 경우
         GameObject go = Spawn(pos);
         if (go == null) return;
         FloatingText ft = go.GetComponent<FloatingText>();

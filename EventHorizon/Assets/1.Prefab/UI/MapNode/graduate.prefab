@@ -1096,7 +1096,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd7de76916a33a748b9604d8b445ad4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomData: {fileID: 11400000, guid: a7a69df3d4a7efe4294e61da39729519, type: 2}
+  roomData: {fileID: 11400000, guid: f958fff46ffc4ad5ae41e8bf503cf4a5, type: 2}
   isStartRoom: 0
   connectedButtons: []
   buttonImage: {fileID: 4047323413482617300}

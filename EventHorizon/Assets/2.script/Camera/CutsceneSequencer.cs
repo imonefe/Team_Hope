@@ -388,8 +388,11 @@ public class CutsceneSequencer : MonoBehaviour
                 break;
 
             case CutsceneStepType.Shake:
-                if (proCamShake != null)
-                    proCamShake.Shake(step.shakeDuration, new Vector2(step.shakeStrength, step.shakeStrength));
+                if (proCamShake != null && GameSettings.ShakeScale > 0f)   // [2026-10-18] 설정 창의 '화면 흔들림' 배율
+                {
+                    float ss = step.shakeStrength * GameSettings.ShakeScale;
+                    proCamShake.Shake(step.shakeDuration, new Vector2(ss, ss));
+                }
                 yield return new WaitForSeconds(step.shakeDuration);
                 break;
 
@@ -822,7 +825,8 @@ public class CutsceneSequencer : MonoBehaviour
         while (t < step.shakeDuration)
         {
             float s = Mathf.Lerp(step.shakeRampFrom, step.shakeStrength, t / step.shakeDuration);
-            proCamShake.Shake(interval * 1.6f, new Vector2(s, s), vibrato: 12, smoothness: 0.04f);
+            s *= GameSettings.ShakeScale;   // [2026-10-18] 설정 창의 '화면 흔들림' 배율
+            if (s > 0f) proCamShake.Shake(interval * 1.6f, new Vector2(s, s), vibrato: 12, smoothness: 0.04f);
             yield return new WaitForSeconds(interval);
             t += interval;
         }
