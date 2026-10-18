@@ -5,13 +5,25 @@ public class npcTrigger : ProximityInteractable
     [Tooltip("대화 캔버스에 붙은 NPC 스크립트")]
     public NPC npcScript;
 
+    [Tooltip("[2026-10-18 추가] 말을 걸 때마다 이 순서대로 대사 세트(conditionKey)를 고른다. 끝까지 가면 처음으로. 비워 두면 예전처럼 첫 번째 대사 세트")]
+    public string[] conditionCycle;
+
     PlayerController nearbyPlayer;
+    int cycleIndex;
 
     // 외부에서 호출 가능
     public void TriggerStory(PlayerController player)
     {
-        if (npcScript != null)
-            npcScript.SetCondition(null, player);
+        if (npcScript == null) return;
+
+        // [2026-10-18 추가] 순환 목록이 있으면 다음 대사 세트로
+        string key = null;
+        if (conditionCycle != null && conditionCycle.Length > 0)
+        {
+            key = conditionCycle[cycleIndex % conditionCycle.Length];
+            cycleIndex = (cycleIndex + 1) % conditionCycle.Length;
+        }
+        npcScript.SetCondition(key, player);
     }
 
     // [2026-09-29 변경] Player 태그 감지 + F키 입력 처리(Update/OnTrigger)는 공용 베이스

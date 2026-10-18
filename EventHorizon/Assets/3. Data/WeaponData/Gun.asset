@@ -76,3 +76,4 @@ MonoBehaviour:
   - {x: -0.2, y: 0.1}
   - {x: -0.2, y: -0.15}
   - {x: -0.25, y: -0.15}
+  hitCancelDelay: 0.1

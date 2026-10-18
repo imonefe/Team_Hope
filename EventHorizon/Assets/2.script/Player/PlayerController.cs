@@ -43,6 +43,13 @@ public class PlayerController : MonoBehaviour
     float comboWindow = 0.3f;
     float comboTimer = 0f;
     float hitboxTimer = 0f;
+
+    // [2026-10-18 추가] 타격 후 캔슬 — 이번 공격 동작의 타격 판정이 모두 나간 뒤
+    // WeaponData.hitCancelDelay 초가 지나면 이동(새로 누르거나 반대 방향)·점프로 남은 동작을 끊는다.
+    int hitEventsThisSwing = 0;     // 이번 동작에서 나간 타격 이벤트 수 (SpawnHitbox / FireProjectile)
+    int hitEventsInClip = -1;       // 이번 동작 클립에 들어 있는 타격 이벤트 수 (-1 = 아직 안 셈)
+    float hitCancelTimer = -1f;     // 모든 타격이 나간 뒤 지난 시간 (-1 = 캔슬 불가)
+    float hitCancelDir = 0f;        // 마지막 타격 때 누르고 있던 방향 (그대로 누르고 있는 건 캔슬로 안 침)
     float hitboxTime = 0.2f;
     bool hitboxSpawned = true; // [2026-10-10] 첫 공격 전에는 '이미 생성됨'으로 둔다 — 차지 대기 클립 등에 남은 SpawnHitbox 이벤트가 공격 없이 판정을 내지 않도록
     bool gaugeChargedThisSwing = false;
@@ -294,6 +301,8 @@ public class PlayerController : MonoBehaviour
         }
 
         if (hitStunTimer > 0f) hitStunTimer -= Time.deltaTime;
+
+        TryHitCancel(); // [2026-10-18 추가] 타격 후 캔슬 — 이동·점프보다 먼저 확인해야 같은 프레임에 바로 움직임
 
         Desh();
         Jump();
@@ -985,6 +994,7 @@ public class PlayerController : MonoBehaviour
 
         PlaySwingSfx(EquippedWeapon != null ? EquippedWeapon.PickSwing() : null);
         SpawnComboEffect(comboIndex > 0 ? comboIndex : 1);
+        RegisterAttackHitEvent(); // [2026-10-18 추가] 타격 후 캔슬용 횟수 세기
     }
 
     void ShowLaser(Vector2 start, Vector2 end)
@@ -1050,6 +1060,7 @@ public class PlayerController : MonoBehaviour
         comboInputTimer = -1f; // 시작과 함께 버퍼 소비
         hitboxTimer = 0f;
         hitboxSpawned = false;
+        ResetHitCancel(); // [2026-10-18 추가]
         gaugeChargedThisSwing = false; // [2026-09-29 수정] 이번 스윙 새로 시작 → 게이지 충전 게이트 리셋.
                                         // (기존엔 한 번 켜진 뒤 다시 꺼지는 곳이 없어서 첫 충전 이후
                                         //  영구히 막히는 버그였음. 단, 현재 TryChargeGauge()를 실제로
@@ -1307,6 +1318,88 @@ public class PlayerController : MonoBehaviour
             ExecuteHitbox();
             hitboxSpawned = true;
         }
+        RegisterAttackHitEvent(); // [2026-10-18 추가] 타격 후 캔슬용 횟수 세기
+    }
+
+    // ── 타격 후 캔슬 (2026-10-18 추가) ──────────────────────
+    void ResetHitCancel()
+    {
+        hitEventsThisSwing = 0;
+        hitEventsInClip = -1;
+        hitCancelTimer = -1f;
+        hitCancelDir = 0f;
+    }
+
+    // 타격 이벤트가 나올 때마다 호출. 이번 클립의 타격 이벤트가 다 나오면 캔슬 대기 시작.
+    void RegisterAttackHitEvent()
+    {
+        if (!isAttacking) return;
+        hitEventsThisSwing++;
+        if (hitEventsInClip < 0) hitEventsInClip = CountHitEventsInCurrentClip();
+        if (hitCancelTimer < 0f && hitEventsThisSwing >= hitEventsInClip)
+        {
+            hitCancelTimer = 0f;
+            float h = Input.GetAxisRaw("Horizontal");
+            hitCancelDir = h > 0f ? 1f : (h < 0f ? -1f : 0f);
+        }
+    }
+
+    // 지금 재생 중인 공격 클립(전환 중이면 넘어가는 쪽)에 SpawnHitbox / FireProjectile 이벤트가 몇 개인지
+    int CountHitEventsInCurrentClip()
+    {
+        AnimatorClipInfo[] infos = animator.IsInTransition(0)
+                                 ? animator.GetNextAnimatorClipInfo(0)
+                                 : animator.GetCurrentAnimatorClipInfo(0);
+        if (infos == null || infos.Length == 0) infos = animator.GetCurrentAnimatorClipInfo(0);
+
+        AnimationClip clip = null;
+        float bestWeight = -1f;
+        foreach (var info in infos)
+        {
+            if (info.clip != null && info.weight > bestWeight) { bestWeight = info.weight; clip = info.clip; }
+        }
+        if (clip == null) return 1;
+
+        int count = 0;
+        foreach (var e in clip.events)
+            if (e.functionName == nameof(SpawnHitbox) || e.functionName == nameof(FireProjectile)) count++;
+        return Mathf.Max(1, count);
+    }
+
+    void TryHitCancel()
+    {
+        if (!isAttacking || isCharging || isDashing || hitCancelTimer < 0f) return;
+        if (hitStunTimer > 0f || EquippedWeapon == null || EquippedWeapon.hitCancelDelay < 0f) return;
+
+        float h = Input.GetAxisRaw("Horizontal");
+        float dir = h > 0f ? 1f : (h < 0f ? -1f : 0f);
+        if (dir == 0f) hitCancelDir = 0f; // 손을 떼면 다음에 누르는 건 새 입력
+
+        hitCancelTimer += Time.deltaTime;
+        if (hitCancelTimer < EquippedWeapon.hitCancelDelay) return;
+
+        // 망치: 콤보 도중 X를 길게 눌러 차지로 넘어가는 중이면 끊지 않음
+        if (chargeHoldTracking && Input.GetKey(KeyCode.X)) return;
+
+        // 점프 캔슬 — 공격을 끝내 두면 바로 아래 Jump()가 그대로 점프시킨다 (아래+점프 = 발판 내리기는 제외)
+        bool downKey = Input.GetAxisRaw("Vertical") < -0.5f;
+        if (Input.GetKeyDown(KeyCode.C) && !downKey && JumpCount < 2)
+        {
+            EndAttack();
+            animator.CrossFade("Jump_Rise", 0.05f, 0); // 3타처럼 끝까지 재생해야 빠져나오는 동작도 바로 점프 동작으로
+            return;
+        }
+
+        // 이동 캔슬 — 새로 누르거나 반대로 바꿨을 때만. 다음 콤보가 예약돼 있으면 콤보 우선.
+        if (dir != 0f && dir != hitCancelDir)
+        {
+            bool comboWanted = comboQueued > 0
+                            || (comboInputTimer >= 0f && comboInputTimer <= comboInputBufferTime);
+            if (comboWanted) return;
+
+            EndAttack();
+            animator.CrossFade("f_Run", 0.05f, 0); // 3타처럼 끝까지 재생해야 빠져나오는 동작도 바로 달리기로
+        }
     }
 
     // ── 공격 종료 ─────────────────────────────────────────
@@ -1364,6 +1457,7 @@ public class PlayerController : MonoBehaviour
         animator.SetInteger(ParamComboIndex, 0);
         animator.ResetTrigger(ParamAttackTrig);
         animator.speed = 1f; // 공격 끝나면 속도 복원
+        hitCancelTimer = -1f; // [2026-10-18 추가]
     }
 
     void ForceEndAttack()
@@ -1376,6 +1470,7 @@ public class PlayerController : MonoBehaviour
         chargeHoldTracking = false;
         chargeQueued = false;
         animator.ResetTrigger(ParamAttackTrig);
+        hitCancelTimer = -1f; // [2026-10-18 추가]
     }
 
     // ── 넉백 ──────────────────────────────────────────────

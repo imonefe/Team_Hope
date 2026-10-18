@@ -7,6 +7,7 @@ using UnityEngine;
 /// - 체력이 줄어드는 순간 바로 다시 가득 채워서 절대 죽지 않는다.
 /// - Enemy 컴포넌트가 없어서 방 클리어 판정(남은 적 확인)에는 잡히지 않는다 → 로비 포탈이 바로 열림.
 /// - 맞으면 그림이 살짝 흔들리고 붉게 번쩍인다.
+/// - [2026-10-18 변경] 흔들림 축을 그림의 발밑(아래 가운데)으로 — 바닥에 박힌 채 위쪽이 까딱거린다.
 /// </summary>
 [RequireComponent(typeof(Stats))]
 [RequireComponent(typeof(Health))]
@@ -30,6 +31,9 @@ public class TrainingDummy : MonoBehaviour
     float wobbleTimer;
     float flashTimer;
     float baseAngle;
+    Vector3 basePos;          // 흔들리기 전 그림 위치 (부모 기준)
+    Quaternion baseRot;       // 흔들리기 전 그림 회전
+    Vector3 pivotLocal;       // 흔들림 축 = 그림 발밑 (부모 기준)
 
     void Awake()
     {
@@ -40,7 +44,23 @@ public class TrainingDummy : MonoBehaviour
         sr = visual != null ? visual.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
         if (visual == null && sr != null) visual = sr.transform;
         if (sr != null) baseColor = sr.color;
-        if (visual != null) baseAngle = visual.localEulerAngles.z;
+        if (visual != null)
+        {
+            baseAngle = visual.localEulerAngles.z;
+            basePos = visual.localPosition;
+            baseRot = visual.localRotation;
+            pivotLocal = basePos;
+            if (sr != null && sr.sprite != null && visual.parent != null)
+            {
+                Bounds b = sr.bounds;
+                pivotLocal = visual.parent.InverseTransformPoint(new Vector3(b.center.x, b.min.y, visual.position.z));
+            }
+            else if (sr != null && sr.sprite != null)
+            {
+                Bounds b = sr.bounds;
+                pivotLocal = new Vector3(b.center.x, b.min.y, visual.position.z);
+            }
+        }
     }
 
     void OnDestroy()
@@ -68,7 +88,10 @@ public class TrainingDummy : MonoBehaviour
                 float t = 1f - Mathf.Clamp01(wobbleTimer / wobbleTime);
                 angle = Mathf.Sin(t * Mathf.PI * 4f) * wobbleAngle * (1f - t);
             }
-            visual.localRotation = Quaternion.Euler(0f, 0f, baseAngle + angle);
+            // 발밑을 축으로 회전: 회전한 만큼 위치도 축 둘레로 돌려 준다
+            Quaternion q = Quaternion.Euler(0f, 0f, baseAngle + angle);
+            visual.localRotation = q;
+            visual.localPosition = pivotLocal + q * Quaternion.Inverse(baseRot) * (basePos - pivotLocal);
         }
 
         if (sr != null)

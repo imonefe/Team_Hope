@@ -41,6 +41,7 @@ public enum CutsceneStepType
     KillPlayer,         // 플레이어 처리 연출 → 게임오버 화면
     FadeScreen,         // 화면 암전/밝아짐
     ProjectileShot,     // [2026-10-15] 마지막으로 생성한 이펙트 안의 투사체(화살)를 플레이어에게 날리고 카메라가 따라감
+    NpcDialogue,        // [2026-10-18] NPC 대화창(F/클릭으로 넘기는 대사)을 열고, 대화가 끝날 때까지 기다림
 }
 
 [System.Serializable]
@@ -179,6 +180,12 @@ public class CutsceneStep
     public Color fadeColor = Color.black;
     [Range(0f, 1f)] public float fadeTo = 1f;
     public float fadeDuration = 0.8f;
+
+    // NpcDialogue [2026-10-18 추가]
+    [Tooltip("대사를 띄울 NPC 대화창 (koke Canvas의 NPC)")]
+    public NPC npc;
+    [Tooltip("열 대사 세트 이름 (NPC 대사 세트의 Condition Key). 비우면 첫 번째 세트")]
+    public string npcConditionKey;
 }
 
 public class CutsceneSequencer : MonoBehaviour
@@ -459,7 +466,24 @@ public class CutsceneSequencer : MonoBehaviour
             case CutsceneStepType.ProjectileShot:
                 yield return ProjectileStep(step);
                 break;
+
+            case CutsceneStepType.NpcDialogue:
+                yield return NpcDialogueStep(step);
+                break;
         }
+    }
+
+    // ── [2026-10-18 추가] NPC 대화창으로 대사 진행 → 끝날 때까지 대기 ──────────
+    // 대화창의 조작 잠금은 NPC 이름으로 따로 걸리므로, LockPlayer 스텝의 잠금과 겹쳐도 서로 풀지 않는다.
+    IEnumerator NpcDialogueStep(CutsceneStep step)
+    {
+        if (step.npc == null) yield break;
+
+        string key = string.IsNullOrEmpty(step.npcConditionKey) ? null : step.npcConditionKey;
+        step.npc.SetCondition(key, PlayerController.Instance);
+
+        yield return null; // 대화가 열린 다음 프레임부터 확인
+        while (step.npc != null && step.npc.IsTalking) yield return null;
     }
 
     // ── 이펙트에 들어 있는 원래 화살 파티클을 카메라가 따라가기 ───────────

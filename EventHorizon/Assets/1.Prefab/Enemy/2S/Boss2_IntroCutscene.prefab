@@ -33,6 +33,7 @@ Transform:
   - {fileID: 1100000000000000012}
   - {fileID: 1100000000000000022}
   - {fileID: 1100000000000000032}
+  - {fileID: 9219878987666803311}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1100000000000000003
@@ -102,6 +103,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uBCF4\uC2A4 \uB300\uAE30"
     type: 10
     runInBackground: 0
@@ -151,6 +154,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uC704\uC544\uB798 \uB760"
     type: 9
     runInBackground: 0
@@ -200,254 +205,9 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
-  - label: "\uBCF4\uC2A4 \uBE44\uCDA4"
-    type: 2
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 3
-    zoomDuration: 0.5
-    focusTarget: {fileID: 1100000000000000022}
-    focusDuration: 1
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: 
-    dialogueText: 
-    dialogueHoldSeconds: 2
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: idle
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-  - label: "\uCC9C\uCC9C\uD788 \uC90C\uC778"
-    type: 1
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 1.6
-    zoomDuration: 1.4
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: 
-    dialogueText: 
-    dialogueHoldSeconds: 2
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: idle
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-  - label: "\uB300\uC0AC1"
-    type: 6
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 3
-    zoomDuration: 0.5
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: ???
-    dialogueText: "\uC5EC\uAE30\uAE4C\uC9C0 \uC62C\uB77C\uC628 \uAE30\uB85D\uC740
-      \uC624\uB79C\uB9CC\uC774\uB124."
-    dialogueHoldSeconds: 2.4
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: idle
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-  - label: "\uC57D\uD55C \uD754\uB4E4\uB9BC"
-    type: 5
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 3
-    zoomDuration: 0.5
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.25
-    shakeStrength: 0.12
-    shakeRampFrom: 0.02
-    speakerName: 
-    dialogueText: 
-    dialogueHoldSeconds: 2
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: idle
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-  - label: "\uB300\uC0AC2"
-    type: 6
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 3
-    zoomDuration: 0.5
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: ???
-    dialogueText: "\uD558\uC9C0\uB9CC \uB124 \uC774\uC57C\uAE30\uB294\u2026 \uC774
-      \uD398\uC774\uC9C0\uC5D0\uC11C \uB05D\uB098."
-    dialogueHoldSeconds: 2.6
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: idle
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-  - label: "\uD50C\uB808\uC774\uC5B4 \uBE44\uCDA4"
+    npc: {fileID: 0}
+    npcConditionKey: 
+  - label: "EM_2Y \uBE44\uCDA4"
     type: 2
     runInBackground: 0
     waitSeconds: 1
@@ -496,8 +256,10 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
-  - label: "\uD50C\uB808\uC774\uC5B4 \uC21C\uAC04 \uC90C"
-    type: 12
+    npc: {fileID: 0}
+    npcConditionKey: 
+  - label: "\uB300\uD654 1 \u2014 \uC6D0\uD615\uC758 \uBC29"
+    type: 18
     runInBackground: 0
     waitSeconds: 1
     zoomSize: 3
@@ -516,56 +278,7 @@ MonoBehaviour:
     shakeRampFrom: 0.02
     speakerName: 
     dialogueText: 
-    dialogueHoldSeconds: 2
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: idle
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.2
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.25
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-  - label: "\uD50C\uB808\uC774\uC5B4 \uBC18\uC751"
-    type: 6
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 3
-    zoomDuration: 0.5
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: "\uB098"
-    dialogueText: "\u2026!"
-    dialogueHoldSeconds: 1.1
+    dialogueHoldSeconds: 2.6
     letterboxShow: 1
     letterboxHeight: 0.11
     letterboxDuration: 0.5
@@ -594,14 +307,16 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
-  - label: "\uB2E4\uC2DC \uBCF4\uC2A4"
+    npc: {fileID: 4923650035969524571}
+    npcConditionKey: end1
+  - label: "\uD5C8\uACF5\uC758 \uBCF4\uC2A4 \uBE44\uCDA4 (\uB300\uD654\uCC3D\uC740 \uB2EB\uD78C \uCC44)"
     type: 2
     runInBackground: 0
     waitSeconds: 1
     zoomSize: 3
     zoomDuration: 0.5
     focusTarget: {fileID: 1100000000000000022}
-    focusDuration: 0.6
+    focusDuration: 1
     focusOnPlayer: 0
     exclusiveFocus: 1
     animator: {fileID: 0}
@@ -643,6 +358,110 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+  - label: "\uCE74\uBA54\uB77C \uB3C4\uCC29 \uD6C4 \uC7A0\uAE50 \uC27C"
+    type: 0
+    runInBackground: 0
+    waitSeconds: 0.3
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+  - label: "\uB300\uD654 2 \u2014 \uC11C\uACE0\uC758 \uC8FC\uC778\uACFC \uB300\uCE58"
+    type: 18
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 4923650035969524571}
+    npcConditionKey: end2
   - label: "\uC810\uC810 \uC138\uC9C0\uB294 \uC9C4\uB3D9"
     type: 14
     runInBackground: 0
@@ -658,7 +477,7 @@ MonoBehaviour:
     slowMotionScale: 0.2
     slowMotionHoldSeconds: 1
     slowMotionRampSeconds: 0.25
-    shakeDuration: 3.1
+    shakeDuration: 6
     shakeStrength: 0.32
     shakeRampFrom: 0.02
     speakerName: 
@@ -692,8 +511,10 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
-  - label: "\uB300\uC0AC3"
-    type: 6
+    npc: {fileID: 0}
+    npcConditionKey: 
+  - label: "\uB300\uD654 3 \u2014 \uC9C0\uC6B4\uB2E4"
+    type: 18
     runInBackground: 0
     waitSeconds: 1
     zoomSize: 3
@@ -710,9 +531,8 @@ MonoBehaviour:
     shakeDuration: 0.3
     shakeStrength: 0.3
     shakeRampFrom: 0.02
-    speakerName: ???
-    dialogueText: "\uAC71\uC815 \uB9C8. \uB9C8\uC9C0\uB9C9 \uC904\uC740 \uB0B4\uAC00
-      \uC9C1\uC811 \uC368\uC904\uAC8C."
+    speakerName: 
+    dialogueText: 
     dialogueHoldSeconds: 2.6
     letterboxShow: 1
     letterboxHeight: 0.11
@@ -742,6 +562,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 4923650035969524571}
+    npcConditionKey: end3
   - label: "\uC5BC\uAD74 \uD074\uB85C\uC988\uC5C5"
     type: 2
     runInBackground: 0
@@ -791,6 +613,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uAE09\uC90C\uC778"
     type: 1
     runInBackground: 0
@@ -840,6 +664,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uAE08\uBE5B \uBC88\uCA4D"
     type: 13
     runInBackground: 0
@@ -889,6 +715,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uad81\uc218 \ub4f1\uc7a5 (\uc6d0\ubcf8 boss_disposaleffect, 2.55\ucd08 \ub4a4 \ud654\uc0b4 \ubc1c\uc0ac)"
     type: 11
     runInBackground: 0
@@ -955,68 +783,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
-  - label: "\ub300\uc0ac4"
-    type: 6
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 3
-    zoomDuration: 0.5
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    focusOnSpawned: 0
-    spawnedChildName: "Archer"
-    focusOffset: {x: 0, y: 0}
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: "???"
-    dialogueText: "\u2500\u2500\ud3d0\uae30."
-    dialogueHoldSeconds: 1.3
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: "animation"
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    projectileChildName: "shotparticle"
-    projectileSeconds: 0.9
-    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
-    projectileCameraFollow: 1
-    impactPrefab: {fileID: 0}
-    impactScale: 1
-    projectileTrailWidth: 0.22
-    projectileTrailTime: 0.18
-    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
-    projectileHeadSize: 0.45
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uad81\uc218 \ube44\ucda4"
     type: 2
     runInBackground: 0
@@ -1079,6 +847,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uad81\uc218 \ud074\ub85c\uc988\uc5c5"
     type: 1
     runInBackground: 0
@@ -1141,6 +911,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uc2dc\uc704\ub97c \ub2f9\uae30\ub294 \ub3d9\uc548"
     type: 0
     runInBackground: 0
@@ -1203,6 +975,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\ud654\uc0b4\uc744 \ub530\ub77c\uac00 \ud50c\ub808\uc774\uc5b4\uc5d0\uac8c \uba85\uc911"
     type: 17
     runInBackground: 0
@@ -1268,6 +1042,8 @@ MonoBehaviour:
     projectileFollowParticles: 1
     projectileFlightTimeScale: 0.06
     projectileTimeout: 5
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uba85\uc911 \uc21c\uac04 \uae09\uc90c"
     type: 1
     runInBackground: 1
@@ -1330,6 +1106,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\ud770 \uc12c\uad11"
     type: 13
     runInBackground: 0
@@ -1392,6 +1170,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uac15\ud55c \ud754\ub4e4\ub9bc"
     type: 5
     runInBackground: 1
@@ -1454,6 +1234,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   - label: "\uc2ac\ub85c\ubaa8\uc158"
     type: 4
     runInBackground: 1
@@ -1516,7 +1298,162 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
-  - label: "\ud50c\ub808\uc774\uc5b4 \ucc98\ub9ac \u2192 \uac8c\uc784\uc624\ubc84 (\ud654\uc0b4 \ubc29\ud5a5\uc778 \uc624\ub978\ucabd\uc73c\ub85c \ud295\uae40)"
+    npc: {fileID: 0}
+    npcConditionKey: 
+  - label: "\uC554\uC804"
+    type: 16
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+  - label: "\uC554\uC804 \uC720\uC9C0 (\uC2AC\uB85C\uBAA8\uC158\uC774 \uD480\uB9B4 \uB54C\uAE4C\uC9C0)"
+    type: 0
+    runInBackground: 0
+    waitSeconds: 0.5
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+  - label: "\uB300\uD654 4 \u2014 \uC554\uC804 \uB4A4 \uB3C5\uBC31"
+    type: 18
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 4923650035969524571}
+    npcConditionKey: end4
+  - label: "\uD50C\uB808\uC774\uC5B4 \uCC98\uB9AC \u2192 \uAC8C\uC784\uC624\uBC84"
     type: 15
     runInBackground: 0
     waitSeconds: 1
@@ -1578,6 +1515,8 @@ MonoBehaviour:
     fadeColor: {r: 0, g: 0, b: 0, a: 1}
     fadeTo: 1
     fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
   playOnStart: 1
   releaseRoomCamera: 1
   restoreCameraOnEnd: 1
@@ -1813,3 +1752,116 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1100000000000000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1100000000000000041
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1100000000000000002}
+    m_Modifications:
+    - target: {fileID: 1101196997637644917, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_Name
+      value: EndingTalkCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+--- !u!224 &9219878987666803311 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+  m_PrefabInstance: {fileID: 1100000000000000041}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4923650035969524571 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5410984461697516402, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+  m_PrefabInstance: {fileID: 1100000000000000041}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e29a3ee79d634d4bad47dfede87e712, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

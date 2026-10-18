@@ -145,6 +145,10 @@ public class WeaponData : ScriptableObject
     [Tooltip("차지 강타 명중 시 넉백 (수직)")]
     public float chargeKnockbackY = 5f;
 
+    [Header("타격 후 캔슬 (2026-10-18 추가)")]
+    [Tooltip("이번 공격 동작의 타격 판정이 모두 나간 뒤 이 시간(초)이 지나면, 방향키(새로 누르거나 반대로) 또는 점프로 남은 공격 동작을 끊을 수 있다. 음수면 캔슬 없음")]
+    public float hitCancelDelay = 0.08f;
+
     // ───────── 랜덤 사운드 고르기 (PlayerController에서 호출) ─────────
 
     public AudioClip PickSwing()    { return swingSfx != null ? swingSfx.Pick() : null; }

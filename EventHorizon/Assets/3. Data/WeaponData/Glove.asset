@@ -85,3 +85,4 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 200524ed3ceea7d45b3168eaf41498f1, type: 3}
   chargeKnockbackX: 9
   chargeKnockbackY: 5
+  hitCancelDelay: 0.05

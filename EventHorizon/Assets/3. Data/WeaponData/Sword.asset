@@ -85,3 +85,4 @@ MonoBehaviour:
     clips: []
   chargeKnockbackX: 0
   chargeKnockbackY: 0
+  hitCancelDelay: 0.08
