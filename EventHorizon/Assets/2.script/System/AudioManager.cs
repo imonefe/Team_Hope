@@ -13,6 +13,12 @@ public class AudioManager : PersistentSingleton<AudioManager>
     [Range(0f, 1f)] public float bgmVolume = 0.7f;
     [Range(0f, 1f)] public float sfxVolume = 1.0f;
 
+    /// <summary>
+    /// [2026-10-19 추가] 곡 전환 연출(RoomBGM)이 배경음 소리 칸 크기를 직접 줄였다 키우는 중이면 true.
+    /// 이때만 아래 LateUpdate 의 '설정값으로 되돌리기'를 쉰다.
+    /// </summary>
+    [System.NonSerialized] public bool bgmFading;
+
     void Awake()
     {
         if (!InitSingleton()) return;
@@ -28,6 +34,14 @@ public class AudioManager : PersistentSingleton<AudioManager>
             bgmSource.playOnAwake = false;
             bgmSource.loop = true;
         }
+    }
+
+    // [2026-10-19 추가] 배경음 소리 칸 크기를 항상 설정값(bgmVolume)에 맞춘다.
+    // 곡을 틀 때 한 번만 넣으면, 그 뒤에 다른 곳이 크기를 덮어썼을 때 설정 창 값이 안 먹었기 때문.
+    void LateUpdate()
+    {
+        if (bgmFading || bgmSource == null) return;
+        if (!Mathf.Approximately(bgmSource.volume, bgmVolume)) bgmSource.volume = bgmVolume;
     }
 
     /// <summary>
@@ -63,7 +77,7 @@ public class AudioManager : PersistentSingleton<AudioManager>
     {
         if (Instance == null) return;
         Instance.bgmVolume = Mathf.Clamp01(vol);
-        Instance.bgmSource.volume = Instance.bgmVolume;
+        if (Instance.bgmSource != null && !Instance.bgmFading) Instance.bgmSource.volume = Instance.bgmVolume;
     }
 
     // ── SFX ──────────────────────────────────────────────

@@ -130,21 +130,42 @@ public static class GameSettings
     {
         MasterVolume = Mathf.Clamp01(v);
         AudioListener.volume = MasterVolume;
+        LogAudio("전체 소리", MasterVolume);
         Commit();
     }
 
+    // [2026-10-19 수정] AudioManager 가 아직 없으면 값이 버려지던 문제 → 없으면 만들어서라도 바로 적용
     public static void SetBgmVolume(float v)
     {
         BgmVolume = Mathf.Clamp01(v);
+        AudioManager.GetOrCreate();
         AudioManager.SetBGMVolume(BgmVolume);
+        LogAudio("배경음", BgmVolume);
         Commit();
     }
 
     public static void SetSfxVolume(float v)
     {
         SfxVolume = Mathf.Clamp01(v);
+        AudioManager.GetOrCreate();
         AudioManager.SetSFXVolume(SfxVolume);
+        LogAudio("효과음", SfxVolume);
         Commit();
+    }
+
+    // [2026-10-19 추가] 에디터에서만: 소리 설정을 바꿀 때 실제로 어디에 들어갔는지 콘솔에 남긴다 (빌드에서는 호출 자체가 빠짐)
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    static void LogAudio(string what, float v)
+    {
+        AudioManager am = AudioManager.Instance;
+        string bgm;
+        if (am == null) bgm = "AudioManager 없음";
+        else if (am.bgmSource == null) bgm = "배경음 소리 칸 없음";
+        else bgm = "곡 " + (am.bgmSource.clip != null ? am.bgmSource.clip.name : "없음")
+                 + (am.bgmSource.isPlaying ? " (재생 중)" : " (멈춤)")
+                 + ", 소리 칸 크기 " + am.bgmSource.volume.ToString("0.00");
+        Debug.Log("[설정] " + what + " " + Mathf.RoundToInt(v * 100f) + "% · 전체 크기 "
+                  + AudioListener.volume.ToString("0.00") + " · " + bgm);
     }
 
     public static void SetShakeScale(float v)

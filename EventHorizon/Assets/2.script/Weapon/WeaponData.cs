@@ -94,7 +94,7 @@ public class WeaponData : ScriptableObject
     public float damageMultiplier = 1f;
 
     [Header("퍼즈 게이지")]
-    public float pauseGaugePerHit = 2.5f; // 기본 2.5% (40타 = 100%)
+    public float pauseGaugePerHit = 10f; // 기본 10% (10타 = 100%) [2026-10-19 2.5 → 10]
 
     [Header("사운드 (여러 개 넣으면 그중 하나가 랜덤 재생)")]
     public RandomSfx swingSfx = new RandomSfx();

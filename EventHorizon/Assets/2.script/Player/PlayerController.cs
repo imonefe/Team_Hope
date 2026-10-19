@@ -993,7 +993,7 @@ public class PlayerController : MonoBehaviour
         // 퍼즈 게이지: 한 발에 적을 하나라도 맞혔으면 한 번만 충전 (관통으로 여러 마리 맞아도 한 번)
         if (anyHit)
         {
-            PauseManager.Instance?.AddGauge(EquippedWeapon != null ? EquippedWeapon.pauseGaugePerHit : 2.5f);
+            PauseManager.Instance?.AddGauge(EquippedWeapon != null ? EquippedWeapon.pauseGaugePerHit : 10f);
             OnGauntletHit();
         }
 

@@ -28,7 +28,7 @@ MonoBehaviour:
     hpPercent: 0
   hitboxPrefab: {fileID: 0}
   damageMultiplier: 1
-  pauseGaugePerHit: 5
+  pauseGaugePerHit: 10
   swingSfx:
     clips:
     - {fileID: 8300000, guid: 05da4353320d85247b5061ca02a5e372, type: 3}

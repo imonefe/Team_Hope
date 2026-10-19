@@ -280,7 +280,7 @@ public class Hitbox : MonoBehaviour
         {
             gaugeCharged = true;
             PlayerController pc = attackerStats.GetComponent<PlayerController>();
-            float gauge = pc?.EquippedWeapon != null ? pc.EquippedWeapon.pauseGaugePerHit : 2.5f;
+            float gauge = pc?.EquippedWeapon != null ? pc.EquippedWeapon.pauseGaugePerHit : 10f;
             PauseManager.Instance?.AddGauge(gauge);
 
             // 건틀릿 공격 속도 스택 (피격 성공 시)

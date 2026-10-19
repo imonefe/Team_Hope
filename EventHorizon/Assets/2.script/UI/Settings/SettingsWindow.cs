@@ -96,9 +96,10 @@ public class SettingsWindow : MonoBehaviour
         if (group == null) group = GetComponent<CanvasGroup>();
         if (group == null) group = gameObject.AddComponent<CanvasGroup>();
 
-        Bind(masterVolume, GameSettings.SetMasterVolume);
+        // [2026-10-19 수정] 전체·효과음은 바꾼 크기를 바로 들어 볼 수 있게 클릭음을 한 번 들려준다
+        Bind(masterVolume, v => { GameSettings.SetMasterVolume(v); PreviewSfx(); });
         Bind(bgmVolume, GameSettings.SetBgmVolume);
-        Bind(sfxVolume, GameSettings.SetSfxVolume);
+        Bind(sfxVolume, v => { GameSettings.SetSfxVolume(v); PreviewSfx(); });
         Bind(screenShake, GameSettings.SetShakeScale);
         Bind(fullscreen, GameSettings.SetFullscreen);
         Bind(weaponInfo, GameSettings.SetShowWeaponInfo);
@@ -121,6 +122,15 @@ public class SettingsWindow : MonoBehaviour
     void OnDestroy()
     {
         if (instance == this) instance = null;
+    }
+
+    // 끌고 있는 동안 소리가 겹쳐 시끄럽지 않게 0.12초에 한 번만
+    float lastPreviewTime = -1f;
+    void PreviewSfx()
+    {
+        if (Time.unscaledTime - lastPreviewTime < 0.12f) return;
+        lastPreviewTime = Time.unscaledTime;
+        UIClickSound.PlayClick();
     }
 
     static void Bind(SettingSlider s, System.Action<float> set) { if (s != null) s.OnChanged = set; }

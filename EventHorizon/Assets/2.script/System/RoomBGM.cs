@@ -31,7 +31,16 @@ public class RoomBGM : MonoBehaviour
     Coroutine fading;
 
     void OnEnable() { RoomManager.OnRoomLoaded += OnRoomLoaded; }
-    void OnDisable() { RoomManager.OnRoomLoaded -= OnRoomLoaded; }
+    void OnDisable()
+    {
+        RoomManager.OnRoomLoaded -= OnRoomLoaded;
+        // 연출 도중 꺼지면 코루틴이 멈추므로 '연출 중' 표시를 직접 풀어 준다
+        if (fading != null)
+        {
+            fading = null;
+            if (AudioManager.Instance != null) AudioManager.Instance.bgmFading = false;
+        }
+    }
 
     void OnRoomLoaded(Room room, bool isStartRoom)
     {
@@ -60,6 +69,8 @@ public class RoomBGM : MonoBehaviour
 
     IEnumerator Switch(AudioManager am, AudioSource src, AudioClip clip)
     {
+        am.bgmFading = true;   // [2026-10-19] 연출하는 동안 AudioManager 가 크기를 되돌리지 않게
+
         // 앞 곡 줄이기
         if (src.isPlaying && fadeOutTime > 0f)
         {
@@ -82,6 +93,7 @@ public class RoomBGM : MonoBehaviour
             }
         }
         src.volume = am.bgmVolume;
+        am.bgmFading = false;
         fading = null;
     }
 }
