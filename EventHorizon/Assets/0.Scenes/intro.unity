@@ -1415,7 +1415,7 @@ MonoBehaviour:
   m_text: "EVENT HORIZON\nTeam Hope\n\n\uC784\uC6D0\uCCA0\n2D \uADF8\uB798\uD53D
     \uC18C\uC2A4 \uBC0F \uC2DC\uC2A4\uD15C \uAE30\uD68D\n\n\uC591\uD615\uC11D\n2D
     \uADF8\uB798\uD53D \uC18C\uC2A4 \uC81C\uC791\uBC0F \uC774\uD399\uD2B8 \uC81C\uC791\n\n\uC815\uC9C0\uC6D0\n3D
-    \uBC30\uACBD \uBAA8\uB378\uB9C1, \uC250\uC774\uB354"
+    \uBC30\uACBD \uBAA8\uB378\uB9C1, \uC250\uC774\uB354 \uC81C\uC791 \uBC0F \uD14C\uC2A4\uD305"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   m_sharedMaterial: {fileID: 7224087456951919524, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}

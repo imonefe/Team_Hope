@@ -27,7 +27,6 @@ public static class SlashTestSceneBuilder
     const string ClipDir = "Assets/4. Art/Character/Player/Animations/";
     static readonly string[] SwordClips = { "Sword01", "Sword02", "Sword03" };
     const string SwordData = "Assets/3. Data/WeaponData/Sword.asset";
-    const string SlashMatDir = "Assets/Etc/Shader/SwordSlash/Materials/";
     const string ScreenSlashMat = "Assets/Etc/Shader/ScreenSlash/M_ScreenSlash.mat";
     const string SpriteUnlitMatPath = "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat";
     const string FeatureName = "ScreenSlash";   // (예전 방식) 풀스크린 패스 이름 — 지금은 HitGlitchScreenFeature 의 Slash Material 로 그림
@@ -112,12 +111,7 @@ public static class SlashTestSceneBuilder
             man.transform.position = new Vector3(0f, -0.95f - bottom, 0f);
         }
 
-        var fx = man.AddComponent<SwordSlashFX>();
-        fx.targetSprite = sr;
-        fx.arcMaterial = AssetDatabase.LoadAssetAtPath<Material>(SlashMatDir + "M_SlashArc.mat");
-        fx.wispMaterial = AssetDatabase.LoadAssetAtPath<Material>(SlashMatDir + "M_SlashWisp.mat");
-        fx.emberMaterial = AssetDatabase.LoadAssetAtPath<Material>(SlashMatDir + "M_SlashEmber.mat");
-        fx.flashMaterial = AssetDatabase.LoadAssetAtPath<Material>(SlashMatDir + "M_SlashFlare.mat");
+        // [2026-10-22] 검 참격(SwordSlashFX)은 삭제됨 — 화면 가르기만 테스트
 
         var driver = man.AddComponent<SlashTestDriver>();
         driver.target = sr;
