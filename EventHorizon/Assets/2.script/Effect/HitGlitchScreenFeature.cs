@@ -29,6 +29,9 @@ public class HitGlitchScreenFeature : ScriptableRendererFeature
     [Tooltip("메뉴 블러용: MenuBlurScreen 셰이더를 쓰는 머티리얼 (Assets/Etc/Resources/MenuBlurScreen.mat)")]
     public Material menuBlurMaterial;
 
+    [Tooltip("[2026-10-22] 화면 가르기용: M_ScreenSlash (ScreenSlashEffect 가 값을 움직임). _Intensity 가 0보다 클 때만 그림")]
+    public Material slashMaterial;
+
     [Tooltip("언제 끼워 넣을지. 기본값(후처리 다음)이면 블룸 등 후처리까지 끝난 화면을 일그러뜨린다")]
     public RenderPassEvent injectionPoint = RenderPassEvent.AfterRenderingPostProcessing;
 
@@ -45,7 +48,7 @@ public class HitGlitchScreenFeature : ScriptableRendererFeature
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        if (material == null && pauseMaterial == null && lowHpMaterial == null && menuBlurMaterial == null) return;
+        if (material == null && pauseMaterial == null && lowHpMaterial == null && menuBlurMaterial == null && slashMaterial == null) return;
         if (renderingData.cameraData.cameraType != CameraType.Game) return;
         if (renderingData.cameraData.camera != GetTargetCamera()) return;
 
@@ -55,10 +58,11 @@ public class HitGlitchScreenFeature : ScriptableRendererFeature
         Material pause = pauseMaterial != null && PauseGlitchEffect.ScreenActive ? pauseMaterial : null;
         Material lowHp = lowHpMaterial != null && LowHpGlitchEffect.ScreenActive ? lowHpMaterial : null;
         Material blur = menuBlurMaterial != null && MenuBackdrop.BlurActive && MenuBackdrop.BlurIterations > 0 ? menuBlurMaterial : null;
-        if (hit == null && pause == null && lowHp == null && blur == null) return;   // 효과가 없을 땐 패스를 넣지 않음
+        Material slash = slashMaterial != null && slashMaterial.GetFloat(SlashIntensityId) > 0.001f ? slashMaterial : null;
+        if (hit == null && pause == null && lowHp == null && blur == null && slash == null) return;   // 효과가 없을 땐 패스를 넣지 않음
 
         pass.renderPassEvent = injectionPoint;
-        pass.Setup(hit, pause, lowHp, blur);
+        pass.Setup(hit, pause, lowHp, blur, slash);
         pass.ConfigureInput(ScriptableRenderPassInput.Color);
         renderer.EnqueuePass(pass);
     }
@@ -67,6 +71,11 @@ public class HitGlitchScreenFeature : ScriptableRendererFeature
     {
         pass?.Dispose();
     }
+
+    static readonly int SlashIntensityId = Shader.PropertyToID("_Intensity");
+
+    /// <summary>[2026-10-22] 화면 효과가 적용되는 최종 카메라 (여러 대면 가장 나중에 그려지는 기본 카메라). 화면 좌표 계산용</summary>
+    public static Camera FinalCamera => GetTargetCamera();
 
     // ── 대상 카메라: 화면에 직접 그리는 기본 카메라 중 깊이(Depth) 값이 가장 큰 것 ──
     static Camera cachedTarget;
@@ -130,14 +139,17 @@ public class HitGlitchScreenFeature : ScriptableRendererFeature
         Material pauseMat;
         Material lowHpMat;
         Material blurMat;
+        Material slashMat;
+        readonly MaterialPropertyBlock slashProps = new MaterialPropertyBlock();
         RTHandle copy;
 
-        public void Setup(Material hit, Material pause, Material lowHp, Material blur)
+        public void Setup(Material hit, Material pause, Material lowHp, Material blur, Material slash)
         {
             hitMat = hit;
             pauseMat = pause;
             lowHpMat = lowHp;
             blurMat = blur;
+            slashMat = slash;
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
@@ -151,7 +163,7 @@ public class HitGlitchScreenFeature : ScriptableRendererFeature
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            if ((hitMat == null && pauseMat == null && lowHpMat == null && blurMat == null) || copy == null) return;
+            if ((hitMat == null && pauseMat == null && lowHpMat == null && blurMat == null && slashMat == null) || copy == null) return;
 
             CommandBuffer cmd = CommandBufferPool.Get();
             using (new ProfilingScope(cmd, sampler))
@@ -194,6 +206,13 @@ public class HitGlitchScreenFeature : ScriptableRendererFeature
                     hitProps.SetFloat(IntensityId, HitGlitchEffect.ScreenIntensity);
                     hitProps.SetFloat(SeedId, HitGlitchEffect.ScreenSeed);
                     DrawLayer(cmd, screen, hitMat, hitProps);
+                }
+
+                // [2026-10-22] 화면 가르기 층 (피격 위, 메뉴 블러 아래). 값은 ScreenSlashEffect 가 머티리얼에 직접 넣음
+                if (slashMat != null)
+                {
+                    slashProps.Clear();
+                    DrawLayer(cmd, screen, slashMat, slashProps);
                 }
 
                 // 4) 메뉴 블러 (맨 위 — 위의 효과까지 전부 흐리게). 반복할수록 샘플 간격을 넓혀 부드럽게 퍼짐

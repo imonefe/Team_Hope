@@ -92,7 +92,7 @@ public class CutsceneStepDrawer : PropertyDrawer
             case CutsceneStepType.SpineAnimation:
                 return new[] { "spineTarget", "spineAnimationName", "spineLoop", "spineNextAnimation", "waitForSpine" };
             case CutsceneStepType.SpawnEffect:
-                return new[] { "effectPrefab", "effectAtPlayer", "effectAnchor", "effectOffset", "effectScale", "effectLifetime", "effectHierarchyScale", "effectSortingOrder", "effectSpineSortingOrder", "effectHideChildren", "effectFlipSprites" };
+                return new[] { "effectPrefab", "effectAtPlayer", "effectAnchor", "effectOffset", "effectScale", "effectSpeed", "effectLifetime", "effectHierarchyScale", "effectSortingOrder", "effectSpineSortingOrder", "effectHideChildren", "effectFlipSprites" };
             case CutsceneStepType.ZoomPunch:
                 return new[] { "punchAmount", "punchInSeconds", "punchHoldSeconds", "punchOutSeconds" };
             case CutsceneStepType.Flash:
@@ -105,6 +105,9 @@ public class CutsceneStepDrawer : PropertyDrawer
                 return new[] { "fadeColor", "fadeTo", "fadeDuration" };
             case CutsceneStepType.ProjectileShot:
                 return new[] { "projectileFollowParticles", "projectileFlightTimeScale", "projectileTimeout", "projectileChildName", "projectileSeconds", "projectileTargetOffset", "projectileCameraFollow", "impactPrefab", "impactScale", "projectileTrailWidth", "projectileTrailTime", "projectileColor", "projectileHeadSize" };
+            // [2026-10-22] 검사의 일격 (플레이어를 지나는 선으로 화면 가르기)
+            case CutsceneStepType.SwordSlashKill:
+                return new[] { "slashFrame", "slashTimeout", "slashAngle", "slashCenterOffset", "cutDelay" };
             default:
                 return new string[0];
         }

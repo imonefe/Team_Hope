@@ -34,6 +34,8 @@ Transform:
   - {fileID: 1100000000000000022}
   - {fileID: 1100000000000000032}
   - {fileID: 9219878987666803311}
+  - {fileID: 3934630688952475864}
+  - {fileID: 2213234815691732919}
   - {fileID: 5794509703423806578}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -54,6 +56,7 @@ MonoBehaviour:
   dialogueBox: {fileID: 0}
   dialogueFont: {fileID: 12800000, guid: 255c0f33cae3cea489e9989b06ed2a14, type: 3}
   dialogueSpeakerFont: {fileID: 12800000, guid: 1e95fcd50148a3a489d0311aa91d3553, type: 3}
+  screenSlash: {fileID: 6033300875310755859}
   steps:
   - label: "\uC870\uC791 \uC7A0\uAE08"
     type: 7
@@ -616,7 +619,7 @@ MonoBehaviour:
     fadeDuration: 0.8
     npc: {fileID: 0}
     npcConditionKey: 
-  - label: "\uad81\uc218 \ub4f1\uc7a5 (\uc6d0\ubcf8 boss_disposaleffect, 2.32\ucd08 \ub4a4 \ud654\uc0b4 \ubc1c\uc0ac)"
+  - label: "\uac80\uc0ac \ub4f1\uc7a5 (Boss2_Swordsman, 9\ubc88 \ud504\ub808\uc784\uc5d0\uc11c \ubcb0)"
     type: 11
     runInBackground: 0
     waitSeconds: 1
@@ -627,7 +630,7 @@ MonoBehaviour:
     focusOnPlayer: 0
     exclusiveFocus: 1
     focusOnSpawned: 0
-    spawnedChildName: "Archer"
+    spawnedChildName: "Knight"
     focusOffset: {x: 0, y: 0}
     animator: {fileID: 0}
     triggerName: 
@@ -648,17 +651,17 @@ MonoBehaviour:
     spineLoop: 1
     spineNextAnimation: 
     waitForSpine: 0
-    effectPrefab: {fileID: 7753224053532609282, guid: fcfe307705068e248a83056580bbd945, type: 3}
+    effectPrefab: {fileID: 7822951830462602962, guid: 6087f4d718f142f7bc27c6653e55b092, type: 3}
     effectAtPlayer: 0
-    effectAnchor: {fileID: 5794509703423806578}
+    effectAnchor: {fileID: 3934630688952475864}
     effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 0.42
-    effectLifetime: 6
-    effectSpeed: 1.1
-    effectHideChildren: "smoke,impactlightparticle,impactlightparticle2"
-    effectSpineSortingOrder: 4004
-    effectSortingOrder: 5100
-    effectHierarchyScale: 1
+    effectScale: 1
+    effectLifetime: 12
+    effectSpeed: 1
+    effectHideChildren: 
+    effectSpineSortingOrder: 0
+    effectSortingOrder: 0
+    effectHierarchyScale: 0
     punchAmount: 1.5
     punchInSeconds: 0.08
     punchHoldSeconds: 0.15
@@ -685,7 +688,7 @@ MonoBehaviour:
     fadeDuration: 0.8
     npc: {fileID: 0}
     npcConditionKey: 
-  - label: "\uad81\uc218 \ube44\ucda4"
+  - label: "\uac80\uc0ac \ube44\ucda4 \u2014 \uac80\uc0ac\uc640 \ud50c\ub808\uc774\uc5b4 \uac00\uc6b4\ub370"
     type: 2
     runInBackground: 0
     waitSeconds: 1
@@ -696,8 +699,8 @@ MonoBehaviour:
     focusOnPlayer: 0
     exclusiveFocus: 1
     focusOnSpawned: 1
-    spawnedChildName: "Spine GameObject (2st_boss_sprite)"
-    focusOffset: {x: -0.3, y: 1.5}
+    spawnedChildName: "Knight"
+    focusOffset: {x: -0.73, y: 0.6}
     animator: {fileID: 0}
     triggerName: 
     slowMotionScale: 0.2
@@ -749,7 +752,7 @@ MonoBehaviour:
     fadeDuration: 0.8
     npc: {fileID: 0}
     npcConditionKey: 
-  - label: "\uad81\uc218 \ud074\ub85c\uc988\uc5c5"
+  - label: "\uac80\uc0ac \ud074\ub85c\uc988\uc5c5"
     type: 1
     runInBackground: 0
     waitSeconds: 1
@@ -760,7 +763,7 @@ MonoBehaviour:
     focusOnPlayer: 0
     exclusiveFocus: 1
     focusOnSpawned: 0
-    spawnedChildName: "Archer"
+    spawnedChildName: "Knight"
     focusOffset: {x: 0, y: 0}
     animator: {fileID: 0}
     triggerName: 
@@ -813,8 +816,8 @@ MonoBehaviour:
     fadeDuration: 0.8
     npc: {fileID: 0}
     npcConditionKey: 
-  - label: "\uc2dc\uc704\ub97c \ub2f9\uae30\ub294 \ub3d9\uc548"
-    type: 0
+  - label: "\uac80\uc0ac\uc758 \uc77c\uaca9 \u2014 \ud50c\ub808\uc774\uc5b4\ub97c \uc9c0\ub098\ub294 \uc120\uc73c\ub85c \ud654\uba74 \uac00\ub974\uae30"
+    type: 19
     runInBackground: 0
     waitSeconds: 0.35
     zoomSize: 3
@@ -877,201 +880,11 @@ MonoBehaviour:
     fadeDuration: 0.8
     npc: {fileID: 0}
     npcConditionKey: 
-  - label: "\ud654\uc0b4\uc744 \ub530\ub77c\uac00 \ud50c\ub808\uc774\uc5b4\uc5d0\uac8c \uba85\uc911"
-    type: 17
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 3
-    zoomDuration: 0.5
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    focusOnSpawned: 0
-    spawnedChildName: "Archer"
-    focusOffset: {x: 0, y: 0}
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: 
-    dialogueText: 
-    dialogueHoldSeconds: 2
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: "animation"
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    projectileChildName: spot
-    projectileSeconds: 0.9
-    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
-    projectileCameraFollow: 1
-    impactPrefab: {fileID: 7753224053532609282, guid: 84b038528d2645cfa9fb215f5184ab49, type: 3}
-    impactScale: 0.6
-    projectileTrailWidth: 0.22
-    projectileTrailTime: 0.18
-    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
-    projectileHeadSize: 0.45
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-    projectileFollowParticles: 1
-    projectileFlightTimeScale: 1
-    projectileTimeout: 5
-    npc: {fileID: 0}
-    npcConditionKey: 
-  - label: "\uba85\uc911 \uc21c\uac04 \uae09\uc90c"
-    type: 1
-    runInBackground: 1
-    waitSeconds: 1
-    zoomSize: 2.0
-    zoomDuration: 0.12
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    focusOnSpawned: 0
-    spawnedChildName: "Archer"
-    focusOffset: {x: 0, y: 0}
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: 
-    dialogueText: 
-    dialogueHoldSeconds: 2
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: "animation"
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    projectileChildName: "shotparticle"
-    projectileSeconds: 0.9
-    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
-    projectileCameraFollow: 1
-    impactPrefab: {fileID: 0}
-    impactScale: 1
-    projectileTrailWidth: 0.22
-    projectileTrailTime: 0.18
-    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
-    projectileHeadSize: 0.45
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-    npc: {fileID: 0}
-    npcConditionKey: 
-  - label: "\ud770 \uc12c\uad11"
-    type: 13
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 3
-    zoomDuration: 0.5
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    focusOnSpawned: 0
-    spawnedChildName: "Archer"
-    focusOffset: {x: 0, y: 0}
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: 
-    dialogueText: 
-    dialogueHoldSeconds: 2
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: "animation"
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.9
-    flashDuration: 0.45
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    projectileChildName: "shotparticle"
-    projectileSeconds: 0.9
-    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
-    projectileCameraFollow: 1
-    impactPrefab: {fileID: 0}
-    impactScale: 1
-    projectileTrailWidth: 0.22
-    projectileTrailTime: 0.18
-    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
-    projectileHeadSize: 0.45
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-    npc: {fileID: 0}
-    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 28
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
   - label: "\uac15\ud55c \ud754\ub4e4\ub9bc"
     type: 5
     runInBackground: 1
@@ -1621,6 +1434,86 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1100000000000000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8755198171538039890
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3934630688952475864}
+  m_Layer: 0
+  m_Name: 검사_등장위치
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3934630688952475864
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8755198171538039890}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -13.4, y: -7.08, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1100000000000000002}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1750355875945737870
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2213234815691732919}
+  - component: {fileID: 6033300875310755859}
+  m_Layer: 0
+  m_Name: ScreenSlash
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2213234815691732919
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1750355875945737870}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1100000000000000002}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6033300875310755859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1750355875945737870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffc03de6356b6574aa8947f7e6f4b3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slashMaterial: {fileID: 2100000, guid: 90f86b224139401ba7f88954ac3c838b, type: 2}
+  rendererFeatureName: ScreenSlash
+  playOnStart: 0
+  testKey: 0
+  maxContrast: 1
 --- !u!1 &1100000000000000021
 GameObject:
   m_ObjectHideFlags: 0

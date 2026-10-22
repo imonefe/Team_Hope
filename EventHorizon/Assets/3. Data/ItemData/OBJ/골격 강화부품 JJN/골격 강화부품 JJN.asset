@@ -10,14 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
-  m_Name: 골격 강화부품 JJN
+  m_Name: "\uACE8\uACA9 \uAC15\uD654\uBD80\uD488 JJN"
   m_EditorClassIdentifier: 
-  itemName: 골격 강화부품 JJN
-  description: 뼈대를 기초부터 강화해 주는 골격 강화부품.
+  itemName: "\uD761\uC785\uC2DD \uAC15\uD654\uC81C JJW"
+  description: "\uAC00\uC2A4\uB85C \uADFC\uC721\uC744 \uAC15\uD654\uC2DC\uD0A8\uB2E4.
+    \uC790\uC8FC \uC0AC\uC6A9\uD558\uBA74 \uC911\uB3C5\uB41C\uB2E4\uACE0 \uD55C\uB2E4."
   icon: {fileID: 186291676, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
   tier: 0
-  element: 3
-  power: 1
   effects:
   - {fileID: 11400000, guid: 44eb69fda89647fd9bfc192ece1affb7, type: 2}

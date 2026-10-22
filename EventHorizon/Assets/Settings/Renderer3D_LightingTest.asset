@@ -17,6 +17,7 @@ MonoBehaviour:
   pauseMaterial: {fileID: 2100000, guid: e42934b7cd22461685ff36bc73e7d714, type: 2}
   lowHpMaterial: {fileID: 2100000, guid: 1a83cfc10a6b48838c51b7199ea7aad7, type: 2}
   menuBlurMaterial: {fileID: 2100000, guid: f1f706c9a2664b01bcd9b5dcccb22da7, type: 2}
+  slashMaterial: {fileID: 2100000, guid: 90f86b224139401ba7f88954ac3c838b, type: 2}
   injectionPoint: 600
 --- !u!114 &7346021857702266113
 MonoBehaviour:

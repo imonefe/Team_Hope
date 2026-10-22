@@ -10072,6 +10072,9 @@ MonoBehaviour:
     clips: []
   GroundCheckDistance: 1.5
   GroundCheckWidth: 0.4
+  edgeStillTime: 0.06
+  edgeStillEpsilon: 0.002
+  edgeStillVelocity: 0.05
   idle02Chance: 0.15
   doubleTapTime: 0.25
 --- !u!1 &1002532369991407230

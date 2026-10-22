@@ -196,6 +196,12 @@ public class PlayerController : MonoBehaviour
     [Header("그라운드 체크")]
     public float GroundCheckDistance = 1.2f;
     public float GroundCheckWidth = 0.4f;
+    [Tooltip("[2026-10-22] 발판 끝에 걸쳐 박스 판정이 놓쳐도, 높이가 이 시간(초) 동안 변하지 않으면 착지로 본다")]
+    public float edgeStillTime = 0.06f;
+    [Tooltip("높이 변화가 이 값(물리 프레임당) 이하이면 '멈춰 있음'으로 본다")]
+    public float edgeStillEpsilon = 0.002f;
+    [Tooltip("세로 속도가 이 값 이하일 때만 '멈춰 있음'으로 본다")]
+    public float edgeStillVelocity = 0.05f;
 
     // ── 컴포넌트 ──────────────────────────────────────────
     Rigidbody2D rigid;
@@ -610,6 +616,11 @@ public class PlayerController : MonoBehaviour
 
         bool grounded = hit.collider != null;
 
+        // [2026-10-22] 발판 끝에 애매하게 걸친 경우 보정 — 공중 판정인데 높이가 그대로면 착지로 본다
+        if (!grounded && IsStuckOnEdge(b, mask)) grounded = true;
+        else if (grounded) edgeStillTimer = 0f;
+        edgeLastY = rigid.position.y;
+
         // 시각화용 저장
         lastCastOrigin = origin;
         lastCastSize = boxSize;
@@ -637,6 +648,30 @@ public class PlayerController : MonoBehaviour
 
         wasGrounded = grounded;
         animator.SetBool(ParamIsGrounded, grounded);
+    }
+
+    float edgeLastY;
+    float edgeStillTimer;
+
+    // 공중 판정 중 높이가 변하지 않고(+세로 속도 거의 0) 발밑 가까이에 실제 바닥이 있으면 true
+    bool IsStuckOnEdge(Bounds b, LayerMask mask)
+    {
+        bool still = Mathf.Abs(rigid.position.y - edgeLastY) <= edgeStillEpsilon
+                     && Mathf.Abs(rigid.velocity.y) <= edgeStillVelocity;
+        // 대쉬는 중력이 꺼져 높이가 안 변하므로 제외, 발판 통과 중도 제외
+        if (!still || isDashing || isDropping || isPassingUp)
+        {
+            edgeStillTimer = 0f;
+            return false;
+        }
+
+        edgeStillTimer += Time.fixedDeltaTime;
+        if (edgeStillTimer < edgeStillTime) return false;
+
+        // 몸 너비 전체 + 양옆 여유로 발밑 바로 아래를 넓게 확인
+        Vector2 center = new Vector2(b.center.x, b.min.y - 0.05f);
+        Vector2 size = new Vector2(b.size.x + 0.1f, 0.12f);
+        return Physics2D.OverlapBox(center, size, 0f, mask) != null;
     }
 
     void OnDrawGizmos()

@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using Com.LuisPedroFonseca.ProCamera2D;
 using Spine.Unity;
+using UnityEngine.Rendering;
 
 /// <summary>
 /// 플레이어 입력 없이 초 단위로 자동 진행되는 컷신용 시퀀서.
@@ -42,6 +43,7 @@ public enum CutsceneStepType
     FadeScreen,         // 화면 암전/밝아짐
     ProjectileShot,     // [2026-10-15] 마지막으로 생성한 이펙트 안의 투사체(화살)를 플레이어에게 날리고 카메라가 따라감
     NpcDialogue,        // [2026-10-18] NPC 대화창(F/클릭으로 넘기는 대사)을 열고, 대화가 끝날 때까지 기다림
+    SwordSlashKill,     // [2026-10-22] 마지막으로 생성한 검사(SpriteFrameSequence)가 '베는 프레임'에 닿으면, 플레이어를 지나는 선으로 화면 가르기
 }
 
 [System.Serializable]
@@ -188,6 +190,18 @@ public class CutsceneStep
     public NPC npc;
     [Tooltip("열 대사 세트 이름 (NPC 대사 세트의 Condition Key). 비우면 첫 번째 세트")]
     public string npcConditionKey;
+
+    // SwordSlashKill [2026-10-22 추가]
+    [Tooltip("검사 그림이 이 번호(0부터)의 프레임이 되는 순간 벤다")]
+    public int slashFrame = 9;
+    [Tooltip("이 시간(초, 실제 시간) 안에 베는 프레임이 안 오면 그냥 벤다")]
+    public float slashTimeout = 6f;
+    [Tooltip("화면이 갈라지는 선의 각도(도). 0 = 수평, 양수 = 오른쪽이 올라감")]
+    public float slashAngle = 18f;
+    [Tooltip("화면이 갈라지는 선이 지나갈 지점: 플레이어 그림 가운데에서 이만큼 옮긴 곳")]
+    public Vector2 slashCenterOffset = new Vector2(0f, 0.1f);
+    [Tooltip("화면 가르기를 시작한 뒤 다음 단계로 넘어가기까지(초, 실제 시간)")]
+    public float cutDelay = 0.14f;
 }
 
 public class CutsceneSequencer : MonoBehaviour
@@ -200,6 +214,11 @@ public class CutsceneSequencer : MonoBehaviour
     public Font dialogueFont;
     [Tooltip("[2026-10-15] 대사창 이름표(말하는 사람) 글꼴. 비워두면 위 대사 글꼴을 굵게 그림")]
     public Font dialogueSpeakerFont;
+
+    [Header("화면 가르기 (2026-10-22) — SwordSlashKill 단계가 사용")]
+    public ScreenSlashEffect screenSlash;
+    [Tooltip("점검용: 화면 가르기 동안 선의 중심점(플레이어 몸 중심)에 분홍 십자를 그리고, 시작할 때 콘솔에 좌표를 한 줄 출력. 위치 확인이 끝나면 끄기")]
+    public bool slashDebugMarker = true;
 
     [Header("컷신 스텝 목록 (위에서부터 순서대로 재생)")]
     public List<CutsceneStep> steps = new List<CutsceneStep>();
@@ -472,6 +491,10 @@ public class CutsceneSequencer : MonoBehaviour
                 yield return ProjectileStep(step);
                 break;
 
+            case CutsceneStepType.SwordSlashKill:
+                yield return SwordSlashKillStep(step);
+                break;
+
             case CutsceneStepType.NpcDialogue:
                 yield return NpcDialogueStep(step);
                 break;
@@ -720,6 +743,140 @@ public class CutsceneSequencer : MonoBehaviour
         currentFocusTarget = target;
     }
 
+    // ── [2026-10-22 추가] 검사의 일격: 베는 프레임까지 기다림 → 플레이어 몸을 지나는 선으로 화면 가르기 ──────────
+    IEnumerator SwordSlashKillStep(CutsceneStep step)
+    {
+        SpriteFrameSequence seq = lastSpawnedEffect != null ? lastSpawnedEffect.GetComponentInChildren<SpriteFrameSequence>() : null;
+        float waited = 0f;
+        while (seq != null && seq.CurrentFrame < step.slashFrame && !seq.Finished && waited < step.slashTimeout)
+        {
+            if (!GamePause.IsPaused) waited += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        Transform player = CurrentPlayerTransform();
+        if (player == null) yield break;
+        // [2026-10-22] 몸 중심: 본체 충돌체 → 본체 스프라이트 → 가장 큰 스프라이트 순 (붙어 있는 이펙트 그림에 끌려가지 않게)
+        Vector3 cut = BodyCenter(player) + (Vector3)step.slashCenterOffset;
+
+        // 플레이어가 날아갈 방향 = 검사 반대쪽 (KillPlayer 단계가 이 방향으로 튕김)
+        if (seq != null)
+        {
+            float d = Mathf.Sign(player.position.x - seq.transform.position.x);
+            lastProjectileDir = d != 0f ? d : 1f;
+        }
+
+        // [2026-10-22] 여기서 카메라를 옮기지 않는다 — 앞 단계(검사 비춤)가 검사와 플레이어를 같이 잡고 있음
+        if (screenSlash != null)
+        {
+            // 화면 좌표는 화면 효과가 그려지는 최종 카메라(게임 씬: Camera_2D) 기준으로 계산
+            // (Camera.main 은 3D 배경 카메라라서 플레이어 위치가 엉뚱하게 계산됨)
+            Camera finalCam = HitGlitchScreenFeature.FinalCamera;
+            if (finalCam != null) screenSlash.targetCamera = finalCam;
+            screenSlash.PlayAtWorld(step.slashAngle, cut);
+            StartSlashTracking(player, cut - player.position);
+            if (slashDebugMarker)
+            {
+                Camera c = finalCam != null ? finalCam : Camera.main;
+                Vector3 v = c != null ? c.WorldToViewportPoint(cut) : Vector3.zero;
+                Debug.Log($"[화면 가르기 점검] 카메라={(c != null ? c.name : "없음")} 화면={Screen.width}x{Screen.height} " +
+                          $"카메라영역={(c != null ? c.pixelRect.ToString() : "-")} 플레이어={player.name} 몸중심={cut} 화면좌표=({v.x:0.000}, {v.y:0.000}) 각도={step.slashAngle}", this);
+            }
+        }
+        else Debug.LogWarning("[CutsceneSequencer] Screen Slash 칸이 비어 있어 화면 가르기를 건너뜁니다.", this);
+
+        for (float t = 0f; t < step.cutDelay; t += Time.unscaledDeltaTime) yield return null;
+    }
+
+    // ── [2026-10-22] 화면 가르기 선을 플레이어 몸에 고정 ──
+    // 화면 가르기는 시작할 때 정한 '화면상의 점'에 선을 그으므로, 그 뒤 줌·흔들림으로 카메라가 움직이면 선이 몸을 비껴간다.
+    // 재생되는 동안 최종 카메라가 그리기 직전마다 선의 중심(_SlashCenter)을 플레이어 몸 위치로 다시 맞춘다.
+    static readonly int SlashCenterId = Shader.PropertyToID("_SlashCenter");
+    Transform slashTrackTarget;
+    Vector3 slashTrackOffset;
+    bool slashTracking;
+
+    void StartSlashTracking(Transform target, Vector3 offset)
+    {
+        slashTrackTarget = target;
+        slashTrackOffset = offset;
+        if (!slashTracking)
+        {
+            slashTracking = true;
+            RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
+        }
+    }
+
+    void StopSlashTracking()
+    {
+        if (slashDebugLine != null) Destroy(slashDebugLine.gameObject);
+        slashDebugLine = null;
+        if (!slashTracking) return;
+        slashTracking = false;
+        slashTrackTarget = null;
+        RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
+    }
+
+    void OnBeginCameraRendering(ScriptableRenderContext ctx, Camera cam)
+    {
+        if (screenSlash == null || slashTrackTarget == null || !screenSlash.IsPlaying || screenSlash.slashMaterial == null)
+        {
+            StopSlashTracking();
+            return;
+        }
+        if (cam != HitGlitchScreenFeature.FinalCamera) return;
+        Vector3 world = slashTrackTarget.position + slashTrackOffset;
+        Vector3 vp = cam.WorldToViewportPoint(world);
+        screenSlash.slashMaterial.SetVector(SlashCenterId, new Vector4(vp.x, vp.y, 0f, 0f));
+        if (slashDebugMarker) UpdateSlashDebugMarker(world);
+    }
+
+    // ── 점검용 분홍 십자 (선의 중심점과 같은 월드 위치) ──
+    LineRenderer slashDebugLine;
+
+    void UpdateSlashDebugMarker(Vector3 world)
+    {
+        if (slashDebugLine == null)
+        {
+            var go = new GameObject("[화면 가르기 점검 십자]");
+            slashDebugLine = go.AddComponent<LineRenderer>();
+            slashDebugLine.useWorldSpace = false;
+            slashDebugLine.positionCount = 5;
+            const float r = 0.35f;
+            slashDebugLine.SetPositions(new[] { new Vector3(-r, 0f), new Vector3(r, 0f), Vector3.zero, new Vector3(0f, r), new Vector3(0f, -r) });
+            slashDebugLine.widthMultiplier = 0.05f;
+            var sh = Shader.Find("Sprites/Default");
+            if (sh != null) slashDebugLine.material = new Material(sh);
+            slashDebugLine.startColor = slashDebugLine.endColor = Color.magenta;
+            slashDebugLine.sortingOrder = 32000;
+            go.layer = slashTrackTarget != null ? slashTrackTarget.gameObject.layer : 0;   // 플레이어와 같은 카메라에 그려지게
+        }
+        slashDebugLine.transform.position = new Vector3(world.x, world.y, slashTrackTarget != null ? slashTrackTarget.position.z : world.z);
+    }
+
+    // 플레이어 몸 중심: 본체 충돌체(트리거 아님) → 본체 스프라이트 → 자식 중 가장 큰 스프라이트 → 위치
+    static Vector3 BodyCenter(Transform player)
+    {
+        foreach (var col in player.GetComponents<Collider2D>())
+            if (col.enabled && !col.isTrigger) return col.bounds.center;
+        if (player.TryGetComponent(out SpriteRenderer own) && own.enabled && own.sprite != null) return own.bounds.center;
+        SpriteRenderer body = MainSprite(player);
+        return body != null ? body.bounds.center : player.position;
+    }
+
+    // 플레이어 안에서 가장 큰(= 몸) 그림
+    static SpriteRenderer MainSprite(Transform root)
+    {
+        SpriteRenderer best = null; float bestArea = 0f;
+        foreach (var r in root.GetComponentsInChildren<SpriteRenderer>())
+        {
+            if (!r.enabled || r.sprite == null) continue;
+            float a = r.bounds.size.x * r.bounds.size.y;
+            if (a > bestArea) { bestArea = a; best = r; }
+        }
+        return best;
+    }
+
     static Transform CurrentPlayerTransform()
     {
         if (CharacterManager.Instance != null && CharacterManager.Instance.CurrentCharacter != null)
@@ -959,6 +1116,7 @@ public class CutsceneSequencer : MonoBehaviour
     // 비활성화 시점에도 복구해준다.
     void OnDisable()
     {
+        StopSlashTracking();
         if (playRoutine != null || counted) Cleanup(false);
         RestoreTime();
         playRoutine = null; // 멈춘 코루틴 참조 정리 — 이후 Play()가 새로 시작할 수 있도록
@@ -966,6 +1124,7 @@ public class CutsceneSequencer : MonoBehaviour
 
     void OnDestroy()
     {
+        StopSlashTracking();
         if (counted) Cleanup(false);
         RestoreTime();
     }
