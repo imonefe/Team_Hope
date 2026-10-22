@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
+using Spine.Unity;
 
 /// <summary>
 /// 이 컴포넌트가 붙은 방에 들어가면 씬의 "환경광·하늘·안개"만 어둡게 만든다. 빛 연출은 방 안에 둔 빛으로 따로 한다.
@@ -47,6 +49,12 @@ public class RoomLighting : MonoBehaviour
     [Tooltip("빛이 하나도 없을 때 스프라이트가 유지하는 최소 밝기 (형태만 겨우 보이게)")]
     [Range(0f, 1f)] public float spriteMinBrightness = 0.06f;
 
+    [Header("스파인 캐릭터 (보스·궁수 등) — 2026-10-21")]
+    [Tooltip("빛이 하나도 없을 때 스파인 캐릭터가 유지하는 최소 밝기. 스프라이트보다 높게 두면 어두운 방에서도 형태·색이 살아 있음")]
+    [Range(0f, 1f)] public float spineMinBrightness = 0.45f;
+    [Tooltip("켜면 빛의 색은 무시하고 밝기만 받음 → 캐릭터 원래 색·채도 유지 (끄면 파란 환경광 등 빛 색까지 받아 채도가 낮아 보일 수 있음)")]
+    public bool spineKeepColor = true;
+
     [Header("전환")]
     [Min(0f)] public float fadeInTime = 0.5f;
     [Min(0f)] public float fadeOutTime = 0.5f;
@@ -84,7 +92,14 @@ public static class LightingDarkness
     static readonly Dictionary<Renderer, Material> swapped = new Dictionary<Renderer, Material>();
     static readonly int SpriteBlendId = Shader.PropertyToID("_EH_SpriteLightBlend");
     static readonly int SpriteMinId = Shader.PropertyToID("_EH_SpriteMinLight");
+    static readonly int SpineMinId = Shader.PropertyToID("_EH_SpineMinLight");
+    static readonly int SpineKeepColorId = Shader.PropertyToID("_EH_SpineKeepColor");
+    static float curSpineMin = 0.45f; static bool curSpineKeepColor = true;
     static float curSky = 1f, curSpriteMin = 0.06f; static bool curSpriteLighting = true;
+    // [2026-10-21 추가] 스파인 캐릭터(보스·궁수 등)용: 원래 머티리얼 → 빛 받는 머티리얼(SpineLit3D) 바꿔 끼우기
+    static Material litSpineTemplate;
+    static readonly Dictionary<Material, Material> spineLitCache = new Dictionary<Material, Material>();
+    static readonly Dictionary<SkeletonRenderer, List<Material>> spineSwapped = new Dictionary<SkeletonRenderer, List<Material>>();
 
     // 마지막으로 쓰던 설정 (방을 나가 서서히 밝아지는 동안에도 계속 쓰기 위해)
     static Color curAmbient, curFog;
@@ -100,8 +115,25 @@ public static class LightingDarkness
         sources.Clear(); swapped.Clear(); skyboxInstance = null; baseSkybox = null;
         driver = null; fade = 0f; captured = false; hasAppliedFog = false; curSource = null;
         quitting = false;
+        spineSwapped.Clear(); spineLitCache.Clear();
         Application.quitting -= OnQuitting;
         Application.quitting += OnQuitting;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    // [2026-10-21 추가] 씬을 새로 불러오면(다시하기 등) 옛 씬에서 기억해 둔 값을 버린다.
+    // 예전엔 기억해 둔 상태(captured)를 그대로 들고 가서, 새 씬의 하늘·조명 원래 값을 다시 기억하지 않았고
+    // 옛 씬의 하늘 복사본만 어둡게 하느라 새 씬은 밝은 채로 남았다.
+    // 어둠 정도(fade)는 유지 → 새 씬의 첫 방에서 원래 값을 다시 기억하자마자 바로 어둡게 (밝게 번쩍이지 않음)
+    static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (mode != LoadSceneMode.Single || !captured) return;
+        if (skyboxInstance != null) Object.Destroy(skyboxInstance);
+        skyboxInstance = null; baseSkybox = null;
+        swapped.Clear();
+        spineSwapped.Clear();
+        captured = false; hasAppliedFog = false; curSource = null;
     }
 
     static void OnQuitting() { quitting = true; }
@@ -167,6 +199,7 @@ public static class LightingDarkness
             curOverrideFog = s.overrideFogDistance; curFogStart = s.fogStart; curFogEnd = s.fogEnd;
             lastFadeOut = s.fadeOutTime;
             curSky = s.skyboxBrightness; curSpriteLighting = s.spriteLighting; curSpriteMin = s.spriteMinBrightness;
+            curSpineMin = s.spineMinBrightness; curSpineKeepColor = s.spineKeepColor;
             fade = s.fadeInTime <= 0f ? 1f : Mathf.MoveTowards(fade, 1f, dt / s.fadeInTime);
         }
         else
@@ -235,12 +268,52 @@ public static class LightingDarkness
             if (!swapped.ContainsKey(r)) swapped[r] = m;
             r.sharedMaterial = litSpriteMat;
         }
+        SwapSpines();
+    }
+
+    /// <summary>[2026-10-21 추가] 스파인(SkeletonRenderer)은 매 프레임 머티리얼을 다시 정해서 직접 바꾸면 덮어써지므로,
+    /// 스파인 공식 기능(CustomMaterialOverride)으로 '원래 머티리얼 → 빛 받는 머티리얼'을 등록한다. 스파인 파일·원본 머티리얼은 그대로.</summary>
+    static void SwapSpines()
+    {
+        if (litSpineTemplate == null) litSpineTemplate = Resources.Load<Material>("SpineLit3D");
+        if (litSpineTemplate == null) return;
+        foreach (SkeletonRenderer sr in Object.FindObjectsOfType<SkeletonRenderer>())
+        {
+            if (sr == null || spineSwapped.ContainsKey(sr)) continue;
+            if (sr.gameObject.layer == 5 || sr.skeletonDataAsset == null || sr.skeletonDataAsset.atlasAssets == null) continue;   // UI 층 제외
+            List<Material> list = new List<Material>();
+            foreach (AtlasAssetBase atlas in sr.skeletonDataAsset.atlasAssets)
+            {
+                if (atlas == null) continue;
+                foreach (Material m in atlas.Materials)
+                {
+                    if (m == null || m.shader == null || m.shader.name != "Spine/Skeleton") continue;   // 기본 스파인 셰이더만
+                    if (!spineLitCache.TryGetValue(m, out Material lit) || lit == null)
+                    {
+                        lit = new Material(litSpineTemplate) { name = m.name + " (빛 받음)" };
+                        lit.mainTexture = m.mainTexture;
+                        bool straight = m.HasProperty("_StraightAlphaInput") && m.GetFloat("_StraightAlphaInput") > 0.5f;
+                        lit.SetFloat("_StraightAlphaInput", straight ? 1f : 0f);
+                        if (straight) lit.EnableKeyword("_STRAIGHT_ALPHA_INPUT"); else lit.DisableKeyword("_STRAIGHT_ALPHA_INPUT");
+                        lit.renderQueue = m.renderQueue;
+                        spineLitCache[m] = lit;
+                    }
+                    sr.CustomMaterialOverride[m] = lit;
+                    list.Add(m);
+                }
+            }
+            spineSwapped[sr] = list;
+        }
     }
 
     static void RestoreSprites()
     {
         foreach (var kv in swapped) if (kv.Key != null) kv.Key.sharedMaterial = kv.Value;
         swapped.Clear();
+        foreach (var kv in spineSwapped)
+            if (kv.Key != null)
+                foreach (Material m in kv.Value) kv.Key.CustomMaterialOverride.Remove(m);
+        spineSwapped.Clear();
     }
 
     static void Apply()
@@ -268,6 +341,8 @@ public static class LightingDarkness
         // 2D 스프라이트 (바꿔 끼운 셰이더가 이 두 값을 읽음)
         Shader.SetGlobalFloat(SpriteBlendId, curSpriteLighting ? f : 0f);
         Shader.SetGlobalFloat(SpriteMinId, curSpriteMin);
+        Shader.SetGlobalFloat(SpineMinId, curSpineMin);
+        Shader.SetGlobalFloat(SpineKeepColorId, curSpineKeepColor ? 1f : 0f);
 
         // 안개: 다른 스크립트가 바꿨으면 그 값을 새 기준으로 삼음
         Color nowFog = RenderSettings.fogColor;

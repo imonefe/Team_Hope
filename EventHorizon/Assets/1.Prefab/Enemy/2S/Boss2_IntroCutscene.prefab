@@ -34,6 +34,7 @@ Transform:
   - {fileID: 1100000000000000022}
   - {fileID: 1100000000000000032}
   - {fileID: 9219878987666803311}
+  - {fileID: 5794509703423806578}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1100000000000000003
@@ -564,108 +565,6 @@ MonoBehaviour:
     fadeDuration: 0.8
     npc: {fileID: 4923650035969524571}
     npcConditionKey: end3
-  - label: "\uC5BC\uAD74 \uD074\uB85C\uC988\uC5C5"
-    type: 2
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 3
-    zoomDuration: 0.5
-    focusTarget: {fileID: 1100000000000000032}
-    focusDuration: 0.25
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: 
-    dialogueText: 
-    dialogueHoldSeconds: 2
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: idle
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-    npc: {fileID: 0}
-    npcConditionKey: 
-  - label: "\uAE09\uC90C\uC778"
-    type: 1
-    runInBackground: 0
-    waitSeconds: 1
-    zoomSize: 1.5
-    zoomDuration: 0.25
-    focusTarget: {fileID: 0}
-    focusDuration: 0.6
-    focusOnPlayer: 0
-    exclusiveFocus: 1
-    animator: {fileID: 0}
-    triggerName: 
-    slowMotionScale: 0.2
-    slowMotionHoldSeconds: 1
-    slowMotionRampSeconds: 0.25
-    shakeDuration: 0.3
-    shakeStrength: 0.3
-    shakeRampFrom: 0.02
-    speakerName: 
-    dialogueText: 
-    dialogueHoldSeconds: 2
-    letterboxShow: 1
-    letterboxHeight: 0.11
-    letterboxDuration: 0.5
-    spineTarget: {fileID: 0}
-    spineAnimationName: idle
-    spineLoop: 1
-    spineNextAnimation: 
-    waitForSpine: 0
-    effectPrefab: {fileID: 0}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 0, y: 0, z: 0}
-    effectScale: 1
-    effectLifetime: 6
-    punchAmount: 1.5
-    punchInSeconds: 0.08
-    punchHoldSeconds: 0.15
-    punchOutSeconds: 0.4
-    flashColor: {r: 1, g: 1, b: 1, a: 1}
-    flashPeak: 0.85
-    flashDuration: 0.35
-    killKnockback: 7
-    killFadeSeconds: 1.2
-    gameOverDelay: 0.6
-    killSource: {fileID: 0}
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    fadeTo: 1
-    fadeDuration: 0.8
-    npc: {fileID: 0}
-    npcConditionKey: 
   - label: "\uAE08\uBE5B \uBC88\uCA4D"
     type: 13
     runInBackground: 0
@@ -717,7 +616,7 @@ MonoBehaviour:
     fadeDuration: 0.8
     npc: {fileID: 0}
     npcConditionKey: 
-  - label: "\uad81\uc218 \ub4f1\uc7a5 (\uc6d0\ubcf8 boss_disposaleffect, 2.55\ucd08 \ub4a4 \ud654\uc0b4 \ubc1c\uc0ac)"
+  - label: "\uad81\uc218 \ub4f1\uc7a5 (\uc6d0\ubcf8 boss_disposaleffect, 2.32\ucd08 \ub4a4 \ud654\uc0b4 \ubc1c\uc0ac)"
     type: 11
     runInBackground: 0
     waitSeconds: 1
@@ -750,11 +649,12 @@ MonoBehaviour:
     spineNextAnimation: 
     waitForSpine: 0
     effectPrefab: {fileID: 7753224053532609282, guid: fcfe307705068e248a83056580bbd945, type: 3}
-    effectAtPlayer: 1
-    effectAnchor: {fileID: 0}
-    effectOffset: {x: 1, y: 0.627, z: 0}
+    effectAtPlayer: 0
+    effectAnchor: {fileID: 5794509703423806578}
+    effectOffset: {x: 0, y: 0, z: 0}
     effectScale: 0.42
     effectLifetime: 6
+    effectSpeed: 1.1
     effectHideChildren: "smoke,impactlightparticle,impactlightparticle2"
     effectSpineSortingOrder: 4004
     effectSortingOrder: 5100
@@ -1040,7 +940,7 @@ MonoBehaviour:
     fadeTo: 1
     fadeDuration: 0.8
     projectileFollowParticles: 1
-    projectileFlightTimeScale: 0.06
+    projectileFlightTimeScale: 1
     projectileTimeout: 5
     npc: {fileID: 0}
     npcConditionKey: 
@@ -1690,6 +1590,37 @@ MonoBehaviour:
   addNormalsDeprecated: 0
   calculateTangentsDeprecated: 0
   maskInteractionDeprecated: 0
+--- !u!1 &4631332324705948682
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5794509703423806578}
+  m_Layer: 0
+  m_Name: 궁수_등장위치
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5794509703423806578
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4631332324705948682}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -13.86, y: -5.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1100000000000000002}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1100000000000000021
 GameObject:
   m_ObjectHideFlags: 0

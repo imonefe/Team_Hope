@@ -15,7 +15,7 @@ public class CutsceneDialogueBox : MonoBehaviour
     public Text lineText;
 
     [Header("타이핑 효과 (0이면 한 번에 표시)")]
-    public float typeSpeed = 0.03f;
+    public float typeSpeed = 0.015f;   // [2026-10-21] 0.03 → 0.015 (2배 빠르게)
 
     Coroutine typingRoutine;
 
@@ -53,10 +53,20 @@ public class CutsceneDialogueBox : MonoBehaviour
         if (lineText == null) yield break;
 
         lineText.text = "";
-        foreach (char c in line)
+        // [2026-10-21 수정] 흐른 시간으로 보여줄 글자 수 계산 (프레임 단위로 끊겨 느려지지 않게)
+        int shown = 0;
+        float t = 0f;
+        while (shown < line.Length)
         {
-            lineText.text += c;
-            yield return new WaitForSecondsRealtime(typeSpeed);
+            int target = Mathf.Min(line.Length, Mathf.FloorToInt(t / typeSpeed) + 1);
+            if (target > shown)
+            {
+                shown = target;
+                lineText.text = line.Substring(0, shown);
+            }
+            if (shown >= line.Length) break;
+            yield return null;
+            t += Time.unscaledDeltaTime;
         }
     }
 }

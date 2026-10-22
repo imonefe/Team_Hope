@@ -19,6 +19,11 @@ public class Enemy : MonoBehaviour
     [Header("피격 반응")]
     [Tooltip("꺼두면 맞아도 피격 애니메이션(isHit)이 재생되지 않음. 넉백·경직 자체는 이 값과 무관하게 그대로 적용됨")]
     public bool playHitAnimation = true;
+    [Tooltip("[2026-10-20] 켜면 맞아도 하던 행동(이동·공격·돌진)이 끊기지 않음 — 넉백·피격 모션·경직·공격 취소 없이 흰색 번쩍임만. 데미지는 그대로 들어감 (돌격형용)")]
+    public bool hitArmor = false;
+    [Tooltip("[2026-10-20] hitArmor 를 공격 중(준비 자세~돌진~멈춤)에만 적용. 끄면 언제나 적용")]
+    public bool hitArmorOnlyWhileAttacking = false;
+    Coroutine hitFlashRoutine;
 
     public GameObject hitboxPrefab;
     public Transform hitboxPoint;
@@ -43,6 +48,12 @@ public class Enemy : MonoBehaviour
     public float attackDashDelay = 0f;
     [Tooltip("켜면 공격 판정(히트박스)이 적을 따라 같이 움직임 — 돌진 공격처럼 판정이 나온 뒤에도 적이 움직이는 경우용")]
     public bool hitboxFollowAttacker = false;
+    [Tooltip("[2026-10-20] 돌진 끝에 감속하는 시간(초). 이 시간 동안 속도가 부드럽게 0까지 줄어듦 (0 = 감속 없이 바로 멈춤). 감속 구간까지 합쳐서 돌진 거리를 맞춘다")]
+    public float attackDashDecelTime = 0.2f;
+    [Tooltip("[2026-10-20] 플레이어와 높이 차이가 이보다 크면 돌진을 시작하지 않고 계속 따라가기만 함 (위 발판 밑에서 헛돌진 방지)")]
+    public float dashMaxHeightDiff = 1.2f;
+    [Tooltip("[2026-10-20] 돌진 중 바로 앞이 낭떠러지면 그 자리에서 멈춤")]
+    public bool dashStopAtLedge = true;
 
     [Header("공격 종류 (랜덤)")]
     [Tooltip("공격 애니메이션 종류 수 (1 = 단일, 2 이상 = 랜덤 선택)")]
@@ -95,6 +106,10 @@ public class Enemy : MonoBehaviour
     float attackDashTimer = 0f;    // 돌진 시작 후 경과 시간
     float attackDashDuration = 0f; // attackDashDistance / attackDashSpeed (공격 시작 시 계산)
     int attackDashDir = 1;         // 돌진 방향 (공격 시작 시 고정)
+    float attackDashFullTime = 0f; // [2026-10-20] 전속으로 달리는 시간 (그 뒤 attackDashDecelTime 동안 감속)
+    bool attackDashDone = false;   // [2026-10-20] 이번 공격의 돌진이 (감속까지) 끝났는지
+    bool attackDashStarted = false; // [2026-10-20] 이번 공격의 돌진이 시작됐는지 (시작 판정은 애니메이터 재생 시간 기준)
+    bool dashByAnimEvent = false;   // [2026-10-20] 이 적의 애니메이션에 StartAttackDash 이벤트가 있으면 이벤트로만 돌진 시작
 
     [Tooltip("기본 적 애니메이터(Enemy.controller)의 공격(Atk01) → 대기 전이 종료 시점. 공격 끝 신호가 이 시점보다 늦으면 애니메이터가 전이를 놓쳐 공격 모션을 한 바퀴 더 재생하므로, 그때는 직접 대기 상태로 넘긴다")]
     public float attackExitTime = 0.8125f;
@@ -143,6 +158,18 @@ public class Enemy : MonoBehaviour
             // CharacterManager 초기화 순서상 아직 없으면 태그로 플레이어 직접 찾기 (BossController와 동일 처리)
             GameObject p = GameObject.FindGameObjectWithTag("Player");
             if (p != null) player = p.transform;
+        }
+
+        // [2026-10-20] 공격 모션에 '돌진 시작' 이벤트가 들어 있는지 확인 (있으면 그 프레임에 돌진)
+        if (attackDash && anim != null && anim.runtimeAnimatorController != null)
+        {
+            foreach (AnimationClip c in anim.runtimeAnimatorController.animationClips)
+            {
+                if (c == null) continue;
+                foreach (AnimationEvent e in c.events)
+                    if (e.functionName == "StartAttackDash") { dashByAnimEvent = true; break; }
+                if (dashByAnimEvent) break;
+            }
         }
 
         // 스폰 대기 시작
@@ -212,7 +239,8 @@ public class Enemy : MonoBehaviour
             attackDurTimer += Time.fixedDeltaTime;
 
             // 정해둔 공격 시간이 지나면 애니메이터에만 먼저 '공격 끝' 신호 (애니메이터가 공격 모션을 마무리하고 빠져나가게)
-            if (!attackAnimReleased && attackDurTimer >= attackDuration)
+            // [2026-10-20] 돌진형은 돌진(감속 포함)이 다 끝난 뒤에 신호를 보낸다 — 예전엔 모션이 먼저 끝나 돌진이 중간에 뚝 끊겼음
+            if (!attackAnimReleased && attackDurTimer >= attackDuration && (!attackDash || attackDashDone))
             {
                 attackAnimReleased = true;
                 anim.SetBool("isAttack", false);
@@ -230,16 +258,33 @@ public class Enemy : MonoBehaviour
             {
                 anim.SetBool("isMove", false);
 
-                // 돌진형 캐릭터 — 정해둔 거리만큼만 이동하고 이후엔 제자리에서 공격 유지
-                if (attackDash && attackDurTimer >= attackDashDelay && attackDashTimer < attackDashDuration)
+                // 돌진형 캐릭터 — 정해둔 거리만큼 이동(끝에서 감속)하고 이후엔 제자리에서 공격 유지
+                // [2026-10-20 수정] 돌진 시작 = 애니메이터의 공격 모션이 실제로 attackDashDelay 초만큼 재생된 순간.
+                // 예전엔 코드 타이머 기준이라, 걷다가 공격하면(공격 모션이 16% 지점부터 재생됨) 모션보다 0.3초 넘게 늦게 돌진했다.
+                // [2026-10-20] 애니메이션에 StartAttackDash 이벤트가 있으면 그 이벤트가 시작시킨다 (안전장치: 끝내 안 오면 attackDashDelay + 1초 뒤)
+                if (attackDash && !attackDashStarted && !attackDashDone)
                 {
-                    attackDashTimer += Time.fixedDeltaTime;
-                    rigid.velocity = new Vector2(attackDashDir * attackDashSpeed, rigid.velocity.y);
+                    if (dashByAnimEvent)
+                    {
+                        if (attackDurTimer >= attackDashDelay + 1f) attackDashStarted = true;
+                    }
+                    else
+                    {
+                        float animT = AttackAnimTime();
+                        if (animT >= attackDashDelay || (animT < 0f && attackDurTimer >= attackDashDelay * 1.5f))
+                            attackDashStarted = true;
+                    }
+                }
+                if (attackDash && attackDashStarted && !attackDashDone)
+                {
+                    rigid.velocity = new Vector2(attackDashDir * DashSpeedStep(), rigid.velocity.y);
+                    // [2026-10-20] 돌진이 공격 모션보다 길면 모션이 처음(준비 자세)으로 되감기지 않게 마지막 프레임에서 잠깐 멈춰 둔다
+                    if (!attackDashDone && anim != null && !anim.IsInTransition(0) && IsInAttackAnimation()
+                        && anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.98f)
+                        anim.speed = 0f;
                 }
                 else
-                {
                     rigid.velocity = new Vector2(0, rigid.velocity.y);
-                }
                 return;
             }
         }
@@ -260,7 +305,8 @@ public class Enemy : MonoBehaviour
         bool canSeePlayer = true;
 
         // 공격 범위 안 + 앞에 있으면 공격 (시야가 막혀있으면 공격 불가)
-        if (canSeePlayer && distance <= attackRange && IsPlayerInFront())
+        // [2026-10-20] 돌진형은 높이가 비슷하고 앞이 벽으로 막혀 있지 않을 때만 (아니면 아래에서 계속 따라감)
+        if (canSeePlayer && distance <= attackRange && IsPlayerInFront() && CanStartDash())
         {
             rigid.velocity = new Vector2(0, rigid.velocity.y);
             anim.SetBool("isMove", false);
@@ -314,6 +360,76 @@ public class Enemy : MonoBehaviour
 
         if (Mathf.Abs(rigid.velocity.x) < 0.1f)
             anim.SetBool("isMove", false);
+    }
+
+    /// <summary>[2026-10-20 추가] 애니메이션 이벤트: 이 프레임부터 돌진 시작 (AnimEventRelay 를 거쳐 호출)</summary>
+    public void StartAttackDash()
+    {
+        if (!isAttacking || !attackDash || attackDashStarted || attackDashDone) return;
+        attackDashStarted = true;
+    }
+
+    // [2026-10-20 추가] 지금 공격 모션이 재생된 시간(초). 공격 모션으로 넘어가는 중이면 넘어가는 쪽 기준.
+    // 아직 공격 모션이 아니면 -1. (공격 모션은 걷다가 들어오면 중간 지점부터 시작하므로 코드 타이머와 다를 수 있음)
+    float AttackAnimTime()
+    {
+        if (anim == null) return -1f;
+        if (anim.IsInTransition(0) && HasAttackClip(anim.GetNextAnimatorClipInfo(0)))
+        {
+            AnimatorStateInfo next = anim.GetNextAnimatorStateInfo(0);
+            return next.normalizedTime * next.length;
+        }
+        if (HasAttackClip(anim.GetCurrentAnimatorClipInfo(0)))
+        {
+            AnimatorStateInfo cur = anim.GetCurrentAnimatorStateInfo(0);
+            return cur.normalizedTime * cur.length;
+        }
+        return -1f;
+    }
+
+    // [2026-10-20 추가] 돌진을 시작해도 되는지 (돌진형이 아니면 항상 true)
+    //  - 플레이어와 높이 차이가 크면 X (위 발판 밑을 헛돌진하던 문제)
+    //  - 플레이어까지 가는 길이 벽으로 막혀 있으면 X
+    bool CanStartDash()
+    {
+        if (!attackDash || player == null) return true;
+        if (Mathf.Abs(player.position.y - transform.position.y) > dashMaxHeightDiff) return false;
+        float dx = player.position.x - transform.position.x;
+        RaycastHit2D wall = Physics2D.Raycast(transform.position, new Vector2(Mathf.Sign(dx), 0f), Mathf.Abs(dx), LayerMask.GetMask("ground"));
+        return wall.collider == null;
+    }
+
+    // [2026-10-20 추가] 이번 물리 프레임의 돌진 속도 (전속 → 끝에서 부드럽게 감속). 벽·낭떠러지를 만나면 일찍 멈춘다.
+    float DashSpeedStep()
+    {
+        float dt = Time.fixedDeltaTime;
+        float decel = attackDashDuration - attackDashFullTime;
+        float t = attackDashTimer;
+
+        // 앞이 낭떠러지면 그 자리에서 멈춤 (감속하다 떨어지지 않게)
+        if (dashStopAtLedge && isGrounded)
+        {
+            Vector2 front = (Vector2)transform.position + new Vector2(attackDashDir * (0.6f + attackDashSpeed * dt * 2f), 0f);
+            if (!Physics2D.Raycast(front, Vector2.down, 1.5f, LayerMask.GetMask("ground", "platform")))
+            {
+                attackDashDone = true;
+                return 0f;
+            }
+        }
+
+        // 바로 앞이 벽이면 지금부터 감속 구간으로 (벽에 비비며 밀리지 않게)
+        if (t < attackDashFullTime &&
+            Physics2D.Raycast(transform.position, new Vector2(attackDashDir, 0f), 0.6f + attackDashSpeed * dt * 2f, LayerMask.GetMask("ground")))
+        {
+            attackDashFullTime = t;
+            attackDashDuration = t + decel;
+        }
+
+        attackDashTimer += dt;
+        if (t >= attackDashDuration) { attackDashDone = true; return 0f; }
+        if (t < attackDashFullTime || decel <= 0f) return attackDashSpeed;
+        float u = Mathf.Clamp01((t - attackDashFullTime) / decel);
+        return attackDashSpeed * (1f - u) * (1f - u);
     }
 
     void Move()
@@ -416,12 +532,18 @@ public class Enemy : MonoBehaviour
         rigid.velocity = new Vector2(0, rigid.velocity.y);
 
         // 돌진형 캐릭터 — 방향 고정 + 목표 거리를 속도로 나눠 돌진 지속시간 계산
+        // [2026-10-20] 끝의 감속 구간(속도 × (1-진행률)², 이동량 = 속도 × 감속시간 / 3)까지 합쳐 총 거리가 attackDashDistance 가 되게
         attackDashTimer = 0f;
+        attackDashDone = !attackDash;
+        attackDashStarted = false;
         if (attackDash)
         {
             attackDashDir = isDirectionLocked ? lockedDir : (int)Mathf.Sign(transform.localScale.x);
             if (attackDashDir == 0) attackDashDir = 1;
-            attackDashDuration = attackDashSpeed > 0f ? attackDashDistance / attackDashSpeed : 0f;
+            float decel = Mathf.Max(0f, attackDashDecelTime);
+            if (attackDashSpeed <= 0f) { attackDashFullTime = 0f; decel = 0f; attackDashDone = true; }
+            else attackDashFullTime = Mathf.Max(0f, (attackDashDistance - attackDashSpeed * decel / 3f) / attackDashSpeed);
+            attackDashDuration = attackDashFullTime + decel;
         }
 
         // 공격 종류 랜덤 선택 (attackVariations 개 중 하나)
@@ -441,7 +563,8 @@ public class Enemy : MonoBehaviour
         if (anim == null || anim.IsInTransition(0)) return;
         if (!IsInAttackAnimation()) return;
         AnimatorStateInfo st = anim.GetCurrentAnimatorStateInfo(0);
-        float t = st.loop ? (st.normalizedTime % 1f) : st.normalizedTime;
+        // [2026-10-20 수정] 반복 클립도 누적 재생 위치로 판단 (한 바퀴를 넘겼으면 이미 전이를 놓친 것)
+        float t = st.normalizedTime;
         if (t >= attackExitTime)
             anim.CrossFadeInFixedTime(HashIdleState, 0.1f, 0);
     }
@@ -614,6 +737,14 @@ public class Enemy : MonoBehaviour
 
     public void OnHit(int dir)
     {
+        // [2026-10-20 추가] 피격에도 행동 유지 (돌격형) — 번쩍임만 주고 나머지는 하지 않는다
+        if (hitArmor && (!hitArmorOnlyWhileAttacking || isAttacking))
+        {
+            if (hitFlashRoutine != null) StopCoroutine(hitFlashRoutine);
+            hitFlashRoutine = StartCoroutine(HitFlash());
+            return;
+        }
+
         if (isHit || isKnockback) return;
 
         // 공격 애니메이션 도중에 맞으면 공격 상태를 여기서 확실히 정리해야 한다.
@@ -632,7 +763,8 @@ public class Enemy : MonoBehaviour
         rigid.velocity = Vector2.zero;
         rigid.AddForce(new Vector2(dir * knockbackForce, 2f), ForceMode2D.Impulse);
         StartCoroutine(KnockbackRoutine());
-        StartCoroutine(HitFlash());
+        if (hitFlashRoutine != null) StopCoroutine(hitFlashRoutine);
+        hitFlashRoutine = StartCoroutine(HitFlash());
     }
 
     IEnumerator KnockbackRoutine()
@@ -650,6 +782,7 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(hitFlashTime);
 
         ClearFlash();
+        hitFlashRoutine = null;
     }
 
     // ── 피격 반짝임 처리 ──

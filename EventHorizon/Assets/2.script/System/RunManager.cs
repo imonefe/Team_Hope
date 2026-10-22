@@ -205,4 +205,20 @@ public class RunManager : PersistentSingleton<RunManager>
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
+    /// <summary>
+    /// [2026-10-21 추가] 판을 처음 상태로 되돌리고 인트로(첫 화면) 씬으로 돌아간다.
+    /// 오래 입력이 없을 때 IdleResetWatcher 가 부른다. 초기화 내용은 RestartRun 과 같다.
+    /// </summary>
+    public static void ReturnToIntro(string introSceneName = "intro")
+    {
+        if (Instance != null) Instance.ResetRun();
+        MapManager.Instance?.ResetRun();
+
+        GamePause.Clear();
+        CombatUIGate.Unblock();
+        PauseManager.Instance?.ResetForNewRun();
+
+        SceneManager.LoadScene(introSceneName);
+    }
 }

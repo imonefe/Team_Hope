@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// 노드 캔버스(마인드맵) 흐름 관리.
@@ -67,6 +69,23 @@ public class MapManager : PersistentSingleton<MapManager>
     [Tooltip("옮겨 가는 동안 살짝 뛰어오르는 높이 (픽셀, 0 = 직선)")]
     public float positionMarkerHop = 30f;
 
+    [Header("방향키 조작 (2026-10-21 추가)")]
+    [Tooltip("상하좌우 방향키로 갈 수 있는 노드를 고르고, 스페이스·F·엔터로 결정")]
+    public bool keyboardNavigation = true;
+
+    [Header("키 안내 (2026-10-21 추가, 캔버스가 만들어질 때 코드로 붙음)")]
+    [Tooltip("키 안내 글꼴 (비우면 TMP 기본 글꼴 — 한글이 안 나올 수 있음)")]
+    public TMP_FontAsset uiFont;
+    [Tooltip("키 안내를 띄울지 (방향키 조작이 꺼져 있으면 안 띄움)")]
+    public bool showKeyGuide = true;
+    [Tooltip("키 상자 그림 (전투 화면 조작키 안내와 같은 그림)")]
+    public Sprite keyBoxSprite;
+    [Tooltip("화면 오른쪽 아래 모서리에서 떨어진 거리")]
+    public Vector2 keyGuideOffset = new Vector2(-36f, 30f);
+    public float keyGuideFontSize = 22f;
+    public float keyBoxHeight = 30f;
+    public Color keyGuideColor = new Color(0.95f, 0.92f, 0.85f, 1f);
+
     /// <summary>0부터 시작하는 현재 스테이지 인덱스. 보스를 잡을 때마다 1씩 증가한다.</summary>
     public int CurrentStageIndex { get; private set; } = 0;
 
@@ -75,6 +94,7 @@ public class MapManager : PersistentSingleton<MapManager>
     bool mapPausing = false;          // [2026-10-10] 노드맵이 시간 정지·조작 잠금·전투 UI 숨김을 걸고 있는지
     MapPositionMarker positionMarker; // [2026-10-15] 지금 있는 노드 위의 핀 (캔버스 안에 만들어지고 캔버스와 함께 사라짐)
     bool selecting = false;           // [2026-10-15] 핀이 옮겨 가는 중·화면 전환 중에 노드가 또 눌리지 않도록
+    MapButton keyFocus;               // [2026-10-21] 방향키로 고른 노드
 
     // 이번 스테이지에서 이미 사용한 룸 프리팹 기록 (타입 상관없이, 중복 방 방지)
     HashSet<GameObject> usedRoomPrefabs = new HashSet<GameObject>();
@@ -198,6 +218,7 @@ public class MapManager : PersistentSingleton<MapManager>
         }
 
         CreatePositionMarker();
+        CreateMapLabels();
     }
 
     // [2026-10-15] 캔버스 안에서 isStartRoom 이 체크된 버튼 (없으면 null)
@@ -371,9 +392,165 @@ public class MapManager : PersistentSingleton<MapManager>
         foreach (var btn in allButtons)
             btn.RefreshVisual();
 
+        // [2026-10-21] 고를 수 있는 노드가 바뀌었으니 방향키 선택은 처음부터
+        SetKeyFocus(null);
+
         // [2026-10-15] 핀을 지금 있는 노드 위로 (지금 있는 노드가 없으면 숨김)
         if (positionMarker != null)
             positionMarker.SnapTo(currentButton);
+    }
+
+    // ── [2026-10-21 추가] 방향키로 노드 고르기 ─────────────
+    void Update()
+    {
+        if (!keyboardNavigation || !mapPausing || selecting) return;
+        if (currentCanvasInstance == null || !currentCanvasInstance.activeInHierarchy) return;
+        // ESC 메뉴·인벤토리·게임오버가 노드맵 위에 떠 있으면 무시
+        if (GamePause.Has(GamePause.Menu) || GamePause.Has(GamePause.Inventory) || GamePause.Has(GamePause.GameOver)) return;
+
+        Vector2 dir = Vector2.zero;
+        if (Input.GetKeyDown(KeyCode.UpArrow)) dir = Vector2.up;
+        else if (Input.GetKeyDown(KeyCode.DownArrow)) dir = Vector2.down;
+        else if (Input.GetKeyDown(KeyCode.LeftArrow)) dir = Vector2.left;
+        else if (Input.GetKeyDown(KeyCode.RightArrow)) dir = Vector2.right;
+
+        if (dir != Vector2.zero)
+        {
+            MoveKeyFocus(dir);
+            return;
+        }
+
+        bool confirm = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.F)
+                    || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter);
+        if (!confirm) return;
+
+        if (keyFocus != null && keyFocus.isSelectable) SelectButton(keyFocus);
+        else MoveKeyFocus(Vector2.zero);   // 아직 아무것도 안 골랐으면 결정 대신 가장 가까운 노드를 먼저 고름
+    }
+
+    // 지금 고른 노드(없으면 지금 있는 노드)에서 dir 방향에 있는 '갈 수 있는 노드' 중 가장 가까운 것을 고른다.
+    // 그 방향에 없으면: 아직 아무것도 안 골랐을 때만 가장 가까운 노드를 고름 (첫 입력이 헛돌지 않게)
+    void MoveKeyFocus(Vector2 dir)
+    {
+        var all = currentCanvasInstance.GetComponentsInChildren<MapButton>(false);
+        Vector2 from = keyFocus != null ? (Vector2)keyFocus.transform.position
+                     : currentButton != null ? (Vector2)currentButton.transform.position
+                     : (Vector2)currentCanvasInstance.transform.position;
+
+        MapButton best = null, nearest = null;
+        float bestScore = float.MaxValue, nearestDist = float.MaxValue;
+        foreach (var b in all)
+        {
+            if (b == null || !b.isSelectable || b == keyFocus) continue;
+            Vector2 v = (Vector2)b.transform.position - from;
+            float dist = v.magnitude;
+            if (dist < nearestDist) { nearestDist = dist; nearest = b; }
+            if (dir == Vector2.zero || dist < 0.01f) continue;
+
+            float along = Vector2.Dot(v, dir);               // 누른 방향으로 얼마나 가는지
+            if (along <= 0f) continue;
+            float side = Mathf.Abs(v.x * dir.y - v.y * dir.x); // 옆으로 얼마나 벗어나는지 (많이 벗어날수록 불리)
+            float score = along + side * 2f;
+            if (score < bestScore) { bestScore = score; best = b; }
+        }
+
+        if (best == null && keyFocus == null) best = nearest;
+        if (best != null) SetKeyFocus(best);
+    }
+
+    /// <summary>방향키 선택 표시를 이 노드로 옮긴다 (null = 선택 없음). 마우스를 올렸을 때도 불림</summary>
+    public void SetKeyFocus(MapButton b)
+    {
+        if (keyFocus == b) return;
+        if (keyFocus != null) keyFocus.keyFocused = false;
+        keyFocus = b;
+        if (keyFocus != null) keyFocus.keyFocused = true;
+    }
+
+    // ── [2026-10-21 추가] 키 안내 (캔버스 안에 만들어지고 캔버스와 함께 사라짐) ──
+    void CreateMapLabels()
+    {
+        if (currentCanvasInstance == null) return;
+        Transform root = currentCanvasInstance.transform;
+
+        if (!showKeyGuide || !keyboardNavigation) return;
+
+        RectTransform g = NewRect("KeyGuide", root, new Vector2(1f, 0f), new Vector2(1f, 0f));
+        g.anchoredPosition = keyGuideOffset;
+        g.sizeDelta = new Vector2(10f, keyBoxHeight);
+
+        // 오른쪽부터 거꾸로 쌓는다:  [←][↑][↓][→] 선택    [Space][F][Enter] 결정
+        float x = 0f;
+        x = AddGuideGroup(g, x, new[] { "Space", "F", "Enter" }, "결정");
+        x -= 28f;
+        x = AddGuideGroup(g, x, new[] { "←", "↑", "↓", "→" }, "선택");
+        g.sizeDelta = new Vector2(-x, keyBoxHeight);
+        g.SetAsLastSibling();
+    }
+
+    // x = 지금까지 채운 오른쪽 끝 (0에서 왼쪽으로 음수로 늘어남). 그룹을 붙이고 새 왼쪽 끝을 돌려준다
+    float AddGuideGroup(RectTransform parent, float x, string[] keys, string label)
+    {
+        RectTransform lr = NewRect("Label", parent, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f));
+        TextMeshProUGUI lt = NewText(lr, label, keyGuideFontSize, keyGuideColor, TextAlignmentOptions.MidlineRight);
+        lt.ForceMeshUpdate();
+        float lw = lt.preferredWidth;
+        lr.sizeDelta = new Vector2(lw, keyBoxHeight);
+        lr.anchoredPosition = new Vector2(x, 0f);
+        x -= lw + 8f;
+
+        for (int i = keys.Length - 1; i >= 0; i--)
+        {
+            RectTransform k = NewRect("Key_" + keys[i], parent, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f));
+            TextMeshProUGUI kt = NewText(k, keys[i], keyGuideFontSize * 0.8f, keyGuideColor, TextAlignmentOptions.Center);
+            kt.ForceMeshUpdate();
+            float w = Mathf.Max(keyBoxHeight, kt.preferredWidth + 14f);
+            k.sizeDelta = new Vector2(w, keyBoxHeight);
+            k.anchoredPosition = new Vector2(x, 0f);
+            if (keyBoxSprite != null)
+            {
+                // 글자 뒤에 키 상자 (글자는 자식이 아니라 같은 오브젝트라 상자를 따로 만듦)
+                RectTransform box = NewRect("Box", k, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+                box.anchorMin = Vector2.zero; box.anchorMax = Vector2.one;
+                box.offsetMin = box.offsetMax = Vector2.zero;
+                box.SetAsFirstSibling();
+                Image img = box.gameObject.AddComponent<Image>();
+                img.sprite = keyBoxSprite;
+                img.type = Image.Type.Sliced;
+                img.color = keyGuideColor;
+                img.raycastTarget = false;
+            }
+            x -= w + 4f;
+        }
+        return x + 4f;
+    }
+
+    static RectTransform NewRect(string name, Transform parent, Vector2 anchor, Vector2 pivot)
+    {
+        GameObject go = new GameObject(name, typeof(RectTransform));
+        go.layer = parent.gameObject.layer;
+        RectTransform r = (RectTransform)go.transform;
+        r.SetParent(parent, false);
+        r.anchorMin = r.anchorMax = anchor;
+        r.pivot = pivot;
+        return r;
+    }
+
+    // 글자는 이 오브젝트의 자식으로 (키 상자 그림 위에 그려지게)
+    TextMeshProUGUI NewText(RectTransform parent, string text, float size, Color color, TextAlignmentOptions align)
+    {
+        RectTransform r = NewRect("Text", parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+        r.anchorMin = Vector2.zero; r.anchorMax = Vector2.one;
+        r.offsetMin = r.offsetMax = Vector2.zero;
+        TextMeshProUGUI t = r.gameObject.AddComponent<TextMeshProUGUI>();
+        if (uiFont != null) t.font = uiFont;
+        t.text = text;
+        t.fontSize = size;
+        t.color = color;
+        t.alignment = align;
+        t.raycastTarget = false;
+        t.enableWordWrapping = false;
+        return t;
     }
 
     // ── 런 초기화 (죽었을 때 / 새 게임) ───────────────────

@@ -1852,7 +1852,7 @@ MonoBehaviour:
   textOffset: {x: 10, y: 0}
   textDuration: 0.2
   textEase: 9
-  showWhenSelected: 0
+  showWhenSelected: 1
 --- !u!224 &2914646470
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2074,7 +2074,7 @@ MonoBehaviour:
   textOffset: {x: 10, y: 0}
   textDuration: 0.2
   textEase: 9
-  showWhenSelected: 0
+  showWhenSelected: 1
 --- !u!222 &3326122450
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2611,7 +2611,7 @@ MonoBehaviour:
   textOffset: {x: 10, y: 0}
   textDuration: 0.2
   textEase: 9
-  showWhenSelected: 0
+  showWhenSelected: 1
 --- !u!1 &4841757151
 GameObject:
   m_ObjectHideFlags: 0
@@ -3127,7 +3127,7 @@ MonoBehaviour:
   textOffset: {x: 10, y: 0}
   textDuration: 0.2
   textEase: 9
-  showWhenSelected: 0
+  showWhenSelected: 1
 --- !u!1 &6822692332
 GameObject:
   m_ObjectHideFlags: 0

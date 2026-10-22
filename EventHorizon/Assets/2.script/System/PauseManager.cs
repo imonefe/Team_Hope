@@ -46,11 +46,19 @@ public class PauseManager : PersistentSingleton<PauseManager>
     {
         InitSingleton();
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+        RoomManager.OnRoomLoaded += OnRoomLoaded;   // [2026-10-20] 다음 방으로 넘어가면 퍼즈 강제 해제
     }
 
     void OnDestroy()
     {
         UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+        RoomManager.OnRoomLoaded -= OnRoomLoaded;
+    }
+
+    // [2026-10-20 추가] 퍼즈를 켠 채로 포탈을 타서 새 방이 열리면 바로 끈다
+    void OnRoomLoaded(Room room, bool isStartRoom)
+    {
+        if (IsPaused) DeactivatePause();
     }
 
     void Start()

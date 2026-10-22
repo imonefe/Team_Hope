@@ -7,7 +7,6 @@ public class WeaponUI : MonoBehaviour
     public GameObject swordIcon;
     public GameObject hammerIcon;
     public GameObject gloveIcon;
-    public GameObject gunIcon;
 
     void Start()
     {
@@ -37,14 +36,12 @@ public class WeaponUI : MonoBehaviour
         swordIcon.SetActive(false);
         hammerIcon.SetActive(false);
         gloveIcon.SetActive(false);
-        gunIcon.SetActive(false);
 
         switch (type)
         {
             case Weapontype.Sword: swordIcon.SetActive(true); break;
             case Weapontype.Hammer: hammerIcon.SetActive(true); break;
             case Weapontype.Glove: gloveIcon.SetActive(true); break;
-            case Weapontype.Gun: gunIcon.SetActive(true); break;
         }
     }
 

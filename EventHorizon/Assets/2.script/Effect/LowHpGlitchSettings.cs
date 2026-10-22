@@ -37,4 +37,10 @@ public class LowHpGlitchSettings : ScriptableObject
     public float glitchInterval = 0.07f;
     [Tooltip("매 프레임 세기를 무작위로 깎는 정도 (0 = 깜빡임 없음)")]
     [Range(0f, 0.6f)] public float flicker = 0.15f;
+
+    [Header("심장 박동 소리 (2026-10-21 추가)")]
+    [Tooltip("맥동에 맞춰 울릴 박동 소리 한 번 (쿵-쿵). 비우면 소리 없음")]
+    public AudioClip heartbeatClip;
+    [Tooltip("박동 소리 크기 (0~1). 실제 크기 = 이 값 × 효과 세기 × 효과음 볼륨 설정")]
+    [Range(0f, 1f)] public float heartbeatVolume = 0.8f;
 }

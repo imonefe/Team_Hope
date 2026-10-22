@@ -33,9 +33,11 @@ public class WeaponStripUI : MonoBehaviour
     [Header("간격")]
     [Tooltip("이름 · 상성 · 공격력 사이 간격 (px)")]
     public float spacing = 12f;
+    [Tooltip("[2026-10-21] 켜면 칸 전체 폭을 글자 길이에 맞춘다. 칸의 기준점(Pivot X)을 1 로 두면 오른쪽 정렬이 된다")]
+    public bool fitWidthToContent = true;
 
-    [Header("무기 이름 (Weapontype 순서: 없음, 검, 망치, 건틀릿, 총)")]
-    public string[] weaponNames = { "", "검", "망치", "건틀릿", "총" };
+    [Header("무기 이름 (Weapontype 순서: 없음, 검, 망치, 건틀릿)")]
+    public string[] weaponNames = { "", "검", "망치", "건틀릿" };
 
     [Header("상성 이름 · 색")]
     public string powerName = "공격형";
@@ -132,7 +134,23 @@ public class WeaponStripUI : MonoBehaviour
             x += w + spacing;
         }
         if (attackText != null)
-            attackText.rectTransform.anchoredPosition = new Vector2(x, attackText.rectTransform.anchoredPosition.y);
+        {
+            if (fitWidthToContent)
+            {
+                attackText.ForceMeshUpdate();
+                float w = attackText.preferredWidth + 2f;   // 반올림 때문에 줄이 넘어가지 않게 살짝 여유
+                Place(attackText.rectTransform, x, w);
+                x += w;
+            }
+            else attackText.rectTransform.anchoredPosition = new Vector2(x, attackText.rectTransform.anchoredPosition.y);
+        }
+
+        // [2026-10-21] 칸 폭 = 글자들의 오른쪽 끝 → 기준점이 오른쪽이면 오른쪽 끝이 항상 같은 자리에 붙음
+        if (fitWidthToContent)
+        {
+            var self = (RectTransform)transform;
+            self.sizeDelta = new Vector2(x, self.sizeDelta.y);
+        }
     }
 
     static void Place(RectTransform r, float x, float width)
@@ -154,6 +172,7 @@ public class WeaponStripUI : MonoBehaviour
         if (atk == shownAttack) return;
         shownAttack = atk;
         attackText.text = string.Format(attackFormat, atk);
+        if (fitWidthToContent) Layout();   // 글자 길이가 바뀌면 다시 배치 (오른쪽 정렬 유지)
     }
 
     string AdvName(NowAdvantage a)

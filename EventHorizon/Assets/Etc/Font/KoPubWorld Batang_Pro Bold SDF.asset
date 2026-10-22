@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: KoPubWorld Batang_Pro Bold SDF
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: 712831640
   material: {fileID: 8911319198378881444}
-  materialHashCode: 0
+  materialHashCode: 1216863032
   m_Version: 1.1.0
   m_SourceFontFileGUID: e10a288986d8003478ab9320ca726692
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: e10a288986d8003478ab9320ca726692, type: 3}
@@ -256,8 +256,8 @@ Material:
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
     - _ScaleRatioA: 0.875
-    - _ScaleRatioB: 0.710938
-    - _ScaleRatioC: 0.710938
+    - _ScaleRatioB: 0.7109375
+    - _ScaleRatioC: 0.7109375
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0

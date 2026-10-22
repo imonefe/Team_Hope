@@ -49,7 +49,7 @@ Material:
     - White: {r: 1, g: 1, b: 1, a: 1}
     - _offset: {r: 0, g: 0, b: 0, a: 0}
     - _speed: {r: 0, g: 0, b: 0, a: 0}
-    - _tint: {r: 40.936073, g: 17.091352, b: 2.1884034, a: 0}
+    - _tint: {r: 1.2167861, g: 0.50802433, b: 0.065048225, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &8305197626974347585
 MonoBehaviour:

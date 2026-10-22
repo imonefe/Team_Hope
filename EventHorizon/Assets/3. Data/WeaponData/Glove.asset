@@ -27,8 +27,9 @@ MonoBehaviour:
     focusPercent: 0
     hpPercent: 0
   hitboxPrefab: {fileID: 1370623045049217074, guid: 0e05d3174f9f5a44a8e3eac1f399d1d7, type: 3}
-  damageMultiplier: 1
-  pauseGaugePerHit: 8
+  damageMultiplier: 0.85
+  attackSpeed: 1
+  pauseGaugePerHit: 2
   swingSfx:
     clips:
     - {fileID: 8300000, guid: ddd36319bfa215a40bdd3c545537c3a8, type: 3}
@@ -69,11 +70,6 @@ MonoBehaviour:
   stackResetTime: 5
   swingSfxSpeedFollow: 1
   swingSfxMaxPitch: 1.5
-  gunRange: 20
-  gunBeamPrefab: {fileID: 0}
-  gunBeamDuration: 0.1
-  gunBeamAngleJitter: 0
-  gunBeamMuzzleOffsets: []
   chargeTime: 0.3
   maxChargeTime: 2
   minChargeMultiplier: 1

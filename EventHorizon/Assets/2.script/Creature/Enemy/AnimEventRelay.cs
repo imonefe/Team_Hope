@@ -19,4 +19,5 @@ public class AnimEventRelay : MonoBehaviour
     public void EnemySpawnHitbox() => enemy?.SpawnHitbox();
     public void EnemyEndAttack() => enemy?.EndAttack();
     public void EnemyLockDirection() => enemy?.LockDirection();
+    public void StartAttackDash() => enemy?.StartAttackDash();   // [2026-10-20] 돌격형 돌진 시작 프레임
 }

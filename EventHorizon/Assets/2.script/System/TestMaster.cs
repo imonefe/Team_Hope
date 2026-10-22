@@ -60,6 +60,10 @@ public class TestMaster : MonoBehaviour
             else
                 Debug.LogError("playerStats 연결 안됨");
         }
+
+        // [2026-10-21] 5번: 게임 초기화 (판 데이터·맵 진행·퍼즈 게이지 초기화 후 인트로 화면으로 — 3분 무입력 초기화와 같음)
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+            RunManager.ReturnToIntro();
     }
 
     void DestroyAllEnemies()

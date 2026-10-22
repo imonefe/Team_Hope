@@ -106,7 +106,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4000
+  m_SortingOrder: 4002
   m_Sprite: {fileID: -1855038046, guid: c4340f07fd8cbb845868cdb6fa175903, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -263,6 +263,8 @@ MonoBehaviour:
   hitFlashTime: 0.1
   flashMaterial: {fileID: 2100000, guid: 27766ac43c36d4f487e09e491baf06fb, type: 2}
   playHitAnimation: 0
+  hitArmor: 1
+  hitArmorOnlyWhileAttacking: 0
   hitboxPrefab: {fileID: 7527073567594890566, guid: 0b3d24308e3644f8ac38c30ab2b6ec8b, type: 3}
   hitboxPoint: {fileID: 9190522370186140883}
   projectilePrefab: {fileID: 0}
@@ -274,6 +276,9 @@ MonoBehaviour:
   attackDashDistance: 5
   attackDashDelay: 1.2
   hitboxFollowAttacker: 1
+  attackDashDecelTime: 0.5
+  dashMaxHeightDiff: 1.2
+  dashStopAtLedge: 1
   attackVariations: 1
   isGrounded: 0
   spawnIdleTime: 0.5

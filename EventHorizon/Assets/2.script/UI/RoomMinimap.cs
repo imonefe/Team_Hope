@@ -15,6 +15,11 @@ using TMPro;
 /// </summary>
 public class RoomMinimap : MonoBehaviour
 {
+    /// <summary>[2026-10-21] 미니맵이 지금 보이는 정도 (0 = 숨김, 1 = 보임). 미니맵이 없으면 1.
+    /// 무기 정보 칸(HudSettingVisibility)이 이 값을 따라 같이 나타나고 사라진다</summary>
+    public static float VisibleAlpha { get; private set; } = 1f;
+    static RoomMinimap active;
+
     [Header("위치·크기 (1920×1080 화면 기준 픽셀)")]
     public Vector2 panelSize = new Vector2(364f, 234f);
     public Vector2 margin = new Vector2(28f, 28f);
@@ -221,6 +226,8 @@ public class RoomMinimap : MonoBehaviour
 
         bool show = currentRoom != null && !userHidden && !CombatUIGate.IsBlocked;
         group.alpha = Mathf.MoveTowards(group.alpha, show ? 1f : 0f, Time.unscaledDeltaTime * 6f);
+        active = this;
+        VisibleAlpha = group.alpha;
         if (!show && group.alpha <= 0f) return;
 
         refreshTimer -= Time.unscaledDeltaTime;
@@ -390,6 +397,7 @@ public class RoomMinimap : MonoBehaviour
 
     void OnDestroy()
     {
+        if (active == this) { active = null; VisibleAlpha = 1f; }
         if (layoutTexture != null) Destroy(layoutTexture);
         if (dotSprite != null) { Destroy(dotSprite.texture); Destroy(dotSprite); }
     }

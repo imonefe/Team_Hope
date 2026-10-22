@@ -92,9 +92,12 @@ public class WeaponData : ScriptableObject
     public GameObject hitboxPrefab;
     [Range(0.1f, 5f)]
     public float damageMultiplier = 1f;
+    [Tooltip("[2026-10-22] 공격 애니메이션 기본 속도 배율 (1 = 원래 속도, 1.1 = 10% 빠르게). 건틀릿 스택·공격 버프와 곱해짐")]
+    [Range(0.5f, 2f)]
+    public float attackSpeed = 1f;
 
     [Header("퍼즈 게이지")]
-    public float pauseGaugePerHit = 10f; // 기본 10% (10타 = 100%) [2026-10-19 2.5 → 10]
+    public float pauseGaugePerHit = 2.5f; // 기본 2.5% (40타 = 100%) [2026-10-20 방당 약 1번 기준으로 다시 낮춤]
 
     [Header("사운드 (여러 개 넣으면 그중 하나가 랜덤 재생)")]
     public RandomSfx swingSfx = new RandomSfx();
@@ -115,15 +118,6 @@ public class WeaponData : ScriptableObject
     [Range(0f, 1f)] public float swingSfxSpeedFollow = 0.5f;
     [Tooltip("휘두르는 소리의 최대 배속 (너무 빨라지면 음이 앙칼지게 높아지므로 제한)")]
     public float swingSfxMaxPitch = 1.5f;
-
-    [Header("총 전용")]
-    public float gunRange = 20f; // 레이저 사거리
-    public GameObject gunBeamPrefab;      // 빔 스프라이트 프리펩
-    public float gunBeamDuration = 0.1f;  // 빔 표시 시간
-    [Tooltip("빔 각도 랜덤 흔들림 (±도)")]
-    public float gunBeamAngleJitter = 0f;
-    [Tooltip("콤보별 빔 시작 위치 오프셋 (인덱스 = 콤보 타수-1, 좌우 자동 반전)")]
-    public Vector2[] gunBeamMuzzleOffsets;
 
     [Header("망치 전용 (차지 강타)")]
     [Tooltip("이 시간(초) 이상 눌러야 차지가 '무장'됨. 그 전에 떼면 그냥 평타(기존 콤보)로 처리됨")]

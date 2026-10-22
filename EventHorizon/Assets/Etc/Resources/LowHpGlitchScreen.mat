@@ -25,32 +25,40 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _BandAmount: 0.55
-    - _BandCount: 10
-    - _BandShift: 0.16
-    - _BlockAmount: 0.35
-    - _BlockCountX: 24
-    - _BlockCountY: 14
-    - _BlockShift: 0.1
-    - _Darken: 0.1
-    - _Desaturate: 0.8
-    - _EdgeBlock: 22
-    - _EdgeNoise: 0.07
-    - _EdgeWidth: 0.14
+    - _BandChance: 0.45
+    - _BandCount: 22
+    - _BandLine: 0.5
+    - _BandRate: 0.3
+    - _BandShift: 0.078
+    - _BandSplitMax: 0.016
+    - _BandSplitMin: 0.006
+    - _Barrel: 0.035
+    - _EdgeFalloff: 1.6
+    - _EdgeWidth: 0.07
     - _EffectTime: 0
-    - _Grain: 0.35
-    - _GrainSize: 3
+    - _Grain: 0.05
+    - _GrainHeight: 6
+    - _GrainWidth: 18
     - _Intensity: 0
-    - _LineCount: 180
-    - _Scanline: 0.5
+    - _NoiseOpacity: 0.5
+    - _NoiseRate: 0.15
+    - _Ripple: 0.006
+    - _RippleWidth: 0.05
     - _Seed: 0
-    - _Shift: 0.06
-    - _Split: 0.025
-    - _TearLine: 0.2
+    - _StreakAmount: 0.1
+    - _StreakBright: 0.35
+    - _StreakHeight: 9
+    - _StreakLength: 180
+    - _StreakWhite: 0.2
+    - _TearAmount: 0.03
+    - _TearHeight: 6
     - _Tint: 0.85
-    - _Warp: 0.03
-    - _WarpFreq: 18
+    - _VignetteDarken: 0.3
+    - _VignetteEnd: 1.32
+    - _VignetteStart: 0.82
+    - _WarpAmount: 0.014
+    - _WarpSpeed: 1
     m_Colors:
-    - _TearColor: {r: 0.75, g: 0.68, b: 0.68, a: 1}
-    - _TintColor: {r: 0.62, g: 0.36, b: 0.36, a: 1}
+    - _TearColor: {r: 1, g: 0.8, b: 0.8, a: 1}
+    - _TintColor: {r: 1, g: 0.12, b: 0.16, a: 1}
   m_BuildTextureStacks: []

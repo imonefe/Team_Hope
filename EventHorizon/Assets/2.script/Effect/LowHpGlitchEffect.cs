@@ -30,6 +30,9 @@ public class LowHpGlitchEffect : MonoBehaviour
     Stats playerStats;
     float level;          // 부드럽게 따라가는 세기 (0~1)
     float nextSeedTime;
+    AudioSource heartbeatSource;   // [2026-10-21] 심장 박동 소리 (화면 맥동과 같은 박자)
+    float lastBeatPhase = -1f;
+    static readonly int BeatPhaseId = Shader.PropertyToID("_EH_LowHpBeatPhase");
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Bootstrap()
@@ -47,6 +50,12 @@ public class LowHpGlitchEffect : MonoBehaviour
         DontDestroyOnLoad(go);
         instance = go.AddComponent<LowHpGlitchEffect>();
         instance.settings = s;
+
+        // [2026-10-21] 박동 소리용 2D 소리 재생기
+        instance.heartbeatSource = go.AddComponent<AudioSource>();
+        instance.heartbeatSource.playOnAwake = false;
+        instance.heartbeatSource.spatialBlend = 0f;
+        instance.heartbeatSource.ignoreListenerPause = false;
     }
 
     void OnDestroy()
@@ -67,8 +76,9 @@ public class LowHpGlitchEffect : MonoBehaviour
         else playerStats = null;
 
         // 목표 세기: 기준 이하일 때만, HP 가 낮을수록 세게
+        // [2026-10-21] 대화 중(NPC 대화창이 열려 있는 동안)에는 효과를 끈다 (fadeOutTime 동안 부드럽게 사라지고, 대화가 끝나면 다시 켜짐)
         float target = 0f;
-        if (settings.effectEnabled && playerStats != null && playerStats.maxHp > 0)
+        if (settings.effectEnabled && !NPC.AnyTalking && playerStats != null && playerStats.maxHp > 0)
         {
             float ratio = (float)playerStats.currentHp / playerStats.maxHp;
             if (ratio <= settings.hpThreshold)
@@ -87,6 +97,7 @@ public class LowHpGlitchEffect : MonoBehaviour
         if (level <= 0f)
         {
             ScreenIntensity = 0f;
+            lastBeatPhase = -1f;
             return;
         }
 
@@ -97,6 +108,9 @@ public class LowHpGlitchEffect : MonoBehaviour
         float flick = Random.Range(1f - settings.flicker, 1f);
 
         ScreenIntensity = level * pulse * flick;
+        // [2026-10-21] 셰이더의 '박동 물결'용 위상 (0 = 박동 순간 = 심장 소리가 나는 순간)
+        Shader.SetGlobalFloat(BeatPhaseId, settings.pulseRate > 0f ? Mathf.Repeat(Time.unscaledTime * settings.pulseRate - 0.75f, 1f) : 1f);
+        UpdateHeartbeat();
         EffectTime = Time.unscaledTime % 1000f;
 
         if (Time.unscaledTime >= nextSeedTime)
@@ -104,5 +118,21 @@ public class LowHpGlitchEffect : MonoBehaviour
             nextSeedTime = Time.unscaledTime + settings.glitchInterval;
             ScreenSeed = Random.Range(0f, 1000f);
         }
+    }
+
+    // [2026-10-21 추가] 맥동이 가장 세지는 순간(sin = -1, 위상 0.75)을 지날 때마다 박동 소리를 한 번 낸다.
+    // ESC 메뉴·노드맵 등으로 게임이 멈춰 있으면 울리지 않는다 (대화 중에는 효과 자체가 꺼져 있음)
+    void UpdateHeartbeat()
+    {
+        if (heartbeatSource == null || settings.heartbeatClip == null || settings.pulseRate <= 0f) return;
+
+        float phase = Mathf.Repeat(Time.unscaledTime * settings.pulseRate, 1f);
+        bool crossed = lastBeatPhase >= 0f &&
+                       ((lastBeatPhase < 0.75f && phase >= 0.75f) || (phase < lastBeatPhase && lastBeatPhase < 0.75f));
+        lastBeatPhase = phase;
+        if (!crossed || GamePause.IsPaused) return;
+
+        float vol = settings.heartbeatVolume * Mathf.Clamp01(level) * GameSettings.SfxVolume;
+        if (vol > 0.001f) heartbeatSource.PlayOneShot(settings.heartbeatClip, vol);
     }
 }

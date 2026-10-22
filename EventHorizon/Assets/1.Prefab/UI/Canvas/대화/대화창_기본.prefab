@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textComponent: {fileID: 8862168835126454834}
-  textSpeed: 0.05
+  textSpeed: 0.025
   dialogueCanvas: {fileID: 647282747014380891}
   nextCanvasPrefab: {fileID: 0}
   portraits:

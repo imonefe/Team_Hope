@@ -1113,7 +1113,7 @@ MonoBehaviour:
   textOffset: {x: -15, y: 0}
   textDuration: 0.2
   textEase: 9
-  showWhenSelected: 0
+  showWhenSelected: 1
 --- !u!1 &4216729298593188629
 GameObject:
   m_ObjectHideFlags: 0
@@ -2146,7 +2146,7 @@ MonoBehaviour:
   textOffset: {x: -15, y: 0}
   textDuration: 0.2
   textEase: 9
-  showWhenSelected: 0
+  showWhenSelected: 1
 --- !u!114 &8535111242846269935
 MonoBehaviour:
   m_ObjectHideFlags: 0

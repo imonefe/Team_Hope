@@ -78,7 +78,8 @@ public class MapButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     [HideInInspector] public bool isCompleted = false;
     [HideInInspector] public bool isSelectable = false;
     [HideInInspector] public bool isCurrent = false;
-    [HideInInspector] public bool isReachableLater = false;   // 지금은 못 가지만 앞으로 갈 수 있는 길 위에 있음
+    [HideInInspector] public bool isReachableLater = false;
+    [HideInInspector] public bool keyFocused = false;          // [2026-10-21] 방향키로 고른 노드 (마우스를 올린 것처럼 발광)   // 지금은 못 가지만 앞으로 갈 수 있는 길 위에 있음
 
     Button btn;
     List<GameObject> spawnedLines = new List<GameObject>();
@@ -150,7 +151,7 @@ public class MapButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     void Update()
     {
         // 맵이 열려 있는 동안 게임 시간이 멈추므로 실제 시간 기준
-        float target = (hovered && isSelectable) ? 1f : (isCurrent ? currentGlow : 0f);
+        float target = ((hovered || keyFocused) && isSelectable) ? 1f : (isCurrent ? currentGlow : 0f);
         float speed = glowFadeTime > 0f ? 1f / glowFadeTime : 1000f;
         glowAmount = Mathf.MoveTowards(glowAmount, target, speed * Time.unscaledDeltaTime);
         if (glowImage != null)
@@ -160,7 +161,12 @@ public class MapButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
-    public void OnPointerEnter(PointerEventData eventData) { hovered = true; }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        hovered = true;
+        // [2026-10-21] 마우스를 올린 노드로 방향키 선택도 옮겨 감 (키보드·마우스를 섞어 써도 표시가 하나만 남게)
+        if (isSelectable && MapManager.Instance != null) MapManager.Instance.SetKeyFocus(this);
+    }
     public void OnPointerExit(PointerEventData eventData) { hovered = false; }
 
     // 맵이 닫힐 때 마우스가 올라가 있었어도 다음에 열면 발광이 꺼진 상태로 시작 (현재 노드는 바로 켜진 상태로)

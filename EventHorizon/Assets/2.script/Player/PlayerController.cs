@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum NowAdvantage { None, Speed, Defense, Power }
-public enum Weapontype { None, Sword, Hammer, Glove, Gun }
+public enum Weapontype { None, Sword, Hammer, Glove }   // [2026-10-22] 총(Gun) 제거
 
 public class PlayerController : MonoBehaviour
 {
@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour
     bool isAttacking = false;
     bool animPlaying = false;
     float animPlayingTimeout = 0f;
-    public float animPlayingMaxTime = 1.2f; // 공격 클립 중 가장 긴 총(gun_combo) 클립(~1.0s)보다 여유있게. OnAttackAnimEnd 이벤트 유실 시의 백업용 타임아웃.
+    public float animPlayingMaxTime = 1.2f; // 공격 클립(가장 긴 것 약 1초)보다 여유있게. OnAttackAnimEnd 이벤트 유실 시의 백업용 타임아웃.
 
     float comboWindow = 0.3f;
     float comboTimer = 0f;
@@ -46,7 +46,7 @@ public class PlayerController : MonoBehaviour
 
     // [2026-10-18 추가] 타격 후 캔슬 — 이번 공격 동작의 타격 판정이 모두 나간 뒤
     // WeaponData.hitCancelDelay 초가 지나면 이동(새로 누르거나 반대 방향)·점프로 남은 동작을 끊는다.
-    int hitEventsThisSwing = 0;     // 이번 동작에서 나간 타격 이벤트 수 (SpawnHitbox / FireProjectile)
+    int hitEventsThisSwing = 0;     // 이번 동작에서 나간 타격 이벤트 수 (SpawnHitbox)
     int hitEventsInClip = -1;       // 이번 동작 클립에 들어 있는 타격 이벤트 수 (-1 = 아직 안 셈)
     float hitCancelTimer = -1f;     // 모든 타격이 나간 뒤 지난 시간 (-1 = 캔슬 불가)
     float hitCancelDir = 0f;        // 마지막 타격 때 누르고 있던 방향 (그대로 누르고 있는 건 캔슬로 안 침)
@@ -146,6 +146,7 @@ public class PlayerController : MonoBehaviour
             isDropping = false;
             dropTimer = 0f;
         }
+        if (isPassingUp) EndPassUp();   // [2026-10-20] 아래서 발판 통과 중이었으면 충돌 복구
     }
 
     public void ResumeControl(object owner = null)
@@ -169,6 +170,10 @@ public class PlayerController : MonoBehaviour
     float dropTimer = 0f;
     int platformLayer;
     int originalLayer;
+    // [2026-10-20 추가] 아래서 점프로 발판을 통과하는 중 (그동안은 겹친 발판과의 충돌만 끔)
+    bool isPassingUp = false;
+    readonly System.Collections.Generic.List<Collider2D> passUpIgnored = new System.Collections.Generic.List<Collider2D>();
+    readonly Collider2D[] passUpHits = new Collider2D[8];
 
     // ── 이펙트 ────────────────────────────────────────────
     [Header("이펙트")]
@@ -322,7 +327,10 @@ public class PlayerController : MonoBehaviour
 
         // 건틀릿 스택 타이머 + 공격 애니메이션 속도 (공격 중에만 적용)
         UpdateGauntletStack();
-        float baseAttackAnimSpeed = (weapontype == Weapontype.Glove && isAttacking) ? GetGauntletSpeed() : 1f;
+        // [2026-10-22] 무기별 기본 공격 속도(WeaponData.attackSpeed) × 건틀릿 스택 (공격 중에만)
+        float baseAttackAnimSpeed = isAttacking
+            ? GetGauntletSpeed() * (EquippedWeapon != null ? EquippedWeapon.attackSpeed : 1f)
+            : 1f;
         animator.speed = baseAttackAnimSpeed * attackBuffAnimSpeedMultiplier;
     }
 
@@ -364,8 +372,50 @@ public class PlayerController : MonoBehaviour
             attackDashPending = false;
         }
 
+        UpdatePassUp();
         GroundedCheck();
         animator.SetFloat(ParamVerticalVel, rigid.velocity.y);
+    }
+
+    // [2026-10-20 추가] 아래서 위로 발판을 통과하는 동안은 발판을 완전히 무시한다.
+    // 예전엔 한쪽 통과 발판에 반쯤 들어간 채 점프 꼭대기에 닿거나 발판 끝 옆면에 몸이 닿으면 끼었다.
+    //  - 올라가는 중에 몸이 발판과 겹치면 → 그 발판과 내 몸의 충돌만 끔 (층은 그대로라 적·보스와의 관계는 안 바뀜)
+    //  - 몸이 발판에서 완전히 빠져나오면 → 충돌 복구 (위로 빠져나왔으면 그 발판 위에 착지, 못 올라갔으면 아래로 떨어짐)
+    void UpdatePassUp()
+    {
+        if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+        if (bodyCollider == null || isDropping) return;
+
+        // 발판 위에 서 있는 것은 겹침으로 보지 않도록 아래쪽을 살짝 잘라 낸 상자로 검사
+        Bounds b = bodyCollider.bounds;
+        Vector2 size = new Vector2(b.size.x * 0.9f, Mathf.Max(0.1f, b.size.y - 0.1f));
+        Vector2 center = new Vector2(b.center.x, b.center.y + 0.05f);
+        int n = Physics2D.OverlapBoxNonAlloc(center, size, 0f, passUpHits, LayerMask.GetMask("platform"));
+
+        if (n > 0 && (isPassingUp || rigid.velocity.y > 0.1f))
+        {
+            // 올라가는 중에 새로 겹친 발판은 충돌을 끈다 (통과 중엔 다른 발판에 겹쳐도 계속 무시)
+            for (int i = 0; i < n; i++)
+            {
+                Collider2D c = passUpHits[i];
+                if (c == null || c.isTrigger || passUpIgnored.Contains(c)) continue;
+                Physics2D.IgnoreCollision(bodyCollider, c, true);
+                passUpIgnored.Add(c);
+            }
+            isPassingUp = passUpIgnored.Count > 0;
+        }
+        else if (isPassingUp && n == 0)
+        {
+            EndPassUp();
+        }
+    }
+
+    void EndPassUp()
+    {
+        foreach (Collider2D c in passUpIgnored)
+            if (c != null && bodyCollider != null) Physics2D.IgnoreCollision(bodyCollider, c, false);
+        passUpIgnored.Clear();
+        isPassingUp = false;
     }
 
     // FixedUpdate에서 이동(attackDashPending)이 실제로 반영된 뒤 호출되므로,
@@ -504,7 +554,7 @@ public class PlayerController : MonoBehaviour
 
         bool downKey = Input.GetAxisRaw("Vertical") < -0.5f;
 
-        if (downKey && !isDropping && CheckOnPlatform())
+        if (downKey && !isDropping && !isPassingUp && CheckOnPlatform())
         {
             isDropping = true;
             dropTimer = 0f;
@@ -540,7 +590,7 @@ public class PlayerController : MonoBehaviour
         if (bodyCollider == null)
             bodyCollider = GetComponent<Collider2D>();
 
-        LayerMask mask = isDropping
+        LayerMask mask = (isDropping || isPassingUp)   // [2026-10-20] 발판 통과 중엔 발판을 땅으로 보지 않음
             ? LayerMask.GetMask("ground")
             : LayerMask.GetMask("ground", "platform");
 
@@ -705,7 +755,6 @@ public class PlayerController : MonoBehaviour
             case Weapontype.Sword: HandleSwordInput(); break;
             case Weapontype.Hammer: HandleHammerInput(); break;
             case Weapontype.Glove: HandleGauntletInput(); break;
-            case Weapontype.Gun: HandleGunInput(); break;
         }
     }
 
@@ -926,116 +975,6 @@ public class PlayerController : MonoBehaviour
             gauntletStack = 0;
             gauntletStackTimer = 0f;
         }
-    }
-
-    // ── 총: 투사체 발사 ───────────────────────────────────
-    void HandleGunInput()
-    {
-        if (!Input.GetKeyDown(KeyCode.X)) return;
-
-        if (!isAttacking) StartAttack(1);
-        else if (comboQueued == 0) comboQueued = comboIndex + 1;
-    }
-
-    // 총 빔 프리펩·지속시간은 WeaponData(무기별)에서 가져옴
-
-    public void FireProjectile()
-    {
-        int dir = (int)Mathf.Sign(transform.localScale.x);
-        Vector2 origin = spHitboxSpawnPoint != null
-                       ? (Vector2)spHitboxSpawnPoint.position
-                       : (Vector2)transform.position;
-
-        // 콤보별 총구 오프셋 (좌우 자동 반전)
-        var muzzleOffsets = EquippedWeapon?.gunBeamMuzzleOffsets;
-        if (muzzleOffsets != null && muzzleOffsets.Length > 0)
-        {
-            int mi = Mathf.Clamp((comboIndex > 0 ? comboIndex : 1) - 1, 0, muzzleOffsets.Length - 1);
-            Vector2 off = muzzleOffsets[mi];
-            origin += new Vector2(off.x * dir, off.y);
-        }
-
-        float range = EquippedWeapon?.gunRange ?? 20f;
-
-        // [2026-10-10 추가] 벽·바닥(ground)에서 레이저가 멈춘다 (적은 계속 관통, 한쪽 통과 발판은 막지 않음)
-        RaycastHit2D wall = Physics2D.Raycast(origin, new Vector2(dir, 0), range, LayerMask.GetMask("ground"));
-        if (wall.collider != null) range = wall.distance;
-
-        Vector2 end = origin + new Vector2(dir * range, 0);
-
-        // 레이저 시각화
-        ShowLaser(origin, end);
-
-        // 직선상 모든 적 감지 (모든 레이어)
-        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, new Vector2(dir, 0), range);
-
-        // [2026-10-10 수정] 근접 공격과 같은 피해 경로(치명타·퍼즈 중 치명타 보너스·상성·피격음·화면 흔들림·숫자)를 거친다.
-        // 예전엔 Health.TakeDamage를 직접 불러서 이것들이 전부 빠지고 퍼즈 게이지도 오르지 않았다.
-        int rawDamage = Mathf.RoundToInt(stats.Atk * (EquippedWeapon?.damageMultiplier ?? 1f) * attackBuffDamageMultiplier);
-        HashSet<Health> damaged = new HashSet<Health>();
-        bool anyHit = false;
-        foreach (var hit in hits)
-        {
-            if (hit.collider.gameObject == gameObject) continue;
-            if (Hitbox.IsHitboxCollider(hit.collider)) continue; // 공격 판정 상자는 맞는 대상이 아님
-            Health health = Health.Resolve(hit.collider);
-            if (health == null || health.gameObject == gameObject || damaged.Contains(health)) continue;
-            if (health.CompareTag("Player")) continue;
-            damaged.Add(health);
-
-            if (Hitbox.DealDirectHit(health, rawDamage, stats, dir, 5f, 3f, hit.point,
-                                     EquippedWeapon != null ? EquippedWeapon.PickHit() : null,
-                                     EquippedWeapon != null ? EquippedWeapon.PickCritical() : null,
-                                     "Gun", true))
-                anyHit = true;
-        }
-
-        // 퍼즈 게이지: 한 발에 적을 하나라도 맞혔으면 한 번만 충전 (관통으로 여러 마리 맞아도 한 번)
-        if (anyHit)
-        {
-            PauseManager.Instance?.AddGauge(EquippedWeapon != null ? EquippedWeapon.pauseGaugePerHit : 10f);
-            OnGauntletHit();
-        }
-
-        PlaySwingSfx(EquippedWeapon != null ? EquippedWeapon.PickSwing() : null);
-        SpawnComboEffect(comboIndex > 0 ? comboIndex : 1);
-        RegisterAttackHitEvent(); // [2026-10-18 추가] 타격 후 캔슬용 횟수 세기
-    }
-
-    void ShowLaser(Vector2 start, Vector2 end)
-    {
-        GameObject beamPrefab = EquippedWeapon != null ? EquippedWeapon.gunBeamPrefab : null;
-        if (beamPrefab == null) return;
-
-        float duration = EquippedWeapon != null ? EquippedWeapon.gunBeamDuration : 0.1f;
-
-        Vector2 diff = end - start;
-        float distance = diff.magnitude;
-        float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-
-        // 각도 랜덤 흔들림 (시각용, 판정에는 영향 없음)
-        float jitter = EquippedWeapon != null ? EquippedWeapon.gunBeamAngleJitter : 0f;
-        if (jitter > 0f)
-            angle += UnityEngine.Random.Range(-jitter, jitter);
-
-        // 총구(start)에 소환, 발사 방향으로 회전
-        GameObject beam = Instantiate(beamPrefab, start, Quaternion.Euler(0f, 0f, angle));
-
-        SpriteRenderer sr = beam.GetComponent<SpriteRenderer>()
-                         ?? beam.GetComponentInChildren<SpriteRenderer>();
-        if (sr != null && sr.sprite != null)
-        {
-            // 스프라이트 원본 가로 길이(유닛) 기준으로 거리에 맞춰 X 스케일
-            float baseWidth = sr.sprite.bounds.size.x;
-            if (baseWidth > 0f)
-            {
-                Vector3 s = beam.transform.localScale;
-                s.x = distance / baseWidth;
-                beam.transform.localScale = s;
-            }
-        }
-
-        Destroy(beam, duration);
     }
 
     // ── 공격 공통 로직 ────────────────────────────────────
@@ -1349,7 +1288,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // 지금 재생 중인 공격 클립(전환 중이면 넘어가는 쪽)에 SpawnHitbox / FireProjectile 이벤트가 몇 개인지
+    // 지금 재생 중인 공격 클립(전환 중이면 넘어가는 쪽)에 SpawnHitbox 이벤트가 몇 개인지
     int CountHitEventsInCurrentClip()
     {
         AnimatorClipInfo[] infos = animator.IsInTransition(0)
@@ -1367,7 +1306,7 @@ public class PlayerController : MonoBehaviour
 
         int count = 0;
         foreach (var e in clip.events)
-            if (e.functionName == nameof(SpawnHitbox) || e.functionName == nameof(FireProjectile)) count++;
+            if (e.functionName == nameof(SpawnHitbox)) count++;
         return Mathf.Max(1, count);
     }
 

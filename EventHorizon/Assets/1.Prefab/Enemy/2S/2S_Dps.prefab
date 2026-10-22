@@ -110,6 +110,8 @@ MonoBehaviour:
   hitFlashTime: 0.1
   flashMaterial: {fileID: 2100000, guid: 27766ac43c36d4f487e09e491baf06fb, type: 2}
   playHitAnimation: 1
+  hitArmor: 1
+  hitArmorOnlyWhileAttacking: 0
   hitboxPrefab: {fileID: 7527073567594890566, guid: aa80901e76ff4413964899afae3b45a4, type: 3}
   hitboxPoint: {fileID: 8451731654083964768}
   projectilePrefab: {fileID: 0}
@@ -117,10 +119,13 @@ MonoBehaviour:
   attackEffectPoint: {fileID: 0}
   effectFlipByFacing: 1
   attackDash: 1
-  attackDashSpeed: 7
-  attackDashDistance: 15
+  attackDashSpeed: 10
+  attackDashDistance: 5
   attackDashDelay: 1.4
   hitboxFollowAttacker: 1
+  attackDashDecelTime: 0.5
+  dashMaxHeightDiff: 1.2
+  dashStopAtLedge: 1
   attackVariations: 1
   isGrounded: 0
   spawnIdleTime: 0.5

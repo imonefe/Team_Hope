@@ -117,6 +117,8 @@ public class CutsceneStep
     public float effectScale = 1f;
     [Tooltip("이 시간(초)이 지나면 생성한 이펙트를 지운다 (0 = 안 지움)")]
     public float effectLifetime = 6f;
+    [Tooltip("생성한 이펙트의 재생 배속 (1 = 원래 속도, 1.25 = 25% 빠르게). 파티클·애니메이터·스파인에 같이 적용, 원본 프리팹은 그대로")]
+    public float effectSpeed = 1f;
     [Tooltip("체크하면 이펙트 안 파티클이 이펙트 크기·좌우 반전을 같이 따르게 한다 (원본 이펙트는 파티클이 크기를 무시하게 되어 있음)")]
     public bool effectHierarchyScale = true;
     [Tooltip("이펙트 파티클의 그리기 순서 (0 = 원본 그대로). 플레이어(5000)보다 크면 플레이어 앞에 보임")]
@@ -756,6 +758,7 @@ public class CutsceneSequencer : MonoBehaviour
         Transform at = step.effectAtPlayer ? CurrentPlayerTransform() : step.effectAnchor;
         Vector3 pos = (at != null ? at.position : transform.position) + step.effectOffset;
         var fx = Instantiate(step.effectPrefab, pos, Quaternion.identity);
+        ApplyEffectSpeed(fx, step.effectSpeed);
         Vector3 scale = step.effectPrefab.transform.localScale * step.effectScale;
         // [2026-10-15] 좌우 반전(크기 X가 음수)은 화살 메쉬를 뒤집어서 안 보이게 만든다(뒷면이 그려지지 않음).
         // 그래서 크기는 양수로 두고, 대신 세로축으로 180도 돌려서 같은 방향(왼쪽)을 보게 한다.
@@ -814,6 +817,19 @@ public class CutsceneSequencer : MonoBehaviour
                 if (names.Contains(tr.name)) tr.gameObject.SetActive(false);
         }
         if (step.effectLifetime > 0f) Destroy(fx, step.effectLifetime);
+    }
+
+    // [2026-10-21] 생성한 복사본만 빠르게/느리게 재생 (파티클 딜레이·스파인 동작·애니메이터가 같은 배율로 움직여 타이밍이 안 어긋남)
+    static void ApplyEffectSpeed(GameObject fx, float speed)
+    {
+        if (speed <= 0f || Mathf.Approximately(speed, 1f)) return;
+        foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            var main = ps.main;
+            main.simulationSpeed *= speed;
+        }
+        foreach (var an in fx.GetComponentsInChildren<Animator>(true)) an.speed *= speed;
+        foreach (var sa in fx.GetComponentsInChildren<SkeletonAnimation>(true)) sa.timeScale *= speed;
     }
 
     // ── 점점 세지는 흔들림 (뒤에서 계속 실행) ─────────────────

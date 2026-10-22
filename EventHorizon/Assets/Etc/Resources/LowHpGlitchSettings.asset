@@ -21,4 +21,6 @@ MonoBehaviour:
   pulseRate: 1.1
   pulseAmount: 0.25
   glitchInterval: 0.07
-  flicker: 0.15
+  flicker: 0
+  heartbeatClip: {fileID: 8300000, guid: 88bc6e9759474b378597bfcb89fba588, type: 3}
+  heartbeatVolume: 0.8

@@ -14,6 +14,9 @@ public class HudSettingVisibility : MonoBehaviour
     [Tooltip("WeaponInfo = 설정의 '무기 정보 칸', KeyHints = 설정의 '조작키 안내 줄'")]
     public Target setting = Target.WeaponInfo;
 
+    [Tooltip("[2026-10-21] 켜면 미니맵이 숨을 때(M키·방 없음 등) 같이 숨는다")]
+    public bool followMinimap = false;
+
     CanvasGroup group;
 
     void Awake()
@@ -36,7 +39,19 @@ public class HudSettingVisibility : MonoBehaviour
 
     void Apply()
     {
+        if (group != null) group.alpha = TargetAlpha();
+    }
+
+    float TargetAlpha()
+    {
         bool visible = setting == Target.WeaponInfo ? GameSettings.ShowWeaponInfo : GameSettings.ShowKeyHints;
-        if (group != null) group.alpha = visible ? 1f : 0f;
+        if (!visible) return 0f;
+        return followMinimap ? RoomMinimap.VisibleAlpha : 1f;
+    }
+
+    // 미니맵은 서서히 나타나고 사라지므로 따라갈 때만 매 프레임 맞춘다
+    void Update()
+    {
+        if (followMinimap && group != null) group.alpha = TargetAlpha();
     }
 }

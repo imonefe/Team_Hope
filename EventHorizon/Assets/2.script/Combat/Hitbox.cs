@@ -280,8 +280,10 @@ public class Hitbox : MonoBehaviour
         {
             gaugeCharged = true;
             PlayerController pc = attackerStats.GetComponent<PlayerController>();
-            float gauge = pc?.EquippedWeapon != null ? pc.EquippedWeapon.pauseGaugePerHit : 10f;
-            PauseManager.Instance?.AddGauge(gauge);
+            float gauge = pc?.EquippedWeapon != null ? pc.EquippedWeapon.pauseGaugePerHit : 2.5f;
+            // [2026-10-20] 로비 허수아비를 때릴 때는 퍼즈 게이지가 차지 않는다
+            if (target.GetComponentInParent<TrainingDummy>() == null)
+                PauseManager.Instance?.AddGauge(gauge);
 
             // 건틀릿 공격 속도 스택 (피격 성공 시)
             if (pc != null) pc.OnGauntletHit();
