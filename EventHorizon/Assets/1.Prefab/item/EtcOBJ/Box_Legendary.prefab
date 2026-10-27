@@ -132,6 +132,7 @@ MonoBehaviour:
   animator: {fileID: 7470125363089601331}
   openTrigger: Open
   interactCollider: {fileID: 0}
+  isLegendary: 1
 --- !u!61 &1472875979014019723
 BoxCollider2D:
   m_ObjectHideFlags: 0

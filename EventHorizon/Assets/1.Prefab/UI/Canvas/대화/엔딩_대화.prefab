@@ -54,7 +54,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: speakerNames.Array.data[0]
-      value: EM_2Y
+      value: "\ud5e4\ub124\uc2dc"
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: speakerNames.Array.data[1]

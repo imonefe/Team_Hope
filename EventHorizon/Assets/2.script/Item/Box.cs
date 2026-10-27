@@ -28,6 +28,10 @@ public class Box : ProximityInteractable
     [Header("콜라이더")]
     public Collider2D interactCollider;
 
+    [Header("상자 등급 (2026-10-27 추가)")]
+    [Tooltip("레전더리 상자면 체크 — 나타날 때 영복이 알려 준다 (Box_Legendary 프리팹에 켜 둠)")]
+    public bool isLegendary = false;
+
     bool isActive = false;
     bool isOpened = false;
 
@@ -46,6 +50,9 @@ public class Box : ProximityInteractable
         // [2026-10-10 추가] 상자가 나타나는 순간 내용물을 미리 정해 확보한다
         // (같은 방에 상자가 여러 개 나와도 서로 다른 새 아이템이 들어가도록)
         if (value) PlanDrop();
+
+        // [2026-10-27] 레전더리 상자가 나타나면 영복이 알려 준다
+        if (value && isLegendary) YoungbokChatter.OnLegendaryBoxAppeared();
     }
 
     // ── 내용물 미리 정하기 ─────────────────────────────────
@@ -122,6 +129,7 @@ public class Box : ProximityInteractable
 
     void OpenBox()
     {
+        YoungbokChatter.OnBoxOpened();   // [2026-10-27] 영복 잡담 (처음 한 번 + 이후 5%)
         Debug.Log("[Box] OpenBox 호출!");
         isOpened = true;
         if (animator != null)

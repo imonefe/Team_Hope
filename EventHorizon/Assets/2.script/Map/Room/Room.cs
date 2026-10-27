@@ -107,11 +107,21 @@ public class Room : MonoBehaviour
         portalOpened = true;
         CancelInvoke(nameof(CheckClear));
         if (portal != null) portal.SetActive(true);
+        YoungbokChatter.OnRoomCleared(this);   // [2026-10-27] 영복 "문 열렸다" (상자보다 먼저 — 레전더리 안내가 덮어쓸 수 있게)
         foreach (var bs in boxSpawners)
             if (bs != null) bs.SetActive(true);
 
         if (isBossRoom && CameraFollow.Instance != null)
             CameraFollow.Instance.ReleaseRoom();
+    }
+
+    /// <summary>[2026-10-27 추가] 아직 몬스터를 내보내지 않은 스포너가 남아 있는지 (영복 "N 남았다" 판단용)</summary>
+    public bool HasPendingSpawns()
+    {
+        if (spawners == null) return false;
+        foreach (var s in spawners)
+            if (s != null && !s.hasSpawned) return true;
+        return false;
     }
 
     // CleanupTrigger 에서 호출 — 미활성 스포너 제거

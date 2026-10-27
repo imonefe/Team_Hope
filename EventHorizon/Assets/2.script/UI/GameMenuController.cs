@@ -80,6 +80,14 @@ public class GameMenuController : MonoBehaviour
             pausePanel.AddComponent<UIPanelAnimator>();
         if (creditsPanel != null && creditsPanel.GetComponent<UIPanelAnimator>() == null)
             creditsPanel.AddComponent<UIPanelAnimator>();
+
+        // [2026-10-28 변경] 방향키 선택을 공용 KeyboardMenuNav 로 교체 — ↑/↓ 한 칸씩 이동(끝에서 반대쪽으로), 엔터·스페이스로 누르기.
+        // (예전 SelectOnFirstArrow 는 첫 선택만 해 주고 이동은 유니티 기본 내비게이션에 맡겼음)
+        KeyboardMenuNav.Attach(gameObject,
+            () => (creditsPanel != null && creditsPanel.activeInHierarchy) ? creditsPanel.transform
+                  : pausePanel != null ? pausePanel.transform : null,
+            () => closing || SettingsWindow.IsOpen,
+            () => firstSelected);
     }
 
     // UILoader 등이 gameObject.SetActive(true)로 켤 때마다 자동 실행됨
@@ -122,52 +130,6 @@ public class GameMenuController : MonoBehaviour
             BackFromCredits();
         else
             Resume();
-    }
-
-    // [2026-10-21 추가] 방향키로 버튼 고르기.
-    // 마우스로 쓰는 사람에게 회색 바가 미리 떠 있지 않도록, 처음부터 선택해 두지 않고
-    // 선택된 버튼이 없을 때 방향키(또는 WASD)를 누르면 그때 첫 버튼을 고른다. 그 뒤 이동·결정(엔터/스페이스)은 유니티 기본 내비게이션이 처리
-    // LateUpdate 에서 하는 이유: 같은 프레임에 유니티 UI 가 방금 고른 버튼을 한 칸 더 옮겨 버리지 않게 (UI 입력은 Update 에서 처리됨)
-    void LateUpdate()
-    {
-        if (closing || SettingsWindow.IsOpen) return;
-        SelectOnFirstArrow();
-    }
-
-    void SelectOnFirstArrow()
-    {
-        EventSystem es = EventSystem.current;
-        if (es == null) return;
-
-        bool arrow = Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)
-                  || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)
-                  || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S);
-        if (!arrow) return;
-
-        GameObject cur = es.currentSelectedGameObject;
-        GameObject panel = (creditsPanel != null && creditsPanel.activeInHierarchy) ? creditsPanel : pausePanel;
-        if (panel == null) return;
-        // 이미 이 패널 안의 버튼이 선택돼 있으면 기본 내비게이션에 맡김
-        if (cur != null && cur.activeInHierarchy && cur.transform.IsChildOf(panel.transform)) return;
-
-        GameObject pick = null;
-        if (firstSelected != null && firstSelected.activeInHierarchy && firstSelected.transform.IsChildOf(panel.transform))
-            pick = firstSelected;
-        else
-        {
-            // 화면에서 가장 위에 있는 상호작용 가능한 버튼
-            float bestY = float.MinValue;
-            foreach (var s in panel.GetComponentsInChildren<Selectable>(false))
-            {
-                if (!s.IsInteractable()) continue;
-                float y = s.transform.position.y;
-                if (y > bestY) { bestY = y; pick = s.gameObject; }
-            }
-        }
-        if (pick == null) return;
-
-        es.SetSelectedGameObject(null);
-        es.SetSelectedGameObject(pick);
     }
 
     // ─────────────────────────────────────────────

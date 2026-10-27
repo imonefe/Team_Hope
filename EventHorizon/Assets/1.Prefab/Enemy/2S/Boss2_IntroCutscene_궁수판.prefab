@@ -563,7 +563,7 @@ MonoBehaviour:
     shakeDuration: 0.3
     shakeStrength: 0.3
     shakeRampFrom: 0.02
-    speakerName: "\uB098"
+    speakerName: "\ud5e4\ub124\uc2dc"
     dialogueText: "\u2026!"
     dialogueHoldSeconds: 1.1
     letterboxShow: 1

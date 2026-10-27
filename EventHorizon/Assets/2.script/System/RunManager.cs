@@ -139,7 +139,7 @@ public class RunManager : PersistentSingleton<RunManager>
         OnCurrencyChanged?.Invoke(Amount);
     }
 
-    /// <summary>적/보스 처치 위치에서 min~max(포함) 사이 랜덤 재화를 지급하고 "+N" 팝업을 띄운다.</summary>
+    /// <summary>적/보스 처치 위치에서 min~max(포함) 사이 랜덤 재화를 지급하고 노란 파편 연출을 띄운다.</summary>
     public void DropRandomCurrency(Vector3 position, int min, int max)
     {
         if (max < min) max = min;
@@ -147,7 +147,8 @@ public class RunManager : PersistentSingleton<RunManager>
         if (amount <= 0) return;
 
         AddCurrency(amount);
-        FloatingTextSpawner.SpawnText(position, $"+{amount}", popupColor);
+        // [2026-10-27 변경] "+N" 숫자 팝업 대신 노란 파편이 바닥에 떨어지는 연출 (CurrencyShardFX.cs)
+        CurrencyShardFX.Spawn(position, amount);
     }
 
     // ══════════════ 통계 ══════════════

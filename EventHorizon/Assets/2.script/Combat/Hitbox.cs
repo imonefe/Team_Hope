@@ -210,6 +210,7 @@ public class Hitbox : MonoBehaviour
 
         target.TakeDamage(finalDamage, direction, knockbackX, knockbackY);
         FloatingTextSpawner.SpawnDamage(hitPos, finalDamage, isCrit);
+        if (isCrit && byPlayer) YoungbokChatter.OnPlayerCrit();   // [2026-10-27] 영복 잡담 (5%)
         return true;
     }
 
@@ -293,6 +294,7 @@ public class Hitbox : MonoBehaviour
 
         // 데미지 숫자 팝업 (플로팅 텍스트)
         FloatingTextSpawner.SpawnDamage(other.transform.position, finalDamage, isCrit);
+        if (isCrit && ownerLayer == "Player") YoungbokChatter.OnPlayerCrit();   // [2026-10-27] 영복 잡담 (5%)
 
     }
 }

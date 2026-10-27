@@ -44,6 +44,11 @@ public class MainMenuController : MonoBehaviour
         UIButtonJuice.Attach(quitButton);
         if (creditButton != null) UIButtonJuice.Attach(creditButton);
         if (settingsButton != null) UIButtonJuice.Attach(settingsButton);
+
+        // [2026-10-28 추가] 키보드 ↑/↓ 로 버튼 고르기, 엔터·스페이스로 누르기 (크레딧·설정 창이 떠 있을 땐 멈춤)
+        KeyboardMenuNav.Attach(gameObject,
+            () => startButton != null ? startButton.transform.parent : null,
+            () => (creditPanel != null && creditPanel.activeSelf) || SettingsWindow.IsOpen);
     }
 
     private void Update()

@@ -211,7 +211,7 @@ MonoBehaviour:
     fadeDuration: 0.8
     npc: {fileID: 0}
     npcConditionKey: 
-  - label: "EM_2Y \uBE44\uCDA4"
+  - label: "\ud5e4\ub124\uc2dc \uBE44\uCDA4"
     type: 2
     runInBackground: 0
     waitSeconds: 1

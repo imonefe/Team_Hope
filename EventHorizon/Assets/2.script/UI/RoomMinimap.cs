@@ -9,6 +9,7 @@ using TMPro;
 ///
 /// - 방이 바뀌면(새 Room이 생기면) 그 방의 충돌 타일맵을 읽어 "타일 1칸 = 1픽셀" 그림으로 방 모양을 만든다.
 /// - 그 위에 점으로 표시: 플레이어(하늘색), 잡몹(빨강), 보스(크고 깜빡이는 빨강), 열린 포탈(보라).
+/// - [2026-10-27] 미니맵에 보이는 범위 밖의 적·보스는 테두리 안쪽에 그 방향을 가리키는 화살표로 표시.
 /// - [2026-10-15] 방 전체를 한 화면에 다 넣지 않고, 플레이어 주변 viewHeight 칸만 확대해서 보여주며 플레이어를 따라간다.
 /// - 전투 UI가 숨겨질 때(노드맵·대화·컷신 등 CombatUIGate가 막을 때)는 같이 숨는다.
 /// - UI는 전부 코드로 만든다. 씬의 빈 오브젝트에 이 스크립트 하나만 붙이면 된다.
@@ -67,6 +68,14 @@ public class RoomMinimap : MonoBehaviour
     public float bossDotSize = 21f;
     public float portalDotSize = 16f;
 
+    [Header("화면 밖 적 화살표 — [2026-10-27 추가]")]
+    [Tooltip("미니맵에 보이는 범위 밖에 있는 적을 테두리에 화살표로 가리킨다")]
+    public bool showOffscreenArrows = true;
+    [Tooltip("화살표 크기 (픽셀)")]
+    public float arrowSize = 16f;
+    [Tooltip("화살표가 패널 테두리에서 안쪽으로 들어온 거리 (픽셀)")]
+    public float arrowInset = 11f;
+
     [Header("켜고 끄는 키")]
     public KeyCode toggleKey = KeyCode.M;
 
@@ -92,6 +101,11 @@ public class RoomMinimap : MonoBehaviour
     readonly List<Portal> portals = new List<Portal>();
     readonly List<Image> dotPool = new List<Image>();
     int dotsUsed;
+    // [2026-10-27] 화면 밖 적 화살표
+    RectTransform arrowLayer;
+    Sprite arrowSprite;
+    readonly List<Image> arrowPool = new List<Image>();
+    int arrowsUsed;
 
     void Awake()
     {
@@ -145,6 +159,15 @@ public class RoomMinimap : MonoBehaviour
         dotLayer = (RectTransform)dots.transform;
         dotLayer.anchorMin = Vector2.zero; dotLayer.anchorMax = Vector2.one;
         dotLayer.offsetMin = Vector2.zero; dotLayer.offsetMax = Vector2.zero;
+
+        // [2026-10-27] 화살표 층 — 패널(가운데 기준)의 맨 위. 지도가 움직여도 화살표는 테두리에 붙어 있다
+        var arrows = new GameObject("OffscreenArrows", typeof(RectTransform));
+        arrows.transform.SetParent(panel.transform, false);
+        arrowLayer = (RectTransform)arrows.transform;
+        arrowLayer.anchorMin = arrowLayer.anchorMax = new Vector2(0.5f, 0.5f);
+        arrowLayer.pivot = new Vector2(0.5f, 0.5f);
+        arrowLayer.sizeDelta = panelSize;
+        arrowSprite = MakeArrowSprite(32);
 
         BuildFrameArt(cgo.transform, frame);
 
@@ -237,6 +260,7 @@ public class RoomMinimap : MonoBehaviour
             RefreshLists();
         }
         DrawDots();
+        DrawOffscreenArrows();   // [2026-10-27] 미니맵 범위 밖 적 화살표
 
         // 플레이어를 따라 방 그림을 움직인다 (패널 밖으로 빈 공간이 보이지 않게 가장자리에서 멈춤)
         mapArea.anchoredPosition = Vector2.Lerp(mapArea.anchoredPosition, TargetOffset(false),
@@ -356,7 +380,7 @@ public class RoomMinimap : MonoBehaviour
     {
         dotsUsed = 0;
         foreach (var p in portals)
-            if (p != null && p.portalCollider != null && p.portalCollider.enabled)
+            if (p != null && p.portalCollider != null && p.IsOpen)   // [2026-10-27] 문 감지 영역이 항상 켜져 있게 바뀌어 열림 여부로 판단
                 PlaceDot((Vector3)((Vector2)p.portalCollider.bounds.center + portalDotOffset), portalColor, portalDotSize);   // [2026-10-15] 문 판정 범위 가운데 (예전: 포탈 기준점 = 바닥)
         foreach (var e in enemies)
             if (e != null) PlaceDot(e.position, enemyColor, enemyDotSize);
@@ -369,6 +393,72 @@ public class RoomMinimap : MonoBehaviour
 
         for (int i = dotsUsed; i < dotPool.Count; i++)
             if (dotPool[i].enabled) dotPool[i].enabled = false;
+    }
+
+    // ── [2026-10-27 추가] 화면 밖 적 화살표 ─────────────────
+    // 적의 미니맵 위치(패널 가운데 기준)가 패널 밖이면, 가운데→적 방향으로 패널 테두리 안쪽에 화살표를 둔다.
+    void DrawOffscreenArrows()
+    {
+        arrowsUsed = 0;
+        if (showOffscreenArrows && worldRect.width > 0f && worldRect.height > 0f)
+        {
+            Vector2 half = panelSize * 0.5f - Vector2.one * arrowInset;
+            foreach (var e in enemies)
+                if (e != null) PlaceArrowIfOffscreen(e.position, enemyColor, half);
+            foreach (var b in bosses)
+                if (b != null) PlaceArrowIfOffscreen(b.position, bossColor, half);
+        }
+        for (int i = arrowsUsed; i < arrowPool.Count; i++)
+            if (arrowPool[i].enabled) arrowPool[i].enabled = false;
+    }
+
+    void PlaceArrowIfOffscreen(Vector3 world, Color color, Vector2 half)
+    {
+        // 지도 위 위치(mapArea 왼쪽 아래 기준) → 패널 가운데 기준
+        float u = (world.x - worldRect.x) / worldRect.width;
+        float v = (world.y - worldRect.y) / worldRect.height;
+        Vector2 p = mapArea.anchoredPosition + new Vector2(u * mapArea.sizeDelta.x, v * mapArea.sizeDelta.y);
+        if (Mathf.Abs(p.x) <= half.x && Mathf.Abs(p.y) <= half.y) return;   // 보이는 범위 안 → 점으로 충분
+
+        float sx = Mathf.Abs(p.x) > 0.001f ? half.x / Mathf.Abs(p.x) : float.MaxValue;
+        float sy = Mathf.Abs(p.y) > 0.001f ? half.y / Mathf.Abs(p.y) : float.MaxValue;
+        Vector2 edge = p * Mathf.Min(sx, sy);
+
+        Image arrow;
+        if (arrowsUsed < arrowPool.Count) arrow = arrowPool[arrowsUsed];
+        else
+        {
+            arrow = MakeImage(arrowLayer, "Arrow", color);
+            arrow.sprite = arrowSprite;
+            arrow.rectTransform.anchorMin = arrow.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            arrowPool.Add(arrow);
+        }
+        arrowsUsed++;
+        var rt = arrow.rectTransform;
+        rt.anchoredPosition = edge;
+        rt.sizeDelta = new Vector2(arrowSize, arrowSize);
+        rt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(p.y, p.x) * Mathf.Rad2Deg);   // 그림은 오른쪽(+X)을 가리킴
+        arrow.color = color;
+        arrow.enabled = true;
+    }
+
+    // 오른쪽(+X)을 가리키는 삼각형
+    static Sprite MakeArrowSprite(int size)
+    {
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float fx = (x + 0.5f) / size, fy = (y + 0.5f) / size - 0.5f;
+                // 왼쪽 변(x=0.15)에서 끝점(x=0.9)으로 갈수록 좁아지는 삼각형
+                float halfW = 0.42f * (0.9f - fx) / 0.75f;
+                float d = Mathf.Min(halfW - Mathf.Abs(fy), Mathf.Min(fx - 0.15f, 0.9f - fx));
+                float a = Mathf.Clamp01(d * size + 0.5f);
+                tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
+            }
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
     }
 
     void PlaceDot(Vector3 world, Color color, float size)
@@ -400,5 +490,6 @@ public class RoomMinimap : MonoBehaviour
         if (active == this) { active = null; VisibleAlpha = 1f; }
         if (layoutTexture != null) Destroy(layoutTexture);
         if (dotSprite != null) { Destroy(dotSprite.texture); Destroy(dotSprite); }
+        if (arrowSprite != null) { Destroy(arrowSprite.texture); Destroy(arrowSprite); }
     }
 }
