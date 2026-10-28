@@ -79,6 +79,9 @@ public class PlayerController : MonoBehaviour
     bool chargeArmed = false;     // chargeTime을 넘겨 차지 강타 발동이 가능한 상태
     float chargeHeldTime = 0f;    // 버튼을 누르고 있는 총 시간
     bool pendingChargedAttack = false; // 다음 ExecuteHitbox가 차지 강타여야 함
+    const float ChargeShakeMin = 0.25f;      // [2026-10-28] 막 무장된 차지 강타의 화면 흔들림 세기
+    const float ChargeShakeMax = 0.55f;      // 최대로 모은 차지 강타의 화면 흔들림 세기
+    const float ChargeShakeDuration = 0.3f;  // 흔들리는 시간(초)
     float pendingChargeMultiplier = 1f;
     GameObject activeChargeEffect;
     bool chargeHoldTracking = false; // 1타/2타 콤보 도중 길게 누르는지 관찰 중
@@ -962,7 +965,14 @@ public class PlayerController : MonoBehaviour
 
     void SpawnChargeEffect()
     {
-        if (EquippedWeapon == null || EquippedWeapon.chargeEffectPrefab == null) return;
+        if (EquippedWeapon == null) return;
+        // [2026-10-28] 차지 프리팹이 비어 있으면 코드로 만든 차징 연출(점·선이 캐릭터로 모임, 단계별 가속)을 쓴다
+        if (EquippedWeapon.chargeEffectPrefab == null)
+        {
+            RemoveChargeEffect();
+            activeChargeEffect = HammerChargeFX.Create(transform, EquippedWeapon.maxChargeTime);
+            return;
+        }
         Vector3 pos = spHitboxSpawnPoint != null ? spHitboxSpawnPoint.position : transform.position;
         activeChargeEffect = Instantiate(EquippedWeapon.chargeEffectPrefab, pos, Quaternion.identity, transform);
     }
@@ -1128,6 +1138,14 @@ public class PlayerController : MonoBehaviour
 
         bool isChargedHit = pendingChargedAttack;
         pendingChargedAttack = false; // 소비 (강제 중단되더라도 다음 타격에 영향 없도록 여기서 바로 리셋)
+
+        // [2026-10-28] 차지 강타는 적이 맞든 안 맞든 내려치는 순간 화면을 흔든다 (많이 모을수록 세게)
+        if (isChargedHit && EquippedWeapon != null)
+        {
+            float range = EquippedWeapon.maxChargeMultiplier - EquippedWeapon.minChargeMultiplier;
+            float power = range > 0f ? Mathf.Clamp01((pendingChargeMultiplier - EquippedWeapon.minChargeMultiplier) / range) : 1f;
+            CameraFollow.Shake(Mathf.Lerp(ChargeShakeMin, ChargeShakeMax, power), ChargeShakeDuration);
+        }
 
         GameObject prefabToUse = spHitboxPrefab;
         if (isChargedHit && EquippedWeapon != null && EquippedWeapon.chargeHitboxPrefab != null)

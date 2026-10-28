@@ -66,6 +66,7 @@ public class YoungbokChatter : MonoBehaviour
     const float BoxW = 428f, BoxH = 122f, LeftX = 40f;
     const float FaceSize = 82f;
     const float BodySize = 16f, HeaderSize = 11f;
+    const float OffsetY = 200f;              // [2026-10-28] 화면 가운데보다 200 위에 표시
     const float UiScale = 0.8f;              // [2026-10-27] 시안보다 20% 작게 (통신창 전체를 같은 비율로 축소)
 
     static YoungbokChatter instance;
@@ -318,11 +319,11 @@ public class YoungbokChatter : MonoBehaviour
             float k = Mathf.Clamp01(t / 0.22f);
             float e = 1f - (1f - k) * (1f - k);
             group.alpha = e;
-            root.anchoredPosition = new Vector2(LeftX - 30f * (1f - e), 0f);
+            root.anchoredPosition = new Vector2(LeftX - 30f * (1f - e), OffsetY);
             yield return null;
         }
         group.alpha = 1f;
-        root.anchoredPosition = new Vector2(LeftX, 0f);
+        root.anchoredPosition = new Vector2(LeftX, OffsetY);
 
         t = 0f;
         while (t < hold) { t += Time.unscaledDeltaTime; yield return null; }
@@ -367,7 +368,7 @@ public class YoungbokChatter : MonoBehaviour
         root.anchorMin = root.anchorMax = new Vector2(0f, 0.5f);
         root.pivot = new Vector2(0f, 0.5f);
         root.sizeDelta = new Vector2(BoxW, BoxH);
-        root.anchoredPosition = new Vector2(LeftX, 0f);
+        root.anchoredPosition = new Vector2(LeftX, OffsetY);
         root.localScale = Vector3.one * UiScale;   // 왼쪽 가운데 기준으로 줄어듦
         group = root.gameObject.AddComponent<CanvasGroup>();
         group.blocksRaycasts = false;
