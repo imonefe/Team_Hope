@@ -33,27 +33,27 @@ public class YoungbokChatter : MonoBehaviour
     [Header("영복 일러스트 (Etc/Resources/YoungbokChatter 프리팹에서 지정)")]
     public Sprite portrait;
 
-    // ── 대사 목록 ───────────────────────────────────────────
-    const string LineHammer = "망치는 공격(X)을 꾹 누르면 모아 치기가 돼.";
-    const string LineGauntlet = "건틀릿은 쉬지 않고 칠수록 빨라져. 손 멈추지 마.";
-    const string LineSword = "검은 세 번 이어서 베는 게 제일 깔끔해.";
-    const string LineFirstBattle = "맞기 직전에 대시하면 피할 수 있어.";
-    const string LineGaugeFull = "게이지 찼다! Q를 누르면 세상이 잠깐 멈춰. 그동안은 너만 움직일 수 있어.";
-    const string LineFirstBox = "그거 내가 넣어 둔 거야. 잘 써.";
-    const string LineLeft3 = "셋 남았어. 거의 다 왔어.";
-    const string LineLeft2 = "둘 남았다. 집중해!";
-    const string LineLeft1 = "하나 남았어. 마무리해!";
-    const string LineLowHp = "많이 망가졌어! 문 근처에 회복 장치 있을 거야.";
-    const string LineRoomClear = "문 열렸다. 다음 서가로 가자.";
-    const string LineMap = "길은 네가 골라. 어디로 가든 주인의 서가로 이어져 있어.";
-    const string LineBossRoom = "이 앞은 주인의 서가야. …꼭 돌아와, 헤네시.";
-    static readonly string[] LinesLegendary = { "저 상자 빛 보여? 진짜 좋은 거 들었다!", "와, 전설급이다. 내가 저런 걸 언제 넣어 뒀지?" };
-    static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 샜어.", "쓸 만한 거 나왔어? 아니면 다음 상자!", "포장은 대충 했어도 속은 알차." };
-    static readonly string[] LinesCrit = { "방금 그거, 제대로 들어갔다!", "약점을 정확히 찔렀네.", "그 한 방, 서고 기록에 남겠는데?" };
-    static readonly string[] LinesHurt = { "아야! 그거 내가 고친 부품이라고!", "조심해, 부품 구하기 힘들어.", "맞으면서 배우는 거야… 근데 너무 많이 배우진 마." };
+    // ── 대사 목록 ─────────── [2026-10-31] 말투 손봄 (이전 문구: bak_1031/YoungbokChatter.cs)
+    const string LineHammer = "X를 꾹 누르고 버텨 봐. 참은 만큼 세게 꽂혀.";
+    const string LineGauntlet = "건틀릿은 리듬이야. 손 안 멈추면 점점 빨라져.";
+    const string LineSword = "검은 세 번에 끊어. 베고, 베고, 마무리.";
+    const string LineFirstBattle = "맞기 직전에 대시! 타이밍만 맞으면 다 피해.";
+    const string LineGaugeFull = "게이지 꽉 찼다! Q 누르면 세상이 멈춰. 그동안은 너만의 시간이야.";
+    const string LineFirstBox = "그거 내가 몰래 넣어 둔 거야. 아끼지 말고 막 써.";
+    const string LineLeft3 = "셋 남았어. 슬슬 정리하자.";
+    const string LineLeft2 = "둘! 거의 다 왔어.";
+    const string LineLeft1 = "마지막 하나. 깔끔하게 끝내.";
+    const string LineLowHp = "너 지금 나사 다 빠지게 생겼어! 문 옆 회복 장치부터 찾아.";
+    const string LineRoomClear = "문 열렸다. 다음 서가로!";
+    const string LineMap = "길은 네가 골라. 어느 길이든 끝엔 주인이 기다려.";
+    const string LineBossRoom = "여기서부턴 주인의 서가야. …꼭 돌아와, 헤네시.";
+    static readonly string[] LinesLegendary = { "저 빛 봤어? 이번 건 진짜다!", "전설급이네. …이거 내가 넣은 거 맞나?" };
+    static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 샜다고.", "꽝이어도 괜찮아. 상자는 또 있어.", "포장은 엉망이어도 알맹이는 진짜야." };
+    static readonly string[] LinesCrit = { "방금 거 제대로 꽂혔다!", "약점 정확히 찔렀어. 소름 돋네.", "그 한 방, 서고 기록에 남겠는데?" };
+    static readonly string[] LinesHurt = { "아야! 거기 어제 내가 고친 데라고!", "살살 맞아. 부품 귀하단 말이야.", "맞으면서 배운다지만… 이제 그만 배워도 돼." };
 
     // ── 확률·시간 ───────────────────────────────────────────
-    const float BoxChance = 0.05f, CritChance = 0.05f, HurtChance = 0.02f;
+    const float BoxChance = 0.05f, CritChance = 0.10f, HurtChance = 0.10f;   // [2026-10-28] 치명타·피격 10%로 상향
     const float LowHpRatio = 0.3f;
     const float MinGap = 8f;                 // 일반 대사 사이 최소 간격(초, 실제 시간)
     const float PollInterval = 0.25f;        // 남은 적·체력 등을 살피는 간격
@@ -230,7 +230,8 @@ public class YoungbokChatter : MonoBehaviour
         bool open = MapManager.Instance != null && MapManager.Instance.IsMapOpen;
         if (open && !wasMapOpen && !onceRun.Contains("map"))
         {
-            if (Say(LineMap, false, allowOverMap: true)) onceRun.Add("map");
+            // [2026-11-01] 노드 캔버스가 열려 있는 동안에는 잡담창을 띄우지 않음 (지도 안내 대사도 끔)
+            // if (Say(LineMap, false, allowOverMap: true)) onceRun.Add("map");
         }
         wasMapOpen = open;
     }

@@ -29,7 +29,9 @@ public class PlayerController : MonoBehaviour
 
     int comboIndex = 0;
     int comboQueued = 0;
-    float comboInputBufferTime = 0.25f; // 입력 선예약 유효 시간
+    [Header("콤보 타이밍 (2026-10-29 인스펙터 노출)")]
+    [Tooltip("다음 타 입력을 미리 눌러 둔 것을 인정하는 시간(초). 동작이 끝나기 전 이 시간 안에 누르면 다음 타로 이어진다")]
+    [SerializeField] float comboInputBufferTime = 0.25f; // 입력 선예약 유효 시간
     float comboInputTimer = -1f;        // 마지막 공격입력 후 경과 (음수=없음)
     bool attackDashPending = false;
     float attackDashDir = 0f;
@@ -40,7 +42,8 @@ public class PlayerController : MonoBehaviour
     float animPlayingTimeout = 0f;
     public float animPlayingMaxTime = 1.2f; // 공격 클립(가장 긴 것 약 1초)보다 여유있게. OnAttackAnimEnd 이벤트 유실 시의 백업용 타임아웃.
 
-    float comboWindow = 0.3f;
+    [Tooltip("1·2타 동작이 끝난 뒤 다음 입력을 기다리는 시간(초). 이 동안은 이동이 막히고 방향 전환만 된다. 줄이면 공격 뒤 묶임이 짧아지지만 콤보 잇기가 어려워진다")]
+    [SerializeField] float comboWindow = 0.3f;
     float comboTimer = 0f;
     float hitboxTimer = 0f;
 
@@ -1178,6 +1181,7 @@ public class PlayerController : MonoBehaviour
             {
                 hb.hitSfx = EquippedWeapon.PickHit();
                 hb.criticalSfx = EquippedWeapon.PickCritical();
+                hb.multiHitSfx = EquippedWeapon.PickMultiHit();   // [2026-11-01] 복수 타격음
             }
             if (isChargedHit && EquippedWeapon != null)
             {
@@ -1185,6 +1189,9 @@ public class PlayerController : MonoBehaviour
                 hb.knockbackY = EquippedWeapon.chargeKnockbackY;
                 hb.heavyImpact = true;
             }
+            // [2026-10-31] 검 3타(콤보 마무리)는 무조건 치명타
+            if (weapontype == Weapontype.Sword && comboIndex == 3)
+                hb.forceCrit = true;
         }
     }
 

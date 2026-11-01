@@ -157,3 +157,8 @@ MonoBehaviour:
   playOnEnable: 1
   loop: 0
   speed: 1
+  frameSfx:
+  - frame: 4
+    clip: {fileID: 8300000, guid: 85654a76d25c4c9880422c8eda0477e8, type: 3}
+  - frame: 8
+    clip: {fileID: 8300000, guid: 8f502ca2b15e4c1c8d1df11c0902f244, type: 3}

@@ -22,6 +22,17 @@ public class SpriteFrameSequence : MonoBehaviour
     [Tooltip("재생 속도 배율")]
     public float speed = 1f;
 
+    [System.Serializable]
+    public class FrameSfx
+    {
+        [Tooltip("이 번호의 그림이 나오는 순간 재생 (0부터)")]
+        public int frame;
+        public AudioClip clip;
+    }
+    [Header("프레임 효과음 (선택)")]
+    [Tooltip("[2026-11-01] 정한 그림 번호가 나오는 순간 효과음 재생 — 예: 검사 발도 전 차징음, 베는 순간 공격음")]
+    public FrameSfx[] frameSfx;
+
     /// <summary>지금 보여 주는 그림 번호 (재생 전 -1)</summary>
     public int CurrentFrame { get; private set; } = -1;
     /// <summary>한 번 재생이 끝났는지 (반복이면 항상 false)</summary>
@@ -94,5 +105,10 @@ public class SpriteFrameSequence : MonoBehaviour
         CurrentFrame = i;
         if (target != null) target.sprite = frames[i];
         FrameChanged?.Invoke(i);
+
+        // [2026-11-01] 이 그림에 정해 둔 효과음 재생
+        if (frameSfx != null)
+            foreach (var f in frameSfx)
+                if (f != null && f.frame == i && f.clip != null) AudioManager.PlaySFX(f.clip);
     }
 }

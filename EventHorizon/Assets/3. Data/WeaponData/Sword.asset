@@ -38,11 +38,16 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 5526922e68816ab4787e9d7b62c4ad01, type: 3}
   hitSfx:
     clips:
-    - {fileID: 8300000, guid: a7be411e9f40a6d4c8a969a0b99e6bcb, type: 3}
-    - {fileID: 8300000, guid: 808847cd60376be41a93e6785b38a3c4, type: 3}
-    - {fileID: 8300000, guid: 330e784824329b249b6a5e7e43e0176d, type: 3}
+    - {fileID: 8300000, guid: a0facd5246cc4f2cbaffe9b27ea53f26, type: 3}
+    - {fileID: 8300000, guid: e92528825bd6479bb687314d0be7ccc3, type: 3}
+    - {fileID: 8300000, guid: d300748844514d37a32b5c62e84c7d74, type: 3}
   criticalSfx:
     clips: []
+  multiHitSfx:
+    clips:
+    - {fileID: 8300000, guid: 58c16e96a7454f34a77c62cbfd8e2daa, type: 3}
+    - {fileID: 8300000, guid: 2da2a70a59484ec99625855d668d92ea, type: 3}
+    - {fileID: 8300000, guid: eba3c152649b4c7da1df125d19301575, type: 3}
   comboEffects:
   - sfx:
       clips: []

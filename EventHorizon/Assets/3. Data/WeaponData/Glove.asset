@@ -37,9 +37,16 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 77988f29c2039c845ad3d9c883aef135, type: 3}
   hitSfx:
     clips:
-    - {fileID: 8300000, guid: 28cdf26fe49034a408d55c28c60fba92, type: 3}
+    - {fileID: 8300000, guid: ec9d49b36fdd4c6bb094e4c45a3ade87, type: 3}
+    - {fileID: 8300000, guid: 9869de5a02834cc5bc25f64950d51ab2, type: 3}
+    - {fileID: 8300000, guid: 776b453afa9f4fda8b5cfd2221969bbc, type: 3}
   criticalSfx:
     clips: []
+  multiHitSfx:
+    clips:
+    - {fileID: 8300000, guid: 75227a89dec9437284edb57eb26c75e9, type: 3}
+    - {fileID: 8300000, guid: c5d3a85cc9f94f439675f7595331c69e, type: 3}
+    - {fileID: 8300000, guid: d8469e875f3c443d93195e0594b77a66, type: 3}
   comboEffects:
   - sfx:
       clips: []

@@ -187,7 +187,8 @@ public class GameMenuController : MonoBehaviour
         // 씬을 다시 불러와도 저절로 리셋되지 않는다.
         // 예전에는 씬만 다시 불러와서 획득 아이템·재화·통계·맵 진행도가 이전 판 그대로 남았다.
         // 게임오버 "다시하기"와 같은 재시작 함수를 써서 판 데이터까지 함께 초기화한다.
-        RunManager.RestartRun();
+        // [2026-11-01] 판 초기화 후 인트로 씬으로 돌아간다 (예전: 게임 씬을 바로 다시 불러옴)
+        RunManager.ReturnToIntro();
     }
 
     /// <summary>[2026-10-18 추가] 설정 버튼 — 설정 창을 메뉴 위에 연다 (닫으면 메뉴로 돌아옴)</summary>

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Room : MonoBehaviour
@@ -18,6 +19,8 @@ public class Room : MonoBehaviour
     public Vector2 roomCameraSize = new Vector2(24f, 14f);
     [Tooltip("카메라가 바라볼 중심점(비워두면 이 Room 오브젝트 자신의 위치를 중심으로 사용)")]
     public Transform roomCameraCenter;
+    [Tooltip("[2026-11-01] 보스방에 들어왔을 때 플레이어가 바라볼 대상. 비우면 이 방의 보스 → 이 방 컷신의 스파인 보스 순서로 자동으로 찾는다")]
+    public Transform bossLookTarget;
 
     bool portalOpened = false;
     bool cleanupMode = false; // CleanupTrigger 발동 후 몬스터만 감지
@@ -38,6 +41,7 @@ public class Room : MonoBehaviour
             if (bs != null) bs.SetActive(false);
 
         HoldBossCamera();
+        if (isBossRoom) StartCoroutine(FaceBossOnEnter());   // [2026-11-01] 보스방 진입 시 플레이어가 보스를 바라봄
 
         InvokeRepeating(nameof(CheckClear), 0.5f, 0.2f);
     }
@@ -54,6 +58,40 @@ public class Room : MonoBehaviour
             Vector3 center = roomCameraCenter != null ? roomCameraCenter.position : transform.position;
             CameraFollow.Instance.HoldRoom(center, roomCameraSize);
         }
+    }
+
+    // [2026-11-01] 플레이어가 방 시작 위치로 옮겨지는 시점과 어긋나지 않게 처음 몇 프레임 동안 계속 맞춘다
+    IEnumerator FaceBossOnEnter()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            FacePlayerToBoss();
+            yield return null;
+        }
+    }
+
+    void FacePlayerToBoss()
+    {
+        PlayerController pc = PlayerController.Instance;
+        Transform boss = FindBossLookTarget();
+        if (pc == null || boss == null) return;
+        float dx = boss.position.x - pc.transform.position.x;
+        if (Mathf.Abs(dx) < 0.01f) return;
+        // PlayerController.Flip 과 같은 방식 (오른쪽 = 1, 왼쪽 = -1)
+        pc.transform.localScale = dx > 0 ? Vector3.one : new Vector3(-1, 1, 1);
+    }
+
+    Transform FindBossLookTarget()
+    {
+        if (bossLookTarget != null) return bossLookTarget;
+        BossController boss = GetComponentInChildren<BossController>(true);
+        if (boss != null) return boss.transform;
+        CutsceneSequencer cs = GetComponentInChildren<CutsceneSequencer>(true);
+        if (cs != null)
+            foreach (var step in cs.steps)
+                if (step.type == CutsceneStepType.SpineAnimation && step.spineTarget != null)
+                    return step.spineTarget.transform;
+        return null;
     }
 
     void CheckClear()

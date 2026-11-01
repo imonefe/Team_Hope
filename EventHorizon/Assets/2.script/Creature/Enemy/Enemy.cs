@@ -50,6 +50,8 @@ public class Enemy : MonoBehaviour
     public bool hitboxFollowAttacker = false;
     [Tooltip("[2026-10-20] 돌진 끝에 감속하는 시간(초). 이 시간 동안 속도가 부드럽게 0까지 줄어듦 (0 = 감속 없이 바로 멈춤). 감속 구간까지 합쳐서 돌진 거리를 맞춘다")]
     public float attackDashDecelTime = 0.2f;
+    [Tooltip("[2026-11-01] 돌진을 시작할 때 재생할 효과음 (비워 두면 소리 없음)")]
+    public AudioClip dashSfx;
     [Tooltip("[2026-10-20] 플레이어와 높이 차이가 이보다 크면 돌진을 시작하지 않고 계속 따라가기만 함 (위 발판 밑에서 헛돌진 방지)")]
     public float dashMaxHeightDiff = 1.2f;
     [Tooltip("[2026-10-20] 돌진 중 바로 앞이 낭떠러지면 그 자리에서 멈춤")]
@@ -110,6 +112,7 @@ public class Enemy : MonoBehaviour
     bool attackDashDone = false;   // [2026-10-20] 이번 공격의 돌진이 (감속까지) 끝났는지
     bool attackDashStarted = false; // [2026-10-20] 이번 공격의 돌진이 시작됐는지 (시작 판정은 애니메이터 재생 시간 기준)
     bool dashByAnimEvent = false;   // [2026-10-20] 이 적의 애니메이션에 StartAttackDash 이벤트가 있으면 이벤트로만 돌진 시작
+    bool dashSfxPlayed = false;     // [2026-11-01] 이번 돌진의 효과음을 이미 냈는지
 
     [Tooltip("기본 적 애니메이터(Enemy.controller)의 공격(Atk01) → 대기 전이 종료 시점. 공격 끝 신호가 이 시점보다 늦으면 애니메이터가 전이를 놓쳐 공격 모션을 한 바퀴 더 재생하므로, 그때는 직접 대기 상태로 넘긴다")]
     public float attackExitTime = 0.8125f;
@@ -277,6 +280,12 @@ public class Enemy : MonoBehaviour
                 }
                 if (attackDash && attackDashStarted && !attackDashDone)
                 {
+                    // [2026-11-01] 돌진 시작 순간 효과음 1회
+                    if (!dashSfxPlayed)
+                    {
+                        dashSfxPlayed = true;
+                        AudioManager.PlaySFX(dashSfx);   // [2026-11-01] 카메라 위치에서 재생 (거리 감쇠로 너무 작게 들리던 문제)
+                    }
                     rigid.velocity = new Vector2(attackDashDir * DashSpeedStep(), rigid.velocity.y);
                     // [2026-10-20] 돌진이 공격 모션보다 길면 모션이 처음(준비 자세)으로 되감기지 않게 마지막 프레임에서 잠깐 멈춰 둔다
                     if (!attackDashDone && anim != null && !anim.IsInTransition(0) && IsInAttackAnimation()
@@ -536,6 +545,7 @@ public class Enemy : MonoBehaviour
         attackDashTimer = 0f;
         attackDashDone = !attackDash;
         attackDashStarted = false;
+        dashSfxPlayed = false;
         if (attackDash)
         {
             attackDashDir = isDirectionLocked ? lockedDir : (int)Mathf.Sign(transform.localScale.x);

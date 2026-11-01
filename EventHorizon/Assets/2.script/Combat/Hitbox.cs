@@ -42,6 +42,15 @@ public class Hitbox : MonoBehaviour
     [Header("피격 사운드")]
     public AudioClip hitSfx;
     public AudioClip criticalSfx;
+    [Tooltip("[2026-11-01] 한 번에 적 2명 이상을 맞혔을 때 재생할 복수 타격음 (비워 두면 예전처럼 맞을 때마다 hitSfx 재생)")]
+    public AudioClip multiHitSfx;
+    [Tooltip("[2026-11-01] 이 시간(초) 동안 맞은 적 수를 모아서 단일/복수 타격음 중 하나만 재생")]
+    public float hitSoundGatherTime = 0.05f;
+
+    int pendingHitCount = 0;          // 모으는 중인 맞은 적 수
+    Vector3 pendingHitPosSum;         // 맞은 위치 합 (평균 위치에서 재생)
+    float pendingHitStartTime;        // 첫 타격 시각
+    AudioClip pendingSingleClip;      // 1명만 맞았을 때 재생할 소리
 
     [Header("카메라 쉐이크")]
     [Tooltip("데미지 1당 흔들림 증가량")]
@@ -60,6 +69,9 @@ public class Hitbox : MonoBehaviour
     [Header("강한 타격 (차지 강타 등, 선택)")]
     [Tooltip("true면 위 shakeMax/shakeMaxCrit 대신 아래 Heavy 값을 사용")]
     public bool heavyImpact = false;
+
+    [Tooltip("[2026-10-31] true면 확률과 상관없이 무조건 치명타 (검 3타 등, 코드에서 켬)")]
+    [HideInInspector] public bool forceCrit = false;
     public float shakeMaxHeavy = 0.6f;
     public float shakeDurationHeavy = 0.3f;
 
@@ -73,9 +85,27 @@ public class Hitbox : MonoBehaviour
     // 판정도 꺼진다 (예전엔 보스 차징 판정(3초)이 퍼즈 중에도 살아 있어 멈춘 보스 앞에서 맞았음)
     void Update()
     {
+        // [2026-11-01] 모아 둔 타격음 재생 (모으는 시간이 지났으면)
+        if (pendingHitCount > 0 && Time.unscaledTime - pendingHitStartTime >= hitSoundGatherTime) FlushHitSound();
+
         if (IsFrozenByPause()) return;
         age += Time.deltaTime;
         if (age >= lifetime) Destroy(gameObject);
+    }
+
+    // [2026-11-01] 판정이 모으는 도중에 사라져도 소리는 낸다
+    void OnDestroy()
+    {
+        if (pendingHitCount > 0) FlushHitSound();
+    }
+
+    // [2026-11-01] 맞은 적이 1명이면 단일 타격음, 2명 이상이면 복수 타격음을 한 번만 재생
+    void FlushHitSound()
+    {
+        AudioClip clip = pendingHitCount >= 2 ? multiHitSfx : pendingSingleClip;
+        // [2026-11-01] 위치 지정 재생은 카메라와 거리(10)만큼 소리가 크게 줄어들어 카메라 위치(위치 생략)에서 재생
+        if (clip != null) AudioManager.PlaySFX(clip);
+        pendingHitCount = 0;
     }
 
     // 적이 만든 판정이고 Q 퍼즈 중인지 (플레이어 판정은 퍼즈 중에도 정상 작동)
@@ -249,7 +279,7 @@ public class Hitbox : MonoBehaviour
             // 퍼즈 중 플레이어 공격은 치명타 확률을 최소 PauseManager.pauseCritChance (기본 20%) 로 올림
             if (ownerLayer == "Player" && PauseManager.Instance != null && PauseManager.Instance.IsPaused)
                 critChance = Mathf.Max(critChance, PauseManager.Instance.pauseCritChance);
-            isCrit = Random.value < critChance;
+            isCrit = forceCrit || Random.value < critChance;   // [2026-10-31] 확정 치명타
             if (isCrit)
                 finalDamage = Mathf.RoundToInt(baseDamage * attackerStats.critMultiplier);
         }
@@ -266,8 +296,23 @@ public class Hitbox : MonoBehaviour
 
         // 사운드
         AudioClip clip = isCrit && criticalSfx != null ? criticalSfx : hitSfx;
-        if (clip != null)
-            AudioManager.PlaySFX(clip, other.transform.position);
+        if (multiHitSfx == null)
+        {
+            if (clip != null)
+                AudioManager.PlaySFX(clip, other.transform.position);
+        }
+        else
+        {
+            // [2026-11-01] 바로 재생하지 않고 잠깐 모았다가 FlushHitSound에서 단일/복수 중 하나만 재생
+            if (pendingHitCount == 0)
+            {
+                pendingHitStartTime = Time.unscaledTime;
+                pendingHitPosSum = Vector3.zero;
+                pendingSingleClip = clip;
+            }
+            pendingHitCount++;
+            pendingHitPosSum += other.transform.position;
+        }
 
         // 치명타 이펙트 (1회성 파티클, 재생 후 자동 파괴)
         if (isCrit && criticalHitEffectPrefab != null)

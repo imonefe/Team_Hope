@@ -66,6 +66,7 @@ public class GameOverUI : MonoBehaviour
 
     void OnRetryClicked()
     {
-        RunManager.RestartRun();
+        // [2026-11-01] 판 초기화 후 인트로 씬으로 돌아간다 (예전: 게임 씬을 바로 다시 불러옴)
+        RunManager.ReturnToIntro();
     }
 }

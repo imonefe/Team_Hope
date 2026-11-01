@@ -95,6 +95,7 @@ public class MapManager : PersistentSingleton<MapManager>
     MapPositionMarker positionMarker; // [2026-10-15] 지금 있는 노드 위의 핀 (캔버스 안에 만들어지고 캔버스와 함께 사라짐)
     bool selecting = false;           // [2026-10-15] 핀이 옮겨 가는 중·화면 전환 중에 노드가 또 눌리지 않도록
     MapButton keyFocus;               // [2026-10-21] 방향키로 고른 노드
+    MapRoomInfoUI roomInfo;           // [2026-11-01] 캔버스 프리팹 안의 방 안내 글자 (없으면 무시)
 
     // 이번 스테이지에서 이미 사용한 룸 프리팹 기록 (타입 상관없이, 중복 방 방지)
     HashSet<GameObject> usedRoomPrefabs = new HashSet<GameObject>();
@@ -197,6 +198,7 @@ public class MapManager : PersistentSingleton<MapManager>
         GameObject prefab = pool.canvasPrefabs[Random.Range(0, pool.canvasPrefabs.Length)];
         Transform parent = canvasParent != null ? canvasParent : transform;
         currentCanvasInstance = Instantiate(prefab, parent);
+        roomInfo = currentCanvasInstance.GetComponentInChildren<MapRoomInfoUI>(true);
 
         // 맵 화면도 열릴 때(SetActive(true)) 등장 애니메이션이 재생되도록 미리 붙여둔다.
         if (currentCanvasInstance.GetComponent<UIPanelAnimator>() == null)
@@ -465,6 +467,7 @@ public class MapManager : PersistentSingleton<MapManager>
         if (keyFocus != null) keyFocus.keyFocused = false;
         keyFocus = b;
         if (keyFocus != null) keyFocus.keyFocused = true;
+        if (roomInfo != null) roomInfo.Show(keyFocus != null ? keyFocus.roomData : null);   // [2026-11-01]
     }
 
     // ── [2026-10-21 추가] 키 안내 (캔버스 안에 만들어지고 캔버스와 함께 사라짐) ──

@@ -124,6 +124,7 @@ MonoBehaviour:
   attackDashDelay: 1.4
   hitboxFollowAttacker: 1
   attackDashDecelTime: 0.5
+  dashSfx: {fileID: 8300000, guid: 1e69affa522343a3926a2da59bcd5207, type: 3}
   dashMaxHeightDiff: 1.2
   dashStopAtLedge: 1
   attackVariations: 1

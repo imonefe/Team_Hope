@@ -9769,6 +9769,9 @@ MonoBehaviour:
   enemyDotSize: 11
   bossDotSize: 21
   portalDotSize: 16
+  showOffscreenArrows: 1
+  arrowSize: 16
+  arrowInset: 11
   toggleKey: 109
   listRefreshInterval: 0.4
 --- !u!224 &17760890942355114
@@ -10050,7 +10053,9 @@ MonoBehaviour:
   spHitboxPrefab: {fileID: 2797169193547637144, guid: b811f38b0309ce7428cc0f68d79a4483, type: 3}
   spHitboxSpawnPoint: {fileID: 2025272419821271035}
   attackDashForce: 10
+  comboInputBufferTime: 0.25
   animPlayingMaxTime: 2
+  comboWindow: 0.3
   JumpPower: 19
   JumpCount: 0
   MaxDashCount: 2
@@ -11559,7 +11564,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.26}
-    oldSize: {x: 4.096, y: 4.098}
+    oldSize: {x: 4.0970006, y: 4.096}
     newSize: {x: 2.9257143, y: 2.9271426}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

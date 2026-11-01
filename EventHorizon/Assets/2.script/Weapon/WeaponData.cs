@@ -103,6 +103,8 @@ public class WeaponData : ScriptableObject
     public RandomSfx swingSfx = new RandomSfx();
     public RandomSfx hitSfx = new RandomSfx();
     public RandomSfx criticalSfx = new RandomSfx();
+    [Tooltip("[2026-11-01] 한 번에 적 2명 이상을 맞혔을 때 재생할 복수 타격음")]
+    public RandomSfx multiHitSfx = new RandomSfx();
 
     [Header("콤보별 이펙트·효과음 (1·2·3타)")]
     public ComboEffect[] comboEffects = new ComboEffect[3];
@@ -148,6 +150,7 @@ public class WeaponData : ScriptableObject
     public AudioClip PickSwing()    { return swingSfx != null ? swingSfx.Pick() : null; }
     public AudioClip PickHit()      { return hitSfx != null ? hitSfx.Pick() : null; }
     public AudioClip PickCritical() { return criticalSfx != null ? criticalSfx.Pick() : null; }
+    public AudioClip PickMultiHit() { return multiHitSfx != null ? multiHitSfx.Pick() : null; }
     public AudioClip PickCharge()   { return chargeSfx != null ? chargeSfx.Pick() : null; }
 
     // 런타임 전용 스냅샷
