@@ -33,10 +33,10 @@ public class YoungbokChatter : MonoBehaviour
     [Header("영복 일러스트 (Etc/Resources/YoungbokChatter 프리팹에서 지정)")]
     public Sprite portrait;
 
-    // ── 대사 목록 ─────────── [2026-10-31] 말투 손봄 (이전 문구: bak_1031/YoungbokChatter.cs)
-    const string LineHammer = "X를 꾹 누르고 버텨 봐. 참은 만큼 세게 꽂혀.";
-    const string LineGauntlet = "건틀릿은 리듬이야. 손 안 멈추면 점점 빨라져.";
-    const string LineSword = "검은 세 번에 끊어. 베고, 베고, 마무리.";
+    // ── 대사 목록 ─────────── [2026-10-31] 말투 손봄 · [2026-11-02] 일부 교체 (\n = 줄바꿈)
+    const string LineHammer = "망치는 한 방이야. X 꾹 눌러 힘을 모으고... 바닥째 날려 버려!";
+    const string LineGauntlet = "건틀릿은 두드리는 맛이지~\n때릴수록 가속되는 기능도 있잖아!!";
+    const string LineSword = "검술은 알아? 데이터 보낼게,\n세 번째 합이 장난 아닐 거야! 무조건 크리티컬이지!";
     const string LineFirstBattle = "맞기 직전에 대시! 타이밍만 맞으면 다 피해.";
     const string LineGaugeFull = "게이지 꽉 찼다! Q 누르면 세상이 멈춰. 그동안은 너만의 시간이야.";
     const string LineFirstBox = "그거 내가 몰래 넣어 둔 거야. 아끼지 말고 막 써.";
@@ -44,12 +44,12 @@ public class YoungbokChatter : MonoBehaviour
     const string LineLeft2 = "둘! 거의 다 왔어.";
     const string LineLeft1 = "마지막 하나. 깔끔하게 끝내.";
     const string LineLowHp = "너 지금 나사 다 빠지게 생겼어! 문 옆 회복 장치부터 찾아.";
-    const string LineRoomClear = "문 열렸다. 다음 서가로!";
+    static readonly string[] LinesRoomClear = { "문 열렸다. 숨 좀 돌려.", "문 열렸어! 다음으로 가자!" };   // [2026-11-02] 둘 중 무작위
     const string LineMap = "길은 네가 골라. 어느 길이든 끝엔 주인이 기다려.";
     const string LineBossRoom = "여기서부턴 주인의 서가야. …꼭 돌아와, 헤네시.";
-    static readonly string[] LinesLegendary = { "저 빛 봤어? 이번 건 진짜다!", "전설급이네. …이거 내가 넣은 거 맞나?" };
-    static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 샜다고.", "꽝이어도 괜찮아. 상자는 또 있어.", "포장은 엉망이어도 알맹이는 진짜야." };
-    static readonly string[] LinesCrit = { "방금 거 제대로 꽂혔다!", "약점 정확히 찔렀어. 소름 돋네.", "그 한 방, 서고 기록에 남겠는데?" };
+    static readonly string[] LinesLegendary = { "저 빛 봤어? 이번 건 진짜다!", "이건... 전설급인데? 내가 넣어 둔 것 중에 이런 게 있었어?" };
+    static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 샜다고.", "꽝이어도 괜찮아. 상자는 또 있어.", "포장이 엉망이긴 해도, 내용물은 내가 정성껏 담았지!" };
+    static readonly string[] LinesCrit = { "방금 거 제대로 꽂혔다!", "약점 정확히 찔렀어. 소름 돋네.", "우왁! 방금 그 한 방, 여기까지 흔들었어!" };
     static readonly string[] LinesHurt = { "아야! 거기 어제 내가 고친 데라고!", "살살 맞아. 부품 귀하단 말이야.", "맞으면서 배운다지만… 이제 그만 배워도 돼." };
 
     // ── 확률·시간 ───────────────────────────────────────────
@@ -163,7 +163,7 @@ public class YoungbokChatter : MonoBehaviour
     {
         var c = Ensure();
         if (room != c.currentRoom || !c.sawEnemiesInRoom) return;
-        if (c.onceRoom.Add("clear")) c.Say(LineRoomClear, false);
+        if (c.onceRoom.Add("clear")) c.Say(Pick(LinesRoomClear), false);
     }
 
     // ════════════════ 직접 살피는 것들 ════════════════
