@@ -65,7 +65,7 @@ public class DarknessScreenFeature : ScriptableRendererFeature
         {
             if (cameraData.cameraType != CameraType.Game) return;
             if (cam.targetTexture != null) return;
-            if (cam.TryGetComponent(out UniversalAdditionalCameraData data) && data.renderType == CameraRenderType.Overlay) return;
+            // [2026-11-07] 카메라 스택(Camera_2D = Overlay)으로 바꾼 뒤에도 2D까지 그린 최종 화면에 걸리도록 Overlay 카메라도 후보에 포함 (웹 빌드 배경 문제 대응)
         }
 
         bool isFirst, isLast;
@@ -127,7 +127,7 @@ public class DarknessScreenFeature : ScriptableRendererFeature
             {
                 Camera c = cameraBuffer[i];
                 if (c == null || c.targetTexture != null || c.cameraType != CameraType.Game) continue;
-                if (c.TryGetComponent(out UniversalAdditionalCameraData data) && data.renderType == CameraRenderType.Overlay) continue;
+                // [2026-11-07] 카메라 스택(Camera_2D = Overlay)으로 바꾼 뒤에도 2D까지 그린 최종 화면에 걸리도록 Overlay 카메라도 후보에 포함 (웹 빌드 배경 문제 대응)
                 if (c.depth < min) { min = c.depth; cachedFirst = c; }
                 if (c.depth > max) { max = c.depth; cachedLast = c; }
             }

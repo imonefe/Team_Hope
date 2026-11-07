@@ -32,9 +32,9 @@ MonoBehaviour:
   pauseGaugePerHit: 3.75
   swingSfx:
     clips:
-    - {fileID: 8300000, guid: 77f7a269d6ae4e61969b358e13ebfbee, type: 3}
-    - {fileID: 8300000, guid: 22c6e942e405416f953aeceed421a9a6, type: 3}
-    - {fileID: 8300000, guid: 8a8eac68b76d46f0b8b001214f8ee433, type: 3}
+    - {fileID: 8300000, guid: 2f6b52de17ec4106910a39a9ba17d58b, type: 3}
+    - {fileID: 8300000, guid: 5e7adf249ffb4bffb63cdd7dab6fe0f4, type: 3}
+    - {fileID: 8300000, guid: 0520018c599648ef8e7a0926dd131d8a, type: 3}
   hitSfx:
     clips:
     - {fileID: 8300000, guid: a0facd5246cc4f2cbaffe9b27ea53f26, type: 3}
