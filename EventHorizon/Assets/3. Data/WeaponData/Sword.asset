@@ -27,15 +27,14 @@ MonoBehaviour:
     focusPercent: 0
     hpPercent: 0
   hitboxPrefab: {fileID: 2797169193547637144, guid: b811f38b0309ce7428cc0f68d79a4483, type: 3}
-  damageMultiplier: 1
+  damageMultiplier: 1.5
   attackSpeed: 1.2
-  pauseGaugePerHit: 2.5
+  pauseGaugePerHit: 3.75
   swingSfx:
     clips:
-    - {fileID: 8300000, guid: 64d228a773cfbb24f950120c4d19aed4, type: 3}
-    - {fileID: 8300000, guid: 28d0280d7b459c3478ffc8709ac7d02e, type: 3}
-    - {fileID: 8300000, guid: 5526922e68816ab4787e9d7b62c4ad01, type: 3}
-    - {fileID: 8300000, guid: 5526922e68816ab4787e9d7b62c4ad01, type: 3}
+    - {fileID: 8300000, guid: 77f7a269d6ae4e61969b358e13ebfbee, type: 3}
+    - {fileID: 8300000, guid: 22c6e942e405416f953aeceed421a9a6, type: 3}
+    - {fileID: 8300000, guid: 8a8eac68b76d46f0b8b001214f8ee433, type: 3}
   hitSfx:
     clips:
     - {fileID: 8300000, guid: a0facd5246cc4f2cbaffe9b27ea53f26, type: 3}
@@ -52,27 +51,30 @@ MonoBehaviour:
   - sfx:
       clips: []
     pieces:
-    - prefab: {fileID: 3904326371425299336, guid: 9614bfa69e79ef14192fbc1685babc56, type: 3}
-      posOffset: {x: -0.82, y: 0.3, z: 0}
+    - prefab: {fileID: 7189544702032346829, guid: 4a74fd7191e1d754bb57466aab1f94a3, type: 3}
+      posOffset: {x: -1.42, y: 0.77, z: 0.43}
       rotationZ: 0
       flipX: 0
-      lifetime: 0
+      mirrorByScale: 1
+      lifetime: 1.1
   - sfx:
       clips: []
     pieces:
-    - prefab: {fileID: 3904326371425299336, guid: 22fabad003d14484eab2c4689de8ae58, type: 3}
-      posOffset: {x: -1, y: 0, z: 0}
+    - prefab: {fileID: 7189544702032346829, guid: 7aef3300f898462084d144bb152e7267, type: 3}
+      posOffset: {x: -2.35, y: 1.32, z: 0}
       rotationZ: 0
       flipX: 0
-      lifetime: 0
+      mirrorByScale: 1
+      lifetime: 1
   - sfx:
       clips: []
     pieces:
-    - prefab: {fileID: 3904326371425299336, guid: c7033bcb2e5d32a47b241099f990ac7f, type: 3}
-      posOffset: {x: -0.9, y: 0, z: 0}
+    - prefab: {fileID: 7189544702032346829, guid: 309408b6f8e442eb9ea6a63bcec9c006, type: 3}
+      posOffset: {x: -1.74, y: 1, z: 0}
       rotationZ: 0
       flipX: 0
-      lifetime: 0
+      mirrorByScale: 1
+      lifetime: 1
   stackSpeedPerHit: 0
   maxStackSpeed: 0
   stackResetTime: 0

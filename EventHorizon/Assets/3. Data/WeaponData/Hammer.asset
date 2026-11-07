@@ -27,14 +27,14 @@ MonoBehaviour:
     focusPercent: 0
     hpPercent: 0
   hitboxPrefab: {fileID: 4510192533594202741, guid: 4d3fd762d7d5a93489797f561a8d52f5, type: 3}
-  damageMultiplier: 2
+  damageMultiplier: 3
   attackSpeed: 1
-  pauseGaugePerHit: 3.5
+  pauseGaugePerHit: 5.25
   swingSfx:
     clips:
-    - {fileID: 8300000, guid: 04982a98a92f63e4ba97b328f9c0e3b0, type: 3}
-    - {fileID: 8300000, guid: eadbf84fa3cd07c409fcd1ce86fda984, type: 3}
-    - {fileID: 8300000, guid: 2f42703a6c55c4a4d9abff84bb89bc0d, type: 3}
+    - {fileID: 8300000, guid: 108accc3030b4c2782c4abfb7e04448c, type: 3}
+    - {fileID: 8300000, guid: 911f2de07f4748e3a7f6cbf8321e4280, type: 3}
+    - {fileID: 8300000, guid: b9827e1da9f640fd86ed8dc354039896, type: 3}
   hitSfx:
     clips:
     - {fileID: 8300000, guid: d2178432d1fa4162820fe0a3e5801daa, type: 3}
@@ -47,35 +47,34 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 83f981f306744780b3a79e7ac141255c, type: 3}
     - {fileID: 8300000, guid: 645cbfebf2884cebb151cff61380565e, type: 3}
     - {fileID: 8300000, guid: 081cad3a6e7546a98e7c112e3ac93c4d, type: 3}
+  swingSfxByAnimEvent: 1
   comboEffects:
   - sfx:
       clips: []
     pieces:
-    - prefab: {fileID: 3904326371425299336, guid: 6da3ac14783e4fa4b8ec3351efad63ce, type: 3}
-      posOffset: {x: -0.5, y: 0, z: 0}
+    - prefab: {fileID: 7189544702032346829, guid: 446c0e5384189b34f8962c38dcbd25f6, type: 3}
+      posOffset: {x: -1.61, y: 1.1, z: 0}
       rotationZ: 0
       flipX: 0
+      mirrorByScale: 1
       lifetime: 0
   - sfx:
       clips: []
     pieces:
-    - prefab: {fileID: 3904326371425299336, guid: 58a02fdfa98df484ba81d1158d230b45, type: 3}
-      posOffset: {x: -0.7, y: 0, z: 0}
+    - prefab: {fileID: 7189544702032346829, guid: c96c1310d7c69d44f92f0a7c4b78726c, type: 3}
+      posOffset: {x: -1.46, y: 1, z: 0}
       rotationZ: 0
       flipX: 0
+      mirrorByScale: 1
       lifetime: 0
   - sfx:
       clips: []
     pieces:
-    - prefab: {fileID: 3904326371425299336, guid: acae9be830461ef45a13e42b295d17b0, type: 3}
-      posOffset: {x: 0, y: 0.56, z: 0}
+    - prefab: {fileID: 7189544702032346829, guid: 05cf9edd2d8a5dc45b05a585fa56cceb, type: 3}
+      posOffset: {x: -2.42, y: 1.75, z: 0}
       rotationZ: 0
       flipX: 0
-      lifetime: 0
-    - prefab: {fileID: 3904326371425299336, guid: 6da3ac14783e4fa4b8ec3351efad63ce, type: 3}
-      posOffset: {x: -0.8, y: 0, z: 0}
-      rotationZ: 0
-      flipX: 0
+      mirrorByScale: 1
       lifetime: 0
   stackSpeedPerHit: 0.15
   maxStackSpeed: 3

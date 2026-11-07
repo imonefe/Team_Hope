@@ -15,6 +15,12 @@ public class EffectPiece
     [Header("좌우 반전 (기본으로 뒤집기)")]
     public bool flipX = false;
 
+    // [2026-11-01 추가] 메쉬(MeshRenderer) 검흔처럼 텍스처 뒤집기로는 안 뒤집히는 이펙트용.
+    // 켜면 반전할 때 이펙트 전체를 X 스케일 -1 로 거울처럼 뒤집음 (파티클은 Scaling Mode = Hierarchy 필요).
+    // 끄면 기존 방식(파티클 텍스처 flip) 그대로 → 기존 이펙트에는 영향 없음.
+    [Header("스케일로 반전 (메쉬 이펙트용)")]
+    public bool mirrorByScale = false;
+
     [Header("삭제 시간 (0=자동)")]
     public float lifetime = 0f;
 }
@@ -105,6 +111,8 @@ public class WeaponData : ScriptableObject
     public RandomSfx criticalSfx = new RandomSfx();
     [Tooltip("[2026-11-01] 한 번에 적 2명 이상을 맞혔을 때 재생할 복수 타격음")]
     public RandomSfx multiHitSfx = new RandomSfx();
+    [Tooltip("[2026-11-07] 체크하면 휘두르기 소리를 공격 시작이 아니라, 공격 애니메이션의 PlaySwingSfxEvent 이벤트 시점에 재생 (판정 타이밍에 소리 정점 맞추기용, 현재 망치만 사용)")]
+    public bool swingSfxByAnimEvent = false;
 
     [Header("콤보별 이펙트·효과음 (1·2·3타)")]
     public ComboEffect[] comboEffects = new ComboEffect[3];

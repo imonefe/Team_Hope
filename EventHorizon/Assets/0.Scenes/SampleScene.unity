@@ -704,9 +704,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 947a197bd6ec49149253c7506d254074, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lobbyBgm: {fileID: 8300000, guid: c83e1ecef45bb41409daf41519412616, type: 3}
-  battleBgm: {fileID: 8300000, guid: d7e4e8b309e520a4b9e1c2685e249e04, type: 3}
-  bossBgm: {fileID: 8300000, guid: e65cfa2a130395044a7da6d9af21ff67, type: 3}
+  lobbyBgm: {fileID: 8300000, guid: 1b94b75253844539b4f33cb2194a963d, type: 3}
+  battleBgm: {fileID: 8300000, guid: e4f9663763a1fb041ad2dda3f4dc4c87, type: 3}
+  bossBgm: {fileID: 8300000, guid: f113962b168bf2148829c637bacaadb0, type: 3}
   fadeOutTime: 0.6
   fadeInTime: 0.8
 --- !u!4 &90374582
@@ -10065,16 +10065,22 @@ MonoBehaviour:
   DeshCount: 0
   hitStunTime: 0.15
   jumpEffectPrefab: {fileID: 1358081626557186345, guid: fda00225d456b1a45ba2616ee0431196, type: 3}
-  dashEffectPrefabRight: {fileID: 3904326371425299336, guid: eb400d2e1be0e1a45940a9cfab7ecd7c, type: 3}
-  dashEffectPrefabLeft: {fileID: 3904326371425299336, guid: 91226c297ee4f6140a6ba8059cb1a27b, type: 3}
+  dashEffectPrefabRight: {fileID: 5901889268714835704, guid: 41c286945b1ce6443aac2cd0063f7fa3, type: 3}
+  dashEffectPrefabLeft: {fileID: 1197121373863927005, guid: 08194b15e75b45c39b6250b381c51129, type: 3}
   jumpEffectPoint: {fileID: 1323570232}
   dashEffectPoint: {fileID: 1323570232}
   jumpSfx:
-    clips: []
+    clips:
+    - {fileID: 8300000, guid: c2718a9c46844be8b84189147e1d7015, type: 3}
+    - {fileID: 8300000, guid: a2461f5906994030986e3b44d2a50866, type: 3}
+    - {fileID: 8300000, guid: 322ca042ff944711bd937d00b5faeb32, type: 3}
   doubleJumpSfx:
     clips: []
   dashSfx:
-    clips: []
+    clips:
+    - {fileID: 8300000, guid: c2718a9c46844be8b84189147e1d7015, type: 3}
+    - {fileID: 8300000, guid: a2461f5906994030986e3b44d2a50866, type: 3}
+    - {fileID: 8300000, guid: 322ca042ff944711bd937d00b5faeb32, type: 3}
   GroundCheckDistance: 1.5
   GroundCheckWidth: 0.4
   edgeStillTime: 0.06

@@ -49,6 +49,6 @@ Material:
     - _FlashColor: {r: 0, g: 0, b: 0, a: 1}
     - _GapColor: {r: 3, g: 3, b: 3, a: 1}
     - _LineColor: {r: 4, g: 4, b: 4, a: 1}
-    - _SlashCenter: {r: 0.11582262, g: 0.4075385, b: 0, a: 0}
+    - _SlashCenter: {r: 0.11617029, g: 0.3958374, b: 0, a: 0}
     - _Tint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

@@ -35,7 +35,7 @@ public class YoungbokChatter : MonoBehaviour
 
     // ── 대사 목록 ─────────── [2026-10-31] 말투 손봄 · [2026-11-02] 일부 교체 (\n = 줄바꿈)
     const string LineHammer = "망치는 한 방이야. X 꾹 눌러 힘을 모으고... 바닥째 날려 버려!";
-    const string LineGauntlet = "건틀릿은 두드리는 맛이지~\n때릴수록 가속되는 기능도 있잖아!!";
+    const string LineGauntlet = "건틀릿은 멈추면 지는 거야.\n주먹을 휘두를수록 손이 빨라지거든!";
     const string LineSword = "검술은 알아? 데이터 보낼게,\n세 번째 합이 장난 아닐 거야! 무조건 크리티컬이지!";
     const string LineFirstBattle = "맞기 직전에 대시! 타이밍만 맞으면 다 피해.";
     const string LineGaugeFull = "게이지 꽉 찼다! Q 누르면 세상이 멈춰. 그동안은 너만의 시간이야.";

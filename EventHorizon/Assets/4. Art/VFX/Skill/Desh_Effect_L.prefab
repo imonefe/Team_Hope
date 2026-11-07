@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &4718293056172839461
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5901889268714835704, guid: 41c286945b1ce6443aac2cd0063f7fa3, type: 3}
+      propertyPath: m_Name
+      value: Desh_Effect_L
+      objectReference: {fileID: 0}
+    - target: {fileID: 7913930133737229798, guid: 41c286945b1ce6443aac2cd0063f7fa3, type: 3}
+      propertyPath: m_LocalScale.x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 577182534765852139, guid: 41c286945b1ce6443aac2cd0063f7fa3, type: 3}
+      propertyPath: positionOffset.x
+      value: -1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 41c286945b1ce6443aac2cd0063f7fa3, type: 3}

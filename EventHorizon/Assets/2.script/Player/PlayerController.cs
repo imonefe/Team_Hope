@@ -1063,7 +1063,9 @@ public class PlayerController : MonoBehaviour
         animator.SetTrigger(ParamAttackTrig);
         animator.SetFloat(ParamSpeed, 0f);
 
-        PlaySwingSfx(EquippedWeapon.PickSwing());
+        // [2026-11-07] 애니메이션 이벤트로 소리를 내는 무기(망치)는 여기서 틀지 않음 → PlaySwingSfxEvent 참고
+        if (!EquippedWeapon.swingSfxByAnimEvent)
+            PlaySwingSfx(EquippedWeapon.PickSwing());
 
     }
 
@@ -1282,7 +1284,41 @@ public class PlayerController : MonoBehaviour
         // 최종 반전 여부 = 왼쪽 방향 XOR 수동 flipX
         bool doFlip = (dir < 0f) ^ piece.flipX;
 
-        if (doFlip)
+        if (doFlip && piece.mirrorByScale)
+        {
+            // [2026-11-01 추가] 스케일 반전: 앵커를 X -1 로 뒤집어 메쉬·파티클 궤적까지 거울처럼 반전
+            anchor.transform.localScale = new Vector3(-1f, 1f, 1f);
+
+            // 파티클은 음수 스케일을 제대로 처리하지 못하므로, 파티클 오브젝트만 X 스케일을 다시 뒤집어
+            // "위치·방향은 거울처럼, 크기는 양수"로 만들고, 방향이 있는 값들(속도 X, 회전 방향)을 직접 반전한다.
+            foreach (var ps in allSystems)
+            {
+                Vector3 s = ps.transform.localScale;
+                ps.transform.localScale = new Vector3(-s.x, s.y, s.z);
+
+                var vel = ps.velocityOverLifetime;
+                if (vel.enabled)
+                {
+                    vel.xMultiplier *= -1f;
+                    vel.orbitalYMultiplier *= -1f;
+                    vel.orbitalZMultiplier *= -1f;
+                    vel.orbitalOffsetXMultiplier *= -1f;
+                }
+
+                var force = ps.forceOverLifetime;
+                if (force.enabled) force.xMultiplier *= -1f;
+
+                var rol = ps.rotationOverLifetime;
+                if (rol.enabled) rol.zMultiplier *= -1f;
+
+                var rbs = ps.rotationBySpeed;
+                if (rbs.enabled) rbs.zMultiplier *= -1f;
+
+                var psr = ps.GetComponent<ParticleSystemRenderer>();
+                if (psr != null) psr.flip = new Vector3(1f - psr.flip.x, psr.flip.y, psr.flip.z);
+            }
+        }
+        else if (doFlip)
         {
             var renderers = fx.GetComponentsInChildren<ParticleSystemRenderer>(true);
             foreach (var r in renderers)
@@ -1313,6 +1349,16 @@ public class PlayerController : MonoBehaviour
             }
         }
         Destroy(anchor, life);
+    }
+
+    /// <summary>
+    /// [2026-11-07] 공격 애니메이션 이벤트용: 휘두르기 소리 재생.
+    /// WeaponData.swingSfxByAnimEvent 가 켜진 무기만 재생한다 (판정 직전에 소리 정점이 오도록 이벤트 위치를 잡아 둠).
+    /// </summary>
+    public void PlaySwingSfxEvent()
+    {
+        if (EquippedWeapon == null || !EquippedWeapon.swingSfxByAnimEvent) return;
+        PlaySwingSfx(EquippedWeapon.PickSwing());
     }
 
     public void SpawnHitbox()

@@ -261,7 +261,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 16
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -1319,6 +1319,22 @@ MonoBehaviour:
   nameText: {fileID: 7101000000000000006}
   descText: {fileID: 7101000000000000010}
   group: {fileID: 7101000000000000011}
+  slideInFrom: 30
+  slideOutTo: 20
+  fadeInTime: 0.25
+  fadeOutTime: 0.12
+--- !u!225 &7101000000000000011
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7101000000000000000}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &7101000000000000003
 GameObject:
   m_ObjectHideFlags: 0
@@ -1752,15 +1768,3 @@ MonoBehaviour:
   isCurrent: 0
   isReachableLater: 0
   keyFocused: 0
---- !u!225 &7101000000000000011
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7101000000000000000}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0

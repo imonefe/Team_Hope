@@ -27,14 +27,14 @@ MonoBehaviour:
     focusPercent: 0
     hpPercent: 0
   hitboxPrefab: {fileID: 1370623045049217074, guid: 0e05d3174f9f5a44a8e3eac1f399d1d7, type: 3}
-  damageMultiplier: 0.25
+  damageMultiplier: 0.375
   attackSpeed: 1
-  pauseGaugePerHit: 2
+  pauseGaugePerHit: 3
   swingSfx:
     clips:
-    - {fileID: 8300000, guid: ddd36319bfa215a40bdd3c545537c3a8, type: 3}
-    - {fileID: 8300000, guid: 9a0b427c238275c4aa7d34448d6bb721, type: 3}
-    - {fileID: 8300000, guid: 77988f29c2039c845ad3d9c883aef135, type: 3}
+    - {fileID: 8300000, guid: c1f22a8643cb4ba1a305eb26950757f3, type: 3}
+    - {fileID: 8300000, guid: f17c3b14b5ef4f6d85049b3049ac6ece, type: 3}
+    - {fileID: 8300000, guid: 9bacace46fa0461fb608a10e6fc7d246, type: 3}
   hitSfx:
     clips:
     - {fileID: 8300000, guid: ec9d49b36fdd4c6bb094e4c45a3ade87, type: 3}
@@ -51,27 +51,30 @@ MonoBehaviour:
   - sfx:
       clips: []
     pieces:
-    - prefab: {fileID: 3904326371425299336, guid: b8ff847b5199e064387ec715275890e2, type: 3}
-      posOffset: {x: 0, y: 0, z: 0}
+    - prefab: {fileID: 7189544702032346829, guid: c0567b6209c847d18e9fac1a6468fcb0, type: 3}
+      posOffset: {x: -1.79, y: 0.9, z: 0}
       rotationZ: 0
       flipX: 0
-      lifetime: 0
+      mirrorByScale: 1
+      lifetime: 3
   - sfx:
       clips: []
     pieces:
-    - prefab: {fileID: 3904326371425299336, guid: 36a01204b636a484496dd211ed7c2ae5, type: 3}
-      posOffset: {x: 0, y: 0, z: 0}
+    - prefab: {fileID: 7189544702032346829, guid: a8a08a96196f4d3fa873d0bdbb077b83, type: 3}
+      posOffset: {x: -1.25, y: 0.18, z: 0}
       rotationZ: 0
       flipX: 0
-      lifetime: 0
+      mirrorByScale: 1
+      lifetime: 3
   - sfx:
       clips: []
     pieces:
-    - prefab: {fileID: 3904326371425299336, guid: 0d6eb965e0c436f43a85cdd71dedff69, type: 3}
-      posOffset: {x: 0, y: 0, z: 0}
+    - prefab: {fileID: 7189544702032346829, guid: 238f703560284fb7bbc7bc5a14122c16, type: 3}
+      posOffset: {x: -1.21, y: 0.45, z: 0}
       rotationZ: 0
       flipX: 0
-      lifetime: 0
+      mirrorByScale: 1
+      lifetime: 3
   stackSpeedPerHit: 0.15
   maxStackSpeed: 3
   stackResetTime: 5

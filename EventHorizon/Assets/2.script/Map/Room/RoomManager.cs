@@ -12,6 +12,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private GameObject startRoomPrefab;
 
     private GameObject currentRoomObj;
+    private bool currentIsLobby;   // [2026-11-07] 지금 방이 로비인지 (로비 → 전투로 넘어갈 때 퍼즈 게이지 초기화용)
 
     // 게임 시작 시점에 이미 씬에 존재하던 최상위(루트) 오브젝트들.
     // 맵 전환 시 이 목록에 없는 루트 오브젝트(스킬/히트박스/이펙트/스폰된 몹/드랍 오브젝트 등
@@ -46,6 +47,12 @@ public class RoomManager : MonoBehaviour
         }
     }
 
+    // [2026-11-07] 로비 판정: 게임 시작 방이거나, 허수아비(TrainingDummy)가 놓인 방
+    bool IsLobbyRoom(GameObject roomPrefab)
+    {
+        return roomPrefab == startRoomPrefab || roomPrefab.GetComponentInChildren<TrainingDummy>(true) != null;
+    }
+
     public void LoadRoom(GameObject roomPrefab)
     {
         if (roomPrefab == null)
@@ -53,6 +60,11 @@ public class RoomManager : MonoBehaviour
             Debug.LogError("roomPrefab is null");
             return;
         }
+
+        // [2026-11-07] 로비에서 전투 방으로 넘어가면 퍼즈 게이지 초기화 (로비 허수아비로 채운 게이지를 들고 가지 않게)
+        bool nextIsLobby = IsLobbyRoom(roomPrefab);
+        if (currentIsLobby && !nextIsLobby) PauseManager.Instance?.ResetForNewRun();
+        currentIsLobby = nextIsLobby;
 
         // 이전 맵에서 스폰된 잔여물(스킬/히트박스/이펙트/적/드랍 오브젝트 등) 정리
         CleanupLeftoverRuntimeObjects();
