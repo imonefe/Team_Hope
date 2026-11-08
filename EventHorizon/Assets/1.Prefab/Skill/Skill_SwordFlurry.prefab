@@ -79,7 +79,7 @@ MonoBehaviour:
   startDelay: 0.4
   flurryDuration: 1.7
   tickInterval: 0.1
-  tickDamage: 5
+  tickDamage: 8
   flurryBoxOffset: {x: 2.5, y: 0.6}
   flurryBoxSize: {x: 7, y: 4}
   tickKnockbackX: 0
@@ -87,7 +87,7 @@ MonoBehaviour:
   dashWindup: 0.74
   dashDistance: 8
   dashDuration: 0.001
-  dashDamage: 40
+  dashDamage: 60
   dashHitHeight: 2.5
   dashHitYOffset: 0.2
   dashHitPadding: 0.6

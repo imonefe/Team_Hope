@@ -14627,7 +14627,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitMode: 1
   tickInterval: 1
-  damage: 18
+  damage: 27
   lifetime: 3
   direction: 0
   ownerLayer: Player

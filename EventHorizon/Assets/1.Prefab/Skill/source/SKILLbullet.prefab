@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3ac36c5d33bc8441a100618f980aa54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 10
+  damage: 15
   attackerStats: {fileID: 0}
   ownerLayer: Player
   knockbackX: 5
