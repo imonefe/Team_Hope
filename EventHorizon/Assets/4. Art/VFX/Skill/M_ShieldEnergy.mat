@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6056597310606181096
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 7
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_ShieldEnergy
+  m_Shader: {fileID: -6465566751694194690, guid: 987cb4082b7d4b8390c745ec51929829, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DissolveTex:
+        m_Texture: {fileID: 2800000, guid: 1eff7eca56e94d9408430282c85bd448, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RingTex:
+        m_Texture: {fileID: 2800000, guid: 1f5a8a3f56d43374ea50c22349819f7f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Dissolve: 0
+    - _DissolveTexBlend: 1
+    - _EdgeFresnel: 1
+    - _EdgeFresnelPower: 3
+    - _EdgeWidth: 0.04
+    - _FresnelIntensity: 2.2
+    - _FresnelPower: 1.87
+    - _NoiseScale: 30
+    m_Colors:
+    - _DissolveTexTiling: {r: 0.15, g: 0.15, b: 0, a: 0}
+    - _EdgeColor: {r: 0.21960784, g: 0.13725491, b: 0.03137255, a: 1}
+    - _MainColor: {r: 1.899338, g: 0.82858306, b: 0.268774, a: 1}
+    - _NoiseSpeed: {r: 0, g: 0.2, b: 0, a: 0}
+    - _RingOffset: {r: 0, g: 0, b: 0, a: 0}
+    - _RingScrollSpeed: {r: -0.015, g: 0.03, b: 0, a: 0}
+    - _RingTiling: {r: 3, g: 1.5, b: 0, a: 0}
+  m_BuildTextureStacks: []

@@ -11690,8 +11690,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillSlots:
   - {fileID: 309512161303808426, guid: 90ca78251e437d14e9b75f3787e2ff2c, type: 3}
-  - {fileID: 5493783800634394664, guid: 74adf096205fe8247afb8ff4e1d2d9b4, type: 3}
-  - {fileID: 8658551481514815345, guid: 4a0f8b93874c33342a06ebcf0f0017f6, type: 3}
+  - {fileID: 2004211462218824487, guid: 2f9b629c7b77b254996ab308f11f00ee, type: 3}
+  - {fileID: 5670019103141425638, guid: 1e260eff622a4df4fae47b86ee105adb, type: 3}
   caster: {fileID: 0}
 --- !u!222 &7945444476078061110
 CanvasRenderer:

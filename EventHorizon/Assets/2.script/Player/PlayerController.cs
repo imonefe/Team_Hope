@@ -747,9 +747,13 @@ public class PlayerController : MonoBehaviour
         animator.SetBool(ParamIsDashing, true);
         PlaySfx(dashSfx.Pick());
 
-        GameObject dashPrefab = dashDir > 0 ? dashEffectPrefabRight : dashEffectPrefabLeft;
+        GameObject dashPrefab = dashDir > 0 || dashEffectPrefabLeft == null ? dashEffectPrefabRight : dashEffectPrefabLeft; // [Faust 2026-11-07] 왼쪽 칸 비면 오른쪽 프리팹 사용
         if (dashPrefab != null && dashEffectPoint != null)
-            Instantiate(dashPrefab, dashEffectPoint.position, Quaternion.identity);
+        {
+            // [Faust 2026-11-07] 한 프리팹으로 양방향: 왼쪽 대시인데 왼쪽 전용 프리팹이 따로 없으면 Y축 180° 회전으로 좌우 반전
+            bool mirror = dashDir < 0 && (dashEffectPrefabLeft == null || dashEffectPrefabLeft == dashEffectPrefabRight);
+            Instantiate(dashPrefab, dashEffectPoint.position, mirror ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity);
+        }
     }
 
     void Dash()

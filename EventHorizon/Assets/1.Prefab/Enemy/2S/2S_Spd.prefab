@@ -175,7 +175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 790d5f4938a10fd418fb38b1cac664ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitParticlePrefab: {fileID: 7003526924982483664, guid: 3488b4805fc720c468db1550b5bea590, type: 3}
+  hitParticlePrefab: {fileID: 1953706687302401912, guid: 5359828e45c6499459e67107d0baa6a0, type: 3}
   randomOffset: 0.8
   enemyDeathEffectPrefab: {fileID: 3904326371425299336, guid: 33c6ca78d2a0379439dbb91839997618, type: 3}
   minCurrencyDrop: 8

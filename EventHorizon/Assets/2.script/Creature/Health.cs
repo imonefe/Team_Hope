@@ -1,8 +1,13 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 public class Health : MonoBehaviour
 {
+    // [Faust 2026-11-08] 보호막: 피해를 먼저 가로채는 연결점. 반환값 = 체력에 실제로 들어갈 피해 (없으면 기존과 동일)
+    public System.Func<int, int> damageAbsorber;
+    // [Faust 2026-11-08] 피격 방향: 마지막으로 맞은 넉백 방향 (+1/-1). 쉴드 파문 위치용, 다른 곳엔 영향 없음
+    public int lastHitDir;
+
     Stats stats;
 
     /// <summary>Collider2D로부터 Health를 찾는다 — 콜라이더가 자식 오브젝트에 있는 경우까지 대비해 부모도 확인.</summary>
@@ -92,7 +97,10 @@ public class Health : MonoBehaviour
         if (isPlayer && !ignoreInvincibility && invincibleTime > 0f)
             invincibleTimer = invincibleTime;
 
-        stats.TakeDamage(damage);
+        // [Faust 2026-11-08] 보호막: 보호막이 있으면 먼저 흡수, 남은 피해만 체력에
+        lastHitDir = dir;   // [Faust 2026-11-08] 피격 방향
+        if (damageAbsorber != null) damage = damageAbsorber(damage);
+        if (damage > 0) stats.TakeDamage(damage);
 
         // 플레이어 피격 시 퍼즈 게이지 3% 충전
         if (gameObject.CompareTag("Player"))

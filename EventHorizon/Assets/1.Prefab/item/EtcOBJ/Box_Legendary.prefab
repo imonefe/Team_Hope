@@ -127,6 +127,8 @@ MonoBehaviour:
   - {fileID: 8365562426258253712, guid: 5a4d4deae73051ea4995ba9ef46255a7, type: 3}
   - {fileID: 8318159693860326177, guid: c25cf47d9060ac0605f7618ea7de5914, type: 3}
   - {fileID: 2565339746751315386, guid: d866d1a7bc94c05837e320e5e8bd81c6, type: 3}
+  - {fileID: 8365562426258253712, guid: 118ef41f353c4d3ea5954095cdd74428, type: 3}
+  - {fileID: 8365562426258253712, guid: 599b41f148234aa6b4d5fedf1f3709f3, type: 3}
   launchForceX: 0
   launchForceY: 6
   animator: {fileID: 7470125363089601331}

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: "\uc601\uc6c5\uc758 \uc27c\ud130"
+  m_EditorClassIdentifier: 
+  itemName: "\uc601\uc6c5\uc758 \uc27c\ud130"
+  description: "\ud3d0\ud5c8 \ud55c\uad6c\uc11d\uc5d0 \uac78\ub824 \uc788\ub358 \ub0a1\uc740 \ud574\uba39. \ub204\uac00 \uac78\uc5c8\ub294\uc9c0\ub294 \ubab0\ub77c\ub3c4, \uc2f8\uc6c0\uc5d0 \uc9c0\uce5c \uc774\ub4e4\uc774 \uc7a0\uc2dc \uc26c\uc5b4 \uac00\ub358 \uc790\ub9ac\ub2e4."
+  icon: {fileID: 21300000, guid: c74cebd882cd4c81ab3432ad42ec0c03, type: 3}
+  itemType: 0
+  tier: 3
+  effects:
+  - {fileID: 11400000, guid: 920ccf6956a24ad28b368eb494a12a7a, type: 2}
