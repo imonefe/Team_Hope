@@ -33,6 +33,9 @@ public class ExhibitionMode : MonoBehaviour
     static void Boot()
     {
         allowQuit = false;
+#if UNITY_WEBGL && !UNITY_EDITOR
+        return;   // [2026-11-09] 웹 빌드에서는 끔 — 브라우저는 종료를 막을 수 없고, 해상도·전체 화면 강제 변경이 오류를 낼 수 있음
+#endif
         if (!Enabled || instance != null) return;
         var go = new GameObject("[ExhibitionMode]");
         DontDestroyOnLoad(go);
