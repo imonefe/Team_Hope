@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3442460697102390431
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6234280793534885872}
+  - component: {fileID: 9216792754222858147}
+  - component: {fileID: 1280369009330189683}
+  m_Layer: 0
+  m_Name: Skill_HoloClone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6234280793534885872
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3442460697102390431}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9216792754222858147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3442460697102390431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2d0bcb2638383048b089655a506c8b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillType: 1
+  icon: {fileID: 21300000, guid: bd57c6d29481414f967910cc76188cf5, type: 3}
+  skillName: "\uD640\uB85C \uBD84\uC2E0"
+  description: 
+  cooldown: 10
+  spawnOffset: {x: 0, y: 0}
+  lifetime: 0
+  flipByFacing: 0
+  snapToGround: 0
+  groundCheckDistance: 20
+  spawnOnLaunch: 0
+  spawnEntries: []
+  isAttackBuff: 0
+  buffDuration: 5
+  buffDamageMultiplier: 1.5
+  buffAnimSpeedMultiplier: 1.3
+  buffAuraPrefab: {fileID: 0}
+  buffExtraHitEffectPrefab: {fileID: 0}
+--- !u!114 &1280369009330189683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3442460697102390431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72ffc94911d93aa41a58adf1e7c6ae8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drawTime: 0.6
+  perTargetTime: 0.2
+  hitDelay: 0.05
+  returnTime: 0.6
+  finalHitDelay: 0.1
+  endTime: 0.5
+  maxTargets: 10
+  screenMargin: 0.3
+  viewCamera: {fileID: 0}
+  hitDamage: 30
+  hitKnockbackX: 2
+  hitKnockbackY: 1
+  finalDamage: 60
+  finalKnockbackX: 4
+  finalKnockbackY: 2
+  hitSfx: {fileID: 0}
+  criticalSfx: {fileID: 0}
+  chaseSfx:
+  - {fileID: 8300000, guid: 1e69ae356b1840dab1e9ab65f82df6f9, type: 3}
+  - {fileID: 8300000, guid: 5c905a7bb9f94df0b2caf1d39c8a8b3f, type: 3}
+  - {fileID: 8300000, guid: f93968c9ef794aea9b410211c86b69f2, type: 3}
+  - {fileID: 8300000, guid: a395288d566d45c3939ab4eb0de0520c, type: 3}
+  - {fileID: 8300000, guid: 6ae13743256247a184eee3512398ad23, type: 3}
+  chaseVolume: 1
+  finalSfx: {fileID: 8300000, guid: 8ac326972c88455f9ae1c336e5ff95f6, type: 3}
+  cloneOffset: {x: 0, y: 0}
+  drawPrefab: {fileID: 0}
+  cloneSlashPrefabs:
+  - {fileID: 2518993962773686394, guid: 1749eab2e0ed496468540a5cb00142f4, type: 3}
+  - {fileID: 6193283675539818674, guid: a9eedf7d8c687554da35957d0c123f07, type: 3}
+  - {fileID: 3898745442322270699, guid: 76103266af6794448863bad1d10d2ab9, type: 3}
+  - {fileID: 5205539228883376538, guid: fc6233ac7330b1744ba81137f1b796cf, type: 3}
+  returnPrefab: {fileID: 0}
+  screenSlashPrefab: {fileID: 5683385756862280437, guid: ad4d11138ea55c74ca298ffdfafce88f, type: 3}
+  effectLifetime: 1.5
+  lineMaterial: {fileID: 2100000, guid: c42bc2332d893204c8ed88c1a204ef38, type: 2}
+  lineWidth: 0.06
+  lineColor: {r: 0, g: 5.5174317, b: 2.561664, a: 1}
+  lineLifetime: 0.6
+  lineSortingLayer: "\uADFC\uACBD2D"
+  lineSortingOrder: 50
+  drawDebug: 1

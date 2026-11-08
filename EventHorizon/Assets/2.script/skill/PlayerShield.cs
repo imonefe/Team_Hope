@@ -19,6 +19,17 @@ public class PlayerShield : MonoBehaviour
     public float fastBlinkRate = 12f;
     public float fadeTime = 0.25f;         // 시간 만료 시 조용히 사라지는 시간
 
+    [Header("효과음 [2026-11-09] (ShieldSkill 이 넘겨 줌)")]
+    public AudioClip upSfx;
+    public AudioClip[] hitSfx = new AudioClip[0];
+    public AudioClip breakSfx;
+    public AudioClip expireSfx;
+
+    public void SetSounds(AudioClip up, AudioClip[] hits, AudioClip brk, AudioClip exp)
+    {
+        upSfx = up; hitSfx = hits ?? new AudioClip[0]; breakSfx = brk; expireSfx = exp;
+    }
+
     Health health;
     ShieldPulse pulse;
     ShieldImpactFX impact;
@@ -37,6 +48,7 @@ public class PlayerShield : MonoBehaviour
         endTime = duration > 0f ? Time.time + duration : float.MaxValue;
         if (health != null) health.damageAbsorber += Absorb;
         UpdateVisual();
+        SkillSfx.Play(upSfx);   // [2026-11-09] 생성
     }
 
     /// 같은 스킬을 다시 쓰면 수치·시간만 다시 채움
@@ -46,6 +58,7 @@ public class PlayerShield : MonoBehaviour
         maxShield = Mathf.Max(maxShield, amount); current = maxShield;
         if (dur > 0f) endTime = Time.time + dur;
         UpdateVisual();
+        SkillSfx.Play(upSfx, 0.8f);   // [2026-11-09] 다시 채움
     }
 
     int Absorb(int damage)
@@ -58,6 +71,7 @@ public class PlayerShield : MonoBehaviour
         if (impact != null) impact.Ripple(health != null ? health.lastHitDir : 0);   // 맞은 쪽 프레넬 파문
         UpdateVisual();
         if (current <= 0) Break();
+        else SkillSfx.Play(SkillSfx.Pick(hitSfx), 1f, 0.06f);   // [2026-11-09] 막아냄 (깨질 때는 깨짐 소리만)
         return damage - used;   // 보호막을 넘친 피해만 체력으로
     }
 
@@ -87,6 +101,7 @@ public class PlayerShield : MonoBehaviour
         transform.localPosition = baseLocalPos;
         if (pulse != null) pulse.BreakAway(breakTime);
         if (impact != null) impact.Shatter();   // 유리 조각 흩어짐
+        SkillSfx.Play(breakSfx);                 // [2026-11-09] 깨짐
         Destroy(gameObject, breakTime + 0.05f);
     }
 
@@ -98,6 +113,7 @@ public class PlayerShield : MonoBehaviour
         if (health != null) health.damageAbsorber -= Absorb;
         transform.localPosition = baseLocalPos;
         if (pulse != null) pulse.FadeAway(fadeTime);
+        SkillSfx.Play(expireSfx);                // [2026-11-09] 시간 만료
         Destroy(gameObject, fadeTime + 0.05f);
     }
 

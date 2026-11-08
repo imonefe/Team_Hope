@@ -5581,7 +5581,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1720232377}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 017030f8f5327ad4c9cb531953224eaf, type: 3}
   m_Name: 
@@ -11691,7 +11691,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skillSlots:
-  - {fileID: 309512161303808426, guid: 90ca78251e437d14e9b75f3787e2ff2c, type: 3}
+  - {fileID: 9216792754222858147, guid: d913e14f2513d364abcbd7f7437b08a4, type: 3}
   - {fileID: 2004211462218824487, guid: 2f9b629c7b77b254996ab308f11f00ee, type: 3}
   - {fileID: 5670019103141425638, guid: 1e260eff622a4df4fae47b86ee105adb, type: 3}
   caster: {fileID: 0}

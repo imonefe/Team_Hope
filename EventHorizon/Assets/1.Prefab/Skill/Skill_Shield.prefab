@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skillType: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 6fca96fa7cef4bd29b80e71e2e295691, type: 3}
   skillName: "\uBCF4\uD638\uB9C9"
   description: 
   cooldown: 12
@@ -79,3 +79,10 @@ MonoBehaviour:
   shieldAmount: 50
   duration: 12
   offset: {x: 0, y: 0.2, z: 0}
+  upSfx: {fileID: 8300000, guid: 58dd7809d74f4b009ef35455ddbf87ab, type: 3}
+  hitSfx:
+  - {fileID: 8300000, guid: b02bf4e5e5a04b99a794e05304da0f8e, type: 3}
+  - {fileID: 8300000, guid: db2fd183af3e4787bdaf81e45a4f92f5, type: 3}
+  - {fileID: 8300000, guid: 30519c601c1d4027b8cd0c85be8fe1da, type: 3}
+  breakSfx: {fileID: 8300000, guid: ce243a53455f47a394c10c3bca5c4c55, type: 3}
+  expireSfx: {fileID: 8300000, guid: b77d0c5a48964a08b0f558cb55ae1244, type: 3}

@@ -51,6 +51,23 @@ public class SwordFlurrySkill : MonoBehaviour
     public AudioClip hitSfx;
     public AudioClip criticalSfx;
 
+    [Header("[2026-11-09] 효과음 — 여러 개 넣으면 무작위, 비우면 생략")]
+    [Tooltip("연타 중 휘두르는 소리 (적이 없어도 남)")]
+    public AudioClip[] flurrySwingSfx = new AudioClip[0];
+    [Tooltip("몇 타마다 휘두르기 소리를 낼지 (1 = 매 타. 0.1초 간격이라 2 정도가 적당)")]
+    public int swingEveryTicks = 2;
+    [Range(0f, 1f)] public float swingVolume = 0.6f;
+    [Tooltip("연타가 적에게 맞을 때 (비우면 위 hitSfx). 한 타에 여러 마리를 맞혀도 소리는 한 번만")]
+    public AudioClip[] flurryHitSfx = new AudioClip[0];
+    [Tooltip("강한 참격(돌진) 시작 소리")]
+    public AudioClip[] dashStartSfx = new AudioClip[0];
+    [Tooltip("강한 참격이 적에게 맞을 때 (비우면 hitSfx)")]
+    public AudioClip[] dashHitSfx = new AudioClip[0];
+    [Tooltip("강한 참격 치명타 (비우면 criticalSfx)")]
+    public AudioClip[] dashCriticalSfx = new AudioClip[0];
+    [Tooltip("음높이 흔들림 (0.05 = ±5%)")]
+    public float pitchJitter = 0.05f;
+
     [Header("디버그")]
     public bool drawDebugBoxes = true;           // 플레이 중 Scene 뷰에 판정 박스 표시
 
@@ -128,11 +145,15 @@ public class SwordFlurrySkill : MonoBehaviour
                 flurryFx.Add(fx);
             }
         float flurryEnd = Time.time + flurryDuration;
+        int tick = 0;
         while (Time.time < flurryEnd && pc != null)
         {
             HoldStill();
+            if (swingEveryTicks <= 1 || tick % swingEveryTicks == 0)
+                SkillSfx.Play(SkillSfx.Pick(flurrySwingSfx), swingVolume, pitchJitter);   // [2026-11-09]
+            tick++;
             Vector2 c = (Vector2)pc.transform.position + new Vector2(flurryBoxOffset.x * facing, flurryBoxOffset.y);
-            HitBox(c, flurryBoxSize, tickDamage, tickKnockbackX, tickKnockbackY, null);
+            HitBox(c, flurryBoxSize, tickDamage, tickKnockbackX, tickKnockbackY, null, false);
             if (drawDebugBoxes) DrawBox(c, flurryBoxSize, Color.cyan, tickInterval);
             yield return WaitHolding(tickInterval);
         }
@@ -155,6 +176,7 @@ public class SwordFlurrySkill : MonoBehaviour
             }
             Vector2 end = start + new Vector2(facing * travel, 0f);
             if (dashEffectPrefab != null) SpawnFx(dashEffectPrefab, start);
+            SkillSfx.Play(SkillSfx.Pick(dashStartSfx), 1f, pitchJitter);   // [2026-11-09] 강한 참격 시작
             if (passThroughEnemies) SetEnemyCollision(false);
 
             var dashHit = new HashSet<Health>();
@@ -169,7 +191,7 @@ public class SwordFlurrySkill : MonoBehaviour
                 float minX = Mathf.Min(start.x, p.x) - dashHitPadding, maxX = Mathf.Max(start.x, p.x) + dashHitPadding;
                 Vector2 c = new Vector2((minX + maxX) * 0.5f, start.y + dashHitYOffset);
                 Vector2 size = new Vector2(maxX - minX, dashHitHeight);
-                HitBox(c, size, dashDamage, dashKnockbackX, dashKnockbackY, dashHit);
+                HitBox(c, size, dashDamage, dashKnockbackX, dashKnockbackY, dashHit, true);
                 if (drawDebugBoxes) DrawBox(c, size, Color.magenta, 0.5f);
             }
             if (passThroughEnemies) SetEnemyCollision(true);
@@ -203,8 +225,12 @@ public class SwordFlurrySkill : MonoBehaviour
         if (rb != null) rb.velocity = Vector2.zero;
     }
 
-    void HitBox(Vector2 center, Vector2 size, int damage, float kx, float ky, HashSet<Health> once)
+    void HitBox(Vector2 center, Vector2 size, int damage, float kx, float ky, HashSet<Health> once, bool dash)
     {
+        // [2026-11-09] 연타/강한 참격 소리를 따로, 여러 개 중 무작위. 한 번에 여러 마리를 맞혀도 소리는 첫 대상에서만
+        AudioClip hitClip = (dash ? SkillSfx.Pick(dashHitSfx) : SkillSfx.Pick(flurryHitSfx)) ?? hitSfx;
+        AudioClip critClip = (dash ? SkillSfx.Pick(dashCriticalSfx) : null) ?? criticalSfx;
+        bool first = true;
         var cols = Physics2D.OverlapBoxAll(center, size, 0f, enemyMask);
         var thisTick = new HashSet<Health>();
         foreach (var col in cols)
@@ -213,7 +239,9 @@ public class SwordFlurrySkill : MonoBehaviour
             Health h = col.GetComponent<Health>() ?? col.GetComponentInParent<Health>();
             if (h == null || !thisTick.Add(h)) continue;
             if (once != null && !once.Add(h)) continue;
-            Hitbox.DealDirectHit(h, damage, stats, facing, kx, ky, col.bounds.center, hitSfx, criticalSfx, "SwordFlurry", true);
+            if (Hitbox.DealDirectHit(h, damage, stats, facing, kx, ky, col.bounds.center,
+                                     first ? hitClip : null, first ? critClip : null, "SwordFlurry", true))
+                first = false;
         }
     }
 

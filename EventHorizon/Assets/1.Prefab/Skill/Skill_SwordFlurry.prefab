@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skillType: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: aac988f65ec34e8b90e4ba5bf198434c, type: 3}
   skillName: "\uAC80 \uB09C\uBB34"
   description: 
   cooldown: 6
@@ -106,5 +106,25 @@ MonoBehaviour:
   animTriggerFlurry: 
   animTriggerDash: 
   hitSfx: {fileID: 0}
-  criticalSfx: {fileID: 0}
+  criticalSfx: {fileID: 8300000, guid: 1831c7136f450ea4d93239ebdfd339eb, type: 3}
+  flurrySwingSfx:
+  - {fileID: 8300000, guid: 2f6b52de17ec4106910a39a9ba17d58b, type: 3}
+  - {fileID: 8300000, guid: 5e7adf249ffb4bffb63cdd7dab6fe0f4, type: 3}
+  - {fileID: 8300000, guid: 0520018c599648ef8e7a0926dd131d8a, type: 3}
+  swingEveryTicks: 2
+  swingVolume: 0.6
+  flurryHitSfx:
+  - {fileID: 8300000, guid: a0facd5246cc4f2cbaffe9b27ea53f26, type: 3}
+  - {fileID: 8300000, guid: e92528825bd6479bb687314d0be7ccc3, type: 3}
+  - {fileID: 8300000, guid: d300748844514d37a32b5c62e84c7d74, type: 3}
+  dashStartSfx:
+  - {fileID: 8300000, guid: 8f502ca2b15e4c1c8d1df11c0902f244, type: 3}
+  dashHitSfx:
+  - {fileID: 8300000, guid: ec9d49b36fdd4c6bb094e4c45a3ade87, type: 3}
+  - {fileID: 8300000, guid: 9869de5a02834cc5bc25f64950d51ab2, type: 3}
+  - {fileID: 8300000, guid: 776b453afa9f4fda8b5cfd2221969bbc, type: 3}
+  dashCriticalSfx:
+  - {fileID: 8300000, guid: 882ea77543432f94f96a797f62d2c751, type: 3}
+  - {fileID: 8300000, guid: 9646a95e537883742af00d66bcd8e45e, type: 3}
+  pitchJitter: 0.05
   drawDebugBoxes: 1

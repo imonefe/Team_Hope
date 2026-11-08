@@ -9,6 +9,12 @@ public class ShieldSkill : MonoBehaviour
     public float duration = 0f;               // 0 = 깨질 때까지 유지
     public Vector3 offset = new Vector3(0f, 0.2f, 0f); // 플레이어 기준 위치
 
+    [Header("효과음 [2026-11-09] — 보호막에 넘겨 줌")]
+    public AudioClip upSfx;                               // 생성·다시 채움
+    public AudioClip[] hitSfx = new AudioClip[0];         // 막아낼 때 (여러 개면 무작위)
+    public AudioClip breakSfx;                            // 맞아서 깨질 때
+    public AudioClip expireSfx;                           // 시간이 다 돼서 사라질 때
+
     void Awake()
     {
         var skill = GetComponent<Skill>();
@@ -23,7 +29,11 @@ public class ShieldSkill : MonoBehaviour
         {
             var health = pc.GetComponent<Health>();
             var existing = pc.GetComponentInChildren<PlayerShield>();
-            if (existing != null) existing.Refill(shieldAmount, duration);
+            if (existing != null)
+            {
+                existing.SetSounds(upSfx, hitSfx, breakSfx, expireSfx);
+                existing.Refill(shieldAmount, duration);
+            }
             else
             {
                 var go = Instantiate(shieldPrefab, pc.transform);
@@ -31,6 +41,7 @@ public class ShieldSkill : MonoBehaviour
                 go.transform.localRotation = Quaternion.identity;
                 var ps = go.GetComponent<PlayerShield>();
                 if (ps == null) ps = go.AddComponent<PlayerShield>();
+                ps.SetSounds(upSfx, hitSfx, breakSfx, expireSfx);
                 ps.Init(health, shieldAmount, duration);
             }
         }
