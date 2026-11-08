@@ -53,6 +53,7 @@ public class Item : ProximityInteractable
 
         // 인벤토리 UI 목록에 반영 (기존엔 호출이 안 되어 있어서 인벤토리 창이 항상 비어있었음)
         Inventory.Instance?.AddPassive(data);
+        YoungbokChatter.OnItemPicked();   // [2026-11-09] 한 판 첫 아이템 → 인벤토리 키 안내
 
         RunManager.Instance?.RegisterObtained(data);
 

@@ -50,6 +50,7 @@ public class YoungbokChatter : MonoBehaviour
     static readonly string[] LinesLegendary = { "저 빛 봤어? 이번 건 진짜다!", "이건... 전설급인데? 내가 넣어 둔 것 중에 이런 게 있었어?" };
     static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 샜다고.", "꽝이어도 괜찮아. 상자는 또 있어.", "포장이 엉망이긴 해도, 내용물은 내가 정성껏 담았지!" };
     static readonly string[] LinesCrit = { "방금 거 제대로 꽂혔다!", "약점 정확히 찔렀어. 소름 돋네.", "우왁! 방금 그 한 방, 여기까지 흔들었어!" };
+    const string LineFirstItem = "뭐 주웠어? [{0}] 누르면 인벤토리에서 확인할 수 있어.";   // [2026-11-09] {0} = 인벤토리 키
     static readonly string[] LinesHurt = { "아야! 거기 어제 내가 고친 데라고!", "살살 맞아. 부품 귀하단 말이야.", "맞으면서 배운다지만… 이제 그만 배워도 돼." };
 
     // ── 확률·시간 ───────────────────────────────────────────
@@ -147,6 +148,24 @@ public class YoungbokChatter : MonoBehaviour
             if (c.Say(LineFirstBox, false)) c.onceRun.Add("box");
         }
         else if (Random.value < BoxChance) c.Say(Pick(LinesBox), false);
+    }
+
+    /// <summary>[2026-11-09] 아이템을 주웠을 때 (Item.cs). 한 판에 한 번, 인벤토리 키 안내. 지금 못 띄우면(퍼즈·대화 중 등) 풀릴 때까지 기다렸다가 띄움.</summary>
+    public static void OnItemPicked()
+    {
+        var c = Ensure();
+        if (!c.onceRun.Add("item")) return;
+        KeyCode key = Inventory.Instance != null ? Inventory.Instance.toggleKey : KeyCode.I;
+        c.StartCoroutine(c.SayWhenFree(string.Format(LineFirstItem, key), 30f));
+    }
+
+    IEnumerator SayWhenFree(string line, float maxWait)
+    {
+        for (float t = 0f; t < maxWait; t += Time.unscaledDeltaTime)
+        {
+            if (Say(line, true)) yield break;
+            yield return null;
+        }
     }
 
     /// <summary>레전더리 상자가 나타났을 때 (Box.cs). 매번, 떠 있는 대사를 덮어씀.</summary>

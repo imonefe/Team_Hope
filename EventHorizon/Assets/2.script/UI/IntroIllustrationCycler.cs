@@ -37,6 +37,9 @@ public class IntroIllustrationCycler : MonoBehaviour
     public List<Entry> illustrations = new List<Entry>();
     [Tooltip("켜면 무작위 순서 (같은 그림이 연달아 나오지 않음), 끄면 목록 순서대로")]
     public bool randomOrder = false;
+    [Tooltip("[2026-11-09] 켜면 화면이 열릴 때마다 목록에서 한 명만 무작위로 골라 계속 보여 준다 (지난번과 다른 캐릭터). 끄면 예전처럼 차례로 교차")]
+    public bool pickOnePerOpen = true;
+    const string LastPickKey = "IntroIllustLast";
 
     [Header("크기")]
     [Tooltip("배율 1일 때 그림 높이 (px, 화면 1920×1080 기준)")]
@@ -121,6 +124,27 @@ public class IntroIllustrationCycler : MonoBehaviour
     {
         if (startDelay > 0f) yield return Wait(startDelay);
 
+        if (pickOnePerOpen)
+        {
+            Entry one = PickOnce();
+            if (one == null) yield break;
+            ApplyEntry(one);
+            for (float t = 0f; t < fadeInTime; t += Time.unscaledDeltaTime)
+            {
+                float k = DOVirtual.EasedValue(0f, 1f, t / fadeInTime, inEase);
+                SetPose(k, Mathf.LerpUnclamped(-moveInDistance, 0f, k));
+                yield return null;
+            }
+            // 유지 중 흐름은 한 번만 흐르고 그 자리에 멈춤 (퇴장·교체 없음)
+            for (float t = 0f; t < holdTime; t += Time.unscaledDeltaTime)
+            {
+                SetPose(1f, Mathf.Lerp(0f, holdDrift, t / holdTime));
+                yield return null;
+            }
+            SetPose(1f, holdDrift);
+            yield break;
+        }
+
         while (true)
         {
             Entry e = PickNext();
@@ -193,6 +217,24 @@ public class IntroIllustrationCycler : MonoBehaviour
 
         lastIndex = next;
         return illustrations[next];
+    }
+
+    // [2026-11-09] 화면이 열릴 때 한 명 고르기 — 지난번(게임을 껐다 켜도 기억)과 다른 캐릭터
+    Entry PickOnce()
+    {
+        if (illustrations == null) return null;
+        List<int> valid = new List<int>();
+        for (int i = 0; i < illustrations.Count; i++)
+            if (illustrations[i] != null && illustrations[i].sprite != null) valid.Add(i);
+        if (valid.Count == 0) return null;
+
+        int last = PlayerPrefs.GetInt(LastPickKey, -1);
+        if (valid.Count > 1) valid.Remove(last);
+        int pick = valid[Random.Range(0, valid.Count)];
+        PlayerPrefs.SetInt(LastPickKey, pick);
+        PlayerPrefs.Save();
+        lastIndex = pick;
+        return illustrations[pick];
     }
 
     Vector2 currentOffset;
