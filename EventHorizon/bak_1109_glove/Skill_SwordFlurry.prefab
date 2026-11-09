@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5844477423952192876
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8372805799898948028}
+  - component: {fileID: 2004211462218824487}
+  - component: {fileID: 2446249650874799579}
+  m_Layer: 0
+  m_Name: Skill_SwordFlurry
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8372805799898948028
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5844477423952192876}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2004211462218824487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5844477423952192876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2d0bcb2638383048b089655a506c8b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillType: 1
+  icon: {fileID: 21300000, guid: aac988f65ec34e8b90e4ba5bf198434c, type: 3}
+  skillName: "\uAC80 \uB09C\uBB34"
+  description: 
+  cooldown: 6
+  spawnOffset: {x: 0, y: 0}
+  lifetime: 0
+  flipByFacing: 1
+  snapToGround: 0
+  groundCheckDistance: 20
+  spawnOnLaunch: 0
+  spawnEntries: []
+  isAttackBuff: 0
+  buffDuration: 5
+  buffDamageMultiplier: 1.5
+  buffAnimSpeedMultiplier: 1.3
+  buffAuraPrefab: {fileID: 0}
+  buffExtraHitEffectPrefab: {fileID: 0}
+--- !u!114 &2446249650874799579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5844477423952192876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb8ebc4d426452c4da2d9b2bd4b31aaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  totalDuration: 3.3
+  startDelay: 0.4
+  flurryDuration: 1.7
+  tickInterval: 0.1
+  tickDamage: 8
+  flurryBoxOffset: {x: 2.5, y: 0.6}
+  flurryBoxSize: {x: 7, y: 4}
+  tickKnockbackX: 0
+  tickKnockbackY: 0
+  dashWindup: 0.74
+  dashDistance: 8
+  dashDuration: 0.001
+  dashDamage: 60
+  dashHitHeight: 2.5
+  dashHitYOffset: 0.2
+  dashHitPadding: 0.6
+  dashKnockbackX: 6
+  dashKnockbackY: 3
+  passThroughEnemies: 1
+  stopAtWalls: 1
+  flurryEffectPrefabs:
+  - {fileID: 7944937220262019601, guid: ce197be13f5ef8f43a3087f1d83faae6, type: 3}
+  - {fileID: 7944937220262019601, guid: 5b360e24dd3c3e34285c0f6323fed59e, type: 3}
+  dashEffectPrefab: {fileID: 7189544702032346829, guid: 33a14310a52a5d54eb8352ec4c0c480c, type: 3}
+  dashEndEffectPrefab: {fileID: 5901889268714835704, guid: cd87d589d2040c24580e8da8f7636bb3, type: 3}
+  flurryClip: {fileID: 7400000, guid: 51746c7aaeb18c840958af594ec4e1f5, type: 2}
+  loopFlurryClip: 1
+  dashClip: {fileID: 7400000, guid: 85ba2782908dc0647a55dfe4d1872de3, type: 2}
+  animTriggerFlurry: 
+  animTriggerDash: 
+  hitSfx: {fileID: 0}
+  criticalSfx: {fileID: 8300000, guid: 1831c7136f450ea4d93239ebdfd339eb, type: 3}
+  flurrySwingSfx:
+  - {fileID: 8300000, guid: 2f6b52de17ec4106910a39a9ba17d58b, type: 3}
+  - {fileID: 8300000, guid: 5e7adf249ffb4bffb63cdd7dab6fe0f4, type: 3}
+  - {fileID: 8300000, guid: 0520018c599648ef8e7a0926dd131d8a, type: 3}
+  swingEveryTicks: 2
+  swingVolume: 0.6
+  flurryHitSfx:
+  - {fileID: 8300000, guid: a0facd5246cc4f2cbaffe9b27ea53f26, type: 3}
+  - {fileID: 8300000, guid: e92528825bd6479bb687314d0be7ccc3, type: 3}
+  - {fileID: 8300000, guid: d300748844514d37a32b5c62e84c7d74, type: 3}
+  dashStartSfx:
+  - {fileID: 8300000, guid: 8f502ca2b15e4c1c8d1df11c0902f244, type: 3}
+  dashHitSfx:
+  - {fileID: 8300000, guid: ec9d49b36fdd4c6bb094e4c45a3ade87, type: 3}
+  - {fileID: 8300000, guid: 9869de5a02834cc5bc25f64950d51ab2, type: 3}
+  - {fileID: 8300000, guid: 776b453afa9f4fda8b5cfd2221969bbc, type: 3}
+  dashCriticalSfx:
+  - {fileID: 8300000, guid: 882ea77543432f94f96a797f62d2c751, type: 3}
+  - {fileID: 8300000, guid: 9646a95e537883742af00d66bcd8e45e, type: 3}
+  pitchJitter: 0.05
+  drawDebugBoxes: 1

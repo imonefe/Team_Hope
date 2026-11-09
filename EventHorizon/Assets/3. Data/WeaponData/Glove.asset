@@ -27,8 +27,8 @@ MonoBehaviour:
     focusPercent: 0
     hpPercent: 0
   hitboxPrefab: {fileID: 1370623045049217074, guid: 0e05d3174f9f5a44a8e3eac1f399d1d7, type: 3}
-  damageMultiplier: 0.75
-  attackSpeed: 0.5
+  damageMultiplier: 0.9
+  attackSpeed: 1.1
   pauseGaugePerHit: 3
   swingSfx:
     clips:
