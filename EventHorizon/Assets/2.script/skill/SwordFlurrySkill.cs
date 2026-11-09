@@ -68,6 +68,10 @@ public class SwordFlurrySkill : MonoBehaviour
     [Tooltip("음높이 흔들림 (0.05 = ±5%)")]
     public float pitchJitter = 0.05f;
 
+    [Header("[2026-11-09] 공중에서 쓰면")]
+    [Tooltip("켜면 연타 중에도 중력을 받아 떨어짐 (가로로만 멈춤). 끄면 예전처럼 그 자리에 멈춰 떠 있음")]
+    public bool keepGravity = true;
+
     [Header("디버그")]
     public bool drawDebugBoxes = true;           // 플레이 중 Scene 뷰에 판정 박스 표시
 
@@ -126,8 +130,8 @@ public class SwordFlurrySkill : MonoBehaviour
         if (rb != null)
         {
             savedGravity = rb.gravityScale; gravitySaved = true;
-            rb.gravityScale = 0f;
-            rb.velocity = Vector2.zero;
+            if (!keepGravity) rb.gravityScale = 0f;
+            rb.velocity = keepGravity ? new Vector2(0f, rb.velocity.y) : Vector2.zero;
         }
         Trigger(animTriggerFlurry);
         PlayClip(flurryClip, loopFlurryClip);
@@ -222,7 +226,7 @@ public class SwordFlurrySkill : MonoBehaviour
 
     void HoldStill()
     {
-        if (rb != null) rb.velocity = Vector2.zero;
+        if (rb != null) rb.velocity = keepGravity ? new Vector2(0f, rb.velocity.y) : Vector2.zero;   // [2026-11-09] 중력 유지 시 세로 속도는 둠
     }
 
     void HitBox(Vector2 center, Vector2 size, int damage, float kx, float ky, HashSet<Health> once, bool dash)
