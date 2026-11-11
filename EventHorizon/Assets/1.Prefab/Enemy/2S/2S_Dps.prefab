@@ -107,6 +107,7 @@ MonoBehaviour:
   chaseHoldTime: 0.5
   knockbackForce: 3
   knockbackDuration: 0.5
+  stayOnPlatform: 1
   hitFlashTime: 0.1
   flashMaterial: {fileID: 2100000, guid: 27766ac43c36d4f487e09e491baf06fb, type: 2}
   playHitAnimation: 1
@@ -153,8 +154,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 260
-  currentHp: 260
+  maxHp: 200
+  currentHp: 200
   Atk: 15
   Def: 3
   spd: 1.5
@@ -176,6 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 790d5f4938a10fd418fb38b1cac664ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lastHitDir: 0
   hitParticlePrefab: {fileID: 1953706687302401912, guid: 5359828e45c6499459e67107d0baa6a0, type: 3}
   randomOffset: 0.8
   enemyDeathEffectPrefab: {fileID: 3904326371425299336, guid: 33c6ca78d2a0379439dbb91839997618, type: 3}

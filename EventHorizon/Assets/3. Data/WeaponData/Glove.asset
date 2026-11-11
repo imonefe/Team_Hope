@@ -27,7 +27,7 @@ MonoBehaviour:
     focusPercent: 0
     hpPercent: 0
   hitboxPrefab: {fileID: 1370623045049217074, guid: 0e05d3174f9f5a44a8e3eac1f399d1d7, type: 3}
-  damageMultiplier: 0.9
+  damageMultiplier: 1.1
   attackSpeed: 1.1
   pauseGaugePerHit: 3
   swingSfx:
@@ -47,6 +47,7 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 75227a89dec9437284edb57eb26c75e9, type: 3}
     - {fileID: 8300000, guid: c5d3a85cc9f94f439675f7595331c69e, type: 3}
     - {fileID: 8300000, guid: d8469e875f3c443d93195e0594b77a66, type: 3}
+  swingSfxByAnimEvent: 0
   comboEffects:
   - sfx:
       clips: []

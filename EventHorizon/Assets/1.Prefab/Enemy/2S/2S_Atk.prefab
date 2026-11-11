@@ -260,6 +260,7 @@ MonoBehaviour:
   chaseHoldTime: 0.5
   knockbackForce: 4
   knockbackDuration: 0.5
+  stayOnPlatform: 1
   hitFlashTime: 0.1
   flashMaterial: {fileID: 2100000, guid: 27766ac43c36d4f487e09e491baf06fb, type: 2}
   playHitAnimation: 0
@@ -306,8 +307,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 220
-  currentHp: 220
+  maxHp: 160
+  currentHp: 160
   Atk: 15
   Def: 3
   spd: 1
