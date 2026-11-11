@@ -43,7 +43,7 @@ public class Inventory : MonoBehaviour
     {
         // Inventory(매니저)는 인벤토리 창의 자식이 아니라 별도 오브젝트이므로,
         // 창을 SetActive로 꺼도 이 Update()는 계속 돌아서 다시 열 수 있다.
-        if (panelRoot != null && Input.GetKeyDown(toggleKey))
+        if (panelRoot != null && KeyBindings.Down(KeyAction.Inventory))
         {
             if (IsOpen) Close();
             else if (CanOpen()) Open();

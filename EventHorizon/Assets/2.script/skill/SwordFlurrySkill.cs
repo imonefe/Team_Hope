@@ -187,7 +187,8 @@ public class SwordFlurrySkill : MonoBehaviour
                 float footY = body.bounds.min.y + 0.1f;
                 float down = ledgeCheckDepth + 0.1f;
                 float offX = start.x - body.bounds.center.x;   // rb 위치와 몸 중심 차이 보정
-                bool Ground(float cx) => Physics2D.Raycast(new Vector2(cx, footY), Vector2.down, down, wallMask).collider != null;
+                int footMask = wallMask | LayerMask.GetMask("platform");   // [2026-11-11] 발판(platform) 위에서도 끝에서 멈추게
+                bool Ground(float cx) => Physics2D.Raycast(new Vector2(cx, footY), Vector2.down, down, footMask).collider != null;
                 float cx0 = start.x - offX;
                 if (Ground(cx0))
                 {

@@ -41,6 +41,12 @@ public class SettingsWindow : MonoBehaviour
     public Button resetButton;
     public Button closeButton;
 
+    [Header("[2026-11-11] 조작 키")]
+    [Tooltip("'조작 키 설정' 버튼")]
+    public Button keyBindButton;
+    [Tooltip("조작 키 창 (KeyPanel)")]
+    public KeyBindWindow keyWindow;
+
     [Header("열기 연출")]
     [Tooltip("창 전체 (투명도 조절용). 비우면 자동으로 찾거나 추가")]
     public CanvasGroup group;
@@ -114,6 +120,7 @@ public class SettingsWindow : MonoBehaviour
 
         if (resetButton != null) resetButton.onClick.AddListener(ResetAll);
         if (closeButton != null) closeButton.onClick.AddListener(Close);
+        if (keyBindButton != null && keyWindow != null) keyBindButton.onClick.AddListener(keyWindow.Show);   // [2026-11-11]
 
         // 씬에 직접 놓아 둔 경우에도 Open() 이 이 창을 쓰게 등록
         if (instance == null) instance = this;
@@ -139,6 +146,7 @@ public class SettingsWindow : MonoBehaviour
     void Show()
     {
         gameObject.SetActive(true);
+        if (keyWindow != null && keyWindow.IsShown) keyWindow.Hide();   // [2026-11-11] 항상 본문부터
         RefreshAll();
 
         // 뒤의 메뉴 버튼이 키보드 선택 상태로 남아 같이 눌리지 않게
@@ -168,7 +176,11 @@ public class SettingsWindow : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) Close();
+        if (!Input.GetKeyDown(KeyCode.Escape)) return;
+        // [2026-11-11] 키 입력을 기다리는 중의 Esc 는 '취소' — 창을 닫지 않음. 조작 키 창이 열려 있으면 본문으로만 돌아감
+        if (KeyBindWindow.BlocksEscape) return;
+        if (keyWindow != null && keyWindow.IsShown) { keyWindow.Hide(); return; }
+        Close();
     }
 
     void ResetAll()

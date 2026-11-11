@@ -8,10 +8,10 @@ public enum Weapontype { None, Sword, Hammer, Glove }   // [2026-10-22] 총(Gun)
 
 public class PlayerController : MonoBehaviour
 {
-    // [2026-11-11] 조작 키 (점프 Space / 평타 E / 대시 Shift) — 바꿀 때는 여기만 고치면 됨
-    public const KeyCode JumpKey = KeyCode.Space;
-    public const KeyCode AttackKey = KeyCode.E;   // [2026-11-11] 평타 Q → E
-    static bool DashPressed() => Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
+    // [2026-11-11] 조작 키 — 설정에서 바꿀 수 있음. 실제 값은 KeyBindings (기본: 점프 Space / 평타 E / 대시 Shift)
+    public static KeyCode JumpKey => KeyBindings.Get(KeyAction.Jump);
+    public static KeyCode AttackKey => KeyBindings.Get(KeyAction.Attack);
+    static bool DashPressed() => KeyBindings.Down(KeyAction.Dash);
 
     public static PlayerController Instance;
 
@@ -575,7 +575,7 @@ public class PlayerController : MonoBehaviour
     // ── 점프 ──────────────────────────────────────────────
     void Jump()
     {
-        if (!Input.GetKeyDown(JumpKey)) return;
+        if (!KeyBindings.Down(KeyAction.Jump)) return;
 
         bool downKey = Input.GetAxisRaw("Vertical") < -0.5f;
 
@@ -805,7 +805,7 @@ public class PlayerController : MonoBehaviour
         if (isDashing) return;
 
         // 공격 입력 버퍼 시작 (짧은 클립에서도 다음 콤보 예약 유지)
-        if (Input.GetKeyDown(AttackKey))
+        if (KeyBindings.Down(KeyAction.Attack))
             comboInputTimer = 0f;
 
         switch (weapontype)
@@ -819,7 +819,7 @@ public class PlayerController : MonoBehaviour
     // ── 검: 기존 3단 콤보 ─────────────────────────────────
     void HandleSwordInput()
     {
-        if (!Input.GetKeyDown(AttackKey)) return;
+        if (!KeyBindings.Down(KeyAction.Attack)) return;
         if (!isAttacking) StartAttack(1);
         else if (comboQueued == 0) comboQueued = comboIndex + 1;
     }
@@ -836,7 +836,7 @@ public class PlayerController : MonoBehaviour
         {
             // [2026-10-10 수정] 뗀 "순간"(GetKeyUp)만 보면, 메뉴·대화로 잠겨 있던 사이에 뗀 경우를 놓쳐
             // 차지 상태에 갇혔다. 지금 누르고 있지 않으면 뗀 것으로 처리한다.
-            if (!Input.GetKey(AttackKey))
+            if (!KeyBindings.Held(KeyAction.Attack))
             {
                 if (chargeArmed) ReleaseHammerCharge();
                 else if (chargeFromCombo) CancelComboCharge();
@@ -844,7 +844,7 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            if (Input.GetKey(AttackKey))
+            if (KeyBindings.Held(KeyAction.Attack))
             {
                 chargeHeldTime += Time.deltaTime;
                 if (!chargeArmed && chargeHeldTime >= EquippedWeapon.chargeTime)
@@ -869,7 +869,7 @@ public class PlayerController : MonoBehaviour
         // ── 1타/2타 콤보 진행 중, 계속 누르고 있는지 관찰 (놓으면 콤보, 다 채우면 차지로 전환) ─
         if (chargeHoldTracking)
         {
-            if (Input.GetKey(AttackKey))
+            if (KeyBindings.Held(KeyAction.Attack))
             {
                 chargeHeldTime += Time.deltaTime;
                 if (chargeHeldTime >= EquippedWeapon.chargeTime)
@@ -886,7 +886,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (!Input.GetKeyDown(AttackKey)) return;
+        if (!KeyBindings.Down(KeyAction.Attack)) return;
 
         if (!isAttacking)
         {
@@ -1009,7 +1009,7 @@ public class PlayerController : MonoBehaviour
     // ── 건틀릿: 콤보 + 피격 시 속도 스택 ──────────────────
     void HandleGauntletInput()
     {
-        if (!Input.GetKeyDown(AttackKey)) return;
+        if (!KeyBindings.Down(KeyAction.Attack)) return;
         if (!isAttacking) StartAttack(1);
         else if (comboQueued == 0) comboQueued = comboIndex + 1;
     }
@@ -1470,11 +1470,11 @@ public class PlayerController : MonoBehaviour
         if (hitCancelTimer < EquippedWeapon.hitCancelDelay) return;
 
         // 망치: 콤보 도중 X를 길게 눌러 차지로 넘어가는 중이면 끊지 않음
-        if (chargeHoldTracking && Input.GetKey(AttackKey)) return;
+        if (chargeHoldTracking && KeyBindings.Held(KeyAction.Attack)) return;
 
         // 점프 캔슬 — 공격을 끝내 두면 바로 아래 Jump()가 그대로 점프시킨다 (아래+점프 = 발판 내리기는 제외)
         bool downKey = Input.GetAxisRaw("Vertical") < -0.5f;
-        if (Input.GetKeyDown(JumpKey) && !downKey && JumpCount < 2)
+        if (KeyBindings.Down(KeyAction.Jump) && !downKey && JumpCount < 2)
         {
             EndAttack();
             animator.CrossFade("Jump_Rise", 0.05f, 0); // 3타처럼 끝까지 재생해야 빠져나오는 동작도 바로 점프 동작으로
@@ -1523,7 +1523,7 @@ public class PlayerController : MonoBehaviour
                 EnterChargeDirectly();
                 return;
             }
-            if (chargeHoldTracking && Input.GetKey(AttackKey))
+            if (chargeHoldTracking && KeyBindings.Held(KeyAction.Attack))
             {
                 // 아직 다 채우진 못했지만 누르고 있는 중 → 누른 시간을 이어서 차지 진행
                 float held = chargeHeldTime;

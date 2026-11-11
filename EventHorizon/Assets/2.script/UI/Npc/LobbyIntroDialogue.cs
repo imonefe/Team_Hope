@@ -39,5 +39,12 @@ public class LobbyIntroDialogue : MonoBehaviour
         while (NPC.AnyTalking) yield return null;
 
         npc.SetCondition(introKey, player);
+
+        // [2026-11-11] 프롤로그가 끝나면 화면 가운데 조작법 창 (ControlsGuidePopup)
+        // 대화가 실제로 열릴 때까지 최대 1초 기다린 뒤, 끝날 때까지 기다린다
+        for (float w = 0f; !NPC.AnyTalking && w < 1f; w += Time.unscaledDeltaTime) yield return null;
+        while (NPC.AnyTalking) yield return null;
+        yield return null;   // 대화를 끝낸 키 입력이 지나가도록 한 프레임 쉼
+        ControlsGuidePopup.ShowNow();
     }
 }

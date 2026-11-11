@@ -152,16 +152,33 @@ public class PauseGaugeUI : MonoBehaviour
             box.color = hintColor;
             box.raycastTarget = false;
         }
-        TMP_Text kt = NewText("Text", k, keyText, 15f, TextAlignmentOptions.Center);
+        TMP_Text kt = NewText("Text", k, KeyBindings.KeyName(KeyAction.Pause), 15f, TextAlignmentOptions.Center);   // [2026-11-11] 설정의 키 이름 (keyText 칸은 안 씀)
         RectTransform kr = kt.rectTransform;
         kr.anchorMin = Vector2.zero; kr.anchorMax = Vector2.one;
         kr.offsetMin = Vector2.zero; kr.offsetMax = Vector2.zero;
         // [2026-11-11] "Tab" 처럼 긴 키 이름은 상자를 글자 폭에 맞춰 넓힘 (오른쪽 간격은 그대로)
-        kt.ForceMeshUpdate();
-        float kw = Mathf.Max(22f, kt.preferredWidth + 10f);
-        k.sizeDelta = new Vector2(kw, 22f);
-        k.anchoredPosition = new Vector2(-(labelW + 6f) - (kw - 22f) * 0.5f, 0f);
+        hintKeyText = kt; hintKeyBox = k; hintLabelW = labelW;
+        FitHintKey();
+        KeyBindings.Changed += OnKeysChanged;
     }
+
+    // [2026-11-11] 설정에서 퍼즈 키를 바꾸면 [키] 글자·상자 폭을 다시 맞춤
+    TMP_Text hintKeyText; RectTransform hintKeyBox; float hintLabelW;
+    void OnKeysChanged()
+    {
+        if (hintKeyText == null) return;
+        hintKeyText.text = KeyBindings.KeyName(KeyAction.Pause);
+        FitHintKey();
+    }
+    void FitHintKey()
+    {
+        if (hintKeyText == null || hintKeyBox == null) return;
+        hintKeyText.ForceMeshUpdate();
+        float kw = Mathf.Max(22f, hintKeyText.preferredWidth + 10f);
+        hintKeyBox.sizeDelta = new Vector2(kw, 22f);
+        hintKeyBox.anchoredPosition = new Vector2(-(hintLabelW + 6f) - (kw - 22f) * 0.5f, 0f);
+    }
+    void OnDestroy() { KeyBindings.Changed -= OnKeysChanged; }
 
     static RectTransform NewRect(string name, Transform parent, Vector2 anchor, Vector2 pivot)
     {

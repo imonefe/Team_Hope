@@ -82,7 +82,7 @@ public class Portal : ProximityInteractable
         base.Update();
 
         if (isActive || !playerNearby) return;
-        if (!Input.GetKeyDown(interactKey)) return;
+        if (!KeyBindings.Down(KeyAction.Interact)) return;
         // 베이스와 같은 조건: 창이 떠 있거나, 대화 중이거나, 방금 같은 F로 대화를 끝낸 프레임이면 무시
         if (Time.timeScale == 0f) return;
         if (NPC.AnyTalking) return;

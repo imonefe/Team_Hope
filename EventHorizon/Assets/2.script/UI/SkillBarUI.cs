@@ -22,7 +22,7 @@ public class SkillBarUI : MonoBehaviour
     [Tooltip("쿨타임 남은 시간(초)을 보여주는 텍스트. cooldownOverlays와 함께 켜지고 꺼짐. 없으면 생략")]
     public TextMeshProUGUI[] cooldownTexts = new TextMeshProUGUI[3];
 
-    [Header("발동 키 (이후 조정)")]
+    [Header("발동 키 — [2026-11-11] 지금은 쓰지 않음. 실제 키는 설정의 조작 키(KeyBindings 스킬 1·2·3)")]
     public KeyCode[] skillKeys = { KeyCode.Q, KeyCode.W, KeyCode.E };
 
     CharacterSkills current;
@@ -60,7 +60,7 @@ public class SkillBarUI : MonoBehaviour
         // 스킬 발동
         for (int i = 0; i < skillKeys.Length && i < 3; i++)
         {
-            if (Input.GetKeyDown(skillKeys[i]))
+            if (KeyBindings.Down(KeyAction.Skill1 + i))   // [2026-11-11] 설정에서 바꾼 키
                 current.Activate(i);
         }
 

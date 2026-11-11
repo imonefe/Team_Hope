@@ -68,6 +68,9 @@ public class ExhibitionMode : MonoBehaviour
     // ── 1) 설정 초기화 ─────────────────────────────
     static void ResetSettingsIfChanged()
     {
+        // [2026-11-11] 바꾼 조작 키도 처음 값으로
+        if (!KeyBindings.IsDefault()) { KeyBindings.ResetToDefaults(); Debug.Log("[ExhibitionMode] 인트로 진입 — 조작 키를 기본값으로 되돌림"); }
+
         Resolution native = Screen.currentResolution;
         bool screenDefault = GameSettings.Fullscreen
                           && GameSettings.ResolutionWidth == native.width

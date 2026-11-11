@@ -34,11 +34,11 @@ public class YoungbokChatter : MonoBehaviour
     public Sprite portrait;
 
     // ── 대사 목록 ─────────── [2026-10-31] 말투 손봄 · [2026-11-02] 일부 교체 (\n = 줄바꿈)
-    const string LineHammer = "망치는 한 방이야. E 꾹 눌러 힘을 모으고... 바닥째 날려 버려!";
+    const string LineHammer = "망치는 한 방이야. {0} 꾹 눌러 힘을 모으고... 바닥째 날려 버려!";
     const string LineGauntlet = "건틀릿은 멈추면 지는 거야.\n주먹을 휘두를수록 손이 빨라지거든!";
     const string LineSword = "검술은 알아? 데이터 보낼게,\n세 번째 합이 장난 아닐 거야! 무조건 크리티컬이지!";
     const string LineFirstBattle = "맞기 직전에 대시! 타이밍만 맞으면 다 피해.";
-    const string LineGaugeFull = "게이지 꽉 찼다! T 누르면 세상이 멈춰. 그동안은 너만의 시간이야.";
+    const string LineGaugeFull = "게이지 꽉 찼다! {0} 누르면 세상이 멈춰. 그동안은 너만의 시간이야.";
     const string LineFirstBox = "그거 내가 몰래 넣어 둔 거야. 아끼지 말고 막 써.";
     const string LineLeft3 = "셋 남았어. 슬슬 정리하자.";
     const string LineLeft2 = "둘! 거의 다 왔어.";
@@ -155,7 +155,7 @@ public class YoungbokChatter : MonoBehaviour
     {
         var c = Ensure();
         if (!c.onceRun.Add("item")) return;
-        KeyCode key = Inventory.Instance != null ? Inventory.Instance.toggleKey : KeyCode.I;
+        string key = KeyBindings.KeyName(KeyAction.Inventory);   // [2026-11-11] 설정의 키 이름
         c.StartCoroutine(c.SayWhenFree(string.Format(LineFirstItem, key), 30f));
     }
 
@@ -212,7 +212,7 @@ public class YoungbokChatter : MonoBehaviour
     // [2026-10-27 변경] 무기를 바꿔 들 때마다 안내 (한 판에 한 번 → 매번). 떠 있는 대사를 덮어쓰는 우선 대사
     void HandleWeaponChanged(Weapontype w)
     {
-        string line = w == Weapontype.Hammer ? LineHammer
+        string line = w == Weapontype.Hammer ? string.Format(LineHammer, KeyBindings.KeyName(KeyAction.Attack))   // [2026-11-11] 설정의 키 이름
                     : w == Weapontype.Glove ? LineGauntlet
                     : w == Weapontype.Sword ? LineSword : null;
         if (line != null) Say(line, true);
@@ -295,7 +295,7 @@ public class YoungbokChatter : MonoBehaviour
     void PollGauge()
     {
         if (onceRun.Contains("gauge") || PauseManager.Instance == null) return;
-        if (PauseManager.Instance.GaugeValue >= 100f && Say(LineGaugeFull, false))
+        if (PauseManager.Instance.GaugeValue >= 100f && Say(string.Format(LineGaugeFull, KeyBindings.KeyName(KeyAction.Pause)), false))
             onceRun.Add("gauge");
     }
 
@@ -305,6 +305,7 @@ public class YoungbokChatter : MonoBehaviour
     {
         if (CutsceneSequencer.IsAnyPlaying) return true;
         if (NPC.AnyTalking) return true;
+        if (ControlsGuidePopup.IsShowing) return true;   // [2026-11-11] 조작법 창이 떠 있는 동안은 말하지 않음
         bool mapOpen = MapManager.Instance != null && MapManager.Instance.IsMapOpen;
         if (mapOpen) return !allowOverMap;
         if (Time.timeScale == 0f) return true;   // ESC 메뉴·인벤토리·게임오버 등

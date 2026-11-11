@@ -18,7 +18,7 @@ using UnityEngine;
 /// </summary>
 public abstract class ProximityInteractable : MonoBehaviour
 {
-    [Tooltip("상호작용 키")]
+    [Tooltip("[2026-11-11] 지금은 쓰지 않음 — 실제 키는 설정의 조작 키(KeyBindings 상호작용)")]
     public KeyCode interactKey = KeyCode.F;
 
     [Header("상호작용 안내 (안내 문구가 있는 것만: 상자·NPC 등)")]
@@ -58,7 +58,7 @@ public abstract class ProximityInteractable : MonoBehaviour
         if (Time.frameCount == NPC.LastEndFrame) return;
         if (!CanInteract()) return;
 
-        if (Input.GetKeyDown(interactKey))
+        if (KeyBindings.Down(KeyAction.Interact))
             Interact();
     }
 
@@ -72,7 +72,7 @@ public abstract class ProximityInteractable : MonoBehaviour
         if (show)
         {
             if (prompt == null) prompt = InteractPrompt.Create(transform);
-            if (prompt != null) prompt.Show(interactKey.ToString(), label, promptOffset);
+            if (prompt != null) prompt.Show(KeyBindings.KeyName(KeyAction.Interact), label, promptOffset);
         }
         else if (prompt != null) prompt.Hide();
     }
