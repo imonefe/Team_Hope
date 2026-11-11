@@ -183,10 +183,12 @@ public class Stats : MonoBehaviour
             targetStats != null ? targetStats.advantage : NowAdvantage.None);
         int finalDamage = Mathf.RoundToInt(baseDamage * attributeMultiplier);
 
+#if UNITY_EDITOR   // [2026-11-10] 타격마다 남는 기록 — 빌드에서는 빼서 전투 중 끊김 방지 (에디터에서만 확인용)
         Debug.Log($"[{logTag}] {(attackerStats != null ? attackerStats.name : "Unknown")}" +
             $"({(attackerStats != null ? attackerStats.advantage : NowAdvantage.None)}) → " +
             $"{targetName}({(targetStats != null ? targetStats.advantage : NowAdvantage.None)}) | " +
             $"상성배율 x{attributeMultiplier} | 최종 데미지 {finalDamage}");
+#endif
 
         return finalDamage;
     }

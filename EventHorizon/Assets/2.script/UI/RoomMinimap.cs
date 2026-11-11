@@ -93,6 +93,7 @@ public class RoomMinimap : MonoBehaviour
 
     // 상태
     Room currentRoom;
+    float nextRoomSearch;   // [2026-11-10] 방 찾기 다음 시각
     Rect worldRect;          // 방 그림이 차지하는 월드 범위
     bool userHidden;
     float refreshTimer;
@@ -241,8 +242,9 @@ public class RoomMinimap : MonoBehaviour
         if (Input.GetKeyDown(toggleKey) && Time.timeScale > 0f) userHidden = !userHidden;
 
         // 방이 바뀌었는지 확인 (RoomManager가 이전 방을 지우고 새 방을 만든다)
-        if (currentRoom == null)
+        if (currentRoom == null && Time.unscaledTime >= nextRoomSearch)   // [2026-11-10] 장면 전체 찾기는 0.25초에 한 번만
         {
+            nextRoomSearch = Time.unscaledTime + 0.25f;
             currentRoom = FindObjectOfType<Room>();
             if (currentRoom != null) RebuildLayout(currentRoom);
         }

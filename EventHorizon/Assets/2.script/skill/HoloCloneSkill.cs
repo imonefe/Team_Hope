@@ -101,6 +101,47 @@ public class HoloCloneSkill : MonoBehaviour
         return best != null ? best : Camera.main;
     }
 
+    // [2026-11-11] 시전 전 확인용: 화면 안에 적이 한 명이라도 있는지.
+    // CharacterSkills가 프리팹에 대고 부르므로 이 컴포넌트의 값(pc, viewCamera 등)은 바꾸지 않고 지역 변수로만 계산한다.
+    public bool HasEnemyOnScreen(Transform player)
+    {
+        if (player == null) return false;
+        int mask = LayerMask.GetMask("Enemy", "BossBody");
+        float z = player.position.z;
+        Camera cam = viewCamera;
+        if (cam == null)
+        {
+            float bestArea = 0f;
+            foreach (var c in Camera.allCameras)
+            {
+                if (c == null || !c.isActiveAndEnabled || (c.cullingMask & mask) == 0) continue;
+                Vector3 p0 = PlaneOf(c, Vector2.zero, z), p1 = PlaneOf(c, Vector2.one, z);
+                float area = Mathf.Abs((p1.x - p0.x) * (p1.y - p0.y));
+                if (area > bestArea) { bestArea = area; cam = c; }
+            }
+            if (cam == null) cam = Camera.main;
+        }
+        if (cam == null) return true;   // 카메라를 못 찾으면 막지 않음
+        Vector3 a = PlaneOf(cam, Vector2.zero, z), b = PlaneOf(cam, Vector2.one, z);
+        Vector2 min = new Vector2(Mathf.Min(a.x, b.x), Mathf.Min(a.y, b.y)) + Vector2.one * screenMargin;
+        Vector2 max = new Vector2(Mathf.Max(a.x, b.x), Mathf.Max(a.y, b.y)) - Vector2.one * screenMargin;
+        foreach (var col in Physics2D.OverlapAreaAll(min, max, mask))
+        {
+            if (col == null || Hitbox.IsHitboxCollider(col)) continue;
+            Health h = col.GetComponent<Health>();
+            if (h == null) h = col.GetComponentInParent<Health>();
+            if (h != null && h.gameObject.activeInHierarchy) return true;
+        }
+        return false;
+    }
+
+    static Vector3 PlaneOf(Camera cam, Vector2 vp, float z)
+    {
+        Ray r = cam.ViewportPointToRay(new Vector3(vp.x, vp.y, 0f));
+        float t = Mathf.Abs(r.direction.z) < 1e-5f ? 0f : (z - r.origin.z) / r.direction.z;
+        return r.origin + r.direction * t;
+    }
+
     bool WasLaunched()
     {
         var skill = GetComponent<Skill>();

@@ -18,13 +18,14 @@ public class CharacterManager : MonoBehaviour
         SetCharacter(characterA);
     }
 
-    void Update()
-    {
-        // [2026-10-10] 창이 떠 있거나 대화 중이면 캐릭터 교체 입력을 받지 않음
-        if (Time.timeScale == 0f || NPC.AnyTalking) return;
-        if (Input.GetKeyDown(KeyCode.Tab))
-            SwitchCharacter();
-    }
+    // [2026-11-10] 캐릭터 교체(Tab) 기능 제거 — 플레이어 캐릭터는 하나만 사용.
+    //   다시 쓰려면 아래 Update 를 되살리면 됨 (SwitchCharacter 함수는 남겨 둠)
+    // void Update()
+    // {
+    //     if (Time.timeScale == 0f || NPC.AnyTalking) return;
+    //     if (Input.GetKeyDown(KeyCode.Tab))
+    //         SwitchCharacter();
+    // }
 
     public void SwitchCharacter()
     {

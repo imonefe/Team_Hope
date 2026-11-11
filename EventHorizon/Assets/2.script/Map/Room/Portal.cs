@@ -73,6 +73,9 @@ public class Portal : ProximityInteractable
     // ProximityInteractable로 이동.
     protected override bool CanInteract() => isActive && !transitioning;
 
+    // [2026-11-11] 열린 문 앞에 서면 머리 위에 "[F] 이동" 안내 (상자 "열기", NPC "대화"와 같은 방식)
+    protected override string PromptLabel => "이동";
+
     // [2026-10-26 추가] 닫힌 문에 F → 화면 하단 안내
     protected override void Update()
     {

@@ -22,6 +22,11 @@ public class Room : MonoBehaviour
     [Tooltip("[2026-11-01] 보스방에 들어왔을 때 플레이어가 바라볼 대상. 비우면 이 방의 보스 → 이 방 컷신의 스파인 보스 순서로 자동으로 찾는다")]
     public Transform bossLookTarget;
 
+    [Header("[2026-11-11] 포탈 미리 열기")]
+    [Tooltip("체크하면 보스방이 아닌 방은 들어오자마자 포탈이 열려 있어서 적을 다 잡지 않아도 다음 방으로 갈 수 있다. " +
+             "상자 생성·클리어 대사는 지금처럼 적을 다 잡았을 때 나온다.")]
+    public bool openPortalOnEnter = true;
+
     bool portalOpened = false;
     bool cleanupMode = false; // CleanupTrigger 발동 후 몬스터만 감지
 
@@ -37,6 +42,8 @@ public class Room : MonoBehaviour
             spawners = GetComponentsInChildren<MonsterSpawner>();
 
         if (portal != null) portal.SetActive(false);
+        // [2026-11-11] 보스방이 아니면 포탈을 바로 연다 (적 처치는 선택)
+        if (openPortalOnEnter && !isBossRoom && portal != null) portal.SetActive(true);
         foreach (var bs in boxSpawners)
             if (bs != null) bs.SetActive(false);
 
@@ -144,7 +151,7 @@ public class Room : MonoBehaviour
     {
         portalOpened = true;
         CancelInvoke(nameof(CheckClear));
-        if (portal != null) portal.SetActive(true);
+        if (portal != null && !portal.IsOpen) portal.SetActive(true);   // [2026-11-11] 이미 열려 있으면 다시 열지 않음
         YoungbokChatter.OnRoomCleared(this);   // [2026-10-27] 영복 "문 열렸다" (상자보다 먼저 — 레전더리 안내가 덮어쓸 수 있게)
         foreach (var bs in boxSpawners)
             if (bs != null) bs.SetActive(true);

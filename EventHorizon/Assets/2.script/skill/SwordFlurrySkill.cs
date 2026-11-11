@@ -35,6 +35,9 @@ public class SwordFlurrySkill : MonoBehaviour
     public float dashKnockbackY = 3f;
     public bool passThroughEnemies = true;       // 돌진 중 적 몸체와 충돌 안 함 (통과)
     public bool stopAtWalls = true;              // 벽(ground 레이어)에 닿으면 거기서 멈춤
+    [Tooltip("[2026-11-11] 땅에서 쓰면 발판 끝에서 멈춘다 (플레이어 중심이 발판 끝에 걸친 위치). 공중에서 쓰면 적용 안 함")]
+    public bool stopAtLedge = true;
+    public float ledgeCheckDepth = 0.6f;          // 발 아래로 이만큼 안에 땅이 있어야 '발판 위'로 봄
 
     [Header("아트 (선택 — 비워 두면 생략)")]
     [Tooltip("다단히트 동안 플레이어에 붙어 재생, 끝나면 삭제. 여러 개 넣으면 전부 동시에 나옴")]
@@ -177,6 +180,26 @@ public class SwordFlurrySkill : MonoBehaviour
                 var filter = new ContactFilter2D { useLayerMask = true, layerMask = wallMask, useTriggers = false };
                 int n = body.Cast(new Vector2(facing, 0f), filter, hits, dashDistance);
                 for (int i = 0; i < n; i++) travel = Mathf.Min(travel, Mathf.Max(0f, hits[i].distance - 0.02f));
+            }
+            // [2026-11-11] 발판 끝에서 멈춤 — 시작할 때 땅을 딛고 있었으면, 앞으로 0.1씩 나가며 발 아래 땅이 끊기는 곳 직전까지만 이동
+            if (stopAtLedge && body != null)
+            {
+                float footY = body.bounds.min.y + 0.1f;
+                float down = ledgeCheckDepth + 0.1f;
+                float offX = start.x - body.bounds.center.x;   // rb 위치와 몸 중심 차이 보정
+                bool Ground(float cx) => Physics2D.Raycast(new Vector2(cx, footY), Vector2.down, down, wallMask).collider != null;
+                float cx0 = start.x - offX;
+                if (Ground(cx0))
+                {
+                    const float step = 0.1f;
+                    float ok = 0f;
+                    for (float d = step; d <= travel + 0.0001f; d += step)
+                    {
+                        if (!Ground(cx0 + facing * d)) break;
+                        ok = d;
+                    }
+                    travel = Mathf.Min(travel, ok);
+                }
             }
             Vector2 end = start + new Vector2(facing * travel, 0f);
             if (dashEffectPrefab != null) SpawnFx(dashEffectPrefab, start);

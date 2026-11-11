@@ -8,6 +8,11 @@ public enum Weapontype { None, Sword, Hammer, Glove }   // [2026-10-22] 총(Gun)
 
 public class PlayerController : MonoBehaviour
 {
+    // [2026-11-11] 조작 키 (점프 Space / 평타 E / 대시 Shift) — 바꿀 때는 여기만 고치면 됨
+    public const KeyCode JumpKey = KeyCode.Space;
+    public const KeyCode AttackKey = KeyCode.E;   // [2026-11-11] 평타 Q → E
+    static bool DashPressed() => Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
+
     public static PlayerController Instance;
 
     // ── 상태 ──────────────────────────────────────────────
@@ -228,6 +233,13 @@ public class PlayerController : MonoBehaviour
     static readonly int ParamChargeAttackTrig = Animator.StringToHash("chargeAttack");
     static readonly int ParamIdle02Trig = Animator.StringToHash("idle02Trigger");
     static readonly int HashIdelState = Animator.StringToHash("idel");
+    // [2026-11-11] 공격·차지 상태에 갇힘 감시용
+    static readonly int HashAtk01 = Animator.StringToHash("Atk01");
+    static readonly int HashAtk02 = Animator.StringToHash("Atk02");
+    static readonly int HashAtk03 = Animator.StringToHash("Atk03");
+    static readonly int HashAtkCharge = Animator.StringToHash("Atk_Charge");
+    float stuckAttackAnimTimer = 0f;
+    const float StuckAttackAnimLimit = 0.15f;
 
     // ── 특수 대기모션(idle02) ─────────────────────────────
     [Header("특수 대기모션")]
@@ -334,6 +346,7 @@ public class PlayerController : MonoBehaviour
         HandleAttackInput();
         HandleComboWindow();
         HandleAnimPlayingTimeout();
+        WatchStuckAttackAnim();   // [2026-11-11]
         HandleDropTimer();
         HandleIdleVariation();
 
@@ -562,7 +575,7 @@ public class PlayerController : MonoBehaviour
     // ── 점프 ──────────────────────────────────────────────
     void Jump()
     {
-        if (!Input.GetKeyDown(KeyCode.C)) return;
+        if (!Input.GetKeyDown(JumpKey)) return;
 
         bool downKey = Input.GetAxisRaw("Vertical") < -0.5f;
 
@@ -701,7 +714,7 @@ public class PlayerController : MonoBehaviour
     void Desh()
     {
         // Z 키: 바라보는 방향으로 대시
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (DashPressed())
         {
             TriggerDash(transform.localScale.x);
             return;
@@ -792,7 +805,7 @@ public class PlayerController : MonoBehaviour
         if (isDashing) return;
 
         // 공격 입력 버퍼 시작 (짧은 클립에서도 다음 콤보 예약 유지)
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(AttackKey))
             comboInputTimer = 0f;
 
         switch (weapontype)
@@ -806,7 +819,7 @@ public class PlayerController : MonoBehaviour
     // ── 검: 기존 3단 콤보 ─────────────────────────────────
     void HandleSwordInput()
     {
-        if (!Input.GetKeyDown(KeyCode.X)) return;
+        if (!Input.GetKeyDown(AttackKey)) return;
         if (!isAttacking) StartAttack(1);
         else if (comboQueued == 0) comboQueued = comboIndex + 1;
     }
@@ -823,7 +836,7 @@ public class PlayerController : MonoBehaviour
         {
             // [2026-10-10 수정] 뗀 "순간"(GetKeyUp)만 보면, 메뉴·대화로 잠겨 있던 사이에 뗀 경우를 놓쳐
             // 차지 상태에 갇혔다. 지금 누르고 있지 않으면 뗀 것으로 처리한다.
-            if (!Input.GetKey(KeyCode.X))
+            if (!Input.GetKey(AttackKey))
             {
                 if (chargeArmed) ReleaseHammerCharge();
                 else if (chargeFromCombo) CancelComboCharge();
@@ -831,7 +844,7 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            if (Input.GetKey(KeyCode.X))
+            if (Input.GetKey(AttackKey))
             {
                 chargeHeldTime += Time.deltaTime;
                 if (!chargeArmed && chargeHeldTime >= EquippedWeapon.chargeTime)
@@ -856,7 +869,7 @@ public class PlayerController : MonoBehaviour
         // ── 1타/2타 콤보 진행 중, 계속 누르고 있는지 관찰 (놓으면 콤보, 다 채우면 차지로 전환) ─
         if (chargeHoldTracking)
         {
-            if (Input.GetKey(KeyCode.X))
+            if (Input.GetKey(AttackKey))
             {
                 chargeHeldTime += Time.deltaTime;
                 if (chargeHeldTime >= EquippedWeapon.chargeTime)
@@ -873,7 +886,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (!Input.GetKeyDown(KeyCode.X)) return;
+        if (!Input.GetKeyDown(AttackKey)) return;
 
         if (!isAttacking)
         {
@@ -996,7 +1009,7 @@ public class PlayerController : MonoBehaviour
     // ── 건틀릿: 콤보 + 피격 시 속도 스택 ──────────────────
     void HandleGauntletInput()
     {
-        if (!Input.GetKeyDown(KeyCode.X)) return;
+        if (!Input.GetKeyDown(AttackKey)) return;
         if (!isAttacking) StartAttack(1);
         else if (comboQueued == 0) comboQueued = comboIndex + 1;
     }
@@ -1112,6 +1125,30 @@ public class PlayerController : MonoBehaviour
 
         comboTimer -= Time.deltaTime;
         if (comboTimer <= 0f) EndAttack();
+    }
+
+    // [2026-11-11] 안전장치: 코드상 공격·차지·대시 중이 아닌데 애니메이터가 공격(1~3타)·차지 상태에
+    // 잠깐 이상 머물러 있으면(무기 획득·콤보 종료 직후 값이 어긋난 경우) 값을 정리하고 대기/낙하 동작으로 돌려보낸다.
+    // 애니메이터의 공격 상태는 '콤보 번호 0'일 때만 빠져나갈 수 있어서, 한 번 어긋나면 마지막 자세로 굳기 때문.
+    void WatchStuckAttackAnim()
+    {
+        if (animator == null || animator.runtimeAnimatorController == null) return;
+        if (isAttacking || isCharging || isDashing || animator.IsInTransition(0)) { stuckAttackAnimTimer = 0f; return; }
+
+        int h = animator.GetCurrentAnimatorStateInfo(0).shortNameHash;
+        bool inAttackState = h == HashAtk01 || h == HashAtk02 || h == HashAtk03 || h == HashAtkCharge;
+        if (!inAttackState) { stuckAttackAnimTimer = 0f; return; }
+
+        stuckAttackAnimTimer += Time.deltaTime;
+        if (stuckAttackAnimTimer < StuckAttackAnimLimit) return;
+
+        stuckAttackAnimTimer = 0f;
+        animator.SetInteger(ParamComboIndex, 0);
+        animator.ResetTrigger(ParamAttackTrig);
+        animator.ResetTrigger(ParamChargeAttackTrig);
+        animator.SetBool(ParamIsCharging, false);
+        animator.speed = 1f;
+        animator.CrossFadeInFixedTime(wasGrounded ? "idel" : "Jump_Fall", 0.05f, 0);
     }
 
     void HandleAnimPlayingTimeout()
@@ -1433,11 +1470,11 @@ public class PlayerController : MonoBehaviour
         if (hitCancelTimer < EquippedWeapon.hitCancelDelay) return;
 
         // 망치: 콤보 도중 X를 길게 눌러 차지로 넘어가는 중이면 끊지 않음
-        if (chargeHoldTracking && Input.GetKey(KeyCode.X)) return;
+        if (chargeHoldTracking && Input.GetKey(AttackKey)) return;
 
         // 점프 캔슬 — 공격을 끝내 두면 바로 아래 Jump()가 그대로 점프시킨다 (아래+점프 = 발판 내리기는 제외)
         bool downKey = Input.GetAxisRaw("Vertical") < -0.5f;
-        if (Input.GetKeyDown(KeyCode.C) && !downKey && JumpCount < 2)
+        if (Input.GetKeyDown(JumpKey) && !downKey && JumpCount < 2)
         {
             EndAttack();
             animator.CrossFade("Jump_Rise", 0.05f, 0); // 3타처럼 끝까지 재생해야 빠져나오는 동작도 바로 점프 동작으로
@@ -1486,7 +1523,7 @@ public class PlayerController : MonoBehaviour
                 EnterChargeDirectly();
                 return;
             }
-            if (chargeHoldTracking && Input.GetKey(KeyCode.X))
+            if (chargeHoldTracking && Input.GetKey(AttackKey))
             {
                 // 아직 다 채우진 못했지만 누르고 있는 중 → 누른 시간을 이어서 차지 진행
                 float held = chargeHeldTime;
@@ -1510,6 +1547,7 @@ public class PlayerController : MonoBehaviour
         chargeQueued = false;
         animator.SetInteger(ParamComboIndex, 0);
         animator.ResetTrigger(ParamAttackTrig);
+        animator.ResetTrigger(ParamChargeAttackTrig);      // [2026-11-11] 남은 강타 신호 제거
         animator.speed = 1f; // 공격 끝나면 속도 복원
         hitCancelTimer = -1f; // [2026-10-18 추가]
     }
@@ -1523,7 +1561,9 @@ public class PlayerController : MonoBehaviour
         pendingChargedAttack = false;
         chargeHoldTracking = false;
         chargeQueued = false;
+        animator.SetInteger(ParamComboIndex, 0);           // [2026-11-11] 애니메이터가 공격 상태에서 빠져나가게
         animator.ResetTrigger(ParamAttackTrig);
+        animator.ResetTrigger(ParamChargeAttackTrig);      // [2026-11-11] 남은 강타 신호 제거
         hitCancelTimer = -1f; // [2026-10-18 추가]
     }
 

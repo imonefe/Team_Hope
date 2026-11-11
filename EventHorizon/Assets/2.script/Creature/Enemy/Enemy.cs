@@ -13,6 +13,8 @@ public class Enemy : MonoBehaviour
     float chaseHoldTimer = 0f;
     public float knockbackForce = 5f;
     public float knockbackDuration = 0.2f;
+    [Tooltip("[2026-11-11] 체크하면 플레이어를 쫓을 때도 발판 끝에서 멈춘다 (떨어지지 않음)")]
+    public bool stayOnPlatform = true;
     public float hitFlashTime = 0.1f;
     public Material flashMaterial;
 
@@ -360,9 +362,18 @@ public class Enemy : MonoBehaviour
 
         if (isGrounded)
         {
-            Move();
-            // 추적 중엔 엣지체크 스킵 (낙하해서라도 쫓아감)
-            if (!isChasing) EdgeCheck();
+            // [2026-11-11] 추적 중에도 발판 끝에서는 떨어지지 않고 멈춰서 플레이어를 바라봄
+            // (예전: 추적 중엔 엣지체크를 건너뛰어 낙하해서라도 쫓아감 — stayOnPlatform 끄면 예전 방식)
+            if (isChasing && stayOnPlatform && !HasGroundAhead())
+            {
+                rigid.velocity = new Vector2(0f, rigid.velocity.y);
+                anim.SetBool("isMove", false);
+            }
+            else
+            {
+                Move();
+                if (!isChasing) EdgeCheck();
+            }
         }
 
         Flip();
@@ -458,6 +469,13 @@ public class Enemy : MonoBehaviour
     {
         Vector2 origin = (Vector2)transform.position + Vector2.down * 0.5f;
         isGrounded = Physics2D.Raycast(origin, Vector2.down, 1f, LayerMask.GetMask("ground", "platform"));
+    }
+
+    // [2026-11-11] 진행 방향 앞에 땅이 있는지 (EdgeCheck와 같은 기준)
+    bool HasGroundAhead()
+    {
+        Vector2 front = (Vector2)transform.position + new Vector2(NextMove * 0.9f, 0);
+        return Physics2D.Raycast(front, Vector2.down, 1.5f, LayerMask.GetMask("ground", "platform"));
     }
 
     void EdgeCheck()
@@ -771,7 +789,18 @@ public class Enemy : MonoBehaviour
         // [2026-10-10 추가] 피격 모션이 없는 적은 공격 클립이 계속 재생돼 공격 자세로 미끄러지므로 대기 상태로 끊는다
         else if (wasAttacking && anim != null) anim.CrossFadeInFixedTime(HashIdleState, 0.05f, 0);
         rigid.velocity = Vector2.zero;
-        rigid.AddForce(new Vector2(dir * knockbackForce, 2f), ForceMode2D.Impulse);
+        // [2026-11-11] 밀려날 쪽이 발판 끝(아래에 땅이 없음)이면 좌우 넉백 0 — 맞아서 떨어지지 않게
+        float kbX = dir * knockbackForce;
+        if (isGrounded && dir != 0)
+        {
+            int groundMask = LayerMask.GetMask("ground", "platform");
+            foreach (float ahead in new[] { 0.9f, 1.6f })
+            {
+                Vector2 back = (Vector2)transform.position + new Vector2(Mathf.Sign(dir) * ahead, 0f);
+                if (!Physics2D.Raycast(back, Vector2.down, 1.5f, groundMask)) { kbX = 0f; break; }
+            }
+        }
+        rigid.AddForce(new Vector2(kbX, 2f), ForceMode2D.Impulse);
         StartCoroutine(KnockbackRoutine());
         if (hitFlashRoutine != null) StopCoroutine(hitFlashRoutine);
         hitFlashRoutine = StartCoroutine(HitFlash());

@@ -7,6 +7,8 @@
 /// </summary>
 public class PauseManager : PersistentSingleton<PauseManager>
 {
+    public const KeyCode PauseKey = KeyCode.T;   // [2026-11-11] 퍼즈 키 (Q → Tab → T)
+
     [Header("퍼즈 설정")]
     [Tooltip("적·투사체 속도 배율 (0.1 = 10% 속도)")]
     public float slowTimeScale = 0.1f;
@@ -95,16 +97,19 @@ public class PauseManager : PersistentSingleton<PauseManager>
         if (Time.timeScale == 0f) return;
 
         // 테스트용 Shift+Q → 게이지 즉시 충전 (Q키 처리보다 먼저 해야 같은 프레임에 바로 발동된다)
-        if (Input.GetKeyDown(KeyCode.Q) && Input.GetKey(KeyCode.LeftShift))
+        // [2026-11-11] 대시(Shift)+평타(Q)와 겹쳐서 실수로 충전되므로 에디터에서만, Ctrl+T 로 변경
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(PauseKey) && Input.GetKey(KeyCode.LeftControl))
         {
             GaugeValue = 100f;
         }
+#endif
 
         // Q키 입력
         // 대화 등으로 조작이 잠겨 있으면 새로 발동하지 않음 (해제는 허용)
         bool locked = PlayerController.Instance != null && PlayerController.Instance.IsControlLocked;
 
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(PauseKey))
         {
             if (!IsPaused && GaugeValue >= 100f && !locked)
                 ActivatePause();

@@ -46,6 +46,10 @@ public class CharacterSkills : MonoBehaviour
         if (prefab == null) return false;                 // 빈 슬롯
         if (Time.time < cooldownEndTime[slot]) return false; // 쿨타임 중
 
+        // [2026-11-11] 홀로분신처럼 대상이 필요한 스킬은 화면에 적이 없으면 발동도, 쿨타임도 없이 무시
+        HoloCloneSkill holo = prefab.GetComponent<HoloCloneSkill>();
+        if (holo != null && !holo.HasEnemyOnScreen(caster != null ? caster : transform)) return false;
+
         int facing = GetFacing();
 
         // 프리팹 생성 후 발동
