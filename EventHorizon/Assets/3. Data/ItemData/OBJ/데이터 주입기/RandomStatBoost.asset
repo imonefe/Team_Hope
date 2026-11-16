@@ -16,5 +16,7 @@ MonoBehaviour:
   includeAtk: 1
   includeDef: 1
   includeSpd: 1
-  includeFocus: 1
+  includePauseDuration: 0
+  includeCritChance: 1
   amount: 3.0
+  critChancePerAmount: 0.02

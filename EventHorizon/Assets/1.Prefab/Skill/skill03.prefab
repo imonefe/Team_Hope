@@ -47,6 +47,7 @@ MonoBehaviour:
   skillType: 0
   icon: {fileID: 0}
   skillName: "\uC804\uB300\uC758 \uAE0D\uC9C0"
+  tier: 0
   description: "\uC5B4\uB9B0\uC544\uC774\uB4E4\uC758 \uC560\uB2C8\uBA54\uC774\uC158\uC5D0\uC11C
     \uB098\uC628 \uD544\uC0B4\uAE30\uB97C \uC7AC\uD604\uD55C \uC7A5\uB09C\uAC10\uC785\uB2C8\uB2E4."
   cooldown: 12

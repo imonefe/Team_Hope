@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum NowAdvantage { None, Speed, Defense, Power }
+// [2026-11-16 수정] 상성(스피드·방어·공격형) → 속성(참격·관통·타격). 참격 → 관통 → 타격 → 참격 순으로 앞쪽이 유리
+// 번호(0~3)는 씬·프리팹에 저장돼 있으므로 순서를 바꾸지 말 것
+public enum NowAdvantage { None = 0, Slash = 1, Pierce = 2, Blunt = 3 }   // 없음 · 참격 · 관통 · 타격
 public enum Weapontype { None, Sword, Hammer, Glove }   // [2026-10-22] 총(Gun) 제거
 
 public class PlayerController : MonoBehaviour
@@ -282,6 +284,29 @@ public class PlayerController : MonoBehaviour
             SwitchWeapon(weapons[0]);
     }
 
+    // ── [2026-11-16 추가] 무기 교체 (Tab) ─────────────────
+    // weapons 목록(인스펙터) 순서대로 다음 무기로 바꾼다. 끝이면 처음으로. 목록이 2개 미만이면 아무 일도 안 함.
+    // 무기 줍기(Weapon.ApplyTo)와 같은 순서: 이전 무기 능력치 빼기 → 새 무기 능력치 더하기 → SwitchWeapon
+    // (공격·차지 중이었으면 SwitchWeapon 이 먼저 정리한다)
+    void HandleWeaponSwap()
+    {
+        if (!KeyBindings.Down(KeyAction.WeaponSwap)) return;
+        if (weapons == null || weapons.Length < 2) return;
+
+        int cur = System.Array.IndexOf(weapons, EquippedWeapon);
+        WeaponData next = null;
+        for (int step = 1; step <= weapons.Length; step++)
+        {
+            WeaponData w = weapons[((cur < 0 ? -1 : cur) + step + weapons.Length) % weapons.Length];
+            if (w != null && w != EquippedWeapon) { next = w; break; }
+        }
+        if (next == null) return;
+
+        if (EquippedWeapon != null && stats != null) EquippedWeapon.RemoveStats(stats);
+        if (stats != null) next.ApplyStats(stats);
+        SwitchWeapon(next);
+    }
+
     // ── 무기 전환 ─────────────────────────────────────────
     public void SwitchWeapon(WeaponData newWeapon)
     {
@@ -337,6 +362,8 @@ public class PlayerController : MonoBehaviour
         if (hitStunTimer > 0f) hitStunTimer -= Time.deltaTime;
 
         TryHitCancel(); // [2026-10-18 추가] 타격 후 캔슬 — 이동·점프보다 먼저 확인해야 같은 프레임에 바로 움직임
+
+        HandleWeaponSwap(); // [2026-11-16 추가] Tab → 다음 무기
 
         Desh();
         Jump();
@@ -1579,13 +1606,15 @@ public class PlayerController : MonoBehaviour
     // ── 무기 획득 ─────────────────────────────────────────
     void OnTriggerEnter2D(Collider2D obj)
     {
-        Weapon weapon = obj.GetComponentInParent<Weapon>();
-        if (weapon != null)
-        {
-            weapon.ApplyTo(stats, this); // SwitchWeapon 안에서 OnWeaponChanged를 이미 호출함 (여기서 또 부르면 두 번)
-            Destroy(weapon.gameObject);
-            return;
-        }
+        // [2026-11-16 삭제] 무기 줍기 — Tab으로 검·건틀릿·망치를 언제든 바꿀 수 있게 되면서 뺐다.
+        // 되살리려면 아래 주석을 풀면 된다 (무기 줍기 프리팹 Sword/Glove/Hammer 는 그대로 남아 있음)
+        // Weapon weapon = obj.GetComponentInParent<Weapon>();
+        // if (weapon != null)
+        // {
+        //     weapon.ApplyTo(stats, this);
+        //     Destroy(weapon.gameObject);
+        //     return;
+        // }
 
         // ── 스킬 획득 (박스 등에서 드랍된 SkillPickup에 닿으면 즉시 습득) ──
         // [2026-10-17] F키 줍기가 켜진 스킬 구슬은 SkillPickup 쪽에서 팝업 + F키로 처리하므로 여기서는 건너뜀

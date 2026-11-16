@@ -47,6 +47,7 @@ MonoBehaviour:
   skillType: 0
   icon: {fileID: -598861243, guid: 939d0d8a0d4246645965c31278afa7c3, type: 3}
   skillName: "\uD654\uCC28"
+  tier: 1
   description: "\uBD88\uAF43\uC73C\uB85C \uD615\uC131\uB41C \uAE30\uB465\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4."
   cooldown: 14
   spawnOffset: {x: 1, y: 0.8}

@@ -89,4 +89,17 @@ public class Inventory : MonoBehaviour
         passives.Add(item);
         OnInventoryChanged?.Invoke();
     }
+
+    /// <summary>
+    /// [2026-11-16 추가] 상점 판매용 — 목록에서만 뺀다. 아이템 효과(능력치 등)는 되돌리지 않는다.
+    /// index 위치에 item 이 있으면 그것을, 아니면 같은 아이템 중 첫 번째를 뺀다.
+    /// </summary>
+    public bool RemovePassiveAt(int index, ItemData item)
+    {
+        if (item == null) return false;
+        if (index >= 0 && index < passives.Count && passives[index] == item) passives.RemoveAt(index);
+        else if (!passives.Remove(item)) return false;
+        OnInventoryChanged?.Invoke();
+        return true;
+    }
 }

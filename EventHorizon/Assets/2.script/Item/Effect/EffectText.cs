@@ -12,7 +12,9 @@ public static class EffectText
     public const string Atk = "공격력";
     public const string Def = "방어력";
     public const string Spd = "이동속도";
-    public const string Focus = "집중력";
+    public const string PauseDuration = "퍼즈 지속시간";   // [2026-11-16 수정] 집중력 → 퍼즈 지속시간으로 이름 변경
+    public const string CritChance = "치명타 확률";
+    public const string CritMultiplier = "치명타 배율";
 
     // ── 색상 (TMP 리치텍스트) ──────────────────────────────
     public const string BuffColor = "#7CE38B";   // + (증가)
@@ -42,8 +44,11 @@ public static class EffectText
         AddOne(lines, Def, m.defPercent, true);
         AddOne(lines, Spd, m.spd, false);
         AddOne(lines, Spd, m.spdPercent, true);
-        AddOne(lines, Focus, m.focus, false);
-        AddOne(lines, Focus, m.focusPercent, true);
+        AddOne(lines, PauseDuration, m.pauseDuration, false);
+        AddOne(lines, PauseDuration, m.pauseDurationPercent, true);
+        AddOne(lines, CritChance, m.critChance, true);          // 0.06 → +6%
+        if (!Mathf.Approximately(m.critMultiplier, 0f))
+            lines.Add(CritMultiplier + " " + Signed(m.critMultiplier) + "배");
     }
 
     /// <summary>StatModifier 전체를 한 줄로 ("공격력 +3, 방어력 +2"). 값이 하나도 없으면 빈 문자열</summary>

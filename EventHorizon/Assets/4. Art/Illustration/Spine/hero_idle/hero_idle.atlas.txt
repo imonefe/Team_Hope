@@ -1,0 +1,14 @@
+hero_idle.png
+size:2048,2048
+filter:Linear,Linear
+pma:false
+body
+bounds:2,2,839,1576
+coattail
+bounds:843,2,177,664
+cord
+bounds:1022,2,154,519
+hair
+bounds:1178,2,280,326
+hair_neck
+bounds:1460,2,53,107

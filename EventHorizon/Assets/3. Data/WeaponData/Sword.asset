@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sword
   m_EditorClassIdentifier: 
   weapontype: 1
-  advantage: 3
+  advantage: 1
   animatorOverride: {fileID: 22100000, guid: 803b05af23736ec42b49fbcfed8846ba, type: 2}
   statBonus:
     hp: 0

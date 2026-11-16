@@ -14,7 +14,7 @@ public class Box : ProximityInteractable
     public bool dropSkillAndWeapon = false;
     [Tooltip("SkillPickup 컴포넌트가 붙은 프리팹들 (왼쪽으로 드랍)")]
     public GameObject[] skillPickupPrefabs;
-    [Tooltip("Weapon 컴포넌트가 붙은 프리팹들 (오른쪽으로 드랍)")]
+    [Tooltip("[2026-11-16] 쓰지 않음 — 무기 보상 삭제 (Tab 무기 교체). 채워 두어도 무기는 나오지 않는다")]
     public GameObject[] weaponPickupPrefabs;
 
     [Header("아이템 튀어오르는 힘")]
@@ -34,6 +34,8 @@ public class Box : ProximityInteractable
 
     bool isActive = false;
     bool isOpened = false;
+    /// <summary>[2026-11-16 추가] 열렸는지 (튜토리얼 통과 조건용, 읽기 전용)</summary>
+    public bool IsOpened => isOpened;
 
     void Awake()
     {
@@ -108,8 +110,7 @@ public class Box : ProximityInteractable
         {
             if (b.skillPickupPrefabs != null)
                 foreach (var p in b.skillPickupPrefabs) if (p != null && CanDropSkill(p)) return true;
-            if (b.weaponPickupPrefabs != null)
-                foreach (var p in b.weaponPickupPrefabs) if (p != null && CanDropWeapon(p)) return true;
+            // [2026-11-16] 무기 보상 삭제 — 무기는 '줄 수 있는 것'으로 치지 않는다
             return false;
         }
         return PickNewItemPrefab(b.itemPrefabs) != null;
@@ -184,7 +185,8 @@ public class Box : ProximityInteractable
             // [2026-10-10 수정] 플레이어가 지금 들고 있는 무기 / 이미 가진 스킬 / 넣을 칸이 없는 스킬은 후보에서 뺀다.
             // 남은 후보가 없으면 그 자리는 재화로 대신 준다.
             LaunchOne(skillPickupPrefabs, pos, -1, CanDropSkill);  // 스킬 — 왼쪽
-            LaunchOne(weaponPickupPrefabs, pos, 1, CanDropWeapon); // 무기 — 오른쪽
+            // [2026-11-16 삭제] 무기 보상 — Tab 무기 교체로 무기를 줍지 않게 되어 뺐다 (목록이 채워져 있어도 무기는 나오지 않음)
+            // LaunchOne(weaponPickupPrefabs, pos, 1, CanDropWeapon); // 무기 — 오른쪽
             return;
         }
 

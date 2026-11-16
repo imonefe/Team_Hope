@@ -19,7 +19,9 @@ public class FadeEffect : RepeatingStatEffect
             atkPercent = modifier.atkPercent,
             defPercent = modifier.defPercent,
             spdPercent = modifier.spdPercent,
-            focusPercent = modifier.focusPercent,
+            pauseDurationPercent = modifier.pauseDurationPercent,
+            critChance = modifier.critChance,          // [2026-11-16] 치명타는 서서히 줄이지 않고 끝날 때 한 번에 제거
+            critMultiplier = modifier.critMultiplier,
             hpPercent = modifier.hpPercent
         };
         StatSnapshot pctSnap = pctOnly.Apply(stats);
@@ -28,14 +30,14 @@ public class FadeEffect : RepeatingStatEffect
         float lastAtk = modifier.atk;
         float lastDef = modifier.def;
         float lastSpd = modifier.spd;
-        float lastFocus = modifier.focus;
+        float lastPause = modifier.pauseDuration;
 
         // 고정값 즉시 적용
         stats.Atk += lastAtk;
         stats.Def += lastDef;
         stats.spd += lastSpd;
         stats.itemSpdBonus += lastSpd;
-        stats.Focus += lastFocus;
+        stats.PauseDuration += lastPause;
 
         float elapsed = 0f;
         while (elapsed < duration)
@@ -46,18 +48,18 @@ public class FadeEffect : RepeatingStatEffect
             float newAtk = modifier.atk * ratio;
             float newDef = modifier.def * ratio;
             float newSpd = modifier.spd * ratio;
-            float newFocus = modifier.focus * ratio;
+            float newPause = modifier.pauseDuration * ratio;
 
             stats.Atk += newAtk - lastAtk;
             stats.Def += newDef - lastDef;
             stats.spd += newSpd - lastSpd;
             stats.itemSpdBonus += newSpd - lastSpd;
-            stats.Focus += newFocus - lastFocus;
+            stats.PauseDuration += newPause - lastPause;
 
             lastAtk = newAtk;
             lastDef = newDef;
             lastSpd = newSpd;
-            lastFocus = newFocus;
+            lastPause = newPause;
 
             yield return null;
         }
@@ -67,7 +69,7 @@ public class FadeEffect : RepeatingStatEffect
         stats.Def -= lastDef;
         stats.spd -= lastSpd;
         stats.itemSpdBonus -= lastSpd;
-        stats.Focus -= lastFocus;
+        stats.PauseDuration -= lastPause;
 
         // 퍼센트 스냅샷으로 정확히 원복
         StatModifier.Remove(stats, pctSnap);

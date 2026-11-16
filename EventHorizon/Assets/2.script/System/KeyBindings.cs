@@ -14,6 +14,7 @@ public enum KeyAction
     Pause,      // 퍼즈
     Interact,   // 상호작용 (문·상자·대화)
     Inventory,  // 인벤토리
+    WeaponSwap, // [2026-11-16 추가] 무기 교체 (검 → 건틀릿 → 망치 순환)
 }
 
 /// <summary>
@@ -38,6 +39,7 @@ public static class KeyBindings
         { KeyAction.Pause, KeyCode.D },
         { KeyAction.Interact, KeyCode.F },
         { KeyAction.Inventory, KeyCode.I },
+        { KeyAction.WeaponSwap, KeyCode.Tab },   // [2026-11-16 추가]
     };
 
     static readonly Dictionary<KeyAction, KeyCode> current = new Dictionary<KeyAction, KeyCode>();
@@ -182,6 +184,7 @@ public static class KeyBindings
             case KeyAction.Pause: return "퍼즈";
             case KeyAction.Interact: return "상호작용";
             case KeyAction.Inventory: return "인벤토리";
+            case KeyAction.WeaponSwap: return "무기 교체";
             default: return action.ToString();
         }
     }

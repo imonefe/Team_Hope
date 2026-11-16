@@ -3,7 +3,7 @@
 /// <summary>
 /// 퍼즈 시스템 관리
 /// Q키 → 세상이 천천히 멈춤 / 플레이어만 정상 이동
-/// 지속시간 = Focus 기반 (이동거리 제한은 삭제됨 — MaxDist/RemainingDist 값만 남아 있음)
+/// 지속시간 = 플레이어 PauseDuration(초), 최대 maxPauseTime (이동거리 제한은 삭제됨 — MaxDist/RemainingDist 값만 남아 있음)
 /// </summary>
 public class PauseManager : PersistentSingleton<PauseManager>
 {
@@ -13,8 +13,9 @@ public class PauseManager : PersistentSingleton<PauseManager>
     [Tooltip("적·투사체 속도 배율 (0.1 = 10% 속도)")]
     public float slowTimeScale = 0.1f;
 
-    [Tooltip("Focus 1당 퍼즈 유지 시간 (초)")]
-    public float timePerFocus = 1.0f;
+    // [2026-11-16 수정] 집중력 → 퍼즈 지속시간. 능력치 숫자가 곧 초 단위라 배율(timePerFocus) 삭제
+    [Tooltip("아이템으로 퍼즈 지속시간이 쌓여도 넘지 않는 최대 시간 (초)")]
+    public float maxPauseTime = 12f;
 
     [Tooltip("Spd 1당 이동 가능 거리")]
     public float distPerSpd = 2.0f;
@@ -144,7 +145,7 @@ public class PauseManager : PersistentSingleton<PauseManager>
         IsPaused = true;
         GaugeValue = 0f;
 
-        maxTime = playerStats.Focus * timePerFocus;
+        maxTime = Mathf.Clamp(playerStats.PauseDuration, 0f, maxPauseTime);
         maxDist = playerStats.spd * distPerSpd;
         elapsedRealTime = 0f;
         RemainingTime = maxTime;

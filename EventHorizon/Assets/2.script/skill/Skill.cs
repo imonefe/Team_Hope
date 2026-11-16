@@ -80,6 +80,8 @@ public class Skill : MonoBehaviour
     public SkillType skillType = SkillType.Weapon;
     public Sprite icon;
     public string skillName;
+    [Tooltip("[2026-11-16 추가] 스킬 등급 — 스킬 상점의 진열 확률·가격·카드 색에 쓰인다 (아이템 등급과 같은 단계)")]
+    public ItemTier tier = ItemTier.Common;
     [Tooltip("스킬 설명·효과 (인벤토리 UI 표시용)")]
     [TextArea] public string description;
 

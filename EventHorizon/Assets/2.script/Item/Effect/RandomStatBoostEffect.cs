@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// 후보 스탯 중 하나를 무작위로 골라, 지정한 크기만큼 영구 적용한다.
@@ -14,10 +15,14 @@ public class RandomStatBoostEffect : ItemEffect
     public bool includeAtk = true;
     public bool includeDef = true;
     public bool includeSpd = true;
-    public bool includeFocus = true;
+    [FormerlySerializedAs("includeFocus")] public bool includePauseDuration = false;   // [2026-11-16 수정] 집중력 → 퍼즈 지속시간으로 이름 변경
+    [Tooltip("[2026-11-16 추가] 뽑히면 치명타 확률 + (적용 크기 × 아래 비율)")]
+    public bool includeCritChance = true;
 
     [Header("적용 크기 (고정값)")]
     public float amount = 4f;
+    [Tooltip("치명타 확률로 뽑혔을 때 적용 크기 1당 확률 (0.02 = 2%). 적용 크기 3이면 +6%")]
+    public float critChancePerAmount = 0.02f;
 
     public override void Apply(Stats stats, MonoBehaviour runner)
     {
@@ -26,7 +31,8 @@ public class RandomStatBoostEffect : ItemEffect
         if (includeAtk) candidates.Add(1);
         if (includeDef) candidates.Add(2);
         if (includeSpd) candidates.Add(3);
-        if (includeFocus) candidates.Add(4);
+        if (includePauseDuration) candidates.Add(4);
+        if (includeCritChance) candidates.Add(5);
 
         if (candidates.Count == 0) return;
 
@@ -39,7 +45,8 @@ public class RandomStatBoostEffect : ItemEffect
             case 1: modifier.atk = amount; break;
             case 2: modifier.def = amount; break;
             case 3: modifier.spd = amount; break;
-            case 4: modifier.focus = amount; break;
+            case 4: modifier.pauseDuration = amount; break;
+            case 5: modifier.critChance = amount * critChancePerAmount; break;
         }
 
         modifier.Apply(stats);
@@ -53,11 +60,18 @@ public class RandomStatBoostEffect : ItemEffect
         if (includeAtk) names.Add(EffectText.Atk);
         if (includeDef) names.Add(EffectText.Def);
         if (includeSpd) names.Add(EffectText.Spd);
-        if (includeFocus) names.Add(EffectText.Focus);
+        if (includePauseDuration) names.Add(EffectText.PauseDuration);
+        if (includeCritChance) names.Add(EffectText.CritChance);
         if (names.Count == 0) return;
 
         string value = EffectText.Signed(names.Count == 1 && includeHp ? Mathf.RoundToInt(amount) : amount);
-        if (names.Count == 5) lines.Add("무작위 스탯 1개 " + value);
+        // 치명타 확률은 단위가 달라(%) 한 줄로 묶어 쓰면 숫자가 헷갈림 → 확률 수치를 따로 표기
+        if (includeCritChance)
+        {
+            int i = names.IndexOf(EffectText.CritChance);
+            names[i] = EffectText.CritChance + "(" + EffectText.Num(amount * critChancePerAmount * 100f) + "%)";
+        }
+        if (names.Count == 6) lines.Add("무작위 스탯 1개 " + value);
         else if (names.Count == 1) lines.Add(names[0] + " " + value);
         else lines.Add(string.Join("·", names) + " 중 1개 " + value);
     }

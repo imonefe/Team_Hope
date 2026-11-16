@@ -70,6 +70,9 @@ public class UILoader : MonoBehaviour
         // 메뉴를 닫으면 게임오버 뒤에서 게임이 다시 흘렀음)
         if (GamePause.Has(GamePause.GameOver)) return;
 
+        // [2026-11-16 추가] 상점 화면이 열려 있거나 방금 Esc로 닫혔으면 ESC 메뉴를 열지 않는다 (상점이 Esc를 먼저 처리)
+        if (ShopWindow.BlocksEscape) return;
+
         // 인벤토리가 열려있는 상태에서 ESC를 누르면 설정 메뉴를 열지 않고 인벤토리부터 닫는다.
         if (Inventory.Instance != null && Inventory.Instance.IsOpen)
         {

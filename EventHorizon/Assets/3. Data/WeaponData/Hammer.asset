@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Hammer
   m_EditorClassIdentifier: 
   weapontype: 2
-  advantage: 2
+  advantage: 3
   animatorOverride: {fileID: 22100000, guid: 52dcad46ad00c0243b9d3648afa97d27, type: 2}
   statBonus:
     hp: 0

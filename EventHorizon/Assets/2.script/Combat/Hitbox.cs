@@ -223,7 +223,7 @@ public class Hitbox : MonoBehaviour
         int finalDamage = baseDamage;
         if (attacker != null)
         {
-            float critChance = attacker.critChance;
+            float critChance = attacker.EffectiveCritChance;   // [2026-11-16] 상한 적용
             if (byPlayer && PauseManager.Instance != null && PauseManager.Instance.IsPaused)
                 critChance = Mathf.Max(critChance, PauseManager.Instance.pauseCritChance);
             isCrit = Random.value < critChance;
@@ -239,7 +239,8 @@ public class Hitbox : MonoBehaviour
         if (clip != null) AudioManager.PlaySFX(clip, hitPos);
 
         target.TakeDamage(finalDamage, direction, knockbackX, knockbackY);
-        FloatingTextSpawner.SpawnDamage(hitPos, finalDamage, isCrit);
+        if (target.IsInvulnerable) FloatingTextSpawner.SpawnText(hitPos, "무적", Color.gray);   // [2026-11-16] 코어 보호막
+        else FloatingTextSpawner.SpawnDamage(hitPos, finalDamage, isCrit);
         if (isCrit && byPlayer) YoungbokChatter.OnPlayerCrit();   // [2026-10-27] 영복 잡담 (5%)
         return true;
     }
@@ -264,7 +265,7 @@ public class Hitbox : MonoBehaviour
         if (!target.CanBeHit()) return;
 
         // 피해 계산식 (기획서 기준) — 공통 공식은 Stats.CalculateEffectiveDamage() 참고
-        // 유효방어 = 방어력 - (집중력/100)
+        // 유효방어 = 방어력   ([2026-11-16] 집중력 항 삭제)
         // 기본피해 = 공격력 - 유효방어
         // 실제피해 = 기본피해 × 속성배율 (현재 1.0)
         Stats targetStats = target.GetComponent<Stats>() ?? target.GetComponentInParent<Stats>();
@@ -275,7 +276,7 @@ public class Hitbox : MonoBehaviour
         int finalDamage = baseDamage;
         if (attackerStats != null)
         {
-            float critChance = attackerStats.critChance;
+            float critChance = attackerStats.EffectiveCritChance;   // [2026-11-16] 상한 적용
             // 퍼즈 중 플레이어 공격은 치명타 확률을 최소 PauseManager.pauseCritChance (기본 20%) 로 올림
             if (ownerLayer == "Player" && PauseManager.Instance != null && PauseManager.Instance.IsPaused)
                 critChance = Mathf.Max(critChance, PauseManager.Instance.pauseCritChance);
@@ -337,7 +338,8 @@ public class Hitbox : MonoBehaviour
         target.TakeDamage(finalDamage, direction, knockbackX, knockbackY);
 
         // 데미지 숫자 팝업 (플로팅 텍스트)
-        FloatingTextSpawner.SpawnDamage(other.transform.position, finalDamage, isCrit);
+        if (target.IsInvulnerable) FloatingTextSpawner.SpawnText(other.transform.position, "무적", Color.gray);   // [2026-11-16] 코어 보호막
+        else FloatingTextSpawner.SpawnDamage(other.transform.position, finalDamage, isCrit);
         if (isCrit && ownerLayer == "Player") YoungbokChatter.OnPlayerCrit();   // [2026-10-27] 영복 잡담 (5%)
 
     }

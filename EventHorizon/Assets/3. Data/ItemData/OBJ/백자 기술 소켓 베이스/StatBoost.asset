@@ -17,9 +17,11 @@ MonoBehaviour:
     atk: 5
     def: 4
     spd: 0
-    focus: 3
+    pauseDuration: 0
+    critChance: 0
+    critMultiplier: 0.3
     atkPercent: 0
     defPercent: 0
     spdPercent: 0
-    focusPercent: 0
+    pauseDurationPercent: 0
     hpPercent: 0

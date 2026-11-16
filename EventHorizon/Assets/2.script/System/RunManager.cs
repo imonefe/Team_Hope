@@ -42,6 +42,12 @@ public class RunManager : PersistentSingleton<RunManager>
     [Header("재화 획득 팝업 색")]
     public Color popupColor = new Color(1f, 0.85f, 0.2f, 1f); // 금색
 
+    // ───────── [2026-11-16 추가] 능력치 강화 단계 (상점 방의 강화 NPC) ─────────
+    // 이번 판 동안만 유지 — ResetRun()에서 비운다. 키는 StatUpgradeWindow가 정함 (예: "StatUpgrade.Attack")
+    readonly Dictionary<string, int> upgradeLevels = new Dictionary<string, int>();
+    public int GetUpgradeLevel(string key) => key != null && upgradeLevels.TryGetValue(key, out int lv) ? lv : 0;
+    public void SetUpgradeLevel(string key, int level) { if (key != null) upgradeLevels[key] = Mathf.Max(0, level); }
+
     // ───────── 통계 ─────────
 
     public int EnemiesKilled { get; private set; }
@@ -179,6 +185,7 @@ public class RunManager : PersistentSingleton<RunManager>
         obtainedItems.Clear();
         itemHolders.Clear();
         stackCounts.Clear();
+        upgradeLevels.Clear();   // [2026-11-16] 능력치 강화 단계 초기화
 
         Amount = 0;
         OnCurrencyChanged?.Invoke(Amount);

@@ -94,6 +94,7 @@ public abstract class ProjectileBase : MonoBehaviour
             int dir = FacingX >= 0 ? 1 : -1;
             int finalDamage = CalcDamage(damage, health);
             health.TakeDamage(finalDamage, dir, knockbackX, knockbackY);
+            if (health.IsInvulnerable) FloatingTextSpawner.SpawnText(transform.position, "무적", Color.gray);   // [2026-11-16] 코어 보호막
 
             if (hitEffectPrefab != null)
                 Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);

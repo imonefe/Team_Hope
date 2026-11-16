@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 public class Stats : MonoBehaviour
 {
@@ -52,14 +53,21 @@ public class Stats : MonoBehaviour
     [Tooltip("아이템으로 늘어난 spd 증가분(itemSpdBonus)에 실제로 얼마나 반영할지 (1 = 100% 반영, 0.5 = 절반만). 기본 spd는 항상 100% 반영됨. UI 표시와 이동속도 계산 모두 GetEffectiveSpd()를 통해 이 비율이 적용됨.")]
     [Range(0f, 1f)]
     public float itemSpeedBonusRatio = 0.5f;
-    public float Focus = 5f;   // 집중력 (퍼즈 지속시간 / 배치 오브젝트 수)
+    // [2026-11-16 수정] 집중력 → 퍼즈 지속시간으로 이름 변경. 숫자 그대로 초 단위 (5 = 5초). 상한은 PauseManager.maxPauseTime
+    [FormerlySerializedAs("Focus")]
+    public float PauseDuration = 5f;   // 퍼즈 지속시간 (초)
 
     [Header("치명타")]
     [Range(0f, 1f)]
     public float critChance = 0.1f;  // 치명타 확률 (0.1 = 10%)
     public float critMultiplier = 2f;    // 치명타 배율
 
-    [Header("상성 (공격타입 → 스피드 → 방어 → 공격타입 순으로 우위)")]
+    // [2026-11-16 추가] 아이템으로 치명타 확률이 계속 쌓여도 이 값을 넘지 않는다 (0.6 = 60%)
+    [Range(0f, 1f)] public float maxCritChance = 0.6f;
+    /// <summary>상한을 적용한 실제 치명타 확률. 피해 계산에서는 critChance 대신 이것을 쓴다.</summary>
+    public float EffectiveCritChance => Mathf.Min(critChance, maxCritChance);
+
+    [Header("속성 (참격 → 관통 → 타격 → 참격 순으로 앞쪽이 유리)")]
     public NowAdvantage advantage;
 
     [Header("힐 이펙트 (선택 — 캐릭터를 따라다님)")]
@@ -133,7 +141,8 @@ public class Stats : MonoBehaviour
 
     /// <summary>
     /// 공통 피해 계산식 (기획서 기준)
-    /// 유효방어 = 방어력 - (공격자 집중력/100), 기본피해 = 원본데미지 - 유효방어 (최소 1)
+    /// 유효방어 = 방어력, 기본피해 = 원본데미지 - 유효방어 (최소 1)
+    /// [2026-11-16 수정] 집중력이 퍼즈 지속시간으로 바뀌면서 '공격자 집중력/100' 만큼 방어를 깎던 부분 삭제
     /// requireBothStats = true 이면 attacker/target 중 하나라도 없을 때 방어 계산을 건너뛰고 원본데미지를 그대로 반환(최소 1)
     /// requireBothStats = false(기본) 이면 없는 쪽은 0으로 취급하고 계산 진행
     /// </summary>
@@ -143,8 +152,7 @@ public class Stats : MonoBehaviour
             return Mathf.Max(1, Mathf.RoundToInt(rawDamage));
 
         float targetDef = target != null ? target.Def : 0f;
-        float attackerFocus = attacker != null ? attacker.Focus : 0f;
-        float effectiveDef = Mathf.Max(0f, targetDef - (attackerFocus / 100f));
+        float effectiveDef = Mathf.Max(0f, targetDef);
         return Mathf.Max(1, Mathf.RoundToInt(rawDamage - effectiveDef));
     }
 
@@ -158,19 +166,22 @@ public class Stats : MonoBehaviour
     }
 
     /// <summary>
-    /// 상성 배율. 공격자 타입이 대상 타입보다 우위면 1.2배, 열위면 0.8배, 동타입/무속성(None)이면 1배.
-    /// 우위 순서: 공격타입(Power) → 스피드(Speed) → 방어(Defense) → 공격타입(Power)
+    /// [2026-11-16 수정] 속성 배율. 공격자 속성이 유리하면 1.5배, 불리하면 0.5배, 같은 속성·없음이면 1배 (기획서).
+    /// 유리 순서: 참격(Slash) → 관통(Pierce) → 타격(Blunt) → 참격(Slash)
     /// </summary>
+    public const float AdvantageWin = 1.5f;    // 유리
+    public const float AdvantageLose = 0.5f;   // 불리
+
     public static float GetAdvantageMultiplier(NowAdvantage attackerType, NowAdvantage defenderType)
     {
         if (attackerType == NowAdvantage.None || defenderType == NowAdvantage.None || attackerType == defenderType)
             return 1f;
 
-        bool attackerWins = (attackerType == NowAdvantage.Power && defenderType == NowAdvantage.Speed)
-                          || (attackerType == NowAdvantage.Speed && defenderType == NowAdvantage.Defense)
-                          || (attackerType == NowAdvantage.Defense && defenderType == NowAdvantage.Power);
+        bool attackerWins = (attackerType == NowAdvantage.Slash && defenderType == NowAdvantage.Pierce)
+                          || (attackerType == NowAdvantage.Pierce && defenderType == NowAdvantage.Blunt)
+                          || (attackerType == NowAdvantage.Blunt && defenderType == NowAdvantage.Slash);
 
-        return attackerWins ? 1.2f : 0.8f;
+        return attackerWins ? AdvantageWin : AdvantageLose;
     }
 
     // [2026-09-29 추가] Hitbox.cs(근접)와 ProjectileBase.cs(투사체)가 "상성 배율 곱해서 최종
@@ -187,7 +198,7 @@ public class Stats : MonoBehaviour
         Debug.Log($"[{logTag}] {(attackerStats != null ? attackerStats.name : "Unknown")}" +
             $"({(attackerStats != null ? attackerStats.advantage : NowAdvantage.None)}) → " +
             $"{targetName}({(targetStats != null ? targetStats.advantage : NowAdvantage.None)}) | " +
-            $"상성배율 x{attributeMultiplier} | 최종 데미지 {finalDamage}");
+            $"속성배율 x{attributeMultiplier} | 최종 데미지 {finalDamage}");
 #endif
 
         return finalDamage;

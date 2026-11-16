@@ -7,6 +7,9 @@ public class Health : MonoBehaviour
     public System.Func<int, int> damageAbsorber;
     // [Faust 2026-11-08] 피격 방향: 마지막으로 맞은 넉백 방향 (+1/-1). 쉴드 파문 위치용, 다른 곳엔 영향 없음
     public int lastHitDir;
+    // [2026-11-16 추가] 보스방 코어 보호막: true를 돌려주는 동안 피해 0 (맞는 반응은 그대로). 비어 있으면 기존과 같음
+    public System.Func<bool> invulnerable;
+    public bool IsInvulnerable => invulnerable != null && invulnerable();
 
     Stats stats;
 
@@ -99,6 +102,7 @@ public class Health : MonoBehaviour
 
         // [Faust 2026-11-08] 보호막: 보호막이 있으면 먼저 흡수, 남은 피해만 체력에
         lastHitDir = dir;   // [Faust 2026-11-08] 피격 방향
+        if (IsInvulnerable) damage = 0;   // [2026-11-16 추가] 코어 보호막
         if (damageAbsorber != null) damage = damageAbsorber(damage);
         if (damage > 0) stats.TakeDamage(damage);
 

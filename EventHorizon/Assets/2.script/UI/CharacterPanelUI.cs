@@ -43,7 +43,8 @@ public class CharacterPanelUI : MonoBehaviour
     public TextMeshProUGUI atkText;
     public TextMeshProUGUI defText;
     public TextMeshProUGUI spdText;
-    public TextMeshProUGUI focusText;
+    [UnityEngine.Serialization.FormerlySerializedAs("focusText")]
+    public TextMeshProUGUI pauseDurationText;   // [2026-11-16 수정] 집중력 → 퍼즈 지속시간으로 이름 변경
 
     Stats subscribedStats;
 
@@ -211,6 +212,6 @@ public class CharacterPanelUI : MonoBehaviour
         if (atkText != null) atkText.text = Mathf.RoundToInt(st.Atk).ToString();
         if (defText != null) defText.text = Mathf.RoundToInt(st.Def).ToString();
         if (spdText != null) spdText.text = Mathf.RoundToInt(st.spd).ToString();
-        if (focusText != null) focusText.text = Mathf.RoundToInt(st.Focus).ToString();
+        if (pauseDurationText != null) pauseDurationText.text = st.PauseDuration.ToString("0.#") + "초";
     }
 }

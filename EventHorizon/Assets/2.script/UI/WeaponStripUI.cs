@@ -40,12 +40,13 @@ public class WeaponStripUI : MonoBehaviour
     public string[] weaponNames = { "", "검", "망치", "건틀릿" };
 
     [Header("상성 이름 · 색")]
-    public string powerName = "공격형";
-    public string speedName = "스피드형";
-    public string defenseName = "방어형";
-    public Color powerColor = new Color(0.937f, 0.478f, 0.384f, 1f);
-    public Color speedColor = new Color(0.498f, 0.827f, 0.839f, 1f);
-    public Color defenseColor = new Color(0.624f, 0.706f, 1f, 1f);
+    // [2026-11-16 수정] 상성 → 속성 (참격·관통·타격). 예전 색 값은 그대로 이어받음
+    public string slashName = "참격";
+    public string pierceName = "관통";
+    public string bluntName = "타격";
+    [UnityEngine.Serialization.FormerlySerializedAs("speedColor")] public Color slashColor = new Color(0.498f, 0.827f, 0.839f, 1f);
+    [UnityEngine.Serialization.FormerlySerializedAs("defenseColor")] public Color pierceColor = new Color(0.624f, 0.706f, 1f, 1f);
+    [UnityEngine.Serialization.FormerlySerializedAs("powerColor")] public Color bluntColor = new Color(0.937f, 0.478f, 0.384f, 1f);
     public Color noneColor = new Color(0.7f, 0.7f, 0.7f, 1f);
 
     PlayerController player;
@@ -179,9 +180,9 @@ public class WeaponStripUI : MonoBehaviour
     {
         switch (a)
         {
-            case NowAdvantage.Power: return powerName;
-            case NowAdvantage.Speed: return speedName;
-            case NowAdvantage.Defense: return defenseName;
+            case NowAdvantage.Slash: return slashName;
+            case NowAdvantage.Pierce: return pierceName;
+            case NowAdvantage.Blunt: return bluntName;
             default: return "";
         }
     }
@@ -190,9 +191,9 @@ public class WeaponStripUI : MonoBehaviour
     {
         switch (a)
         {
-            case NowAdvantage.Power: return powerColor;
-            case NowAdvantage.Speed: return speedColor;
-            case NowAdvantage.Defense: return defenseColor;
+            case NowAdvantage.Slash: return slashColor;
+            case NowAdvantage.Pierce: return pierceColor;
+            case NowAdvantage.Blunt: return bluntColor;
             default: return noneColor;
         }
     }
