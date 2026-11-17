@@ -76,6 +76,8 @@ public class MidBossController : BossController
         public GameObject teleportInFx;
         [Tooltip("순간이동: 사라져 있는 시간 (이동 중 무적)")]
         public float teleportHideTime = 0.35f;
+        [Tooltip("부유 캐릭터일 때만: 접근해서 멈출 높이 = 플레이어 높이 + 이 값 (0 = 같은 높이, 2 = 위에서 내려찍기 자세)")]
+        public float flyHeightOffset = 0f;
 
         [Header("공격 출력 (이펙트·히트박스)")]
         public AttackSpawn[] spawns;
@@ -112,6 +114,24 @@ public class MidBossController : BossController
     [Header("[ 중간보스 — 패턴 (3~4개 권장) ]")]
     public Pattern[] patterns;
 
+    public enum HoverReference { Ground, Player }
+
+    [Header("[ 중간보스 — 공중 부유 ]")]
+    [Tooltip("켜면 중력을 끄고 공중에 떠 있음. 걷기 대신 날아서 이동")]
+    public bool isFloating = false;
+    [Tooltip("기준 높이에서 몇 칸 위에 떠 있을지")]
+    public float hoverHeight = 2f;
+    [Tooltip("높이 기준: Ground = 보스 아래 땅, Player = 플레이어 높이")]
+    public HoverReference hoverReference = HoverReference.Ground;
+    [Tooltip("밀리거나 이동 뒤 제 높이로 돌아가는 빠르기 (클수록 빨리)")]
+    public float hoverSpeed = 3f;
+    [Tooltip("둥실거림 폭 (칸). 0 = 둥실거림 없음")]
+    public float bobAmount = 0.15f;
+    [Tooltip("둥실거림 빠르기 (1초에 몇 번 오르내리는지)")]
+    public float bobSpeed = 0.6f;
+    [Tooltip("둥실거릴 그림 오브젝트 (스파인·스프라이트가 붙은 자식). 비우면 둥실거림 없음 — 판정은 흔들리지 않음")]
+    public Transform bobTarget;
+
     [Header("[ 중간보스 — 순간이동 바닥 찾기 ]")]
     [Tooltip("순간이동 도착 지점 아래 바닥을 찾을 레이어")]
     public LayerMask groundMask;
@@ -120,6 +140,9 @@ public class MidBossController : BossController
     readonly List<Renderer> hiddenRenderers = new List<Renderer>();
     readonly List<Collider2D> hiddenColliders = new List<Collider2D>();
     bool hiddenByTeleport;
+    float spineBaseTimeScale = 1f;
+    Vector3 bobBaseLocal;
+    float bobClock;
 
     bool IsSpine => animMode == AnimMode.Spine && skeletonAnimation != null;
 
@@ -139,7 +162,10 @@ public class MidBossController : BossController
         if (animator == null && animMode == AnimMode.Animator) animator = GetComponentInChildren<Animator>();
         if (skeletonAnimation == null && animMode == AnimMode.Spine) skeletonAnimation = GetComponentInChildren<SkeletonAnimation>();
         if (groundMask.value == 0) groundMask = LayerMask.GetMask("ground", "platform");
+        if (skeletonAnimation != null) spineBaseTimeScale = skeletonAnimation.timeScale;
         base.Awake();
+        if (isFloating && rigid != null) rigid.gravityScale = 0f;
+        if (bobTarget != null) bobBaseLocal = bobTarget.localPosition;
     }
 
     void Start()
@@ -159,15 +185,62 @@ public class MidBossController : BossController
         base.Update();
         if (faceDuringIdle && state == BossState.Cooldown && player != null && !IsWorldPaused)
         {
-            int dir = player.position.x >= transform.position.x ? 1 : -1;
-            if (dir != lockedDir) FlipTo(dir);
+            // 플레이어가 거의 바로 위·아래에 있으면 돌지 않음 (매 프레임 좌우로 떨리는 것 방지)
+            float dx = player.position.x - transform.position.x;
+            if (Mathf.Abs(dx) > 0.2f)
+            {
+                int dir = dx > 0f ? 1 : -1;
+                if (dir != lockedDir) FlipTo(dir);
+            }
         }
     }
 
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        if (IsSpine) skeletonAnimation.timeScale = IsWorldPaused ? 0f : 1f;
+        // 퍼즈 중엔 0, 풀리면 제작자가 정해 둔 재생 속도로 되돌림 (1로 덮어쓰지 않음)
+        if (IsSpine) skeletonAnimation.timeScale = IsWorldPaused ? 0f : spineBaseTimeScale;
+
+        if (isFloating && !IsWorldPaused && !hiddenByTeleport && rigid != null && rigid.simulated)
+        {
+            rigid.gravityScale = 0f;
+            if (state == BossState.Inactive || state == BossState.Cooldown)
+            {
+                // 목표 높이로 부드럽게 (가로 속도는 건드리지 않음)
+                float vy = 0f;
+                if (TryGetHoverTargetY(out float targetY))
+                    vy = Mathf.Clamp((targetY - transform.position.y) * hoverSpeed, -8f, 8f);
+                rigid.velocity = new Vector2(rigid.velocity.x * 0.8f, vy);
+            }
+            else if (state == BossState.Attacking)
+            {
+                rigid.velocity = Vector2.zero;   // 공격 중엔 공중 정지 (공격 위치가 흔들리지 않게)
+            }
+        }
+    }
+
+    // 부유 높이 목표. 바닥 기준인데 아래가 낭떠러지면 false (지금 높이 유지)
+    bool TryGetHoverTargetY(out float y)
+    {
+        y = transform.position.y;
+        if (hoverReference == HoverReference.Player)
+        {
+            if (player == null) return false;
+            y = player.position.y + hoverHeight;
+            return true;
+        }
+        RaycastHit2D below = Physics2D.Raycast(transform.position, Vector2.down, hoverHeight + 10f, groundMask);
+        if (below.collider == null) return false;
+        y = below.point.y + hoverHeight;
+        return true;
+    }
+
+    // 둥실거림: 그림 자식만 위아래로 (퍼즈 중엔 멈춤)
+    void LateUpdate()
+    {
+        if (!isFloating || bobTarget == null || bobAmount <= 0f) return;
+        if (!IsWorldPaused) bobClock += Time.deltaTime;
+        bobTarget.localPosition = bobBaseLocal + new Vector3(0f, Mathf.Sin(bobClock * bobSpeed * Mathf.PI * 2f) * bobAmount, 0f);
     }
 
     // ───────────────────────── 대기 ─────────────────────────
@@ -201,6 +274,7 @@ public class MidBossController : BossController
         {
             state = BossState.Moving;
             if (p.useTeleport) yield return TeleportNearPlayer(p);
+            else if (isFloating) yield return FlyToPlayer(p);
             else yield return WalkToPlayer(p);
         }
 
@@ -240,19 +314,20 @@ public class MidBossController : BossController
         int dir = lockedDir >= 0 ? 1 : -1;
         Vector3 pos = transform.position + new Vector3(s.offset.x * dir, s.offset.y, 0f);
 
+        // 먼저 바라보는 쪽으로 뒤집은 뒤 붙인다 — 붙인 다음 뒤집으면 왼쪽을 볼 때 한 번 더 뒤집혀 반대가 됨
         if (s.effectPrefab != null)
         {
             GameObject fx = Instantiate(s.effectPrefab, pos, s.effectPrefab.transform.rotation);
-            if (s.followBoss) fx.transform.SetParent(transform, true);   // 부모가 뒤집혀 있으면 함께 뒤집힘
-            else FaceObject(fx.transform, dir);
+            FaceObject(fx.transform, dir);
+            if (s.followBoss) fx.transform.SetParent(transform, true);
             if (s.effectLifetime > 0f) Destroy(fx, s.effectLifetime);
         }
 
         if (s.hitboxPrefab != null)
         {
             GameObject obj = Instantiate(s.hitboxPrefab, pos, s.hitboxPrefab.transform.rotation);
+            FaceObject(obj.transform, dir);
             if (s.followBoss) obj.transform.SetParent(transform, true);
-            else FaceObject(obj.transform, dir);
 
             Hitbox hb = obj.GetComponent<Hitbox>();
             if (hb != null)
@@ -285,6 +360,7 @@ public class MidBossController : BossController
 
             int dir = dx >= 0 ? 1 : -1;
             if (dir != lockedDir) FlipTo(dir);
+            if (!HasGroundAhead(dir)) break;   // 앞이 낭떠러지면 멈추고 그 자리에서 공격
             if (!IsWorldPaused)
             {
                 rigid.velocity = new Vector2(dir * p.approachSpeed, rigid.velocity.y);
@@ -293,6 +369,34 @@ public class MidBossController : BossController
             yield return null;
         }
         rigid.velocity = new Vector2(0f, rigid.velocity.y);
+        PlayIdle();
+    }
+
+    // ───────────────────────── 접근: 날아서 이동 (부유 캐릭터) ─────────────────────────
+    IEnumerator FlyToPlayer(Pattern p)
+    {
+        PlayMove();
+        float timer = 0f;
+        while (player != null && timer < p.maxApproachTime)
+        {
+            float side = Mathf.Sign(transform.position.x - player.position.x);
+            if (side == 0f) side = -lockedDir;
+            Vector2 target = new Vector2(player.position.x + side * p.approachDistance, player.position.y + p.flyHeightOffset);
+            Vector2 to = target - (Vector2)transform.position;
+            if (to.magnitude <= 0.2f) break;
+
+            int face = player.position.x >= transform.position.x ? 1 : -1;
+            if (face != lockedDir) FlipTo(face);
+            if (!IsWorldPaused)
+            {
+                // 마지막 구간은 속도를 줄여서 목표를 지나치지 않게
+                float spd = Mathf.Min(p.approachSpeed, to.magnitude / Mathf.Max(Time.deltaTime, 0.0001f));
+                rigid.velocity = to.normalized * spd;
+                timer += Time.deltaTime;
+            }
+            yield return null;
+        }
+        rigid.velocity = Vector2.zero;
         PlayIdle();
     }
 
@@ -308,27 +412,61 @@ public class MidBossController : BossController
         if (player != null)
         {
             // 보스가 있던 쪽에서 approachDistance 만큼 떨어진 자리 (플레이어 등 뒤로 넘어가지 않음)
+            // 그 자리가 벽 속이면 반대쪽, 둘 다 막혀 있으면 플레이어 바로 위치로
             float side = Mathf.Sign(transform.position.x - player.position.x);
             if (side == 0f) side = -lockedDir;
+            float feet = FeetOffset();
             float tx = player.position.x + side * p.approachDistance;
-            transform.position = new Vector3(tx, FindLandingY(tx), transform.position.z);
+            float ty = ArriveY(tx, feet, p);
+            if (IsInsideWall(tx, ty))
+            {
+                float tx2 = player.position.x - side * p.approachDistance;
+                float ty2 = ArriveY(tx2, feet, p);
+                if (!IsInsideWall(tx2, ty2)) { tx = tx2; ty = ty2; }
+                else { tx = player.position.x; ty = ArriveY(tx, feet, p); }
+            }
+            transform.position = new Vector3(tx, ty, transform.position.z);
         }
 
         SetHidden(false);
         if (p.teleportInFx != null) Instantiate(p.teleportInFx, transform.position, p.teleportInFx.transform.rotation);
     }
 
-    // 도착 지점 아래 바닥 높이 + (지금 보스 발밑에서 중심까지의 높이)
-    float FindLandingY(float x)
+    // 보스 발밑에서 중심까지의 높이 (순간이동 직전, 아직 원래 자리에 있을 때 잼)
+    float FeetOffset()
     {
-        float feetOffset = 0f;
         RaycastHit2D below = Physics2D.Raycast(transform.position, Vector2.down, 20f, groundMask);
-        if (below.collider != null) feetOffset = transform.position.y - below.point.y;
+        return below.collider != null ? transform.position.y - below.point.y : 0f;
+    }
 
-        Vector2 from = new Vector2(x, player.position.y + 3f);
+    // 도착 지점 아래 바닥 높이 + 발밑 높이
+    // 광선은 플레이어 중심 높이에서 아래로 쏜다 — 위에서 쏘면 플레이어 머리 위 발판에 내려앉음
+    float FindLandingY(float x, float feetOffset)
+    {
+        Vector2 from = new Vector2(x, player.position.y);
         RaycastHit2D hit = Physics2D.Raycast(from, Vector2.down, 30f, groundMask);
-        if (hit.collider != null) return hit.point.y + feetOffset;
-        return player.position.y;   // 바닥을 못 찾으면 플레이어 높이
+        if (hit.collider != null && hit.distance > 0f) return hit.point.y + feetOffset;
+        return player.position.y;   // 바닥을 못 찾으면 플레이어 높이 (그 뒤 중력으로 떨어짐)
+    }
+
+    // 도착 높이: 부유 캐릭터는 공중(플레이어 높이 + 공격 높이), 아니면 바닥
+    float ArriveY(float x, float feet, Pattern p)
+    {
+        if (isFloating) return player.position.y + p.flyHeightOffset;
+        return FindLandingY(x, feet);
+    }
+
+    bool IsInsideWall(float x, float y)
+    {
+        return Physics2D.OverlapCircle(new Vector2(x, y), 0.3f, groundMask) != null;
+    }
+
+    // 걸어가는 방향 앞쪽 아래에 바닥이 있는지
+    bool HasGroundAhead(int dir)
+    {
+        float feet = FeetOffset();
+        Vector2 from = new Vector2(transform.position.x + dir * 0.8f, transform.position.y);
+        return Physics2D.Raycast(from, Vector2.down, feet + 1.5f, groundMask).collider != null;
     }
 
     // 순간이동 중엔 안 보이고, 맞지도 않음
