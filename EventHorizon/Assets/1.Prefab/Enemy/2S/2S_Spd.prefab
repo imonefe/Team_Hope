@@ -163,7 +163,7 @@ MonoBehaviour:
   Focus: 0
   critChance: 0
   critMultiplier: 2
-  advantage: 2
+  advantage: 1
   healEffectPrefab: {fileID: 0}
 --- !u!114 &9063125299284122226
 MonoBehaviour:
@@ -181,8 +181,8 @@ MonoBehaviour:
   hitParticlePrefab: {fileID: 1953706687302401912, guid: 5359828e45c6499459e67107d0baa6a0, type: 3}
   randomOffset: 0.8
   enemyDeathEffectPrefab: {fileID: 3904326371425299336, guid: 33c6ca78d2a0379439dbb91839997618, type: 3}
-  minCurrencyDrop: 5
-  maxCurrencyDrop: 9
+  minCurrencyDrop: 4
+  maxCurrencyDrop: 6
   invincibleTime: 0
 --- !u!50 &7689002136509595055
 Rigidbody2D:

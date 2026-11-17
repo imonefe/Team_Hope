@@ -1,0 +1,445 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Spine;
+using Spine.Unity;
+
+/// <summary>
+/// [2026-11-17 신규] 중간보스 공용 컨트롤러.
+///
+/// 흐름: 스폰 즉시 전투 시작 → 대기 애니만 재생하며 idleTime 초 기다림(플레이어 쪽을 계속 바라봄)
+///      → 패턴 목록에서 직전과 다른 것 하나를 무작위로 고름
+///      → (필요하면) 플레이어에게 접근: 순간이동 또는 직접 걸어서
+///      → 공격 애니 재생 + "출력 목록"에 적힌 시간마다 이펙트·히트박스 생성
+///      → 회복 시간 후 다시 대기
+///
+/// 애니메이션은 두 방식 중 하나를 고른다 (animMode).
+///  - 애니메이터: isIdle / isMove 불값, isHit 트리거, 패턴별 트리거 (1스테이지 보스와 같은 방식)
+///  - 스파인:     SkeletonAnimation 의 애니 이름으로 재생
+///
+/// 체력·피격·사망·퍼즈 정지·재화 드랍은 부모(BossController)가 그대로 처리한다.
+/// 필요한 컴포넌트: Rigidbody2D, Stats, Health, Collider2D (1스테이지 보스와 같음)
+/// </summary>
+public class MidBossController : BossController
+{
+    public enum AnimMode { Animator, Spine }
+
+    [System.Serializable]
+    public class AttackSpawn
+    {
+        [Tooltip("공격 애니가 시작된 뒤 몇 초에 나갈지")]
+        public float time = 0.3f;
+        [Tooltip("이펙트 프리팹 (비워도 됨)")]
+        public GameObject effectPrefab;
+        [Tooltip("히트박스 프리팹 (Hitbox 컴포넌트가 붙은 것, 비워도 됨)")]
+        public GameObject hitboxPrefab;
+        [Tooltip("보스 기준 위치 보정. x 는 보스가 바라보는 쪽이 + (왼쪽을 보면 자동으로 뒤집힘)")]
+        public Vector2 offset = new Vector2(1.5f, 0f);
+        [Tooltip("켜면 생성된 이펙트·히트박스가 보스를 따라다님 (보스의 자식이 됨)")]
+        public bool followBoss = false;
+        [Tooltip("히트박스 데미지 = 보스 공격력 × 이 값")]
+        public float damageMultiplier = 1f;
+        [Tooltip("이펙트를 몇 초 뒤 지울지 (0 = 이펙트가 알아서 사라짐 — AutoPlayEffect 등)")]
+        public float effectLifetime = 0f;
+    }
+
+    [System.Serializable]
+    public class Pattern
+    {
+        [Tooltip("알아보기 쉬운 이름 (예: 돌진 베기)")]
+        public string name = "패턴";
+
+        [Header("애니메이션")]
+        [Tooltip("애니메이터 방식: 공격 트리거 이름")]
+        public string animTrigger = "Attack1";
+        [Tooltip("애니메이터 방식: 공격 상태 이름 (끝날 때까지 기다리는 데 씀)")]
+        public string animState = "Attack1";
+        [Tooltip("스파인 방식: 공격 애니 이름")]
+        public string spineAnim = "attack1";
+        [Tooltip("공격 애니를 최대 몇 초까지 기다릴지 (애니가 안 끝나도 이 시간이 지나면 다음으로)")]
+        public float maxAnimTime = 3f;
+
+        [Header("플레이어에게 접근")]
+        [Tooltip("켜면 공격 전에 플레이어에게 다가감")]
+        public bool needsApproach = false;
+        [Tooltip("켜면 순간이동, 끄면 직접 걸어서 이동")]
+        public bool useTeleport = false;
+        [Tooltip("플레이어와 이 거리(가로)까지 다가감")]
+        public float approachDistance = 2f;
+        [Tooltip("직접 이동일 때 걷는 속도")]
+        public float approachSpeed = 5f;
+        [Tooltip("직접 이동일 때 이 시간 안에 못 다가가면 그 자리에서 공격")]
+        public float maxApproachTime = 4f;
+        [Tooltip("순간이동: 사라질 때 이펙트 (원래 자리)")]
+        public GameObject teleportOutFx;
+        [Tooltip("순간이동: 나타날 때 이펙트 (도착 자리)")]
+        public GameObject teleportInFx;
+        [Tooltip("순간이동: 사라져 있는 시간 (이동 중 무적)")]
+        public float teleportHideTime = 0.35f;
+
+        [Header("공격 출력 (이펙트·히트박스)")]
+        public AttackSpawn[] spawns;
+
+        [Header("공격 후")]
+        [Tooltip("공격이 끝난 뒤 대기로 돌아가기 전 쉬는 시간")]
+        public float recoveryTime = 0.4f;
+    }
+
+    // ───────────────────────── 인스펙터 ─────────────────────────
+    [Header("[ 중간보스 — 대기 ]")]
+    [Tooltip("대기 애니만 재생하는 시간 a (초). 이 시간이 지나면 공격")]
+    public float idleTime = 2f;
+    [Tooltip("대기 시간에 무작위로 더해지는 최대값 (0 = 항상 idleTime)")]
+    public float idleRandomExtra = 0f;
+    [Tooltip("대기하는 동안 플레이어 쪽으로 몸을 돌림")]
+    public bool faceDuringIdle = true;
+
+    [Header("[ 중간보스 — 피격 ]")]
+    [Tooltip("끄면 맞아도 피격 애니를 재생하지 않음 (데미지는 그대로 들어감)")]
+    public bool useHitReaction = true;
+
+    [Header("[ 중간보스 — 애니메이션 방식 ]")]
+    public AnimMode animMode = AnimMode.Animator;
+    [Tooltip("스파인 방식일 때 보스 몸통의 SkeletonAnimation")]
+    public SkeletonAnimation skeletonAnimation;
+    [Tooltip("스파인: 대기 애니 이름")]
+    public string spineIdle = "idle";
+    [Tooltip("스파인: 이동 애니 이름 (직접 이동할 때)")]
+    public string spineMove = "move";
+    [Tooltip("스파인: 피격 애니 이름 (비우면 피격 애니 없음)")]
+    public string spineHit = "hit";
+
+    [Header("[ 중간보스 — 패턴 (3~4개 권장) ]")]
+    public Pattern[] patterns;
+
+    [Header("[ 중간보스 — 순간이동 바닥 찾기 ]")]
+    [Tooltip("순간이동 도착 지점 아래 바닥을 찾을 레이어")]
+    public LayerMask groundMask;
+
+    // ───────────────────────── 내부 ─────────────────────────
+    readonly List<Renderer> hiddenRenderers = new List<Renderer>();
+    readonly List<Collider2D> hiddenColliders = new List<Collider2D>();
+    bool hiddenByTeleport;
+
+    bool IsSpine => animMode == AnimMode.Spine && skeletonAnimation != null;
+
+    protected override bool HasPhase2 => false;   // 중간보스는 부활하지 않음
+
+    // 컴포넌트를 처음 붙일 때 기본값 (기획서: 중간보스 재화 60~80, 보스 처치 수에는 안 셈)
+    void Reset()
+    {
+        countAsBossKill = false;
+        minCurrencyDrop = 60;
+        maxCurrencyDrop = 80;
+        groundMask = LayerMask.GetMask("ground", "platform");
+    }
+
+    protected override void Awake()
+    {
+        if (animator == null && animMode == AnimMode.Animator) animator = GetComponentInChildren<Animator>();
+        if (skeletonAnimation == null && animMode == AnimMode.Spine) skeletonAnimation = GetComponentInChildren<SkeletonAnimation>();
+        if (groundMask.value == 0) groundMask = LayerMask.GetMask("ground", "platform");
+        base.Awake();
+    }
+
+    void Start()
+    {
+        // 스폰되자마자 전투 시작 (플레이어 감지 범위 없음)
+        Activate();
+    }
+
+    protected override void OnActivate()
+    {
+        // 부모의 대기 루프가 쓰는 시간에 a 를 넣는다 (매 대기마다 OnCooldownStart 에서 다시 정함)
+        cooldownTime = idleTime;
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        if (faceDuringIdle && state == BossState.Cooldown && player != null && !IsWorldPaused)
+        {
+            int dir = player.position.x >= transform.position.x ? 1 : -1;
+            if (dir != lockedDir) FlipTo(dir);
+        }
+    }
+
+    protected override void FixedUpdate()
+    {
+        base.FixedUpdate();
+        if (IsSpine) skeletonAnimation.timeScale = IsWorldPaused ? 0f : 1f;
+    }
+
+    // ───────────────────────── 대기 ─────────────────────────
+    protected override void OnSetInactive() { PlayIdle(); }
+
+    protected override void OnCooldownStart()
+    {
+        base.OnCooldownStart();          // 트리거 정리 + (애니메이터면) 대기 불값
+        cooldownTime = idleTime + (idleRandomExtra > 0f ? Random.Range(0f, idleRandomExtra) : 0f);
+        PlayIdle();
+    }
+
+    protected override void ResetAttackTriggers()
+    {
+        if (animator == null || patterns == null) return;
+        foreach (var p in patterns)
+            if (!string.IsNullOrEmpty(p.animTrigger)) animator.ResetTrigger(p.animTrigger);
+        animator.ResetTrigger("isHit");
+    }
+
+    // ───────────────────────── 패턴 ─────────────────────────
+    protected override int GetPatternCount() => patterns != null ? patterns.Length : 0;
+
+    protected override IEnumerator ExecutePattern(int index)
+    {
+        if (patterns == null || patterns.Length == 0) yield break;
+        Pattern p = patterns[Mathf.Clamp(index, 0, patterns.Length - 1)];
+
+        // 1) 접근
+        if (p.needsApproach && player != null)
+        {
+            state = BossState.Moving;
+            if (p.useTeleport) yield return TeleportNearPlayer(p);
+            else yield return WalkToPlayer(p);
+        }
+
+        // 2) 방향 고정 후 공격
+        if (player != null) FlipTo(player.position.x >= transform.position.x ? 1 : -1);
+        state = BossState.Attacking;
+        rigid.velocity = new Vector2(0f, rigid.velocity.y);
+
+        Coroutine spawnCo = StartCoroutine(RunSpawns(p));
+        yield return PlayAttackAndWait(p);
+        yield return spawnCo;                 // 출력 시간이 애니보다 길면 끝까지 다 내보낸 뒤 진행
+
+        // 3) 회복
+        PlayIdle();
+        if (p.recoveryTime > 0f) yield return PausableWait(p.recoveryTime);
+    }
+
+    // 출력 목록을 시간 순서대로 (퍼즈 중엔 시계가 멈춤)
+    IEnumerator RunSpawns(Pattern p)
+    {
+        if (p.spawns == null || p.spawns.Length == 0) yield break;
+        var list = new List<AttackSpawn>(p.spawns);
+        list.Sort((a, b) => a.time.CompareTo(b.time));
+
+        float t = 0f; int i = 0;
+        while (i < list.Count)
+        {
+            while (i < list.Count && list[i].time <= t) { Spawn(list[i]); i++; }
+            if (i >= list.Count) break;
+            yield return null;
+            if (!IsWorldPaused) t += Time.deltaTime;
+        }
+    }
+
+    void Spawn(AttackSpawn s)
+    {
+        int dir = lockedDir >= 0 ? 1 : -1;
+        Vector3 pos = transform.position + new Vector3(s.offset.x * dir, s.offset.y, 0f);
+
+        if (s.effectPrefab != null)
+        {
+            GameObject fx = Instantiate(s.effectPrefab, pos, s.effectPrefab.transform.rotation);
+            if (s.followBoss) fx.transform.SetParent(transform, true);   // 부모가 뒤집혀 있으면 함께 뒤집힘
+            else FaceObject(fx.transform, dir);
+            if (s.effectLifetime > 0f) Destroy(fx, s.effectLifetime);
+        }
+
+        if (s.hitboxPrefab != null)
+        {
+            GameObject obj = Instantiate(s.hitboxPrefab, pos, s.hitboxPrefab.transform.rotation);
+            if (s.followBoss) obj.transform.SetParent(transform, true);
+            else FaceObject(obj.transform, dir);
+
+            Hitbox hb = obj.GetComponent<Hitbox>();
+            if (hb != null)
+            {
+                hb.direction = dir;
+                hb.damage = Mathf.RoundToInt(stats.Atk * s.damageMultiplier);
+                hb.attackerStats = stats;
+                hb.ownerLayer = "Enemy";
+            }
+        }
+    }
+
+    static void FaceObject(Transform t, int dir)
+    {
+        Vector3 sc = t.localScale;
+        sc.x = Mathf.Abs(sc.x) * dir;
+        t.localScale = sc;
+    }
+
+    // ───────────────────────── 접근: 직접 이동 ─────────────────────────
+    IEnumerator WalkToPlayer(Pattern p)
+    {
+        PlayMove();
+        float timer = 0f;
+        while (player != null)
+        {
+            float dx = player.position.x - transform.position.x;
+            if (Mathf.Abs(dx) <= p.approachDistance) break;
+            if (timer >= p.maxApproachTime) break;
+
+            int dir = dx >= 0 ? 1 : -1;
+            if (dir != lockedDir) FlipTo(dir);
+            if (!IsWorldPaused)
+            {
+                rigid.velocity = new Vector2(dir * p.approachSpeed, rigid.velocity.y);
+                timer += Time.deltaTime;
+            }
+            yield return null;
+        }
+        rigid.velocity = new Vector2(0f, rigid.velocity.y);
+        PlayIdle();
+    }
+
+    // ───────────────────────── 접근: 순간이동 ─────────────────────────
+    IEnumerator TeleportNearPlayer(Pattern p)
+    {
+        if (p.teleportOutFx != null) Instantiate(p.teleportOutFx, transform.position, p.teleportOutFx.transform.rotation);
+        SetHidden(true);
+        rigid.velocity = Vector2.zero;
+
+        if (p.teleportHideTime > 0f) yield return PausableWait(p.teleportHideTime);
+
+        if (player != null)
+        {
+            // 보스가 있던 쪽에서 approachDistance 만큼 떨어진 자리 (플레이어 등 뒤로 넘어가지 않음)
+            float side = Mathf.Sign(transform.position.x - player.position.x);
+            if (side == 0f) side = -lockedDir;
+            float tx = player.position.x + side * p.approachDistance;
+            transform.position = new Vector3(tx, FindLandingY(tx), transform.position.z);
+        }
+
+        SetHidden(false);
+        if (p.teleportInFx != null) Instantiate(p.teleportInFx, transform.position, p.teleportInFx.transform.rotation);
+    }
+
+    // 도착 지점 아래 바닥 높이 + (지금 보스 발밑에서 중심까지의 높이)
+    float FindLandingY(float x)
+    {
+        float feetOffset = 0f;
+        RaycastHit2D below = Physics2D.Raycast(transform.position, Vector2.down, 20f, groundMask);
+        if (below.collider != null) feetOffset = transform.position.y - below.point.y;
+
+        Vector2 from = new Vector2(x, player.position.y + 3f);
+        RaycastHit2D hit = Physics2D.Raycast(from, Vector2.down, 30f, groundMask);
+        if (hit.collider != null) return hit.point.y + feetOffset;
+        return player.position.y;   // 바닥을 못 찾으면 플레이어 높이
+    }
+
+    // 순간이동 중엔 안 보이고, 맞지도 않음
+    void SetHidden(bool hide)
+    {
+        if (hide)
+        {
+            hiddenRenderers.Clear(); hiddenColliders.Clear();
+            foreach (var r in GetComponentsInChildren<Renderer>())
+                if (r.enabled) { r.enabled = false; hiddenRenderers.Add(r); }
+            foreach (var c in GetComponentsInChildren<Collider2D>())
+                if (c.enabled) { c.enabled = false; hiddenColliders.Add(c); }
+            rigid.simulated = false;
+            hiddenByTeleport = true;
+        }
+        else
+        {
+            foreach (var r in hiddenRenderers) if (r != null) r.enabled = true;
+            foreach (var c in hiddenColliders) if (c != null) c.enabled = true;
+            hiddenRenderers.Clear(); hiddenColliders.Clear();
+            rigid.simulated = true;
+            hiddenByTeleport = false;
+        }
+    }
+
+    // 순간이동 도중 죽는 경우 대비 — 몸을 다시 보이게 한 뒤 부모 사망 처리
+    protected override void OnTrueDeath()
+    {
+        if (hiddenByTeleport) SetHidden(false);
+        base.OnTrueDeath();
+    }
+
+    // ───────────────────────── 피격 ─────────────────────────
+    protected override void OnHitEffect(int dir)
+    {
+        if (!useHitReaction) return;
+        if (state == BossState.Attacking || state == BossState.Moving) return;   // 공격·이동 중엔 생략 (애니 꼬임 방지)
+
+        if (IsSpine)
+        {
+            if (string.IsNullOrEmpty(spineHit) || !HasSpineAnim(spineHit)) return;
+            skeletonAnimation.AnimationState.SetAnimation(0, spineHit, false);
+            if (HasSpineAnim(spineIdle)) skeletonAnimation.AnimationState.AddAnimation(0, spineIdle, true, 0f);
+        }
+        else if (animator != null)
+        {
+            animator.SetTrigger("isHit");
+        }
+    }
+
+    // ───────────────────────── 애니 재생 (두 방식 공통 창구) ─────────────────────────
+    void PlayIdle()
+    {
+        if (IsSpine) SetSpineLoop(spineIdle);
+        else if (animator != null) { animator.SetBool("isIdle", true); animator.SetBool("isMove", false); }
+    }
+
+    void PlayMove()
+    {
+        if (IsSpine) SetSpineLoop(string.IsNullOrEmpty(spineMove) ? spineIdle : spineMove);
+        else if (animator != null) { animator.SetBool("isMove", true); animator.SetBool("isIdle", false); }
+    }
+
+    IEnumerator PlayAttackAndWait(Pattern p)
+    {
+        if (IsSpine)
+        {
+            if (string.IsNullOrEmpty(p.spineAnim) || !HasSpineAnim(p.spineAnim)) yield break;
+            TrackEntry e = skeletonAnimation.AnimationState.SetAnimation(0, p.spineAnim, false);
+            if (HasSpineAnim(spineIdle)) skeletonAnimation.AnimationState.AddAnimation(0, spineIdle, true, 0f);
+
+            float timer = 0f;
+            while (e != null && !e.IsComplete && timer < p.maxAnimTime)
+            {
+                if (!IsWorldPaused) timer += Time.deltaTime;
+                yield return null;
+            }
+        }
+        else if (animator != null)
+        {
+            if (!string.IsNullOrEmpty(p.animTrigger)) animator.SetTrigger(p.animTrigger);
+            if (!string.IsNullOrEmpty(p.animState)) yield return WaitAnimFinish(p.animState, p.maxAnimTime);
+            else yield return PausableWait(p.maxAnimTime);
+        }
+    }
+
+    void SetSpineLoop(string anim)
+    {
+        if (!IsSpine || string.IsNullOrEmpty(anim) || !HasSpineAnim(anim)) return;
+        TrackEntry cur = skeletonAnimation.AnimationState.GetTrack(0);
+        if (cur != null && cur.Animation != null && cur.Animation.Name == anim && cur.Loop) return;   // 이미 재생 중
+        skeletonAnimation.AnimationState.SetAnimation(0, anim, true);
+    }
+
+    bool HasSpineAnim(string anim)
+    {
+        if (skeletonAnimation == null || skeletonAnimation.Skeleton == null) return false;
+        bool ok = skeletonAnimation.Skeleton.Data.FindAnimation(anim) != null;
+#if UNITY_EDITOR
+        if (!ok) Debug.LogWarning($"[중간보스] 스파인에 '{anim}' 애니가 없음 — 이름 확인 필요 ({name})", this);
+#endif
+        return ok;
+    }
+
+    // ───────────────────────── 기즈모: 패턴 접근 거리 ─────────────────────────
+    protected override void OnDrawGizmosSelected()
+    {
+        if (patterns == null) return;
+        Gizmos.color = new Color(1f, .6f, .1f, .8f);
+        foreach (var p in patterns)
+            if (p != null && p.needsApproach)
+                Gizmos.DrawWireSphere(transform.position, p.approachDistance);
+    }
+}

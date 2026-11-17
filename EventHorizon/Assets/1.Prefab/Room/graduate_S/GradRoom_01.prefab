@@ -35438,7 +35438,7 @@ TilemapRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1004
   m_ChunkSize: {x: 32, y: 32, z: 32}
-  m_ChunkCullingBounds: {x: 0.0016722679, y: 0.0016722679, z: 0}
+  m_ChunkCullingBounds: {x: 0.0016722679, y: 0.0017947555, z: 0}
   m_MaxChunkCount: 16
   m_MaxFrameAge: 16
   m_SortOrder: 0
@@ -39273,6 +39273,8 @@ MonoBehaviour:
   isBossRoom: 0
   roomCameraSize: {x: 24, y: 14}
   roomCameraCenter: {fileID: 0}
+  bossLookTarget: {fileID: 0}
+  openPortalOnEnter: 1
 --- !u!1 &8624686647780998607
 GameObject:
   m_ObjectHideFlags: 0

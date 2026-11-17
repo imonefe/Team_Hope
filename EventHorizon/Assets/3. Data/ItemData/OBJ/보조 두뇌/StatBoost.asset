@@ -17,7 +17,7 @@ MonoBehaviour:
     atk: 0
     def: 2
     spd: 0
-    pauseDuration: 2
+    pauseDuration: 0.5
     critChance: 0
     critMultiplier: 0
     atkPercent: 0

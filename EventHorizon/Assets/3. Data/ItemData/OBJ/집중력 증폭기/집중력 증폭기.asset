@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
   m_Name: 집중력 증폭기
   m_EditorClassIdentifier: 
-  itemName: 집중력 증폭기
-  description: 이름 그대로 집중력을 증폭시키는 장치.
+  itemName: 조준 증폭기
+  description: 흔들리는 조준점을 붙잡아 정확도를 증폭시키는 장치.
   icon: {fileID: -1319205242, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
   tier: 1

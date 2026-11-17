@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: 보조 두뇌
+  m_EditorClassIdentifier: 
+  itemName: 보조 두뇌
+  description: 필요한 정보를 실시간으로 주입해 판단력과 대응력을 높여주는 보조 두뇌.
+  icon: {fileID: -666034205, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
+  itemType: 0
+  tier: 1
+  element: 2
+  power: 2
+  effects:
+  - {fileID: 11400000, guid: 03999115ada74ffca957b41bca9ecdd0, type: 2}

@@ -37,6 +37,10 @@ public abstract class BossController : MonoBehaviour
     [Tooltip("사망 연출 후 오브젝트 제거까지 대기 시간")]
     public float deathDelay = 1.5f;
 
+    [Header("[ 처치 집계 ]")]
+    [Tooltip("죽었을 때 '보스 처치 수'에 넣을지. 중간보스는 끔 (2026-11-17 추가)")]
+    public bool countAsBossKill = true;
+
     [Header("[ 재화 드랍 ]")]
     public int minCurrencyDrop = 100;
     public int maxCurrencyDrop = 130;
@@ -168,6 +172,7 @@ public abstract class BossController : MonoBehaviour
     // 비활성 시 애니메이션 등 재정의 가능
     protected virtual void OnSetInactive()
     {
+        if (animator == null) return;   // [2026-11-17] 스파인만 쓰는 보스(애니메이터 없음) 대비
         animator.SetBool("isIdle", true);
         animator.SetBool("isMove", false);
     }
@@ -212,6 +217,7 @@ public abstract class BossController : MonoBehaviour
         // 직전 패턴이 피격/타임아웃 등으로 중간에 끊겼을 경우, Animator에 소비되지 않은 트리거가
         // 남아있다가 엉뚱한 타이밍에 튀어나오는 걸 방지 — 매 쿨다운(=새 패턴 시작 전)마다 확실히 비움
         ResetAttackTriggers();
+        if (animator == null) return;   // [2026-11-17] 스파인만 쓰는 보스 대비
         animator.SetBool("isIdle", true);
         animator.SetBool("isMove", false);
     }
@@ -387,7 +393,7 @@ public abstract class BossController : MonoBehaviour
         // 이게 눈에 보이는 "애니메이션 꼬임"의 가장 흔한 원인이라 — 공격 중엔 피격 연출을 생략한다
         // (데미지 자체는 Health/Stats 쪽에서 그대로 처리되므로 전투에는 영향 없음).
         if (state == BossState.Attacking) return;
-        animator.SetTrigger("isHit");
+        if (animator != null) animator.SetTrigger("isHit");   // [2026-11-17] 애니메이터 없음 대비
     }
 
     // ── 사망 / 페이즈2 부활 ───────────────────────────────
@@ -448,12 +454,13 @@ public abstract class BossController : MonoBehaviour
         // 안 보이거나 물리가 안 움직이는 상태로 사망 연출이 진행된다.
         rigid.simulated = true;
         if (spriteRenderer != null) spriteRenderer.enabled = true;
-        animator.speed = 1f;
+        if (animator != null) animator.speed = 1f;   // [2026-11-17] 애니메이터 없음 대비
 
         OnDied?.Invoke();
 
         // 보스 처치 수 집계 + 재화 드랍(일반 적보다 많이)
-        RunManager.Instance?.RegisterBossKilled();
+        // [2026-11-17] 중간보스는 보스 처치 수에 넣지 않도록 끌 수 있게 (countAsBossKill)
+        if (countAsBossKill) RunManager.Instance?.RegisterBossKilled();
         RunManager.Instance?.DropRandomCurrency(transform.position, minCurrencyDrop, maxCurrencyDrop);
 
         // 사망 이펙트

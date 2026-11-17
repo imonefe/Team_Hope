@@ -6181,7 +6181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slowTimeScale: 0.001
-  maxPauseTime: 12
+  maxPauseTime: 7
   distPerSpd: 2
   pauseCritChance: 0.2
   gaugePerHit: 20

@@ -14,8 +14,9 @@ public class PauseManager : PersistentSingleton<PauseManager>
     public float slowTimeScale = 0.1f;
 
     // [2026-11-16 수정] 집중력 → 퍼즈 지속시간. 능력치 숫자가 곧 초 단위라 배율(timePerFocus) 삭제
+    // [2026-11-17 수정] 상한 12초 → 7초. 퍼즈 아이템을 전부 모아도 한 번 사용은 7초를 넘지 않는다 (기본 5초 + 아이템 최대 2초)
     [Tooltip("아이템으로 퍼즈 지속시간이 쌓여도 넘지 않는 최대 시간 (초)")]
-    public float maxPauseTime = 12f;
+    public float maxPauseTime = 7f;
 
     [Tooltip("Spd 1당 이동 가능 거리")]
     public float distPerSpd = 2.0f;
