@@ -168,10 +168,14 @@ public class MidBossController : BossController
         if (bobTarget != null) bobBaseLocal = bobTarget.localPosition;
     }
 
+    [Header("[ 시작 ]")]
+    [Tooltip("[2026-11-18] 켜면 나오자마자 전투 시작. 끄면 다른 스크립트(컷신 등)가 Activate()를 부를 때까지 대기")]
+    public bool activateOnStart = true;
+
     void Start()
     {
         // 스폰되자마자 전투 시작 (플레이어 감지 범위 없음)
-        Activate();
+        if (activateOnStart) Activate();
     }
 
     protected override void OnActivate()

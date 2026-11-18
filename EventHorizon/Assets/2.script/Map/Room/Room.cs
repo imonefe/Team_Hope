@@ -117,9 +117,10 @@ public class Room : MonoBehaviour
         }
 
         // 스포너 없는 방 → 즉시 오픈
+        // [2026-11-18] 단, 방 안에 살아 있는 보스가 있으면 쓰러질 때까지 기다림 (컷신 뒤 보스전)
         if (spawners == null || spawners.Length == 0)
         {
-            OpenPortal();
+            if (!HasAliveBoss()) OpenPortal();
             return;
         }
 
@@ -130,6 +131,14 @@ public class Room : MonoBehaviour
         // 전부 스폰됨 → 몬스터 전멸 확인
         if (!HasAliveMonster())
             OpenPortal();
+    }
+
+    bool HasAliveBoss()
+    {
+        foreach (var b in FindObjectsOfType<BossController>())
+            if (b != null && b.gameObject.activeInHierarchy && !b.IsDefeated)
+                return true;
+        return false;
     }
 
     bool HasAliveMonster()

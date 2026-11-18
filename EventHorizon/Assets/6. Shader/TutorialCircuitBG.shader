@@ -35,6 +35,18 @@ Shader "EventHorizon/TutorialCircuitBG"
         _FlickerRate ("켜진 패널 바뀌는 빠르기", Range(0, 5)) = 0.8
         _PanelGlow ("켜진 패널 번짐", Range(0, 2)) = 0.8
         _ScanGlitch ("스캔 띠 가로 찢어짐", Range(0, 1)) = 0.35
+        _GlitchInterval ("지지직 노이즈 주기 (초)", Range(0.5, 10)) = 1
+        _GlitchChance ("주기마다 노이즈가 날 확률", Range(0, 1)) = 0.75
+        _GlitchStrength ("노이즈 밝기 (불투명도)", Range(0, 1)) = 1
+        _DepthLitFront ("[겹별] 맨 앞 겹 켜짐 배율", Range(0, 5)) = 1
+        _DepthLitBack ("[겹별] 맨 뒤 겹 켜짐 배율", Range(0, 5)) = 1
+        _DepthBrightFront ("[겹별] 맨 앞 겹 켜진 패널 밝기", Range(0, 2)) = 1
+        _DepthBrightBack ("[겹별] 맨 뒤 겹 켜진 패널 밝기", Range(0, 2)) = 1
+        _DotBack ("[겹별] 맨 뒤 겹 창문 점 배율", Range(0, 3.3)) = 1
+        _GlowRadiusBack ("[겹별] 맨 뒤 겹 번짐 (0 = 없음)", Range(0, 3)) = 0
+        _FogAmount ("[겹별] 뒤 겹 안개", Range(0, 1)) = 0
+        _FogColor ("[겹별] 안개색", Color) = (0.09, 0.1, 0.13, 1)
+        _SmoothLit ("켜짐·꺼짐 부드럽게 (0 = 탁 바뀜)", Range(0, 1)) = 0
         _Parallax ("겹마다 시차", Range(0, 1)) = 0.6
 
         [Header(Depth)]
@@ -90,6 +102,10 @@ Shader "EventHorizon/TutorialCircuitBG"
                 float _PacketSpeed, _PacketAmount, _BootFlicker, _TimeOverride, _HotCore, _Vignette;
                 float _HexScale, _HexDensity, _HexGap, _MainWidth, _RailOffset, _ThinStrength, _HexPatch, _HexFade;
                 float _BlockDensity, _DotSpacing, _DotDensity, _LitChance, _FlickerRate, _PanelGlow, _ScanGlitch, _Parallax;
+                float _GlitchInterval, _GlitchChance, _GlitchStrength;   // [2026-11-18 추가] 지지직 노이즈 주기·확률·밝기
+                float _DepthLitFront, _DepthLitBack, _DepthBrightFront, _DepthBrightBack;   // [2026-11-18 추가] 겹(앞→뒤)마다 켜짐 비율·밝기
+                float _DotBack, _GlowRadiusBack, _FogAmount, _SmoothLit;                    // [2026-11-18 추가] 시안 C (먼 불빛)
+                float4 _FogColor;
             CBUFFER_END
 
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; float4 color : COLOR; };
@@ -107,6 +123,16 @@ Shader "EventHorizon/TutorialCircuitBG"
             }
 
             static float gLayerSeed;   // 앞층 0, 뒤층 다른 값 → 같은 함수로 다른 무늬
+            // [2026-11-18 추가] 지금 그리는 겹의 깊이에 따른 켜짐 비율·켜진 패널 밝기 (SetDepth 로 정함, 기본 = 예전과 같음)
+            static float gLitChance = 0.07;
+            static float gLitBright = 1;
+            static float gDot = 1;   // 창문 점이 있는 조각 비율 배율
+            void SetDepth(float depth)   // depth: 0 = 맨 앞, 1 = 맨 뒤
+            {
+                gLitChance = saturate(_LitChance * lerp(_DepthLitFront, _DepthLitBack, depth));
+                gLitBright = lerp(_DepthBrightFront, _DepthBrightBack, depth);
+                gDot = lerp(1, _DotBack, depth);
+            }
 
             float Hash(float2 c, float k)
             {
@@ -318,6 +344,26 @@ Shader "EventHorizon/TutorialCircuitBG"
             //               가로 띠는 1초에 한 번쯤 0.3~0.5초 동안 매 프레임 위치가 튀는 글리치 폭발 / 그림자는 짙은 남색, 빛은 푸른 흰색
 
             // 칸 하나를 최대 3번 쪼갠 조각 찾기. lo·hi = 조각 범위(칸 안 좌표), grp = 첫 번째로 쪼갠 덩어리 번호
+            // [2026-11-18 추가] 덩어리가 켜진 정도 (0~1). _SmoothLit 이 0 이면 예전과 똑같이 탁 켜지고 꺼짐.
+            // 0 보다 크면 다음 순번으로 바뀔 때 서서히 넘어가고, 켜진 동안 아주 느리게 숨쉬듯 밝기가 변함
+            float GroupLit(float2 gid, float T)
+            {
+                float s = T * _FlickerRate * 0.5 + Hash(gid, 59) * 13;
+                float sl = floor(s);
+                float a = step(1 - gLitChance, Hash(gid + sl * 0.173, 58));
+                if (_SmoothLit <= 0) return a;
+                float b = step(1 - gLitChance, Hash(gid + (sl + 1) * 0.173, 58));
+                float k = smoothstep(1 - 0.5 * _SmoothLit, 1, frac(s));
+                return lerp(a, b, k) * (1 - 0.25 * _SmoothLit + 0.25 * _SmoothLit * sin(T * 0.9 + Hash(gid, 60) * 6.28));
+            }
+
+            // 뒤 겹일수록 안개색 쪽으로 (L = 덮는 정도를 미리 곱한 색)
+            float4 Fogged(float4 L, float depth)
+            {
+                float k = _FogAmount * depth;
+                return float4(lerp(L.rgb, _FogColor.rgb * L.a, k * 0.7) + _FogColor.rgb * L.a * k * 0.15, L.a);
+            }
+
             void Split(float2 c, float2 f, float cell, out float2 lo, out float2 hi, out float code, out float grp)
             {
                 lo = 0; hi = cell; code = 0; grp = 0;
@@ -354,9 +400,8 @@ Shader "EventHorizon/TutorialCircuitBG"
                 float2 id = c * 8 + code;                       // 조각 번호
                 float2 gid = c * 2 + grp;                       // 덩어리 번호
                 // 덩어리 단위로 켜짐 (몇 초마다 바뀜). 켜진 덩어리는 조각이 비지 않고 전부 켜짐 → 번짐(GroupGlow)과 위치가 정확히 맞음
-                float slot = floor(T * _FlickerRate * 0.5 + Hash(gid, 59) * 13);
-                float grpLit = step(1 - _LitChance, Hash(gid + slot * 0.173, 58));
-                if (Hash(id, 50) > density && grpLit < 0.5) return 0;          // 빈 조각 → 뒤 겹이 보임
+                float grpLit = GroupLit(gid, T);   // [2026-11-18] 부드러운 켜짐 지원
+                if (Hash(id, 50) > density && grpLit < 0.01) return 0;          // 빈 조각 → 뒤 겹이 보임
 
                 float gap = 0.035;                              // 조각 사이 틈 (월드)
                 float2 hs = max((hi - lo) * 0.5 - gap, 0.01);
@@ -374,7 +419,7 @@ Shader "EventHorizon/TutorialCircuitBG"
                 float3 col = _IdleColor.rgb * tone;
 
                 // 창문 점: 일부 조각에만 무리 지어
-                if (Hash(id, 52) < 0.3)
+                if (Hash(id, 52) < 0.3 * gDot)   // [2026-11-18] 겹별 창문 점 배율
                 {
                     float2 dq = (q + hs) / _DotSpacing;
                     float2 dc = floor(dq), df = frac(dq) - 0.5;
@@ -396,7 +441,7 @@ Shader "EventHorizon/TutorialCircuitBG"
 
                 float lit = grpLit;
                 // 짧은 반짝임 (약 0.1초)
-                float flash = step(1 - _LitChance * 0.25, Hash(id + floor(T * 9) * 0.31, 61));
+                float flash = step(1 - gLitChance * 0.25 * (1 - _SmoothLit), Hash(id + floor(T * 9) * 0.31, 61));   // 부드러운 켜짐이면 반짝임도 줄임
                 lit = max(lit, flash * 0.8);
                 // 켜진 조각 안쪽의 어두운 홈 (일부)
                 float recess = 0;
@@ -406,7 +451,7 @@ Shader "EventHorizon/TutorialCircuitBG"
                     float2 ro = (float2(Hash(id, 65), Hash(id, 66)) - 0.5) * (hs - rh);
                     recess = 1 - smoothstep(-aa, aa, SdBox(q - ro, rh));
                 }
-                float3 litCol = lerp(_GlowColor.rgb, _HeadColor.rgb, 0.6) * 1.35 * (1 - recess * 0.75) * (1 - sideMask * 0.3);   // 푸른 흰색으로 확실히 빛나게
+                float3 litCol = lerp(_GlowColor.rgb, _HeadColor.rgb, 0.6) * 1.35 * gLitBright * (1 - recess * 0.75) * (1 - sideMask * 0.3);   // 푸른 흰색으로 확실히 빛나게
                 col = lerp(col, litCol, lit);
 
                 col *= bright * (1 + boost);
@@ -414,7 +459,7 @@ Shader "EventHorizon/TutorialCircuitBG"
 
                 // 켜진 조각 둘레 번짐 (칸 경계에 닿기 전 0)
                 float2 db2 = min(f, cell - f);
-                float halo = lit * exp(-max(sd, 0) / 0.32) * step(0, sd) * smoothstep(0.0, 0.3, min(db2.x, db2.y));   // 번짐 범위 넓게
+                float halo = lit * gLitBright * exp(-max(sd, 0) / 0.32) * step(0, sd) * smoothstep(0.0, 0.3, min(db2.x, db2.y));   // 번짐 범위 넓게
                 return float4(col * a + _GlowColor.rgb * halo * _PanelGlow * bright * (1 + boost), a);
             }
 
@@ -435,12 +480,12 @@ Shader "EventHorizon/TutorialCircuitBG"
                     [unroll] for (int gi = 0; gi < 2; gi++)
                     {
                         float2 gid = c * 2 + gi;
-                        float slot = floor(T * _FlickerRate * 0.5 + Hash(gid, 59) * 13);
-                        if (Hash(gid + slot * 0.173, 58) < 1 - _LitChance) continue;   // 꺼진 덩어리
+                        float lit = GroupLit(gid, T);
+                        if (lit < 0.01) continue;   // 꺼진 덩어리
                         float2 lo = alongX ? float2(gi == 0 ? 0 : m, 0) : float2(0, gi == 0 ? 0 : m);
                         float2 hi = alongX ? float2(gi == 0 ? m : cell, cell) : float2(cell, gi == 0 ? m : cell);
                         float d = SdBox(p - base - (lo + hi) * 0.5, (hi - lo) * 0.5 - 0.035);
-                        g += exp(-max(d, 0) / radius) * (d > 0 ? 1 : 0.6);
+                        g += lit * exp(-max(d, 0) / radius) * (d > 0 ? 1 : 0.6);
                     }
                 }
                 return g;
@@ -452,9 +497,11 @@ Shader "EventHorizon/TutorialCircuitBG"
                 float2 cam = _WorldSpaceCameraPos.xy;
                 float2 sp = i.screen.xy / max(i.screen.w, 1e-4);
 
-                // 글리치 폭발: 1초 단위로 확률 75% 로 0.3~0.45초 동안, 매 프레임(1/30초) 가로 띠 위치가 튐
-                float bi = floor(T), bph = frac(T);
-                float burst = step(Hash(float2(bi, 3), 90), 0.75) * smoothstep(0.0, 0.04, bph) * (1 - smoothstep(0.3, 0.45, bph));
+                // 글리치 폭발: _GlitchInterval 초마다 확률 _GlitchChance 로 0.3~0.45초 동안, 매 프레임(1/30초) 가로 띠 위치가 튐
+                // [2026-11-18 수정] 원래 1초·75% 고정 → 재질에서 조절 (기본값은 예전과 같음)
+                float gi = max(_GlitchInterval, 0.1);
+                float bi = floor(T / gi), bph = frac(T / gi) * gi;   // bph = 이번 주기 시작부터 지난 초
+                float burst = step(Hash(float2(bi, 3), 90), _GlitchChance) * smoothstep(0.0, 0.04, bph) * (1 - smoothstep(0.3, 0.45, bph));
                 float fid = floor(T * 30);
                 float bandY = Hash(float2(fid, 1), 91);
                 float bandH = 0.05 + 0.05 * Hash(float2(fid, 2), 92);
@@ -466,18 +513,25 @@ Shader "EventHorizon/TutorialCircuitBG"
                 float ph = frac(t + i.uv.y);
                 float sweep = Wave(ph) * 0.35;
 
-                float boost = sweep + inBand * 2.2;
+                float boost = sweep + inBand * 2.2 * _GlitchStrength;   // [2026-11-18] 노이즈 밝기 조절
                 float3 col = _BgColor.rgb;
                 float4 L;
+                SetDepth(1);     // 뒤
                 L = DataLayer(w - cam * (1 - 0.25) * _Parallax, 1.1, 11.1, T, 0.35, boost * 0.6, 0.95);   // 뒤 (작고 어둡게)
+                L = Fogged(L, 1);
                 col = col * (1 - L.a) + L.rgb;
+                if (_GlowRadiusBack > 0)   // [2026-11-18] 뒤 겹 번짐 (넓고 약하게)
+                    col += _GlowColor.rgb * GroupGlow(w - cam * (1 - 0.25) * _Parallax, 1.1, 11.1, T, 0.25 * _GlowRadiusBack) * _PanelGlow * 0.10 * gLitBright * (1 + boost) * (1 - _FogAmount * 0.4);
                 float2 pm = w - cam * (1 - 0.55) * _Parallax, pf = w - cam * (1 - 0.85) * _Parallax;
+                SetDepth(0.5);   // 중간
                 L = DataLayer(pm, 2.0, 23.7, T, 0.62, boost * 0.8, _BlockDensity + 0.15);
+                L = Fogged(L, 0.5);
                 col = col * (1 - L.a) + L.rgb;
-                col += _GlowColor.rgb * GroupGlow(pm, 2.0, 23.7, T, 0.3) * _PanelGlow * 0.15 * (1 + boost);   // 중간 겹 번짐
+                col += _GlowColor.rgb * GroupGlow(pm, 2.0, 23.7, T, 0.3) * _PanelGlow * 0.15 * gLitBright * (1 + boost);   // 중간 겹 번짐
+                SetDepth(0);     // 앞
                 L = DataLayer(pf, 3.4, 37.3, T, 1.0, boost, _BlockDensity);      // 앞 (크고 밝게)
                 col = col * (1 - L.a) + L.rgb;
-                col += _GlowColor.rgb * GroupGlow(pf, 3.4, 37.3, T, 0.45) * _PanelGlow * 0.22 * (1 + boost);    // 앞 겹 번짐
+                col += _GlowColor.rgb * GroupGlow(pf, 3.4, 37.3, T, 0.45) * _PanelGlow * 0.22 * gLitBright * (1 + boost);    // 앞 겹 번짐
 
                 // 띠 안 가로 번짐 줄 (레퍼런스의 가로로 끌린 빛)
                 // 토막 난 가로 번짐: 줄마다 화면을 6~14 토막으로 나눠 일부만 빛남 (화면 끝까지 이어진 직선 X)
@@ -485,7 +539,7 @@ Shader "EventHorizon/TutorialCircuitBG"
                 float segN = 6 + floor(Hash(float2(srow, fid), 95) * 8);
                 float seg = floor(sp.x * segN + Hash(float2(srow, fid), 96) * 3);
                 float streak = step(0.7, Hash(float2(srow, fid), 94)) * step(0.55, Hash(float2(seg, srow + fid), 97)) * inBand;
-                col += _HeadColor.rgb * streak * 0.14;
+                col += _HeadColor.rgb * streak * 0.14 * _GlitchStrength;
 
                 // 화면 마감
                 col *= 1 - _Vignette * saturate(dot(sp - 0.5, sp - 0.5) * 2.2);

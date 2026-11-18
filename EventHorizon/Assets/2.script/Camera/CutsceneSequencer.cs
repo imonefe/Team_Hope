@@ -226,6 +226,14 @@ public class CutsceneSequencer : MonoBehaviour
     [Header("씬 시작하자마자 자동 재생할지")]
     public bool playOnStart = false;
 
+    [Header("처형 대신 보스전 (2026-11-18 추가, 보스 체력바 확인용)")]
+    [Tooltip("켜면 fightFromStep 번째 스텝(0부터 셈)부터 끝까지(검사 등장 ~ 게임오버)를 건너뛰고, 컷신을 정상 종료한 뒤 fightBoss 와 전투를 시작한다. 끄면 원래대로 처형")]
+    public bool fightInsteadOfKill = false;
+    [Tooltip("이 번호의 스텝부터 건너뜀 (0부터 셈)")]
+    public int fightFromStep = -1;
+    [Tooltip("컷신이 끝나면 싸우기 시작할 보스")]
+    public BossController fightBoss;
+
     [Header("보스방 카메라")]
     [Tooltip("체크하면 재생 동안 보스방 '방 전체 고정' 카메라를 잠시 풀어서 줌/포커스가 먹히게 한다 (끝나면 다시 고정)")]
     public bool releaseRoomCamera = true;
@@ -314,14 +322,18 @@ public class CutsceneSequencer : MonoBehaviour
         }
         if (proCam != null) savedHalfHeight = proCam.ScreenSizeInWorldCoordinates.y * 0.5f;
 
-        foreach (var step in steps)
+        bool toFight = fightInsteadOfKill && fightBoss != null && fightFromStep >= 0;
+        for (int i = 0; i < steps.Count; i++)
         {
+            if (toFight && i >= fightFromStep) break;   // [2026-11-18] 처형 부분 건너뜀
+            var step = steps[i];
             if (step.runInBackground) backgroundRoutines.Add(StartCoroutine(RunStep(step)));
             else yield return RunStep(step);
         }
 
         playRoutine = null;
         Cleanup(true);
+        if (toFight) fightBoss.Activate();   // [2026-11-18] 조작·카메라를 돌려준 뒤 전투 시작
     }
 
     // 컷신이 끝나거나 중단될 때 잠금/카메라/화면 덮개를 원래대로

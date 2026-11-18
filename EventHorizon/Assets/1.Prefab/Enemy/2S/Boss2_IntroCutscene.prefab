@@ -1231,6 +1231,9 @@ MonoBehaviour:
     npc: {fileID: 0}
     npcConditionKey: 
   playOnStart: 1
+  fightInsteadOfKill: 1
+  fightFromStep: 11
+  fightBoss: {fileID: 2100000000000000015}
   releaseRoomCamera: 1
   restoreCameraOnEnd: 1
 --- !u!1 &1100000000000000011
@@ -1246,7 +1249,12 @@ GameObject:
   - component: {fileID: 1100000000000000014}
   - component: {fileID: 1100000000000000015}
   - component: {fileID: 1100000000000000016}
-  m_Layer: 0
+  - component: {fileID: 2100000000000000011}
+  - component: {fileID: 2100000000000000012}
+  - component: {fileID: 2100000000000000013}
+  - component: {fileID: 2100000000000000014}
+  - component: {fileID: 2100000000000000015}
+  m_Layer: 6
   m_Name: Boss2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1689,3 +1697,236 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e29a3ee79d634d4bad47dfede87e712, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!50 &2100000000000000011
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100000000000000011}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 50
+  m_LinearDrag: 2
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!61 &2100000000000000012
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100000000000000011}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 3.5}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 3.2, y: 6}
+  m_EdgeRadius: 0
+--- !u!114 &2100000000000000013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100000000000000011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHp: 1500
+  currentHp: 1500
+  Atk: 15
+  Def: 5
+  spd: 5
+
+--- !u!114 &2100000000000000014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100000000000000011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 790d5f4938a10fd418fb38b1cac664ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+
+--- !u!114 &2100000000000000015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100000000000000011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f8105f8101ed314ca3b45d72d4d3e10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayName: "\uC11C\uACE0\uC758 \uC8FC\uC778"
+  cooldownTime: 3
+  moveSpeed: 4
+  p2CooldownTime: 1.5
+  p2MoveSpeed: 6
+  p2DamageMultiplier: 1.5
+  animator: {fileID: 0}
+  spriteRenderer: {fileID: 0}
+  hitboxPoint: {fileID: 0}
+  hitboxProfiles: []
+  deathEffectPrefab: {fileID: 0}
+  deathCanvas: {fileID: 0}
+  deathDelay: 1.5
+  countAsBossKill: 1
+  minCurrencyDrop: 100
+  maxCurrencyDrop: 130
+  activateRange: 0
+  idleTime: 2
+  idleRandomExtra: 0.8
+  faceDuringIdle: 1
+  useHitReaction: 0
+  animMode: 1
+  skeletonAnimation: {fileID: 1100000000000000016}
+  spineIdle: animation
+  spineMove: animation
+  spineHit: 
+  patterns:
+  - name: "\uC21C\uAC04\uC774\uB3D9 \uB0B4\uB824\uCC0D\uAE30"
+    animTrigger: Attack1
+    animState: Attack1
+    spineAnim: animation
+    maxAnimTime: 1.2
+    needsApproach: 1
+    useTeleport: 0
+    approachDistance: 2.2
+    approachSpeed: 4
+    maxApproachTime: 4
+    teleportOutFx: {fileID: 0}
+    teleportInFx: {fileID: 0}
+    teleportHideTime: 0.35
+    flyHeightOffset: 0.3
+    spawns:
+    - time: 0.6
+      effectPrefab: {fileID: 0}
+      hitboxPrefab: {fileID: 7527073567594890566, guid: 0b3d24308e3644f8ac38c30ab2b6ec8b, type: 3}
+      offset: {x: 1.6, y: 1.2}
+      followBoss: 0
+      damageMultiplier: 1.2
+      effectLifetime: 0
+    recoveryTime: 1.0
+  - name: "\uB2E4\uAC00\uAC00 \uC5F0\uC18D \uBCA0\uAE30"
+    animTrigger: Attack1
+    animState: Attack1
+    spineAnim: animation
+    maxAnimTime: 1.2
+    needsApproach: 1
+    useTeleport: 0
+    approachDistance: 2.0
+    approachSpeed: 4
+    maxApproachTime: 4
+    teleportOutFx: {fileID: 0}
+    teleportInFx: {fileID: 0}
+    teleportHideTime: 0.35
+    flyHeightOffset: 0.3
+    spawns:
+    - time: 0.4
+      effectPrefab: {fileID: 0}
+      hitboxPrefab: {fileID: 7527073567594890566, guid: 0b3d24308e3644f8ac38c30ab2b6ec8b, type: 3}
+      offset: {x: 1.5, y: 1.2}
+      followBoss: 0
+      damageMultiplier: 0.7
+      effectLifetime: 0
+    - time: 0.9
+      effectPrefab: {fileID: 0}
+      hitboxPrefab: {fileID: 7527073567594890566, guid: 0b3d24308e3644f8ac38c30ab2b6ec8b, type: 3}
+      offset: {x: 1.5, y: 1.2}
+      followBoss: 0
+      damageMultiplier: 0.7
+      effectLifetime: 0
+    recoveryTime: 0.8
+  - name: "\uC591\uC606 \uD729\uC4F8\uAE30"
+    animTrigger: Attack1
+    animState: Attack1
+    spineAnim: animation
+    maxAnimTime: 1.2
+    needsApproach: 1
+    useTeleport: 0
+    approachDistance: 1.5
+    approachSpeed: 4
+    maxApproachTime: 4
+    teleportOutFx: {fileID: 0}
+    teleportInFx: {fileID: 0}
+    teleportHideTime: 0.35
+    flyHeightOffset: 0.3
+    spawns:
+    - time: 0.5
+      effectPrefab: {fileID: 0}
+      hitboxPrefab: {fileID: 7527073567594890566, guid: 0b3d24308e3644f8ac38c30ab2b6ec8b, type: 3}
+      offset: {x: 1.6, y: 1.2}
+      followBoss: 0
+      damageMultiplier: 1.0
+      effectLifetime: 0
+    - time: 0.5
+      effectPrefab: {fileID: 0}
+      hitboxPrefab: {fileID: 7527073567594890566, guid: 0b3d24308e3644f8ac38c30ab2b6ec8b, type: 3}
+      offset: {x: -1.6, y: 1.0}
+      followBoss: 0
+      damageMultiplier: 1.0
+      effectLifetime: 0
+    recoveryTime: 1.2
+  isFloating: 1
+  hoverHeight: 0.6
+  hoverReference: 0
+  hoverSpeed: 3
+  bobAmount: 0.15
+  bobSpeed: 0.6
+  bobTarget: {fileID: 0}
+  activateOnStart: 0

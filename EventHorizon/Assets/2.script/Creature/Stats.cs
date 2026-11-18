@@ -75,9 +75,27 @@ public class Stats : MonoBehaviour
 
     public event Action<int, int> OnHpChanged;
 
+    // [2026-11-18 추가] 캐릭터가 처음 가진 능력치 — 인벤토리 능력치 판에서 '(+아이템·무기로 오른 값)' 계산용 (StatusPanelUI)
+    public int BaseMaxHp { get; private set; }
+    public float BaseAtk { get; private set; }
+    public float BaseDef { get; private set; }
+    public float BaseSpd { get; private set; }
+    public float BasePauseDuration { get; private set; }
+    public float BaseCritChance { get; private set; }
+    public float BaseCritMultiplier { get; private set; }
+
     void Awake()
     {
         currentHp = maxHp;
+
+        // [2026-11-18 추가] 처음 값 기억 (무기 장착은 PlayerController.Start 에서 하므로 무기 보너스는 '오른 값'으로 잡힘)
+        BaseMaxHp = maxHp;
+        BaseAtk = Atk;
+        BaseDef = Def;
+        BaseSpd = spd;
+        BasePauseDuration = PauseDuration;
+        BaseCritChance = Mathf.Min(critChance, maxCritChance);
+        BaseCritMultiplier = critMultiplier;
     }
 
     void Start()

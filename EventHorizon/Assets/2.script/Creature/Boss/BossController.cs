@@ -10,6 +10,15 @@ public abstract class BossController : MonoBehaviour
     // ── 상태 열거형 ───────────────────────────────────────
     public enum BossState { Inactive, Cooldown, Moving, Attacking }
 
+    [Header("[ 체력바 표시 ]")]
+    [Tooltip("보스 체력바에 띄울 이름 (2026-11-18 추가). 비우면 오브젝트 이름")]
+    public string displayName = "";
+    /// <summary>[2026-11-18] 실제로 싸우기 시작했는지 (Activate 이후). 보스 체력바가 이때부터 보인다</summary>
+    public bool HasStarted { get; private set; }
+    /// <summary>[2026-11-18] 진짜로 쓰러졌는지 (부활 전 임시 사망 X)</summary>
+    public bool IsDefeated { get; private set; }
+    public string DisplayName => string.IsNullOrEmpty(displayName) ? name.Replace("(Clone)", "").Trim() : displayName;
+
     // ── 공통 인스펙터 설정 ────────────────────────────────
     [Header("[ 기본 설정 ]")]
     public float cooldownTime = 3f;
@@ -185,6 +194,7 @@ public abstract class BossController : MonoBehaviour
         // 기존 부활 코루틴이 끝나면서 시작하는 BossLoop()과 두 개가 동시에 같은 Animator를 건드리게 된다.
         // 이게 "가끔 애니메이션이 꼬인다"의 실제 원인 중 하나 — 여기서 완전히 막는다.
         if (state != BossState.Inactive || isReviving) return;
+        HasStarted = true;   // [2026-11-18] 보스 체력바 표시용
         OnActivate();
         if (bossLoopCo != null) StopCoroutine(bossLoopCo);
         bossLoopCo = StartCoroutine(BossLoop());
@@ -448,6 +458,7 @@ public abstract class BossController : MonoBehaviour
         StopAllCoroutines();
         rigid.velocity = Vector2.zero;
         state = BossState.Inactive;
+        IsDefeated = true;   // [2026-11-18] 보스 체력바 정리용
 
         // 낙하 패턴 등 스프라이트/물리를 꺼둔 상태(Pattern_Falling 등) 도중에 죽는 경우를 대비해
         // ReviveRoutine()과 동일하게 복구 — 안 그러면(HasPhase2=false인 보스는 특히) 죽었는데

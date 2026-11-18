@@ -28,46 +28,58 @@ Material:
     m_Floats:
     - _BackDelay: 0.06
     - _BackScale: 1.9
-    - _BackStrength: 0.3
+    - _BackStrength: 0
     - _BlockDensity: 0.6
     - _BootFlicker: 0.7
     - _CellSize: 1.5
-    - _ChipChance: 0
+    - _ChipChance: 0.14
     - _Density: 0.45
-    - _DotDensity: 0.3
+    - _DepthBrightBack: 1.25
+    - _DepthBrightFront: 0.6
+    - _DepthLitBack: 3
+    - _DepthLitFront: 0.15
+    - _DotBack: 3
+    - _DotDensity: 0.4
     - _DotSpacing: 0.1
     - _Fade: 6
     - _FlickerRate: 0.8
-    - _Halo: 0.35
+    - _FogAmount: 0.6
+    - _GlitchChance: 0.4
+    - _GlitchInterval: 6
+    - _GlitchStrength: 0.15
+    - _GlowRadiusBack: 1.4
+    - _Halo: 0.22
     - _HeadWidth: 0.01
     - _HexDensity: 0.55
     - _HexFade: 0.18
     - _HexGap: 0
     - _HexPatch: 0.12
-    - _HexScale: 3
-    - _HotCore: 0.6
-    - _Intensity: 0.6
+    - _HexScale: 1
+    - _HotCore: 0.4
+    - _Intensity: 0.72
     - _LineWidth: 0.04
-    - _LitChance: 0.028
-    - _MainRatio: 0.3
+    - _LitChance: 0.012
+    - _MainRatio: 0.1
     - _MainWidth: 2.2
-    - _PacketAmount: 1.2
+    - _PacketAmount: 1.77
     - _PacketSpeed: 3
-    - _PanelGlow: 0.9
+    - _PanelGlow: 0.5
     - _Parallax: 0.6
     - _Period: 6
     - _PhaseOverride: -1
     - _RailOffset: 3
-    - _ScanGlitch: 0.3
+    - _ScanGlitch: 0.06
     - _Seed: 4
-    - _Stagger: 0.03
+    - _SmoothLit: 1
+    - _Stagger: 0.14
     - _Style: 5
     - _ThinStrength: 0.5
     - _TimeOverride: -1
     - _Vignette: 0.45
     m_Colors:
-    - _BgColor: {r: 0.012, g: 0.014, b: 0.04, a: 1}
-    - _GlowColor: {r: 0.5, g: 0.85, b: 1.5, a: 1}
-    - _HeadColor: {r: 1.3, g: 1.55, b: 1.7, a: 1}
-    - _IdleColor: {r: 0.05, g: 0.06, b: 0.13, a: 1}
+    - _BgColor: {r: 0.015, g: 0.016, b: 0.022, a: 1}
+    - _FogColor: {r: 0.09, g: 0.1, b: 0.13, a: 1}
+    - _GlowColor: {r: 0.7, g: 0.78, b: 0.9, a: 1}
+    - _HeadColor: {r: 1.25, g: 1.32, b: 1.4, a: 1}
+    - _IdleColor: {r: 0.04, g: 0.044, b: 0.058, a: 1}
   m_BuildTextureStacks: []

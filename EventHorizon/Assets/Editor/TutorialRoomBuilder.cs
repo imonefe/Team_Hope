@@ -11,6 +11,13 @@ using UnityEngine.UI;
 /// 상점 방(ShopRoom_2S)의 2스테이지 타일·포탈·방 설정을 그대로 가져와 타일만 새로 칠한다.
 /// 구간 11개(기획서 1~12, 패링 제외)를 왼쪽 → 오른쪽으로 놓고, 구간 끝마다 하얀 막이(통과 문)를 세운다.
 /// 다시 실행하면 TutorialRoom.prefab을 새로 덮어쓰므로, 손으로 고친 뒤에는 다시 실행하지 말 것.
+///
+/// [2026-11-18 2차] 방을 짧고 간단하게 다시 짬 (가로 188칸·11구간 → 76칸·7구간).
+///   - 빼거나 합친 구간: 이동·점프 + 더블 점프 → 하나(높은 벽), 더블 대시 뺌, 발판 내려가기 뺌, 무기 스킬 + 스킬 → 하나
+///   - 공격 → 무기 교체, 스킬 → 퍼즈는 같은 자리에서 이어서 (사이 막이 없음)
+///   - 그동안 프리팹에 손으로 넣었던 것도 여기서 함께 만든다:
+///     ??? 말투 안내, 끝나면 로비(LobbyRoom)로 이동, 예전 위쪽 글자 판·출구 문 끄기,
+///     만든 뒤 "튜토리얼 배경 배치"(TutorialBackgroundSetup)를 이어서 실행해 시뮬레이션 방 배경을 깖
 /// 칸 단위 숫자(높이·구덩이 폭)는 플레이해 보고 조정이 필요하다 (점프력 19 · 중력 4 · 대시 12×0.2초 기준 추정).
 /// </summary>
 public static class TutorialRoomBuilder
@@ -25,8 +32,9 @@ public static class TutorialRoomBuilder
     const string Pickup2Path = "Assets/1.Prefab/Skill/Pickup/SkillPickup_Skill01.prefab";
     const string TitleFontPath = "Assets/Etc/Font/HiKR-ExtraBold SDF.asset";
     const string BodyFontPath = "Assets/Etc/Font/KoPubWorld Dotum_Pro Medium SDF.asset";
+    const string LobbyPath = "Assets/1.Prefab/Room/Lobby/LobbyRoom.prefab";   // [2026-11-18] 튜토리얼 끝나면 가는 방
 
-    const int Width = 188;     // 방 가로 칸 수
+    const int Width = 76;      // 방 가로 칸 수 [2026-11-18] 188 → 76
     const int Ceiling = 16;    // 천장 높이 (칸)
     const int FloorDepth = 6;  // 바닥 두께
 
@@ -71,6 +79,12 @@ public static class TutorialRoomBuilder
             BuildSteps(root, objs, ctrl);
             BuildGuideCanvas(objs, ctrl);
 
+            // [2026-11-18] 안내는 ??? 통신창으로 → 예전 위쪽 글자 판은 꺼 둠 · 끝나면 로비로
+            Transform guideCanvas = objs.Find("TutorialGuideCanvas");
+            if (guideCanvas != null) guideCanvas.gameObject.SetActive(false);
+            ctrl.doneGuide = "합격. 시뮬레이션은 여기까지야. …이제 진짜로 깨울게.";
+            ctrl.lobbyRoom = AssetDatabase.LoadAssetAtPath<GameObject>(LobbyPath);
+
             // 시작 위치 · 출구
             Transform spawner = root.transform.Find("PlayerSpawner");
             if (spawner != null) spawner.position = P(3, 1);
@@ -78,13 +92,16 @@ public static class TutorialRoomBuilder
             if (end != null)
             {
                 Transform door = end.childCount > 0 ? end.GetChild(0) : end;
-                end.position += P(184, 0) + new Vector3(0, 1.5f, 0) - door.position;
+                end.position += P(Width - 4, 0) + new Vector3(0, 1.5f, 0) - door.position;
+                end.gameObject.SetActive(false);   // [2026-11-18] 문으로 나가지 않고 로비로 자동 이동
             }
 
             PrefabUtility.SaveAsPrefabAsset(root, OutPath);
             Debug.Log($"[TutorialRoomBuilder] 저장: {OutPath} (채움 {fillTile?.name} / 윗면 {topTile?.name} / 발판 {platTile?.name})");
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
+
+        TutorialBackgroundSetup.Place();   // [2026-11-18] 배경 판도 이어서 깔기
     }
 
     [MenuItem("EventHorizon/튜토리얼 방 캡처 (확인용)")]
@@ -166,12 +183,9 @@ public static class TutorialRoomBuilder
         Block(-4, -1, 0, Ceiling - 1);                      // 왼쪽 벽
         Block(Width, Width + 3, 0, Ceiling - 1);            // 오른쪽 벽
 
-        Block(11, 17, 0, 1);            // 1 이동·점프: 낮은 턱 (2칸)
-        Block(27, 35, 0, 6);            // 2 더블점프: 높은 벽 (7칸)
-        Hole(44, 48, -FloorDepth, -1);  // 3 대시: 구덩이 5칸
-        Hole(63, 71, -FloorDepth, -1);  // 4 더블대시: 구덩이 9칸
-        Block(79, 80, 0, 3);            // 5 발판 내려가기: 올라서는 받침 (4칸)
-        Platform(81, 98, 3);            //   한쪽 통과 발판 (높이 4) — 아래 공간으로 내려가야 통과
+        // [2026-11-18 2차] 짧은 배치 (76칸)
+        Block(9, 15, 0, 6);             // 1 이동·점프 + 더블점프: 높은 벽 (7칸)
+        Hole(22, 26, -FloorDepth, -1);  // 2 대시: 구덩이 5칸
     }
 
     // ── 구간 ──
@@ -183,19 +197,17 @@ public static class TutorialRoomBuilder
 
     static void BuildSteps(GameObject root, Transform parent, TutorialController ctrl)
     {
+        // [2026-11-18] 안내 문구는 ???(영복) 말투 · 2차: 7구간으로 줄임
         var defs = new List<Def>
         {
-            D("이동 · 점프", "← → 로 이동하고 {Jump} 로 턱을 넘으세요", TutorialController.Condition.Jump, 18, 0, P(3, 0)),
-            D("더블 점프", "공중에서 {Jump} 를 한 번 더 눌러 높은 벽에 오르세요", TutorialController.Condition.DoubleJump, 36, 0, P(21, 0)),
-            D("대시", "{Dash} 를 눌러 빠르게 이동하세요 · 구덩이를 건너 보세요", TutorialController.Condition.Dash, 56, 0, P(39, 0)),
-            D("더블 대시", "{Dash} 를 두 번 이어서 넓은 구덩이를 건너세요", TutorialController.Condition.DoubleDash, 78, 0, P(58, 0)),
-            D("발판 내려가기", "발판 위에서 ↓ + {Jump} 로 아래로 내려가세요", TutorialController.Condition.Reach, 99, 0, P(79.5f, 4)),
-            D("공격", "{Attack} 로 허수아비를 공격하세요", TutorialController.Condition.DummyDamage, 116, 0, P(101, 0)),
-            D("무기 교체", "{WeaponSwap} 로 무기를 바꿔 보세요 (검 → 건틀릿 → 망치)", TutorialController.Condition.WeaponSwap, 128, 0, P(118, 0)),
-            D("무기 스킬", "스킬 구슬에 닿아 줍고 {Skill1} 로 무기 스킬을 쓰세요", TutorialController.Condition.WeaponSkill, 142, 0, P(130, 0)),
-            D("스킬", "새 스킬 구슬을 줍고 {Skill1} · {Skill2} · {Skill3} 중 하나로 써 보세요", TutorialController.Condition.AnySkill, 154, 0, P(144, 0)),
-            D("퍼즈", "퍼즈 게이지가 가득 찼습니다 · {Pause} 로 시간을 멈춰 보세요", TutorialController.Condition.Pause, 166, 0, P(156, 0)),
-            D("상호작용 · 인벤토리", "상자 앞에서 {Interact} 로 열고, {Inventory} 로 인벤토리를 확인하세요", TutorialController.Condition.BoxAndInventory, 180, 0, P(168, 0)),
+            // gateX < 0 = 막이 없음 (다음 구간을 같은 자리에서 이어서)
+            D("이동 · 점프", "들려? 좋아, 연결됐네. 몸부터 풀자. ← → 로 걷고, {Jump} 를 공중에서 한 번 더 눌러 저 벽을 넘어 봐.", TutorialController.Condition.DoubleJump, 18, 0, P(3, 0)),
+            D("대시", "{Dash} 누르면 확 튀어 나가. 저 구덩이, 그걸로 건너.", TutorialController.Condition.Dash, 31, 0, P(19, 0)),
+            D("공격", "{Attack} 로 저 허수아비 좀 두들겨 봐. 아파하지 않으니까 마음껏.", TutorialController.Condition.DummyDamage, -1, 0, P(33, 0)),
+            D("무기 교체", "무기가 하나뿐인 줄 알았지? {WeaponSwap} 로 바꿔 봐. 검, 건틀릿, 망치.", TutorialController.Condition.WeaponSwap, 44, 0, P(33, 0)),
+            D("스킬", "저 구슬 주워. 그리고 {Skill1} · {Skill2} · {Skill3} 중에 아무거나 써 봐.", TutorialController.Condition.AnySkill, -1, 0, P(46, 0)),
+            D("퍼즈", "게이지는 내가 꽉 채워 놨어. {Pause} 누르면 세상이 멈춰. 직접 느껴 봐.", TutorialController.Condition.Pause, 60, 0, P(46, 0)),
+            D("상호작용 · 인벤토리", "상자 보이지? {Interact} 로 열고, {Inventory} 로 뭐 들었는지 확인해.", TutorialController.Condition.BoxAndInventory, -1, 0, P(62, 0)),
         };
 
         GameObject dummyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(DummyPath);
@@ -207,15 +219,18 @@ public static class TutorialRoomBuilder
             Def d = defs[i];
             var s = new TutorialController.Step { title = d.title, guide = d.guide, condition = d.cond };
 
-            // 막이: 바닥부터 천장까지 한 칸 폭
-            GameObject g = new GameObject($"Gate_{i + 1:00}");
-            g.transform.SetParent(gates, false);
-            g.layer = groundLayer;
-            g.transform.position = P(d.gateX, d.gateFrom) + new Vector3(0, (Ceiling - d.gateFrom) * 0.5f, 0);
-            g.transform.localScale = new Vector3(1f, Ceiling - d.gateFrom, 1f);
-            var sr = g.AddComponent<SpriteRenderer>(); sr.sprite = whiteBox; sr.color = new Color(0.6f, 0.85f, 1f, 0.55f); sr.sortingOrder = 4;
-            g.AddComponent<BoxCollider2D>().size = Vector2.one;
-            s.gate = g;
+            // 막이: 바닥부터 천장까지 한 칸 폭 (gateX < 0 이면 막이 없음)
+            if (d.gateX >= 0)
+            {
+                GameObject g = new GameObject($"Gate_{i + 1:00}");
+                g.transform.SetParent(gates, false);
+                g.layer = groundLayer;
+                g.transform.position = P(d.gateX, d.gateFrom) + new Vector3(0, (Ceiling - d.gateFrom) * 0.5f, 0);
+                g.transform.localScale = new Vector3(1f, Ceiling - d.gateFrom, 1f);
+                var sr = g.AddComponent<SpriteRenderer>(); sr.sprite = whiteBox; sr.color = new Color(0.6f, 0.85f, 1f, 0.55f); sr.sortingOrder = 4;
+                g.AddComponent<BoxCollider2D>().size = Vector2.one;
+                s.gate = g;
+            }
 
             Transform cp = new GameObject($"Checkpoint_{i + 1:00}").transform;
             cp.SetParent(points, false);
@@ -225,24 +240,18 @@ public static class TutorialRoomBuilder
         }
 
         // 구덩이 바닥 = 되돌리기 영역
-        Zone(zones, "Respawn_Dash", TutorialZone.Kind.Respawn, ctrl, 44, 48, -12, -2);
-        Zone(zones, "Respawn_DoubleDash", TutorialZone.Kind.Respawn, ctrl, 63, 71, -12, -2);
+        Zone(zones, "Respawn_Dash", TutorialZone.Kind.Respawn, ctrl, 22, 26, -12, -2);
         Zone(zones, "Respawn_Bottom", TutorialZone.Kind.Respawn, ctrl, -4, Width + 3, -20, -14);
-        // 발판 아래 = 도착 영역
-        ctrl.steps[4].reachZone = Zone(zones, "Reach_Drop", TutorialZone.Kind.Reach, ctrl, 84, 97, 0, 2);
 
-        // 허수아비 (공격 · 무기 스킬 · 퍼즈 구간)
-        ctrl.steps[5].dummy = Spawn(dummyPrefab, props, "Dummy_Attack", P(108, 0))?.GetComponent<Stats>();
-        Spawn(dummyPrefab, props, "Dummy_WeaponSwap", P(123, 0));
-        Spawn(dummyPrefab, props, "Dummy_WeaponSkill", P(138, 0));
-        Spawn(dummyPrefab, props, "Dummy_Pause", P(161, 0));
-        ctrl.steps[5].damageNeeded = 50;
-        ctrl.steps[9].fillPauseGauge = true;
+        // 허수아비: 공격·무기 교체 한 개, 스킬·퍼즈 한 개
+        ctrl.steps[2].dummy = Spawn(dummyPrefab, props, "Dummy_Attack", P(39, 0))?.GetComponent<Stats>();
+        ctrl.steps[2].damageNeeded = 50;
+        Spawn(dummyPrefab, props, "Dummy_SkillPause", P(55, 0));
+        ctrl.steps[5].fillPauseGauge = true;
 
-        Spawn(AssetDatabase.LoadAssetAtPath<GameObject>(Pickup1Path), props, "SkillPickup_1", P(133, 1));
-        Spawn(AssetDatabase.LoadAssetAtPath<GameObject>(Pickup2Path), props, "SkillPickup_2", P(148, 1));
-        GameObject box = Spawn(AssetDatabase.LoadAssetAtPath<GameObject>(BoxPath), props, "Box", P(173, 0));
-        if (box != null) ctrl.steps[10].box = box.GetComponent<Box>();
+        Spawn(AssetDatabase.LoadAssetAtPath<GameObject>(Pickup1Path), props, "SkillPickup_1", P(49, 1));
+        GameObject box = Spawn(AssetDatabase.LoadAssetAtPath<GameObject>(BoxPath), props, "Box", P(66, 0));
+        if (box != null) ctrl.steps[6].box = box.GetComponent<Box>();
     }
 
     static Def D(string t, string g, TutorialController.Condition c, int gateX, int from, Vector3 cp)

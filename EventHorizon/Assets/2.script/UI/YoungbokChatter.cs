@@ -84,6 +84,25 @@ public class YoungbokChatter : MonoBehaviour
     bool showing;
     bool showingAllowedOverMap;
     float lastEndTime = -999f;
+
+    // [2026-11-18 추가] 튜토리얼 안내 모드 — 사라지지 않고 계속 떠 있는 안내 대사 (TutorialController 가 부름)
+    const string DefaultHeader = "통신 · 영복";
+    static readonly Color FaceColor = new Color(1f, 1f, 1f, 0.92f);
+    static readonly Color SilhouetteColor = new Color(0.06f, 0.06f, 0.07f, 0.95f);   // 정체를 숨긴 검은 얼굴
+    bool guideMode;
+    string guideLine;
+    bool guideTop;                          // 안내 창을 화면 가운데 위에 둘지 (튜토리얼)
+    const float GuideTopMargin = 28f;       // 화면 위쪽 끝에서 띄우는 거리 (1280×720 기준)
+
+    // [2026-11-18 추가] 안내 모드 모양: 더 넓고 긴 푸른 창 (평소 잡담은 금색 그대로)
+    const float GuideBoxW = 760f, GuideBoxH = 132f;
+    static readonly Color GuideBlue = new Color(0.43f, 0.66f, 0.86f, 1f);          // 테두리·이름·신호 막대
+    static readonly Color GuideGround = new Color(0.035f, 0.06f, 0.095f, 0.94f);   // 안쪽 판
+    static readonly Color GuidePortraitBg = new Color(0.07f, 0.11f, 0.17f, 1f);
+    static readonly Color GuideText = new Color(0.87f, 0.93f, 0.99f, 1f);
+    Image frameImg, innerImg, scanImg, faceFrameImg, facePanelImg;
+    readonly List<Image> barImgs = new List<Image>();
+    RectTransform faceFrameRt;
     readonly HashSet<string> onceRun = new HashSet<string>();
     readonly HashSet<string> onceRoom = new HashSet<string>();
 
@@ -134,7 +153,107 @@ public class YoungbokChatter : MonoBehaviour
         lastHp = -1;
         lastEnemyCount = 0;
         sawEnemiesInRoom = false;
+        EndGuide();
         HideNow();
+    }
+
+    // ════════════════ [2026-11-18 추가] 튜토리얼 안내 ════════════════
+
+    /// <summary>안내 대사를 띄우고 HideGuide 전까지 계속 둔다. speaker = 머리글 이름 ("???"), hideFace = 얼굴을 검은 실루엣으로</summary>
+    public static void ShowGuide(string speaker, string line, bool hideFace = true, bool topCenter = false) => Ensure().StartGuide(speaker, line, hideFace, topCenter);
+
+    /// <summary>안내 모드를 끝내고 창을 내린다 (머리글·얼굴 원래대로)</summary>
+    public static void HideGuide()
+    {
+        if (instance != null) instance.EndGuide();
+    }
+
+    void StartGuide(string speaker, string line, bool hideFace, bool topCenter)
+    {
+        if (root == null) return;
+        bool changed = !guideMode || line != guideLine || topCenter != guideTop;
+        guideMode = true;
+        guideTop = topCenter;
+        SetAnchor(topCenter);
+        guideLine = line;
+        ApplySkin(true);
+        if (header != null) header.text = speaker;   // [2026-11-18] 안내에서는 '통신' 없이 이름만
+        if (portraitImg != null) portraitImg.color = hideFace ? SilhouetteColor : FaceColor;
+        SetText(line);
+        if (changed && !IsBlocked(false))
+        {
+            if (playing != null) StopCoroutine(playing);
+            playing = StartCoroutine(GuideIn());
+        }
+    }
+
+    void EndGuide()
+    {
+        if (!guideMode) return;
+        guideMode = false;
+        guideLine = null;
+        if (header != null) header.text = DefaultHeader;
+        if (portraitImg != null) portraitImg.color = FaceColor;
+        guideTop = false;
+        SetAnchor(false);
+        ApplySkin(false);
+        HideNow();
+    }
+
+    // 창 모양 바꾸기: guide = 넓고 긴 푸른 창, 아니면 원래 금색 창
+    void ApplySkin(bool guide)
+    {
+        if (root == null) return;
+        float w = guide ? GuideBoxW : BoxW, h = guide ? GuideBoxH : BoxH;
+        Color line = guide ? GuideBlue : Gold;
+        root.sizeDelta = new Vector2(w, h);
+        if (frameImg != null) frameImg.color = line;
+        if (innerImg != null) innerImg.color = guide ? GuideGround : Ground;
+        if (scanImg != null) scanImg.color = new Color(line.r, line.g, line.b, 0.06f);
+        if (faceFrameImg != null) faceFrameImg.color = line;
+        if (facePanelImg != null) facePanelImg.color = guide ? GuidePortraitBg : PortraitBg;
+        for (int i = 0; i < barImgs.Count; i++)
+            barImgs[i].color = i == 3 ? new Color(line.r, line.g, line.b, 0.35f) : line;
+        if (header != null) header.color = line;
+        if (body != null) body.color = guide ? GuideText : TextColor;
+
+        // 칸 배치 (얼굴은 왼쪽 끝, 글자 칸은 남은 폭)
+        float innerW = w - 2f;
+        if (faceFrameRt != null) faceFrameRt.anchoredPosition = new Vector2(-innerW / 2f + 12f + FaceSize / 2f, -2f);
+        float colX = 12f + FaceSize + 12f;
+        if (columnRt != null) columnRt.sizeDelta = new Vector2(innerW - colX - 16f, columnRt.sizeDelta.y);
+    }
+
+    // 창 기준점: 평소 = 화면 왼쪽 가운데, 안내(가운데 위) = 화면 위쪽 가운데
+    void SetAnchor(bool top)
+    {
+        if (root == null) return;
+        root.anchorMin = root.anchorMax = top ? new Vector2(0.5f, 1f) : new Vector2(0f, 0.5f);
+        root.pivot = top ? new Vector2(0.5f, 1f) : new Vector2(0f, 0.5f);
+        root.anchoredPosition = GuideRest();
+    }
+
+    Vector2 GuideRest() => guideTop ? new Vector2(0f, -GuideTopMargin) : new Vector2(LeftX, OffsetY);
+
+    // 왼쪽에서 살짝 밀려 들어온 뒤 그대로 머묾
+    IEnumerator GuideIn()
+    {
+        showing = true;
+        root.gameObject.SetActive(true);
+        float t = 0f;
+        while (t < 0.22f)
+        {
+            t += Time.unscaledDeltaTime;
+            float k = Mathf.Clamp01(t / 0.22f);
+            float e = 1f - (1f - k) * (1f - k);
+            group.alpha = e;
+            // 가운데 위면 위에서 살짝 내려오고, 아니면 왼쪽에서 밀려 들어옴
+            root.anchoredPosition = GuideRest() + (guideTop ? new Vector2(0f, 24f * (1f - e)) : new Vector2(-30f * (1f - e), 0f));
+            yield return null;
+        }
+        group.alpha = 1f;
+        root.anchoredPosition = GuideRest();
+        playing = null;
     }
 
     // ════════════════ 다른 스크립트가 부르는 곳 ════════════════
@@ -231,7 +350,14 @@ public class YoungbokChatter : MonoBehaviour
         }
 
         // 떠 있는 동안 막히면(대화·컷신 시작, 메뉴) 바로 내린다
-        if (showing && IsBlocked(showingAllowedOverMap)) HideNow();
+        // [2026-11-18] 튜토리얼 안내는 잠깐 숨겼다가, 풀리면 다시 띄운다
+        if (guideMode)
+        {
+            bool blocked = IsBlocked(false);
+            if (blocked && playing == null && group.alpha > 0f) group.alpha = 0f;
+            else if (!blocked && playing == null && (!showing || group.alpha <= 0f)) playing = StartCoroutine(GuideIn());
+        }
+        else if (showing && IsBlocked(showingAllowedOverMap)) HideNow();
 
         pollTimer -= Time.unscaledDeltaTime;
         if (pollTimer > 0f) return;
@@ -316,6 +442,7 @@ public class YoungbokChatter : MonoBehaviour
     bool Say(string line, bool priority, bool allowOverMap = false)
     {
         if (string.IsNullOrEmpty(line) || root == null) return false;
+        if (guideMode) return false;   // [2026-11-18] 튜토리얼 안내가 떠 있는 동안은 잡담 안 함
         if (IsBlocked(allowOverMap)) return false;
         if (!priority && (showing || Time.unscaledTime - lastEndTime < MinGap)) return false;
 
@@ -397,6 +524,7 @@ public class YoungbokChatter : MonoBehaviour
         var frame = root.gameObject.AddComponent<Image>();
         frame.sprite = cut; frame.type = Image.Type.Sliced; frame.pixelsPerUnitMultiplier = 0.5f;
         frame.color = Gold; frame.raycastTarget = false;
+        frameImg = frame;
 
         // 안쪽 어두운 판 + 주사선
         var inner = NewRect("Inner", root);
@@ -404,6 +532,7 @@ public class YoungbokChatter : MonoBehaviour
         var innerImg = inner.gameObject.AddComponent<Image>();
         innerImg.sprite = cut; innerImg.type = Image.Type.Sliced; innerImg.pixelsPerUnitMultiplier = 0.5f;
         innerImg.color = Ground; innerImg.raycastTarget = false;
+        this.innerImg = innerImg;
         inner.gameObject.AddComponent<Mask>().showMaskGraphic = true;
 
         var scan = NewRect("Scan", inner);
@@ -411,6 +540,7 @@ public class YoungbokChatter : MonoBehaviour
         var scanImg = scan.gameObject.AddComponent<Image>();
         scanImg.sprite = MakeScanSprite(); scanImg.type = Image.Type.Tiled;
         scanImg.color = new Color(Gold.r, Gold.g, Gold.b, 0.06f); scanImg.raycastTarget = false;
+        this.scanImg = scanImg;
 
         // 얼굴 칸 (금색 1px 테두리 + 가운데 맞춘 일러스트)
         const float innerW = BoxW - 2f;
@@ -419,11 +549,13 @@ public class YoungbokChatter : MonoBehaviour
         faceFrame.anchoredPosition = new Vector2(-innerW / 2f + 12f + FaceSize / 2f, -2f);
         var ff = faceFrame.gameObject.AddComponent<Image>();
         ff.color = Gold; ff.raycastTarget = false;
+        faceFrameImg = ff; faceFrameRt = faceFrame;
 
         var faceMask = NewRect("Mask", faceFrame);
         Stretch(faceMask, 1f);
         var fm = faceMask.gameObject.AddComponent<Image>();
         fm.color = PortraitBg; fm.raycastTarget = false;
+        facePanelImg = fm;
         faceMask.gameObject.AddComponent<RectMask2D>();
 
         var pic = NewRect("Portrait", faceMask);
@@ -456,7 +588,7 @@ public class YoungbokChatter : MonoBehaviour
         var prompt = Resources.Load<InteractPrompt>("InteractPrompt");
         if (prompt != null && prompt.labelText != null) font = prompt.labelText.font;
 
-        header = NewText("Header", columnRt, font, HeaderSize, Gold, "통신 · 영복");
+        header = NewText("Header", columnRt, font, HeaderSize, Gold, DefaultHeader);
         header.characterSpacing = 6f;
         headerRt = header.rectTransform;
         headerRt.anchorMin = headerRt.anchorMax = new Vector2(0f, 1f);
@@ -478,6 +610,7 @@ public class YoungbokChatter : MonoBehaviour
             var bi = b.gameObject.AddComponent<Image>();
             bi.color = i == 3 ? new Color(Gold.r, Gold.g, Gold.b, 0.35f) : Gold;
             bi.raycastTarget = false;
+            barImgs.Add(bi);
         }
 
         body = NewText("Body", columnRt, font, BodySize, TextColor, "");

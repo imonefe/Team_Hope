@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 // [2026-09-29 통합] BossHpUI.cs를 이 스크립트로 흡수 통합.
 // 두 스크립트가 체력바 트윈/잔상(칩 데미지)/피격 번쩍임·흔들림/저체력 색상 변화 로직이
@@ -22,6 +23,15 @@ public class HpUI : MonoBehaviour
     public float findRetryInterval = 0.5f;
 
     public Slider hpSlider;
+
+    [Header("보스 모드 표시 (2026-11-18 추가)")]
+    [Tooltip("보스 체력바 묶음. 보스가 싸우는 동안에만 보이고, 대화·컷신 중이거나 보스가 없으면 투명해진다. (예전처럼 캔버스 전체를 끄지 않음)")]
+    public CanvasGroup bossGroup;
+    [Tooltip("보스 이름 글자 (선택). BossController의 displayName, 비어 있으면 오브젝트 이름")]
+    public TMP_Text bossNameText;
+    [Tooltip("나타나고 사라지는 데 걸리는 시간 (초)")]
+    public float bossFadeTime = 0.25f;
+    bool bossLinked;   // 보스를 잡아 둔 상태인지 (보스가 방과 함께 지워져도 알 수 있게)
 
     [Header("데미지 / 회복 애니메이션 - 격투게임 스타일")]
     [Tooltip("데미지(체력 감소)일 때 초록 바가 새 값까지 걸리는 시간(초). 뚝 끊기지 않고 실제로 " +
@@ -139,6 +149,8 @@ public class HpUI : MonoBehaviour
 
     void Update()
     {
+        if (targetMode == HpUITargetMode.Boss) UpdateBossVisibility();
+
         // 회복(체력 증가) 중이거나 평소에는, 잔상 바가 항상 현재 화면에 보이는 체력 바 값을
         // 실시간으로 따라가게 해서 초록 바보다 앞서 나가는 일이 없게 한다.
         // (데미지로 "천천히 따라 내려가는" 애니메이션이 재생 중일 때는 건드리지 않는다.)
@@ -168,7 +180,10 @@ public class HpUI : MonoBehaviour
             return;
         }
 
-        BossController boss = FindObjectOfType<BossController>();
+        // [2026-11-18] 이미 쓰러진 보스는 건너뜀 (중간보스를 잡은 뒤 나오는 다음 보스를 잡기 위해)
+        BossController boss = null;
+        foreach (BossController b in FindObjectsOfType<BossController>())
+            if (b != null && !b.IsDefeated) { boss = b; break; }
         if (boss == null) return;
 
         Stats s = boss.GetComponent<Stats>();
@@ -182,6 +197,8 @@ public class HpUI : MonoBehaviour
 
         bossRef = boss;
         bossRef.OnDied += HandleBossDied;
+        if (bossNameText != null) bossNameText.text = boss.DisplayName;
+        bossLinked = true;
 
         CancelInvoke(nameof(TryFindBoss));
     }
@@ -205,13 +222,41 @@ public class HpUI : MonoBehaviour
     }
 
     // 보스가 진짜로 사망하면(부활 전 임시 사망 말고) HP 캔버스 자체를 화면에서 치운다 (Boss 모드 전용)
+    // [2026-11-18 수정] 예전에는 부모 캔버스 전체를 꺼서, 전투 캔버스에 같이 두면 다른 UI까지 사라지고
+    // 다음 보스도 못 잡았다 → 연결만 끊고 다시 찾기 시작. 보이기/숨기기는 UpdateBossVisibility 가 투명도로 처리.
     void HandleBossDied()
     {
-        Canvas parentCanvas = GetComponentInParent<Canvas>(true);
-        if (parentCanvas != null)
-            parentCanvas.gameObject.SetActive(false);
-        else
-            gameObject.SetActive(false);
+        ReleaseBoss();
+        if (isActiveAndEnabled) InvokeRepeating(nameof(TryFindBoss), findRetryInterval, findRetryInterval);
+    }
+
+    void ReleaseBoss()
+    {
+        if (targetStats != null) targetStats.OnHpChanged -= UpdateHp;
+        targetStats = null;
+        if (bossRef != null) bossRef.OnDied -= HandleBossDied;
+        bossRef = null;
+        bossLinked = false;
+    }
+
+    // [2026-11-18 추가] 보스가 싸우는 중이고, 대화·컷신 중이 아닐 때만 보이게
+    void UpdateBossVisibility()
+    {
+        // 방이 바뀌어 보스가 사라졌으면 연결을 끊고 다시 찾는다
+        if (bossLinked && bossRef == null)
+        {
+            ReleaseBoss();
+            CancelInvoke(nameof(TryFindBoss));
+            InvokeRepeating(nameof(TryFindBoss), 0f, findRetryInterval);
+        }
+        if (bossGroup == null) return;
+
+        bool show = bossRef != null && bossRef.HasStarted && !bossRef.IsDefeated
+                    && !CutsceneSequencer.IsAnyPlaying && !NPC.AnyTalking;
+        float target = show ? 1f : 0f;
+        float step = bossFadeTime > 0f ? Time.unscaledDeltaTime / bossFadeTime : 1f;
+        bossGroup.alpha = Mathf.MoveTowards(bossGroup.alpha, target, step);
+        bossGroup.blocksRaycasts = false;
     }
 
     void UpdateHp(int current, int max)
