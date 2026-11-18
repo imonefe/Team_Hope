@@ -162,10 +162,28 @@ public class RoomManager : MonoBehaviour
 
     public void EnterSubRoom(GameObject subRoomPrefab, BossCoreKind kind, Vector3 returnPosition)
     {
-        if (subRoomPrefab == null || InSubRoom) return;
+        if (subRoomPrefab == null || InSubRoom || subTransitioning) return;
+        StartCoroutine(SubRoomTransition(() => DoEnterSubRoom(subRoomPrefab, kind, returnPosition)));   // [2026-11-19] 회로 연출
+    }
+
+    // [2026-11-19 추가] 중간 보스 방 드나들기 전환: 회로가 화면을 덮는 동안 플레이어는 조작 잠금 + 피해 무시
+    bool subTransitioning;
+    IEnumerator SubRoomTransition(System.Action onMidpoint)
+    {
+        subTransitioning = true;
+        PlayerController pc = PlayerController.Instance;
+        Health hp = pc != null ? pc.GetComponent<Health>() : null;
+        System.Func<bool> prevInvulnerable = null;
+        if (pc != null) pc.LockControl(this);
+        if (hp != null) { prevInvulnerable = hp.invulnerable; hp.invulnerable = () => true; }
+
         if (TransitionCanvas.Instance != null)
-            TransitionCanvas.Instance.StartCoroutine(TransitionCanvas.Instance.Transition(() => DoEnterSubRoom(subRoomPrefab, kind, returnPosition)));
-        else DoEnterSubRoom(subRoomPrefab, kind, returnPosition);
+            yield return TransitionCanvas.Instance.StartCoroutine(TransitionCanvas.Instance.CircuitTransition(onMidpoint));
+        else onMidpoint?.Invoke();
+
+        if (hp != null) hp.invulnerable = prevInvulnerable;
+        if (pc != null) pc.ResumeControl(this);
+        subTransitioning = false;
     }
 
     void DoEnterSubRoom(GameObject subRoomPrefab, BossCoreKind kind, Vector3 returnPosition)
@@ -187,6 +205,7 @@ public class RoomManager : MonoBehaviour
 
         currentRoomObj = Instantiate(subRoomPrefab);
         Room room = currentRoomObj.GetComponent<Room>();
+        if (room != null) room.DisablePortal();   // [2026-11-19] 중간 보스 방 포탈로 나가지 못하게 (돌아가기는 아래 WatchSubBoss 가 함)
         MovePlayerTo(room != null ? room.GetSpawnPosition() : Vector3.zero);
         TestMaster testMaster = FindObjectOfType<TestMaster>();
         if (testMaster != null) testMaster.RefreshSpawners();
@@ -199,12 +218,27 @@ public class RoomManager : MonoBehaviour
     IEnumerator WatchSubBoss()
     {
         yield return null;
+        // 보스(BossController)가 있으면 보스가 쓰러질 때까지,
+        // [2026-11-19] 보스가 없으면(일반 적으로 만든 중간 보스·시험용 몬스터) 방 안 적이 한 번이라도 나온 뒤 모두 사라질 때까지 기다린다.
+        // (원래 방의 적은 꺼져 있어서 찾기에 잡히지 않는다)
         BossController boss = null;
+        bool sawEnemy = false;
         while (true)
         {
             if (currentRoomObj == null) yield break;
             if (boss == null) boss = currentRoomObj.GetComponentInChildren<BossController>(true);
-            if (boss != null && boss.IsDefeated) break;
+            if (boss != null)
+            {
+                if (boss.IsDefeated) break;
+            }
+            else
+            {
+                bool alive = false;
+                foreach (Enemy e in FindObjectsOfType<Enemy>())
+                    if (e != null && e.gameObject.activeInHierarchy) { alive = true; break; }
+                if (alive) sawEnemy = true;
+                else if (sawEnemy) break;
+            }
             yield return null;
         }
         yield return new WaitForSeconds(subRoomReturnDelay);
@@ -218,9 +252,7 @@ public class RoomManager : MonoBehaviour
     {
         if (!InSubRoom) return;
         if (subWatch != null) { StopCoroutine(subWatch); subWatch = null; }
-        if (TransitionCanvas.Instance != null)
-            TransitionCanvas.Instance.StartCoroutine(TransitionCanvas.Instance.Transition(() => DoReturn(defeated)));
-        else DoReturn(defeated);
+        StartCoroutine(SubRoomTransition(() => DoReturn(defeated)));   // [2026-11-19] 회로 연출
     }
 
     void DoReturn(bool defeated)
@@ -235,6 +267,7 @@ public class RoomManager : MonoBehaviour
         foreach (GameObject root in suspendedRoots) if (root != null) root.SetActive(true);
         suspendedRoots.Clear();
 
+        if (CameraFollow.Instance != null) CameraFollow.Instance.ReleaseRoom();   // [2026-11-19] 보스방 카메라 고정이 남지 않게
         MovePlayerTo(savedPlayerPos);
         TestMaster testMaster = FindObjectOfType<TestMaster>();
         if (testMaster != null) testMaster.RefreshSpawners();

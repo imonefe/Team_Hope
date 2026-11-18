@@ -51,6 +51,16 @@ public class Room : MonoBehaviour
         if (isBossRoom) StartCoroutine(FaceBossOnEnter());   // [2026-11-01] 보스방 진입 시 플레이어가 보스를 바라봄
 
         InvokeRepeating(nameof(CheckClear), 0.5f, 0.2f);
+        started = true;
+    }
+
+    // [2026-11-19 추가] 중간 보스 방에 다녀오는 동안 이 방은 꺼져 있다가 다시 켜진다.
+    // 꺼질 때 반복 확인(CheckClear)이 멈췄다면 다시 켜질 때 이어서 돌린다 (돌고 있으면 그대로 둠)
+    bool started;
+    void OnEnable()
+    {
+        if (started && !portalOpened && !IsInvoking(nameof(CheckClear)))
+            InvokeRepeating(nameof(CheckClear), 0.5f, 0.2f);
     }
 
     /// <summary>
@@ -104,6 +114,10 @@ public class Room : MonoBehaviour
     void CheckClear()
     {
         if (portalOpened) return;
+
+        // [2026-11-19] 방이 꺼져 있는 동안(중간 보스 방에 가 있음)은 판정하지 않는다.
+        // 꺼진 방의 살아 있는 적은 찾기에 안 잡혀서 "전멸"로 잘못 보고 문·보상 상자를 먼저 열 수 있었음
+        if (!isActiveAndEnabled) return;
 
         // [2026-10-15] 컷신이 재생되는 동안에는 클리어 판정을 미룬다 (몬스터 없는 보스방에서 포탈이 바로 열리던 문제)
         if (CutsceneSequencer.IsAnyPlaying) return;
@@ -167,6 +181,16 @@ public class Room : MonoBehaviour
 
         if (isBossRoom && CameraFollow.Instance != null)
             CameraFollow.Instance.ReleaseRoom();
+    }
+
+    /// <summary>
+    /// [2026-11-19 추가] 이 방의 포탈을 아예 쓰지 않게 한다 (중간 보스 방 — 포탈로 나가 버리면 맡겨 둔 원래 방이 사라지므로,
+    /// 돌아가기는 RoomManager 가 보스 처치 n초 뒤에 직접 한다)
+    /// </summary>
+    public void DisablePortal()
+    {
+        if (portal != null) portal.gameObject.SetActive(false);
+        portal = null;
     }
 
     /// <summary>[2026-10-27 추가] 아직 몬스터를 내보내지 않은 스포너가 남아 있는지 (영복 "N 남았다" 판단용)</summary>

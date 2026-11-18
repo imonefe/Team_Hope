@@ -13,6 +13,21 @@ public class TransitionCanvas : PersistentSingleton<TransitionCanvas>
     public Image fadeImage;        // 전체 화면 덮는 검정 Image
     public float fadeDuration = 0.6f;
 
+    // [2026-11-19 추가] 중간 보스 방 드나들 때 쓰는 회로 덮개 연출 (CircuitCover 오브젝트, 셰이더 EventHorizon/UI/CircuitCover)
+    [Header("회로 전환 (중간 보스 방)")]
+    [Tooltip("전체 화면 Image (머티리얼 M_CircuitCover). 비어 있으면 기존 페이드로 대신함")]
+    public Image circuitImage;
+    [Tooltip("회로가 화면을 다 덮기까지 걸리는 시간 (초)")]
+    public float circuitCoverDuration = 1.1f;
+    [Tooltip("다 덮인 채로 머무는 시간 (초)")]
+    public float circuitHoldTime = 0.25f;
+    [Tooltip("회로가 걷히는 시간 (초)")]
+    public float circuitRevealDuration = 0.8f;
+
+    Material circuitMat;
+    static readonly int ProgressId = Shader.PropertyToID("_Progress");
+    static readonly int UTimeId = Shader.PropertyToID("_UTime");
+
     void Awake()
     {
         // 중복이면 스스로 파괴, 아니면 유일한 인스턴스로 등록 + 씬 전환에도 유지 (PersistentSingleton)
@@ -21,6 +36,14 @@ public class TransitionCanvas : PersistentSingleton<TransitionCanvas>
         // 시작 시 투명하게
         SetAlpha(0f);
         gameObject.SetActive(true);
+
+        // [2026-11-19] 회로 덮개: 머티리얼을 복사해서 진행값을 바꿔도 원본 에셋은 그대로
+        if (circuitImage != null && circuitImage.material != null)
+        {
+            circuitMat = new Material(circuitImage.material);
+            circuitImage.material = circuitMat;
+        }
+        SetCircuit(0f, false);
 
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -42,6 +65,60 @@ public class TransitionCanvas : PersistentSingleton<TransitionCanvas>
     {
         StopAllCoroutines();
         SetAlpha(0f);
+        SetCircuit(0f, false);   // [2026-11-19]
+    }
+
+    /// <summary>
+    /// [2026-11-19 추가] 회로가 화면을 덮음 → 콜백 → 회로가 걷힘. 중간 보스 방 드나들 때 RoomManager 에서 호출.
+    /// 회로 덮개가 없으면 기존 페이드(Transition)로 대신한다.
+    /// </summary>
+    public IEnumerator CircuitTransition(System.Action onMidpoint)
+    {
+        if (circuitImage == null || circuitMat == null)
+        {
+            yield return Transition(onMidpoint);
+            yield break;
+        }
+
+        yield return CircuitRun(0f, 1f, circuitCoverDuration);   // 덮기
+
+        onMidpoint?.Invoke();                                     // 다 가려진 순간 방 전환
+
+        float t = 0f;
+        while (t < circuitHoldTime)                               // 잠깐 머묾 (회로 빛은 계속 흐름)
+        {
+            t += Time.unscaledDeltaTime;
+            circuitMat.SetFloat(UTimeId, Time.unscaledTime);
+            yield return null;
+        }
+
+        yield return CircuitRun(1f, 0f, circuitRevealDuration);  // 걷기
+        SetCircuit(0f, false);
+    }
+
+    IEnumerator CircuitRun(float from, float to, float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime; // timeScale 0 이어도 작동
+            float k = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            SetCircuit(Mathf.Lerp(from, to, k), true);
+            yield return null;
+        }
+        SetCircuit(to, true);
+    }
+
+    void SetCircuit(float progress, bool show)
+    {
+        if (circuitImage == null) return;
+        circuitImage.enabled = show;
+        circuitImage.raycastTarget = show;   // 덮여 있는 동안 UI 클릭 막기
+        if (circuitMat != null)
+        {
+            circuitMat.SetFloat(ProgressId, progress);
+            circuitMat.SetFloat(UTimeId, Time.unscaledTime);
+        }
     }
 
     /// <summary>

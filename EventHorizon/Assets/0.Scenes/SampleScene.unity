@@ -2769,7 +2769,7 @@ MonoBehaviour:
   - stageName: 1S
     lobbyPrefab: {fileID: 8548028022454420013, guid: 1fb0d7fec94fd6d41b8a06998086120d, type: 3}
     canvasPrefabs:
-    - {fileID: 3207294084055176148, guid: 3812362af634ef045907381fd9f4dac5, type: 3}
+    - {fileID: 3207294084055176148, guid: afb8d9a7c0f0dc44891361c0bff6fd8a, type: 3}
   canvasParent: {fileID: 0}
   startButtons:
   - {fileID: 0}
@@ -3172,6 +3172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startRoomPrefab: {fileID: 8274060166707066929, guid: 12479a49aa394754fa4bbe788bd0d635, type: 3}
+  subRoomReturnDelay: 2.5
 --- !u!1 &944859783
 GameObject:
   m_ObjectHideFlags: 0
@@ -9721,7 +9722,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &3427726756
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10171,7 +10172,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!222 &3757062733
 CanvasRenderer:
   m_ObjectHideFlags: 0

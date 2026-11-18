@@ -1,0 +1,349 @@
+# [2026-11-19] 바탕화면 "Claude outputs/진입코어_스파인_4.3.zip" (ring_slash/pierce/strike, 스파인 4.3.39) 을 프로젝트에 넣고
+# 스파인 에셋(Atlas/Material/SkeletonData)과 코어 프리팹 3종을 만든 뒤 mid_boss_s01~03 코어 자리에 배치
+import os,re,uuid,shutil,json,zipfile,sys
+ZIP=sys.argv[1]
+ART='4. Art/Object/MidBossCore'
+PRE='1.Prefab/Room/MidBoss'
+BAEK='4. Art/Illustration/Spine/baek_idle'
+def gid(): return uuid.uuid4().hex
+def meta_text(g): return f"fileFormatVersion: 2\nguid: {g}\nTextScriptImporter:\n  externalObjects: {{}}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n"
+def meta_native(g,mid): return f"fileFormatVersion: 2\nguid: {g}\nNativeFormatImporter:\n  externalObjects: {{}}\n  mainObjectFileID: {mid}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n"
+def folder_meta(p):
+    if not os.path.exists(p+'.meta'): open(p+'.meta','w').write(f"fileFormatVersion: 2\nguid: {gid()}\nfolderAsset: yes\nDefaultImporter:\n  externalObjects: {{}}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n")
+os.makedirs(ART,exist_ok=True)
+for p in ['4. Art/Object',ART]: folder_meta(p)
+z=zipfile.ZipFile(ZIP)
+pngmeta=open(f'{BAEK}/baek_idle.png.meta').read()
+pngmeta=re.sub(r'(buildTarget: \w+\n    maxTextureSize: )2048',r'\g<1>4096',pngmeta)
+matsrc=open(f'{BAEK}/baek_idle_Material.mat').read()
+SKD={}
+for r in ['ring_slash','ring_pierce','ring_strike']:
+    d=f'{ART}/{r}'; os.makedirs(d,exist_ok=True); folder_meta(d)
+    if os.path.exists(f'{d}/{r}_SkeletonData.asset'): raise SystemExit('이미 있음 '+d)
+    for ext in ['json','atlas.txt','png']:
+        open(f'{d}/{r}.{ext}','wb').write(z.read(f'{r}/{r}.{ext}'))
+    gj,ga,gp,gat,gm,gs=[gid() for _ in range(6)]
+    open(f'{d}/{r}.json.meta','w').write(meta_text(gj))
+    open(f'{d}/{r}.atlas.txt.meta','w').write(meta_text(ga))
+    open(f'{d}/{r}.png.meta','w').write(re.sub(r'guid: \w+',f'guid: {gp}',pngmeta,count=1))
+    m=matsrc.replace('m_Name: baek_idle_Material',f'm_Name: {r}_Material')
+    m=re.sub(r'(_MainTex:\n        m_Texture: \{fileID: 2800000, guid: )\w+',r'\g<1>'+gp,m)
+    open(f'{d}/{r}_Material.mat','w').write(m); open(f'{d}/{r}_Material.mat.meta','w').write(meta_native(gm,2100000))
+    a=open(f'{BAEK}/baek_idle_Atlas.asset').read().replace('m_Name: baek_idle_Atlas',f'm_Name: {r}_Atlas')
+    a=re.sub(r'(atlasFile: \{fileID: 4900000, guid: )\w+',r'\g<1>'+ga,a)
+    a=re.sub(r'(materials:\n  - \{fileID: 2100000, guid: )\w+',r'\g<1>'+gm,a)
+    open(f'{d}/{r}_Atlas.asset','w').write(a); open(f'{d}/{r}_Atlas.asset.meta','w').write(meta_native(gat,11400000))
+    s=open(f'{BAEK}/baek_idle_SkeletonData.asset').read().replace('m_Name: baek_idle_SkeletonData',f'm_Name: {r}_SkeletonData')
+    s=re.sub(r'(atlasAssets:\n  - \{fileID: 11400000, guid: )\w+',r'\g<1>'+gat,s)
+    s=re.sub(r'(skeletonJSON: \{fileID: 4900000, guid: )\w+',r'\g<1>'+gj,s)
+    open(f'{d}/{r}_SkeletonData.asset','w').write(s); open(f'{d}/{r}_SkeletonData.asset.meta','w').write(meta_native(gs,11400000))
+    sk=json.loads(z.read(f'{r}/{r}.json'))['skeleton']
+    SKD[r]=(gs,sk['y'],sk['height'])
+    print(r,'에셋 생성')
+
+# ── 코어 프리팹 3종
+SCALE=0.28   # SkeletonData 0.01 × 0.28 → 원본 1px = 0.0028 유닛 (높이 약 3.9~5.3 유닛)
+GATE='f657617df48c24e459fa1ed8e4199751'; SR='e075b9a3e08e2f74fbd651c858ab16ed'; SA='d247ba06193faa74d9335f5481b2b56c'
+CORES={'ring_slash':('MidBossCore_Slash',1),'ring_pierce':('MidBossCore_Pierce',0),'ring_strike':('MidBossCore_Strike',2)}
+ROOT,RT,MB,COL=1200000000000000001,1200000000000000002,1200000000000000003,1200000000000000004
+SG,STR,SMF,SMR,SREN,SANI=1200000000000000011,1200000000000000012,1200000000000000013,1200000000000000014,1200000000000000015,1200000000000000016
+PG={}
+for r,(pname,kind) in CORES.items():
+    gs,y0,h=SKD[r]
+    lift=round(-y0*0.01*SCALE,3); top=h*0.01*SCALE
+    t=f'''%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &{ROOT}
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  serializedVersion: 6
+  m_Component:
+  - component: {{fileID: {RT}}}
+  - component: {{fileID: {MB}}}
+  - component: {{fileID: {COL}}}
+  m_Layer: 0
+  m_Name: {pname}
+  m_TagString: Untagged
+  m_Icon: {{fileID: 0}}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &{RT}
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  m_GameObject: {{fileID: {ROOT}}}
+  serializedVersion: 2
+  m_LocalRotation: {{x: 0, y: 0, z: 0, w: 1}}
+  m_LocalPosition: {{x: 0, y: 0, z: 0}}
+  m_LocalScale: {{x: 1, y: 1, z: 1}}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {{fileID: {STR}}}
+  m_Father: {{fileID: 0}}
+  m_LocalEulerAnglesHint: {{x: 0, y: 0, z: 0}}
+--- !u!114 &{MB}
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  m_GameObject: {{fileID: {ROOT}}}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {{fileID: 11500000, guid: {GATE}, type: 3}}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactKey: 102
+  promptOffset: {{x: 0, y: 0, z: 0}}
+  kind: {kind}
+  midBossRoomPrefab: {{fileID: 0}}
+  skeleton: {{fileID: {SANI}}}
+  idleAnim: idle
+  breakAnim: deactivate_break
+  brokenAnim: 
+  breakFallbackTime: 1.2
+  activeOnly: []
+  hideWhenBroken: 0
+--- !u!61 &{COL}
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  m_GameObject: {{fileID: {ROOT}}}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {{fileID: 0}}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {{x: 0, y: {round(min(top,4.5)/2,2)}}}
+  m_SpriteTilingProperty:
+    border: {{x: 0, y: 0, z: 0, w: 0}}
+    pivot: {{x: 0, y: 0}}
+    oldSize: {{x: 0, y: 0}}
+    newSize: {{x: 0, y: 0}}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {{x: 3.5, y: {round(min(top,4.5),2)}}}
+  m_EdgeRadius: 0
+--- !u!1 &{SG}
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  serializedVersion: 6
+  m_Component:
+  - component: {{fileID: {STR}}}
+  - component: {{fileID: {SMF}}}
+  - component: {{fileID: {SMR}}}
+  - component: {{fileID: {SREN}}}
+  - component: {{fileID: {SANI}}}
+  m_Layer: 0
+  m_Name: Spine
+  m_TagString: Untagged
+  m_Icon: {{fileID: 0}}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &{STR}
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  m_GameObject: {{fileID: {SG}}}
+  serializedVersion: 2
+  m_LocalRotation: {{x: 0, y: 0, z: 0, w: 1}}
+  m_LocalPosition: {{x: 0, y: {lift}, z: 0}}
+  m_LocalScale: {{x: {SCALE}, y: {SCALE}, z: 1}}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {{fileID: {RT}}}
+  m_LocalEulerAnglesHint: {{x: 0, y: 0, z: 0}}
+--- !u!33 &{SMF}
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  m_GameObject: {{fileID: {SG}}}
+  m_Mesh: {{fileID: 0}}
+--- !u!23 &{SMR}
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  m_GameObject: {{fileID: {SG}}}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials: []
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {{fileID: 0}}
+  m_ProbeAnchor: {{fileID: 0}}
+  m_LightProbeVolumeOverride: {{fileID: 0}}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {{fileID: 0}}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 5
+  m_AdditionalVertexStreams: {{fileID: 0}}
+--- !u!114 &{SREN}
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  m_GameObject: {{fileID: {SG}}}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {{fileID: 11500000, guid: {SR}, type: 3}}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skeletonDataAsset: {{fileID: 11400000, guid: {gs}, type: 2}}
+  initialSkinName: 
+  initialFlipX: 0
+  initialFlipY: 0
+  meshSettings:
+    useClipping: 1
+    zSpacing: 0
+    tintBlack: 0
+    canvasGroupCompatible: 0
+    pmaVertexColors: 1
+    addNormals: 0
+    calculateTangents: 0
+    immutableTriangles: 0
+  updateWhenInvisible: 3
+  clearStateOnDisable: 0
+  separatorSlotNames: []
+  enableSeparatorSlots: 0
+  disableRenderingOnOverride: 1
+  physicsPositionInheritanceFactor: {{x: 1, y: 1}}
+  physicsRotationInheritanceFactor: 1
+  physicsPositionInheritanceLimit: {{x: Infinity, y: Infinity}}
+  physicsRotationInheritanceLimit: 3.4028235e+38
+  physicsMovementRelativeTo: {{fileID: 0}}
+  threadedMeshGeneration: 2
+  singleSubmesh: 0
+  fixDrawOrder: 0
+  maskInteraction: 0
+  fixPrefabOverrideViaMeshFilter: 2
+  wasDeprecatedTransferred: 1
+  zSpacingDeprecated: 0
+  useClippingDeprecated: 1
+  immutableTrianglesDeprecated: 0
+  pmaVertexColorsDeprecated: 1
+  tintBlackDeprecated: 0
+  addNormalsDeprecated: 0
+  calculateTangentsDeprecated: 0
+--- !u!114 &{SANI}
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {{fileID: 0}}
+  m_PrefabInstance: {{fileID: 0}}
+  m_PrefabAsset: {{fileID: 0}}
+  m_GameObject: {{fileID: {SG}}}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {{fileID: 11500000, guid: {SA}, type: 3}}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updateTiming: 1
+  threadedAnimation: 2
+  animationName: idle
+  loop: 1
+  timeScale: 1
+  unscaledTime: 0
+  wasDeprecatedTransferred: 1
+  skeletonDataAssetDeprecated: {{fileID: 0}}
+  initialSkinNameDeprecated: 
+  editorSkipSkinSyncDeprecated: 0
+  initialFlipXDeprecated: 0
+  initialFlipYDeprecated: 0
+  updateModeDeprecated: 3
+  updateWhenInvisibleDeprecated: 3
+  separatorSlotNamesDeprecated: []
+  zSpacingDeprecated: 0
+  useClippingDeprecated: 1
+  immutableTrianglesDeprecated: 0
+  pmaVertexColorsDeprecated: 1
+  clearStateOnDisableDeprecated: 0
+  tintBlackDeprecated: 0
+  singleSubmeshDeprecated: 0
+  addNormalsDeprecated: 0
+  calculateTangentsDeprecated: 0
+  maskInteractionDeprecated: 0
+'''
+    p=f'{PRE}/{pname}.prefab'
+    open(p,'w',encoding='utf8').write(t)
+    g=gid(); open(p+'.meta','w').write(f"fileFormatVersion: 2\nguid: {g}\nPrefabImporter:\n  externalObjects: {{}}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n")
+    PG[r]=g; print(pname,'프리팹, 띄움',lift,'높이',round(top,2))
+
+# ── 방에 배치
+ROOMS={'mid_boss_s01':('검사','ring_slash'),'mid_boss_s02':('궁수','ring_pierce'),'mid_boss_s03':('마법사','ring_strike')}
+for n,(kname,r) in ROOMS.items():
+    p=f'{PRE}/{n}.prefab'; t=open(p,encoding='utf8').read(); G=PG[r]
+    mk=re.search(r'--- !u!1 &(-?\d+)\nGameObject:\n(?:  .*\n)*?  m_Name: MidBossCore_Point_'+kname+r'\n',t).group(1)
+    mt=[d for d in re.split(r'\n(?=--- !u!)',t) if d.startswith('--- !u!4 ') and f'm_GameObject: {{fileID: {mk}}}' in d][0]
+    mtid=re.match(r'--- !u!4 &(-?\d+)',mt).group(1)
+    PI=int(uuid.uuid4().int & ((1<<62)-1)); ST=(PI ^ RT) & 0x7FFFFFFFFFFFFFFF
+    def mod(target,path,val):
+        return f'    - target: {{fileID: {target}, guid: {G}, type: 3}}\n      propertyPath: {path}\n      value: {val}\n      objectReference: {{fileID: 0}}\n'
+    mods=''.join([mod(RT,'m_LocalPosition.x',0),mod(RT,'m_LocalPosition.y',0),mod(RT,'m_LocalPosition.z',0),
+        mod(RT,'m_LocalRotation.w',1),mod(RT,'m_LocalRotation.x',0),mod(RT,'m_LocalRotation.y',0),mod(RT,'m_LocalRotation.z',0),
+        mod(ROOT,'m_Name',CORES[r][0])])
+    new_mt=mt.replace('  m_Children: []',f'  m_Children:\n  - {{fileID: {ST}}}',1); assert new_mt!=mt
+    t=t.replace(mt,new_mt,1)
+    t=t.rstrip('\n')+f'''
+--- !u!1001 &{PI}
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {{fileID: {mtid}}}
+    m_Modifications:
+{mods}    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {{fileID: 100100000, guid: {G}, type: 3}}
+--- !u!4 &{ST} stripped
+Transform:
+  m_CorrespondingSourceObject: {{fileID: {RT}, guid: {G}, type: 3}}
+  m_PrefabInstance: {{fileID: {PI}}}
+  m_PrefabAsset: {{fileID: 0}}
+'''
+    open(p,'w',encoding='utf8').write(t); print(n,kname,r,'배치')

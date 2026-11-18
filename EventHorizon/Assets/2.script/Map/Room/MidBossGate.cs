@@ -49,7 +49,7 @@ public class MidBossGate : ProximityInteractable
     }
 
     void OnEnable() { RoomManager.OnSubRoomReturned += OnReturned; }
-    void OnDisable() { RoomManager.OnSubRoomReturned -= OnReturned; }
+    protected override void OnDisable() { base.OnDisable(); RoomManager.OnSubRoomReturned -= OnReturned; }   // [2026-11-19] 기본 클래스의 안내 숨기기도 같이
 
     void Start()
     {
