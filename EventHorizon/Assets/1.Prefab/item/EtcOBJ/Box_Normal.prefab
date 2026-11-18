@@ -200,6 +200,10 @@ MonoBehaviour:
   - {fileID: 5039510986400131060, guid: c432ac4b568e81940ba99e3006993b7f, type: 3}
   - {fileID: 6989594130531546913, guid: ca9406fdbada9f29c50c03832974e68d, type: 3}
   - {fileID: 5498206606469797017, guid: 0ccba9b1a8e756449a9ca4f10b1d6ece, type: 3}
+  - {fileID: 92064684869300406, guid: 5a545eb68b294f08ba0b2915c4470d05, type: 3}
+  - {fileID: 92064684869300406, guid: 2afaaf82e7824f98a4285a602e555c08, type: 3}
+  - {fileID: 92064684869300406, guid: b9c10f094dcd45c885c2a10627001142, type: 3}
+  - {fileID: 92064684869300406, guid: 749044527dd2471ea38ff5d1c6a44aff, type: 3}
   launchForceX: 0
   launchForceY: 6
   animator: {fileID: 5170353357945277465}

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
+  m_Name: "\ubc15\uc81c\ub41c \ucc9c\uc7ac"
+  m_EditorClassIdentifier: 
+  itemName: "\ubc15\uc81c\ub41c \ucc9c\uc7ac"
+  description: "\ud55c \uc2dc\ub300\ub97c \uc55e\uc11c\uac04 \ucc9c\uc7ac\uc758 \ub9c8\uc9c0\ub9c9 \ubaa8\uc2b5\uc744 \ub2f4\uc740 \uc561\uc790. \uc0ac\uc9c4 \uc18d \uadf8\ub294 \uc544\uc9c1\ub3c4 \ubb34\uc5b8\uac00\ub97c \ub9cc\ub4e4\uace0 \uc788\ub2e4."
+  icon: {fileID: 959518618, guid: 650fb88925584ad1ae8f3f6673a62410, type: 3}
+  itemType: 0
+  tier: 3
+  effects:
+  - {fileID: 11400000, guid: ec90b6027fd0416e99bc3dd5b92f876d, type: 2}
+  - {fileID: 11400000, guid: a3d1e986b2474f7ab4ef22469a2ff1b2, type: 2}

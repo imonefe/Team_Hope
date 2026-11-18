@@ -143,6 +143,13 @@ MonoBehaviour:
   - {fileID: 4830178015972021401, guid: 4a91190f9a0ae9426fe4bb514715a66f, type: 3}
   - {fileID: 6935620010562411593, guid: 51f307890248e9b7ed9402c66447efd1, type: 3}
   - {fileID: 7196449143880713679, guid: d6f30bc99d683704417fc96e8376d7fc, type: 3}
+  - {fileID: 92064684869300406, guid: da919aa720294db8bcfe24a6230c9a74, type: 3}
+  - {fileID: 92064684869300406, guid: 0dd82f5cfe3542d8b949b611f3709de6, type: 3}
+  - {fileID: 92064684869300406, guid: a58e87f49cd04b32a34b3915aebf829b, type: 3}
+  - {fileID: 92064684869300406, guid: 1546837bc3ae4f28a2dff84e800cd59f, type: 3}
+  - {fileID: 92064684869300406, guid: 7c694132d5a54f11829b3190858e3c0b, type: 3}
+  - {fileID: 92064684869300406, guid: 8a83760962ca411aac4b9318cd016cd2, type: 3}
+  - {fileID: 92064684869300406, guid: aadabfa84f3c48c6a383c7a0d5ca4cd1, type: 3}
   launchForceX: 0
   launchForceY: 6
   animator: {fileID: 3079126915637688101}

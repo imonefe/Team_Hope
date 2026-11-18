@@ -64,6 +64,8 @@ public class TutorialController : MonoBehaviour
         public List<GameObject> moreGates = new List<GameObject>();
         [Tooltip("[2026-11-18] 플레이어가 이 영역(TutorialZone · Reach)에 들어와야 안내 통신창이 뜨고 구간이 시작됨. 비우면 앞 구간이 끝나자마자 시작")]
         public TutorialZone startZone;
+        [Tooltip("[2026-11-19] 플레이어가 이 영역(TutorialZone · Reach)까지 오면 조건을 못 채웠어도 통과로 친다 (예: 한 번 점프로 벽을 넘은 경우). 비우면 조건으로만 통과")]
+        public TutorialZone passZone;
     }
 
     public List<Step> steps = new List<Step>();
@@ -145,6 +147,7 @@ public class TutorialController : MonoBehaviour
         if (s != null)
         {
             if (s.reachZone != null) s.reachZone.reached = false;
+            if (s.passZone != null) s.passZone.reached = false;
             if (s.dummy != null) { watchedDummy = s.dummy; watchedDummy.OnHpChanged += OnDummyHp; }
             if (s.box != null) s.box.SetActive(true);
             // 스킬·퍼즈 구간은 스킬을 쓴 뒤에 게이지를 채움 (퍼즈 안내가 나올 때)
@@ -293,6 +296,8 @@ public class TutorialController : MonoBehaviour
 
     bool Done(Step s)
     {
+        // [2026-11-19] 통과 영역까지 왔으면 조건과 상관없이 통과 (조건 동작을 안 하고 지나가도 막히지 않게)
+        if (s.passZone != null && s.passZone.reached) return true;
         switch (s.condition)
         {
             case Condition.Jump:        return player.JumpCount >= 1;

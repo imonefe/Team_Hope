@@ -129,6 +129,7 @@ MonoBehaviour:
   - {fileID: 2565339746751315386, guid: d866d1a7bc94c05837e320e5e8bd81c6, type: 3}
   - {fileID: 8365562426258253712, guid: 118ef41f353c4d3ea5954095cdd74428, type: 3}
   - {fileID: 8365562426258253712, guid: 599b41f148234aa6b4d5fedf1f3709f3, type: 3}
+  - {fileID: 92064684869300406, guid: eefe5a51ac6e47b6974598584d347b50, type: 3}
   launchForceX: 0
   launchForceY: 6
   animator: {fileID: 7470125363089601331}

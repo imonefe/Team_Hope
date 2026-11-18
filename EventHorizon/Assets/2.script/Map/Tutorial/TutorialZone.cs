@@ -16,6 +16,12 @@ public class TutorialZone : MonoBehaviour
 
     void Reset() { GetComponent<BoxCollider2D>().isTrigger = true; }
 
+    // [2026-11-19] 이미 영역 안에 서 있는 채로 구간이 시작돼도(들어오는 순간을 놓쳐도) 도착으로 친다
+    void OnTriggerStay2D(Collider2D other)
+    {
+        if (kind == Kind.Reach && !reached && other.CompareTag("Player")) reached = true;
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;

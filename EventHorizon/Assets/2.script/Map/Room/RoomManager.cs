@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 using System.Collections.Generic;
 
 public class RoomManager : MonoBehaviour
@@ -60,6 +61,9 @@ public class RoomManager : MonoBehaviour
             Debug.LogError("roomPrefab is null");
             return;
         }
+
+        // [2026-11-19] 중간 보스 방에 들어가 있는 동안 다른 방으로 가면(사망 → 로비 등) 맡겨 둔 원래 방은 버린다
+        if (InSubRoom) AbandonSubRoom();
 
         // [2026-11-07] 로비에서 전투 방으로 넘어가면 퍼즈 게이지 초기화 (로비 허수아비로 채운 게이지를 들고 가지 않게)
         bool nextIsLobby = IsLobbyRoom(roomPrefab);
@@ -130,7 +134,132 @@ public class RoomManager : MonoBehaviour
             if (root == null) continue;
             if (root == currentRoomObj) continue;      // 방 자체는 바로 아래에서 따로 Destroy됨
             if (persistentRoots.Contains(root)) continue; // 플레이어/매니저 등 영구 오브젝트는 보호
+            if (root == savedRoomObj || suspendedRoots.Contains(root)) continue;   // [2026-11-19] 중간 보스 방에 간 동안 맡겨 둔 원래 방의 것
             Destroy(root);
         }
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // [2026-11-19 추가] 중간 보스 방 다녀오기 (MidBossGate 코어에서 호출)
+    //  들어갈 때: 지금 방과 그 방에서 생긴 것들(드랍 아이템 등)을 지우지 않고 꺼 둔 채 중간 보스 방을 연다
+    //  보스를 쓰러뜨리면: 잠깐 기다렸다가 처치 기록(RunManager "MidBoss.<종류>")을 남기고,
+    //                    중간 보스 방을 지운 뒤 꺼 둔 원래 방을 다시 켜고 코어 앞 자리로 돌려보낸다
+    //  돌아온 뒤 OnSubRoomReturned 로 알림 → 코어가 부서지는 연출을 한다
+    // ════════════════════════════════════════════════════════════════
+    public static event System.Action<BossCoreKind, bool> OnSubRoomReturned;
+
+    [Header("중간 보스 방 (2026-11-19)")]
+    [Tooltip("중간 보스를 쓰러뜨린 뒤 원래 방으로 돌아가기까지 기다리는 시간 (초)")]
+    [SerializeField] private float subRoomReturnDelay = 2.5f;
+
+    public bool InSubRoom => savedRoomObj != null;
+
+    GameObject savedRoomObj;
+    Vector3 savedPlayerPos;
+    BossCoreKind subKind;
+    readonly List<GameObject> suspendedRoots = new List<GameObject>();
+    Coroutine subWatch;
+
+    public void EnterSubRoom(GameObject subRoomPrefab, BossCoreKind kind, Vector3 returnPosition)
+    {
+        if (subRoomPrefab == null || InSubRoom) return;
+        if (TransitionCanvas.Instance != null)
+            TransitionCanvas.Instance.StartCoroutine(TransitionCanvas.Instance.Transition(() => DoEnterSubRoom(subRoomPrefab, kind, returnPosition)));
+        else DoEnterSubRoom(subRoomPrefab, kind, returnPosition);
+    }
+
+    void DoEnterSubRoom(GameObject subRoomPrefab, BossCoreKind kind, Vector3 returnPosition)
+    {
+        savedRoomObj = currentRoomObj;
+        savedPlayerPos = returnPosition;
+        subKind = kind;
+
+        // 원래 방에서 생긴 것들은 지우지 않고 꺼 둔다 (돌아오면 그대로)
+        suspendedRoots.Clear();
+        foreach (GameObject root in SceneManager.GetActiveScene().GetRootGameObjects())
+        {
+            if (root == null || root == currentRoomObj || persistentRoots.Contains(root)) continue;
+            if (!root.activeSelf) continue;
+            suspendedRoots.Add(root);
+            root.SetActive(false);
+        }
+        if (savedRoomObj != null) savedRoomObj.SetActive(false);
+
+        currentRoomObj = Instantiate(subRoomPrefab);
+        Room room = currentRoomObj.GetComponent<Room>();
+        MovePlayerTo(room != null ? room.GetSpawnPosition() : Vector3.zero);
+        TestMaster testMaster = FindObjectOfType<TestMaster>();
+        if (testMaster != null) testMaster.RefreshSpawners();
+        if (room != null) OnRoomLoaded?.Invoke(room, false);
+
+        if (subWatch != null) StopCoroutine(subWatch);
+        subWatch = StartCoroutine(WatchSubBoss());
+    }
+
+    IEnumerator WatchSubBoss()
+    {
+        yield return null;
+        BossController boss = null;
+        while (true)
+        {
+            if (currentRoomObj == null) yield break;
+            if (boss == null) boss = currentRoomObj.GetComponentInChildren<BossController>(true);
+            if (boss != null && boss.IsDefeated) break;
+            yield return null;
+        }
+        yield return new WaitForSeconds(subRoomReturnDelay);
+        if (RunManager.Instance != null) RunManager.Instance.SetUpgradeLevel(BossCore.DefeatKey(subKind), 1);
+        subWatch = null;
+        ReturnFromSubRoom(true);
+    }
+
+    /// <summary>중간 보스 방에서 원래 방으로 돌아간다 (defeated = 보스를 쓰러뜨렸는지)</summary>
+    public void ReturnFromSubRoom(bool defeated)
+    {
+        if (!InSubRoom) return;
+        if (subWatch != null) { StopCoroutine(subWatch); subWatch = null; }
+        if (TransitionCanvas.Instance != null)
+            TransitionCanvas.Instance.StartCoroutine(TransitionCanvas.Instance.Transition(() => DoReturn(defeated)));
+        else DoReturn(defeated);
+    }
+
+    void DoReturn(bool defeated)
+    {
+        if (!InSubRoom) return;
+        CleanupLeftoverRuntimeObjects();                 // 중간 보스 방에서 생긴 것들 정리 (맡겨 둔 것은 건드리지 않음)
+        if (currentRoomObj != null) Destroy(currentRoomObj);
+
+        currentRoomObj = savedRoomObj;
+        savedRoomObj = null;
+        currentRoomObj.SetActive(true);
+        foreach (GameObject root in suspendedRoots) if (root != null) root.SetActive(true);
+        suspendedRoots.Clear();
+
+        MovePlayerTo(savedPlayerPos);
+        TestMaster testMaster = FindObjectOfType<TestMaster>();
+        if (testMaster != null) testMaster.RefreshSpawners();
+        Room room = currentRoomObj.GetComponent<Room>();
+        if (room != null) OnRoomLoaded?.Invoke(room, false);
+
+        OnSubRoomReturned?.Invoke(subKind, defeated);
+    }
+
+    void AbandonSubRoom()
+    {
+        if (subWatch != null) { StopCoroutine(subWatch); subWatch = null; }
+        foreach (GameObject root in suspendedRoots) if (root != null) Destroy(root);
+        suspendedRoots.Clear();
+        if (savedRoomObj != null) Destroy(savedRoomObj);
+        savedRoomObj = null;
+    }
+
+    void MovePlayerTo(Vector3 pos)
+    {
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj == null) return;
+        playerObj.transform.position = pos;
+        Rigidbody2D rb = playerObj.GetComponent<Rigidbody2D>();
+        if (rb != null) { rb.velocity = Vector2.zero; rb.position = pos; }
+        if (CameraFollow.Instance != null) CameraFollow.Instance.SnapToTargets();
     }
 }

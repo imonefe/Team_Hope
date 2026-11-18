@@ -7,9 +7,8 @@ using UnityEngine;
 /// - SampleScene 처럼 한 씬 안에서 방 프리팹을 바꿔 끼우는 씬에 하나만 놓는다.
 ///   (인트로처럼 씬 하나에 곡 하나면 SceneBGM 을 쓰면 됨)
 /// - RoomManager 가 새 방을 열 때마다(RoomManager.OnRoomLoaded) 방 종류를 보고 곡을 고른다.
-///     처음 여는 방이거나 이름에 "Lobby" 가 들어가면 → 로비 곡
-///     Room 의 isBossRoom 이 체크돼 있으면        → 보스 곡
-///     그 밖의 방                                  → 배틀 곡
+///     [2026-11-19] 튜토리얼 → 튜토리얼 곡 / 로비·상점 → 로비 곡 / 보스 코어가 있는 방 → 보스 곡
+///     / 그 밖의 보스방(중간 보스) → 중간 보스 곡 / 나머지 → 배틀 곡
 /// - 같은 곡이면 끊지 않고 이어서 틀고, 다른 곡이면 앞 곡을 줄였다가 새 곡을 키운다.
 ///   (ESC 메뉴로 게임이 멈춰 있어도 동작하도록 실제 시간 기준)
 /// - 볼륨은 AudioManager 의 배경음 크기(설정 창의 '배경음')를 따른다.
@@ -21,6 +20,10 @@ public class RoomBGM : MonoBehaviour
     public AudioClip lobbyBgm;
     public AudioClip battleBgm;
     public AudioClip bossBgm;
+    [Tooltip("[2026-11-19] 튜토리얼 방 (비우면 로비 곡)")]
+    public AudioClip tutorialBgm;
+    [Tooltip("[2026-11-19] 중간 보스 방 (비우면 보스 곡)")]
+    public AudioClip midBossBgm;
 
     [Header("바뀔 때 (초)")]
     [Tooltip("앞 곡이 작아지며 사라지는 시간")]
@@ -46,9 +49,17 @@ public class RoomBGM : MonoBehaviour
     {
         if (room == null) return;
 
+        // [2026-11-19 수정] 방 종류 판별 (위에서부터 먼저 맞는 것)
+        //  튜토리얼(TutorialController 있음) → 튜토리얼 곡
+        //  시작 방 · 이름에 Lobby/Shop → 로비 곡 (상점도 같은 곡)
+        //  보스 코어(BossCore)가 있는 방 = 최종 보스방 → 보스 곡
+        //  isBossRoom 이거나 보스가 있는 그 밖의 방 = 중간 보스방 → 중간 보스 곡
+        //  나머지 → 전투 곡
         AudioClip clip;
-        if (isStartRoom || room.name.Contains("Lobby")) clip = lobbyBgm;
-        else if (room.isBossRoom) clip = bossBgm;
+        if (room.GetComponentInChildren<TutorialController>(true) != null) clip = tutorialBgm != null ? tutorialBgm : lobbyBgm;
+        else if (isStartRoom || room.name.Contains("Lobby") || room.name.Contains("Shop")) clip = lobbyBgm;
+        else if (room.GetComponentInChildren<BossCore>(true) != null) clip = bossBgm;
+        else if (room.isBossRoom || room.GetComponentInChildren<BossController>(true) != null) clip = midBossBgm != null ? midBossBgm : bossBgm;
         else clip = battleBgm;
 
         Play(clip);
