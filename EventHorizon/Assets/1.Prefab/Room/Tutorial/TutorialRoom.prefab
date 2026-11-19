@@ -27512,9 +27512,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   steps:
   - title: "\uC810\uD504 \xB7 \uB354\uBE14 \uC810\uD504"
-    guide: "\uB4E4\uB824? \uC88B\uC544, \uC5F0\uACB0\uB410\uB124. \u2190 \u2192 \uB85C
-      \uAC77\uACE0 {Jump} \uB85C \uB6F0\uC5B4. \uBCBD\uC774 \uB192\uC73C\uBA74 \uACF5\uC911\uC5D0\uC11C
-      {Jump} \uD55C \uBC88 \uB354."
+    guide: "\u2190 \u2192 \ub85c \uac77\uace0 {Jump} \ub85c \ub6f0\uc5b4. \ubcbd\uc774 \ub192\uc73c\uba74 \uacf5\uc911\uc5d0\uc11c {Jump} \ud55c \ubc88 \ub354."
     guide2: 
     condition: 1
     gate: {fileID: 0}
@@ -27529,6 +27527,10 @@ MonoBehaviour:
     moreGates: []
     startZone: {fileID: 0}
     passZone: {fileID: 7138974104417096111}
+    preLines:
+    - "\u2026\uc5f0\uacb0\ub410\ub2e4. \ub4e4\ub824? \ub4e4\ub9ac\uba74 \uc6c0\uc9c1\uc5ec \ubd10."
+    - "\ub2e4\ub9ac\ubd80\ud130. \ucc9c\ucc9c\ud788. \ub108 \uc9c0\uae08 \ub9c9 \ucf1c\uc9c4 \uac70\ub098 \ub2e4\ub984\uc5c6\uac70\ub4e0."
+    keyHint: "\u2190 \u2192 \uc774\ub3d9 \u00b7 {Jump} \uc810\ud504 \u00b7 \uacf5\uc911\uc5d0\uc11c {Jump} \ud55c \ubc88 \ub354 = \ub354\ube14 \uc810\ud504"
   - title: "\uB300\uC2DC \xB7 \uB354\uBE14 \uB300\uC2DC"
     guide: "{Dash} \uB204\uB974\uBA74 \uD655 \uD280\uC5B4 \uB098\uAC00. \uD280\uC5B4
       \uB098\uAC00\uB294 \uB3D9\uC548\uC5D4 \uC801 \uACF5\uACA9\uB3C4 \uC548 \uB9DE\uC544.
@@ -27547,6 +27549,8 @@ MonoBehaviour:
     moreGates: []
     startZone: {fileID: 9016111903987752935}
     passZone: {fileID: 7131321108144680926}
+    preLines: []
+    keyHint: "{Dash} \ub300\uc2dc (\ub300\uc2dc \uc911 \ubb34\uc801) \u00b7 {Dash} \ub450 \ubc88 \uc5f0\uc18d = \ub354\ube14 \ub300\uc2dc"
   - title: "\uBC1C\uD310 \uB0B4\uB824\uAC00\uAE30"
     guide: "\uBC1C\uD310 \uC704\uC5D0\uC11C \u2193 \uB204\uB978 \uCC44\uB85C {Jump}.
       \uC544\uB798\uB85C \uC465 \uB0B4\uB824\uAC08 \uC218 \uC788\uC5B4."
@@ -27564,6 +27568,8 @@ MonoBehaviour:
     moreGates: []
     startZone: {fileID: 5345442223053904111}
     passZone: {fileID: 0}
+    preLines: []
+    keyHint: "\ubc1c\ud310 \uc704\uc5d0\uc11c \u2193 + {Jump} = \uc544\ub798\ub85c \ub0b4\ub824\uac00\uae30"
   - title: "\uACF5\uACA9"
     guide: "{Attack} \uB85C \uC800 \uD5C8\uC218\uC544\uBE44 \uC138 \uBC88\uB9CC \uB450\uB4E4\uACA8
       \uBD10. \uC544\uD504\uC9C0 \uC54A\uC73C\uB2C8\uAE4C \uB9C8\uC74C\uAECF."
@@ -27581,6 +27587,9 @@ MonoBehaviour:
     moreGates: []
     startZone: {fileID: 1046995400016461043}
     passZone: {fileID: 0}
+    preLines:
+    - "\ubab8\uc774 \uae30\uc5b5 \ubabb \ud574\ub3c4 \ud63c\uc790 \uae30\uc5b5\ud558\ub294 \uac8c \uc788\uc5b4. \uadf8\uac78 \ubbff\uc5b4."
+    keyHint: "{Attack} \uacf5\uaca9"
   - title: "\uBB34\uAE30 \uAD50\uCCB4"
     guide: "\uBB34\uAE30\uAC00 \uD558\uB098\uBFD0\uC778 \uC904 \uC54C\uC558\uC9C0?
       {WeaponSwap} \uB85C \uBC14\uAFD4 \uBD10. \uAC80, \uAC74\uD2C0\uB9BF, \uB9DD\uCE58."
@@ -27598,6 +27607,8 @@ MonoBehaviour:
     moreGates: []
     startZone: {fileID: 3970920157697340499}
     passZone: {fileID: 0}
+    preLines: []
+    keyHint: "{WeaponSwap} \ubb34\uae30 \uad50\uccb4 (\uac80 \u2192 \uac74\ud2c0\ub9bf \u2192 \ub9dd\uce58)"
   - title: "\uC2A4\uD0AC \xB7 \uD37C\uC988"
     guide: "\uC2A4\uD0AC \uD558\uB098 \uB123\uC5B4 \uB480\uC5B4. {Skill2} \uB85C
       \uC368 \uBD10."
@@ -27618,6 +27629,8 @@ MonoBehaviour:
     moreGates: []
     startZone: {fileID: 1638047009640258317}
     passZone: {fileID: 0}
+    preLines: []
+    keyHint: "{Skill1} \ubb34\uae30 \uc2a4\ud0ac \u00b7 {Skill2} \uc77c\ubc18 \uc2a4\ud0ac \u00b7 {Pause} \ud37c\uc988 (\uac8c\uc774\uc9c0\uac00 \uac00\ub4dd \ucc3c\uc744 \ub54c)"
   - title: "\uC0C1\uD638\uC791\uC6A9 \xB7 \uC778\uBCA4\uD1A0\uB9AC"
     guide: "\uC0C1\uC790 \uBCF4\uC774\uC9C0? {Interact} \uB85C \uC5F4\uACE0, {Inventory}
       \uB85C \uBB50 \uB4E4\uC5C8\uB294\uC9C0 \uD655\uC778\uD574."
@@ -27635,11 +27648,17 @@ MonoBehaviour:
     moreGates: []
     startZone: {fileID: 484342951385629501}
     passZone: {fileID: 0}
+    preLines: []
+    keyHint: "{Interact} \uc0c1\ud638\uc791\uc6a9 (\uc0c1\uc790 \u00b7 \ubb38 \u00b7 \ub300\ud654) \u00b7 {Inventory} \uc778\ubca4\ud1a0\ub9ac"
   titleText: {fileID: 5319361892942684638}
   guideText: {fileID: 3635825154361112920}
   doneTitle: "\uD29C\uD1A0\uB9AC\uC5BC \uC644\uB8CC"
   doneGuide: "\uD569\uACA9. \uC2DC\uBBAC\uB808\uC774\uC158\uC740 \uC5EC\uAE30\uAE4C\uC9C0\uC57C.
     \u2026\uC774\uC81C \uC9C4\uC9DC\uB85C \uAE68\uC6B8\uAC8C."
+  doneLines:
+  - "\uc88b\uc544, \uc774 \uc815\ub3c4\uba74 \uc0b4\uc544\ub0a8\uaca0\ub2e4."
+  - "\uae08\ubc29 \ubab8\uccb4\uc5d0 \uc5f0\uacb0\ud574 \uc904\uac8c. \uc804\uc6d0\uc774 \ucf1c\uc9c0\uba74 \uc778\uc0ac\ubd80\ud130 \ud558\uc790\uace0. \uc5bc\uad74\uc740\u2026 \uac00\uc11c \ubcf4\uba74 \uc54c \uac70\uc57c."
+  storyLineSeconds: 3
   speakerName: ???
   hideSpeakerFace: 1
   guideTopCenter: 1

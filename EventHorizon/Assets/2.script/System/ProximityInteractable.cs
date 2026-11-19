@@ -19,7 +19,7 @@ using UnityEngine;
 public abstract class ProximityInteractable : MonoBehaviour
 {
     [Tooltip("[2026-11-11] 지금은 쓰지 않음 — 실제 키는 설정의 조작 키(KeyBindings 상호작용)")]
-    public KeyCode interactKey = KeyCode.F;
+    public KeyCode interactKey = KeyCode.C;
 
     [Header("상호작용 안내 (안내 문구가 있는 것만: 상자·NPC 등)")]
     [Tooltip("오브젝트 그림 맨 위에 뜨는 \"[F] 열기\" 글자의 추가 위치 조정 (월드 단위)")]

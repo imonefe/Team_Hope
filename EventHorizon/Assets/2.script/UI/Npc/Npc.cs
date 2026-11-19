@@ -17,6 +17,13 @@ public class NPC : MonoBehaviour
     [Header("초상화")]
     public Image[] portraits;
 
+    [Header("인물별 초상화 (2026-11-20 추가, 선택)")]
+    [Tooltip("말하는 사람(speakerNames 순서)마다 자기 초상화. 채우면 위 portraits 대신 이걸 쓴다.\n" +
+             "화면 같은 쪽(왼쪽/오른쪽)에 서는 인물끼리는 가장 최근에 말한 사람만 보이고, 지금 말하는 사람이 밝게 보인다.\n" +
+             "칸이 비어 있는 사람(해설 등)이 말할 때는 모두 어둡게")]
+    public Image[] speakerPortraits;
+    int shownLeft = -1, shownRight = -1;
+
     [Header("이름표 (2026-10-17 추가)")]
     [Tooltip("말하는 사람 이름을 띄울 이름표 오브젝트 (이름이 비어 있으면 숨김)")]
     public GameObject namePlate;
@@ -116,6 +123,7 @@ public class NPC : MonoBehaviour
             lines = targetSet.lines;
             speakers = targetSet.speakerIndex;
             index = 0;
+            PrimeSpeakerPortraits();
             StartDialogue(player);
         }
     }
@@ -448,6 +456,7 @@ public class NPC : MonoBehaviour
     void UpdatePortraits()
     {
         UpdateSpeakerName();
+        if (UpdateSpeakerPortraits()) return;   // [2026-11-20] 인물별 초상화를 쓰는 대화창
 
         if (portraits == null || portraits.Length == 0) return;
         if (speakers == null || speakers.Length == 0) return;
@@ -459,6 +468,44 @@ public class NPC : MonoBehaviour
             float brightness = (i == currentSpeaker) ? 1f : 0.3f;
             portraits[i].color = new Color(brightness, brightness, brightness, 1f);
         }
+    }
+
+    // ── [2026-11-20 추가] 인물별 초상화 ──
+    bool UsesSpeakerPortraits => speakerPortraits != null && speakerPortraits.Length > 0;
+    static bool IsLeft(Image img) => img.rectTransform.anchorMin.x < 0.5f;
+    Image PortraitOf(int speaker) => UsesSpeakerPortraits && speaker >= 0 && speaker < speakerPortraits.Length ? speakerPortraits[speaker] : null;
+
+    // 대화 시작: 양쪽에 처음 등장할 사람을 미리 세워 둔다 (첫 줄부터 두 사람이 마주 보게)
+    void PrimeSpeakerPortraits()
+    {
+        shownLeft = shownRight = -1;
+        if (!UsesSpeakerPortraits || speakers == null) return;
+        foreach (int s in speakers)
+        {
+            Image img = PortraitOf(s);
+            if (img == null) continue;
+            if (IsLeft(img)) { if (shownLeft < 0) shownLeft = s; }
+            else if (shownRight < 0) shownRight = s;
+        }
+    }
+
+    bool UpdateSpeakerPortraits()
+    {
+        if (!UsesSpeakerPortraits) return false;
+        int current = (speakers != null && index < speakers.Length) ? speakers[index] : -1;
+        Image cur = PortraitOf(current);
+        if (cur != null) { if (IsLeft(cur)) shownLeft = current; else shownRight = current; }
+
+        for (int i = 0; i < speakerPortraits.Length; i++)
+        {
+            Image img = speakerPortraits[i];
+            if (img == null) continue;
+            bool show = i == shownLeft || i == shownRight;
+            if (img.gameObject.activeSelf != show) img.gameObject.SetActive(show);
+            float b = i == current ? 1f : 0.3f;
+            img.color = new Color(b, b, b, 1f);
+        }
+        return true;
     }
 
     // [2026-10-17 추가] 지금 말하는 사람 이름을 이름표에 띄움. 이름이 없으면 이름표를 숨김

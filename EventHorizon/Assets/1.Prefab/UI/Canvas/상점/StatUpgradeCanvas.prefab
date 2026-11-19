@@ -5304,7 +5304,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b125a755afa2c1b4cad1f47b6ce61ca8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  greetings: []
+  greetings:
+  - "\uc5b4\ub514 \ubd10, \ub098\uc0ac\ubd80\ud130 \uc870\uc5ec \uc904\uac8c."
+  npcName: "\uc601\ubcf5"
+  firstGreetings: []
+  afterDefeatGreetings:
+  - "\uc774\ubc88\uc5d4 \ubd80\ud488 \uc548 \ud6d4\uccd0. \uc9c4\uc9dc\ub85c."
+  buyLines:
+  - "\uc624, \ub354 \ub2e8\ub2e8\ud574\uc84c\ub2e4. \ub0b4 \uc19c\uc528 \uc88b\uc9c0?"
+  poorLines:
+  - "\uc5b4\uc774, \ub098\ub3c4 \uc790\uc120\uc0ac\uc5c5\uc740 \uc548 \ud574."
   rows:
   - label: "\uCCB4\uB825"
     description: "\uCD5C\uB300 \uCCB4\uB825\uC774 \uB298\uC5B4\uB09C\uB2E4."

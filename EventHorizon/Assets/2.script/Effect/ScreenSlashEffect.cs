@@ -65,6 +65,24 @@ public class ScreenSlashEffect : MonoBehaviour
     public bool playOnStart = false;
     public KeyCode testKey = KeyCode.F;
 
+    [Header("색 바꾸기 (2026-11-20 추가, 이 효과만)")]
+    [Tooltip("켜면 재생하는 동안만 재질의 선 색·틈 색을 아래 값으로 바꾸고, 끝나면 원래 색으로 되돌린다 (같은 재질을 쓰는 처형 컷신·홀로분신에는 영향 없음)")]
+    public bool overrideColors = false;
+    [ColorUsage(true, true)] public Color lineColor = new Color(4f, 4f, 4f, 1f);
+    [ColorUsage(true, true)] public Color gapColor = new Color(3f, 3f, 3f, 1f);
+
+    [Header("연출 켜고 끄기 (2026-11-20 추가, 끄면 그 연출만 빠짐)")]
+    [Tooltip("흑백 · 대비 · 반전")]
+    public bool useGrade = true;
+    [Tooltip("검은/흰 섬광 (번쩍임)")]
+    public bool useFlash = true;
+    [Tooltip("선을 따라 화면이 어긋남 (크기는 maxShift)")]
+    public bool useShift = true;
+    [Tooltip("갈라진 틈 (크기는 maxGap)")]
+    public bool useGap = true;
+    [Tooltip("색 번짐 (크기는 maxChroma)")]
+    public bool useChroma = true;
+
     static readonly int ID_Intensity = Shader.PropertyToID("_Intensity");
     static readonly int ID_Center = Shader.PropertyToID("_SlashCenter");
     static readonly int ID_Angle = Shader.PropertyToID("_SlashAngle");
@@ -80,6 +98,10 @@ public class ScreenSlashEffect : MonoBehaviour
     static readonly int ID_Chroma = Shader.PropertyToID("_Chroma");
     static readonly int ID_FlashColor = Shader.PropertyToID("_FlashColor");
     static readonly int ID_FlashAmount = Shader.PropertyToID("_FlashAmount");
+    static readonly int ID_LineColor = Shader.PropertyToID("_LineColor");
+    static readonly int ID_GapColor = Shader.PropertyToID("_GapColor");
+    bool _colorsApplied;
+    Color _savedLine, _savedGap;
 
     const float BaseLineWidth = 0.006f;
 
@@ -157,6 +179,7 @@ public class ScreenSlashEffect : MonoBehaviour
         float a = angle + (angleRandom > 0f ? Random.Range(-angleRandom, angleRandom) : 0f);
         Vector2 c = ResolveCenter();
 
+        ApplyColors();
         slashMaterial.SetFloat(ID_Intensity, 1f);
         slashMaterial.SetFloat(ID_Angle, a);
         slashMaterial.SetVector(ID_Center, new Vector4(c.x, c.y, 0f, 0f));
@@ -211,12 +234,14 @@ public class ScreenSlashEffect : MonoBehaviour
         m.SetFloat(ID_Progress, lineProgress.Evaluate(n));
         m.SetFloat(ID_LineIntensity, lineIntensity.Evaluate(n));
         m.SetFloat(ID_LineWidth, BaseLineWidth * lineWidth.Evaluate(n));
-        m.SetFloat(ID_Shift, maxShift * shift.Evaluate(n));
-        m.SetFloat(ID_Gap, maxGap * gap.Evaluate(n));
-        m.SetFloat(ID_Desat, desaturate.Evaluate(n));
-        m.SetFloat(ID_Contrast, Mathf.Lerp(1f, maxContrast, contrast.Evaluate(n)));
-        m.SetFloat(ID_Invert, invert.Evaluate(n));
-        m.SetFloat(ID_Chroma, maxChroma * chroma.Evaluate(n));
+        // [2026-11-20] 꺼 둔 연출은 0 (ResetMaterial 과 같은 값)
+        m.SetFloat(ID_Shift, useShift ? maxShift * shift.Evaluate(n) : 0f);
+        m.SetFloat(ID_Gap, useGap ? maxGap * gap.Evaluate(n) : 0f);
+        m.SetFloat(ID_Desat, useGrade ? desaturate.Evaluate(n) : 0f);
+        m.SetFloat(ID_Contrast, useGrade ? Mathf.Lerp(1f, maxContrast, contrast.Evaluate(n)) : 1f);
+        m.SetFloat(ID_Invert, useGrade ? invert.Evaluate(n) : 0f);
+        m.SetFloat(ID_Chroma, useChroma ? maxChroma * chroma.Evaluate(n) : 0f);
+        if (!useFlash) { m.SetFloat(ID_FlashAmount, 0f); return; }
 
         float b = blackFlash.Evaluate(n);
         float w = whiteFlash.Evaluate(n);
@@ -241,9 +266,30 @@ public class ScreenSlashEffect : MonoBehaviour
         return new Vector2(vp.x, vp.y);
     }
 
+    // [2026-11-20] 이 효과만의 색으로 (재생 시작 때)
+    void ApplyColors()
+    {
+        if (!overrideColors || slashMaterial == null || _colorsApplied) return;
+        _savedLine = slashMaterial.GetColor(ID_LineColor);
+        _savedGap = slashMaterial.GetColor(ID_GapColor);
+        slashMaterial.SetColor(ID_LineColor, lineColor);
+        slashMaterial.SetColor(ID_GapColor, gapColor);
+        _colorsApplied = true;
+    }
+
+    // [2026-11-20] 원래 색으로 (재생 끝·꺼질 때)
+    void RestoreColors()
+    {
+        if (!_colorsApplied || slashMaterial == null) return;
+        slashMaterial.SetColor(ID_LineColor, _savedLine);
+        slashMaterial.SetColor(ID_GapColor, _savedGap);
+        _colorsApplied = false;
+    }
+
     public void ResetMaterial()
     {
         if (slashMaterial == null) return;
+        RestoreColors();
         var m = slashMaterial;
         m.SetFloat(ID_Intensity, 0f);
         m.SetFloat(ID_Progress, 0f);

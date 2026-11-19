@@ -31,13 +31,14 @@ public static class KeyBindings
     static readonly Dictionary<KeyAction, KeyCode> Defaults = new Dictionary<KeyAction, KeyCode>
     {
         { KeyAction.Jump, KeyCode.Space },
-        { KeyAction.Attack, KeyCode.R },   // [2026-11-11] E → R
+        { KeyAction.Attack, KeyCode.D },   // [2026-11-11] E → R · [2026-11-20] R → D
         { KeyAction.Dash, KeyCode.LeftShift },
-        { KeyAction.Skill1, KeyCode.Q },
-        { KeyAction.Skill2, KeyCode.W },
-        { KeyAction.Skill3, KeyCode.E },   // [2026-11-11] 공격과 맞바꿈 R → E
-        { KeyAction.Pause, KeyCode.D },
-        { KeyAction.Interact, KeyCode.F },
+        // [2026-11-20] 스킬 Q·W·E → A·S (스킬 칸 2개), 퍼즈 D → F, 상호작용 F → C
+        { KeyAction.Skill1, KeyCode.A },   // 무기 스킬 (0번 칸)
+        { KeyAction.Skill2, KeyCode.S },   // 일반 스킬 (1번 칸)
+        { KeyAction.Skill3, KeyCode.None },// [2026-11-20] 칸 없음 — 번호 유지용으로만 남김 (키 없음)
+        { KeyAction.Pause, KeyCode.F },
+        { KeyAction.Interact, KeyCode.C },
         { KeyAction.Inventory, KeyCode.I },
         { KeyAction.WeaponSwap, KeyCode.Tab },   // [2026-11-16 추가]
     };
@@ -49,6 +50,11 @@ public static class KeyBindings
     public static event Action Changed;
 
     const string Prefix = "EH_Key_";
+
+    // [2026-11-20] 기본 키 배치가 바뀔 때마다 1씩 올린다. 저장된 값이 예전 버전이면 한 번 지우고 새 기본값으로 시작
+    // (예전 Q·W·E·D·F 저장값이 남아 새 배치와 겹치는 것 방지)
+    const string VersionKey = "EH_KeyVer";
+    const int Version = 3;   // [2026-11-20] 3: 공격 R → D
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatics()
@@ -63,8 +69,15 @@ public static class KeyBindings
         if (loaded) return;
         loaded = true;
         current.Clear();
+        if (PlayerPrefs.GetInt(VersionKey, 1) < Version)
+        {
+            foreach (var pair in Defaults) PlayerPrefs.DeleteKey(Prefix + pair.Key);
+            PlayerPrefs.SetInt(VersionKey, Version);
+            PlayerPrefs.Save();
+        }
         foreach (var pair in Defaults)
         {
+            if (pair.Value == KeyCode.None) { current[pair.Key] = KeyCode.None; continue; }   // 쓰지 않는 동작
             int saved = PlayerPrefs.GetInt(Prefix + pair.Key, (int)pair.Value);
             KeyCode key = Enum.IsDefined(typeof(KeyCode), saved) ? (KeyCode)saved : pair.Value;
             current[pair.Key] = IsAllowed(key) ? key : pair.Value;
@@ -82,6 +95,7 @@ public static class KeyBindings
     public static bool Down(KeyAction action)
     {
         KeyCode k = Get(action);
+        if (k == KeyCode.None) return false;
         if (Input.GetKeyDown(k)) return true;
         KeyCode twin = Twin(k);
         return twin != KeyCode.None && Input.GetKeyDown(twin);
@@ -91,6 +105,7 @@ public static class KeyBindings
     public static bool Held(KeyAction action)
     {
         KeyCode k = Get(action);
+        if (k == KeyCode.None) return false;
         if (Input.GetKey(k)) return true;
         KeyCode twin = Twin(k);
         return twin != KeyCode.None && Input.GetKey(twin);
@@ -127,6 +142,7 @@ public static class KeyBindings
     {
         swapped = null;
         if (!IsAllowed(key)) return false;
+        if (Defaults[action] == KeyCode.None) return false;   // [2026-11-20] 쓰지 않는 동작(스킬 3)은 바꾸지 않음
         EnsureLoaded();
 
         KeyCode old = Get(action);
@@ -135,6 +151,7 @@ public static class KeyBindings
         foreach (var pair in new List<KeyValuePair<KeyAction, KeyCode>>(current))
         {
             if (pair.Key == action) continue;
+            if (pair.Value == KeyCode.None) continue;
             if (pair.Value == key || Twin(pair.Value) == key)
             {
                 current[pair.Key] = old;

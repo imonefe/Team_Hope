@@ -99,7 +99,7 @@ public class StatUpgradeWindow : ShopWindow
         var r = rows[i];
         int lv = Level(r);
         if (lv >= MaxLevel(r)) return;
-        if (!Spend(r.costs[lv])) { ScreenNotice.Show("재화가 부족합니다"); return; }
+        if (!Spend(r.costs[lv])) { NotEnoughMoney(); return; }
         RunManager.Instance.SetUpgradeLevel(Key(r), lv + 1);
 
         // 두 캐릭터 모두 올린다 (교체해도 같은 능력치). 캐릭터 관리자가 없으면 지금 캐릭터만.
@@ -115,6 +115,7 @@ public class StatUpgradeWindow : ShopWindow
 
         selected = i;
         RefreshAll();
+        OnBought();   // [2026-11-20] 인물 대사
     }
 
     static void Apply(Stats s, Row r)

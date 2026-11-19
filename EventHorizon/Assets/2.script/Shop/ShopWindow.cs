@@ -27,9 +27,30 @@ public abstract class ShopWindow : MonoBehaviour
     [Header("인물 대사 (열 때마다 이 중 하나)")]
     [TextArea] public string[] greetings;
 
+    // [2026-11-20 추가] 스토리 대본의 상점 대사 (상점 아래 대사창에 나옴). 비운 칸은 건너뜀
+    [Header("인물 (2026-11-20 추가)")]
+    [Tooltip("대사창 이름표 (DialogueBox/NpcName). 비우면 프리팹 글자 그대로")]
+    public string npcName;
+    [Tooltip("처음 열 때 (첫 대면) — 여러 줄이면 줄바꿈으로 이어서 한 번에 보여 줌. 게임을 켠 뒤 한 번 (전시 모드 인트로로 돌아가면 다시)")]
+    [TextArea] public string[] firstGreetings;
+    [Tooltip("2스테이지부터 열 때 (첫 패배 후). 비우면 평소 대사")]
+    [TextArea] public string[] afterDefeatGreetings;
+    [Tooltip("사고 나서 (이 중 하나)")]
+    [TextArea] public string[] buyLines;
+    [Tooltip("재화가 모자랄 때 (이 중 하나)")]
+    [TextArea] public string[] poorLines;
+
+    static readonly System.Collections.Generic.HashSet<string> met = new System.Collections.Generic.HashSet<string>();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics() => met.Clear();
+
+    /// <summary>첫 대면 기록을 지운다 (전시 모드 인트로)</summary>
+    public static void ResetFirstMeetings() => met.Clear();
+
     public bool IsOpen { get; private set; }
 
-    TMP_Text currencyText, dialogueText;
+    TMP_Text currencyText, dialogueText, npcNameText;
     bool built;
 
     // ── 열기 / 닫기 ──
@@ -48,8 +69,7 @@ public abstract class ShopWindow : MonoBehaviour
             RunManager.Instance.OnCurrencyChanged += OnCurrency;
             OnCurrency(RunManager.Instance.Amount);
         }
-        if (dialogueText != null && greetings != null && greetings.Length > 0)
-            dialogueText.text = greetings[Random.Range(0, greetings.Length)];
+        Greet();
         OnOpened();
     }
 
@@ -86,6 +106,8 @@ public abstract class ShopWindow : MonoBehaviour
         built = true;
         currencyText = FindText("Window/HeaderRow/CurrencyAmount");
         dialogueText = FindText("DialogueBox/DialogueText");
+        npcNameText = FindText("DialogueBox/NpcName");
+        if (npcNameText != null && !string.IsNullOrEmpty(npcName)) npcNameText.text = npcName;
         var esc = Find("Window/BottomRow/EscHint");
         if (esc != null)
         {
@@ -102,6 +124,39 @@ public abstract class ShopWindow : MonoBehaviour
             b.onClick.AddListener(Close);
         }
         Build();
+    }
+
+    // [2026-11-20] 열 때 대사: 첫 대면 → 2스테이지부터 → 평소
+    void Greet()
+    {
+        if (dialogueText == null) return;
+        string key = GetType().Name;
+        if (Has(firstGreetings) && met.Add(key)) { dialogueText.text = string.Join("\n", firstGreetings); return; }
+        met.Add(key);
+        bool afterDefeat = MapManager.Instance != null && MapManager.Instance.CurrentStageIndex >= 1;
+        if (afterDefeat && Has(afterDefeatGreetings)) { Talk(afterDefeatGreetings); return; }
+        Talk(greetings);
+    }
+
+    static bool Has(string[] a) => a != null && System.Array.Exists(a, s => !string.IsNullOrEmpty(s));
+
+    /// <summary>대사창에 이 중 하나를 띄운다 (비어 있으면 그대로 둠)</summary>
+    protected void Talk(string[] pool)
+    {
+        if (dialogueText == null || !Has(pool)) return;
+        string s;
+        do s = pool[Random.Range(0, pool.Length)]; while (string.IsNullOrEmpty(s));
+        dialogueText.text = s;
+    }
+
+    /// <summary>[2026-11-20] 사고 나서 부름</summary>
+    protected void OnBought() => Talk(buyLines);
+
+    /// <summary>[2026-11-20] 재화가 모자랄 때 부름 (화면 알림 + 인물 대사)</summary>
+    protected void NotEnoughMoney()
+    {
+        ScreenNotice.Show("재화가 부족합니다");
+        Talk(poorLines);
     }
 
     void OnCurrency(int amount)

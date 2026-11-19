@@ -16,9 +16,15 @@ public class MidBossRoomRoster : MonoBehaviour
         public BossCoreKind kind;
         [Tooltip("방 안에 미리 놓아 둔 보스 (꺼 둘 것)")]
         public GameObject boss;
+        [Tooltip("[2026-11-20] 전투 시작 때 한마디 — 말하는 이름")]
+        public string speaker;
+        [Tooltip("[2026-11-20] 전투 시작 때 한마디 (비우면 없음)")]
+        [TextArea] public string introLine;
     }
 
     public Entry[] bosses;
+    [Tooltip("[2026-11-20] 방에 들어온 뒤 한마디가 뜨기까지 (초, 화면 전환이 끝날 여유)")]
+    public float introDelay = 1.0f;
 
     public void Activate(BossCoreKind kind)
     {
@@ -26,9 +32,20 @@ public class MidBossRoomRoster : MonoBehaviour
         foreach (Entry e in bosses)
         {
             if (e == null || e.boss == null) continue;
-            if (e.kind == kind) e.boss.SetActive(true);
+            if (e.kind == kind)
+            {
+                e.boss.SetActive(true);
+                if (!string.IsNullOrEmpty(e.introLine)) StartCoroutine(Intro(e.speaker, e.introLine));
+            }
             else Destroy(e.boss);
         }
+    }
+
+    // [2026-11-20] 전투 시작 한마디 (통신창 모양, 보스 이름 · 검은 얼굴)
+    System.Collections.IEnumerator Intro(string speaker, string line)
+    {
+        yield return new WaitForSecondsRealtime(introDelay);
+        YoungbokChatter.Announce(speaker, line);
     }
 
 #if UNITY_EDITOR

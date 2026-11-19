@@ -235,7 +235,7 @@ public class ItemShopWindow : ShopWindow
         if (d == null || sold[i]) return;
         var p = Player();
         if (p.stats == null) return;
-        if (!Spend(PriceOf(d))) { ScreenNotice.Show("재화가 부족합니다"); return; }
+        if (!Spend(PriceOf(d))) { NotEnoughMoney(); return; }
 
         // 바닥 아이템을 줍는 것과 같은 처리 (Item.Pickup 참고)
         if (d.effects != null)
@@ -246,11 +246,12 @@ public class ItemShopWindow : ShopWindow
         RunManager.Instance?.RegisterObtained(d);
         sold[i] = true;
         RefreshAll();
+        OnBought();   // [2026-11-20] 인물 대사
     }
 
     void Refresh()
     {
-        if (!Spend(CurrentRefreshCost)) { ScreenNotice.Show("재화가 부족합니다"); return; }
+        if (!Spend(CurrentRefreshCost)) { NotEnoughMoney(); return; }
         refreshCount++;
         Restock();
         RefreshAll();

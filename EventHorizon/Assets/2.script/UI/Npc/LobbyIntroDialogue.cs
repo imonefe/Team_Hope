@@ -8,6 +8,8 @@ using UnityEngine;
 /// - 플레이어가 생길 때까지 기다렸다가(최대 waitPlayerTimeout초) startDelay 뒤에 대화를 연다.
 /// - 대사 내용은 npc(koke Canvas의 NPC)의 대사 세트 중 conditionKey 가 introKey 인 것.
 /// - 조작 잠금·전투 UI 숨김·해제는 NPC 대화가 원래 하던 대로 처리한다.
+/// [2026-11-20] 로비 말고 다른 방에도 쓴다 (상점 방 첫 만남 컷신).
+///   onceKey 를 넣으면 한 판에 한 번만 (RunManager 기록 "Story.키"), showControlsGuide 로 끝난 뒤 조작법 창 여부.
 /// </summary>
 public class LobbyIntroDialogue : MonoBehaviour
 {
@@ -19,10 +21,17 @@ public class LobbyIntroDialogue : MonoBehaviour
     public float startDelay = 0.8f;
     [Tooltip("플레이어가 이 시간 안에 나타나지 않으면 대화를 건너뜀(초)")]
     public float waitPlayerTimeout = 5f;
+    [Tooltip("[2026-11-20] 넣으면 한 판에 한 번만 재생 (같은 키끼리 공유). 비우면 방이 만들어질 때마다")]
+    public string onceKey = "";
+    [Tooltip("[2026-11-20] 대화가 끝나면 화면 가운데 조작법 창을 띄움 (로비 프롤로그용)")]
+    public bool showControlsGuide = true;
+
+    string OnceRecord => "Story." + onceKey;
 
     IEnumerator Start()
     {
         if (npc == null) yield break;
+        if (!string.IsNullOrEmpty(onceKey) && RunManager.Instance != null && RunManager.Instance.GetUpgradeLevel(OnceRecord) > 0) yield break;
 
         float t = 0f;
         while (PlayerController.Instance == null && t < waitPlayerTimeout)
@@ -39,6 +48,8 @@ public class LobbyIntroDialogue : MonoBehaviour
         while (NPC.AnyTalking) yield return null;
 
         npc.SetCondition(introKey, player);
+        if (!string.IsNullOrEmpty(onceKey) && RunManager.Instance != null) RunManager.Instance.SetUpgradeLevel(OnceRecord, 1);
+        if (!showControlsGuide) yield break;
 
         // [2026-11-11] 프롤로그가 끝나면 화면 가운데 조작법 창 (ControlsGuidePopup)
         // 대화가 실제로 열릴 때까지 최대 1초 기다린 뒤, 끝날 때까지 기다린다

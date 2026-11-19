@@ -155,6 +155,65 @@ public class YoungbokChatter : MonoBehaviour
         sawEnemiesInRoom = false;
         EndGuide();
         HideNow();
+        storyQueue.Clear();   // [2026-11-20] 새 판 — 남은 스토리 통신은 버림
+    }
+
+    // ════════════════ [2026-11-20 추가] 스토리 통신 ════════════════
+    // 대본의 "(통신)" 대사·중간보스 한마디를 띄운다. 여러 줄이면 한 줄씩 차례로 (앞 줄이 사라진 뒤 다음 줄).
+    // 대화·컷신·메뉴·튜토리얼 안내로 막혀 있으면 풀릴 때까지 기다리고 (최대 15초), 그래도 막히면 그 줄은 건너뛴다.
+    // 스토리 줄이 떠 있는 동안에는 잡담(무기 교체·남은 적 등)이 덮어쓰지 않는다.
+
+    /// <summary>영복 통신으로 여러 줄을 차례로 띄운다</summary>
+    public static void Comm(params string[] lines) => Ensure().Enqueue(null, lines, false);
+
+    /// <summary>한 판에 한 번만 (key 로 구분, 새 판이 시작되면 다시 나옴)</summary>
+    public static void CommOnce(string key, params string[] lines)
+    {
+        var c = Ensure();
+        if (string.IsNullOrEmpty(key) || c.onceRun.Add("story." + key)) c.Enqueue(null, lines, false);
+    }
+
+    /// <summary>영복이 아닌 인물의 한마디 (머리글 = speaker, 얼굴은 검은 실루엣)</summary>
+    public static void Announce(string speaker, string line) => Ensure().Enqueue(speaker, new[] { line }, true);
+
+    struct StoryLine { public string speaker, line; public bool silhouette; }
+    readonly Queue<StoryLine> storyQueue = new Queue<StoryLine>();
+    Coroutine storyRunner;
+    bool storyShowing;
+    const float StoryWaitMax = 15f;
+
+    void Enqueue(string speaker, string[] lines, bool silhouette)
+    {
+        if (lines == null) return;
+        foreach (string l in lines)
+            if (!string.IsNullOrEmpty(l)) storyQueue.Enqueue(new StoryLine { speaker = speaker, line = l, silhouette = silhouette });
+        if (storyRunner == null && storyQueue.Count > 0) storyRunner = StartCoroutine(StoryRun());
+    }
+
+    IEnumerator StoryRun()
+    {
+        while (storyQueue.Count > 0)
+        {
+            StoryLine s = storyQueue.Dequeue();
+            float waited = 0f;
+            while ((guideMode || IsBlocked(false)) && waited < StoryWaitMax) { waited += Time.unscaledDeltaTime; yield return null; }
+            if (guideMode || IsBlocked(false)) continue;
+
+            if (header != null) header.text = string.IsNullOrEmpty(s.speaker) ? DefaultHeader : s.speaker;
+            if (portraitImg != null) portraitImg.color = s.silhouette ? SilhouetteColor : FaceColor;
+            storyShowing = false;
+            bool ok = Say(s.line, true);
+            storyShowing = ok;
+            while (ok && showing) yield return null;
+            storyShowing = false;
+            if (!guideMode)
+            {
+                if (header != null) header.text = DefaultHeader;
+                if (portraitImg != null) portraitImg.color = FaceColor;
+            }
+            yield return new WaitForSecondsRealtime(0.15f);
+        }
+        storyRunner = null;
     }
 
     // ════════════════ [2026-11-18 추가] 튜토리얼 안내 ════════════════
@@ -442,7 +501,8 @@ public class YoungbokChatter : MonoBehaviour
     bool Say(string line, bool priority, bool allowOverMap = false)
     {
         if (string.IsNullOrEmpty(line) || root == null) return false;
-        if (guideMode) return false;   // [2026-11-18] 튜토리얼 안내가 떠 있는 동안은 잡담 안 함
+        if (guideMode) return false;
+        if (storyShowing) return false;   // [2026-11-20] 스토리 통신이 떠 있는 동안은 잡담이 덮어쓰지 않음   // [2026-11-18] 튜토리얼 안내가 떠 있는 동안은 잡담 안 함
         if (IsBlocked(allowOverMap)) return false;
         if (!priority && (showing || Time.unscaledTime - lastEndTime < MinGap)) return false;
 

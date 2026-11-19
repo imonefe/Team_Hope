@@ -2274,7 +2274,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83397c056f4f9d1439472d57c08bace3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  greetings: []
+  greetings:
+  - "\uc2e0\uc6d0 \ud655\uc778\ud588\uc2b5\ub2c8\ub2e4. \ucd9c\uc785 \ud5c8\uac00."
+  npcName: "\ubc31\uc774\uc5f0"
+  firstGreetings: []
+  afterDefeatGreetings:
+  - "\ubcf4\uc548 \ub4f1\uae09\uc774 \uc62c\ub790\uc2b5\ub2c8\ub2e4. \ubcf4\uc5ec \ub4dc\ub9b4 \uae30\uc220\uc774 \ub298\uc5c8\uc8e0."
+  buyLines:
+  - "\ubc31\uc790\uc758 \uae30\uc220\uc785\ub2c8\ub2e4. \ud5c8\ud22c\ub8e8 \uc4f0\uc9c0 \ub9c8\uc2ed\uc2dc\uc624."
+  poorLines:
+  - "\ubcf4\uc548 \ub4f1\uae09\uc774 \ubaa8\uc790\ub78d\ub2c8\ub2e4."
   skillPool:
   - {fileID: 5493783800634394664, guid: 74adf096205fe8247afb8ff4e1d2d9b4, type: 3}
   - {fileID: 8658551481514815345, guid: 4a0f8b93874c33342a06ebcf0f0017f6, type: 3}

@@ -9793,10 +9793,17 @@ MonoBehaviour:
   bosses:
   - kind: 0
     boss: {fileID: 2858340513372418297}
+    speaker: "\uad00\ud1b5\uc758 \uad81\uc218"
+    introLine: 
   - kind: 1
     boss: {fileID: 6631712421217516863}
+    speaker: "\ucc38\uaca9\uc758 \uac80\uc0ac"
+    introLine: 
   - kind: 2
     boss: {fileID: 6093330953250269939}
+    speaker: "\ud0c0\uaca9\uc758 \ub9c8\ubc95\uc0ac"
+    introLine: 
+  introDelay: 1
 --- !u!1 &8826027284973523502
 GameObject:
   m_ObjectHideFlags: 0

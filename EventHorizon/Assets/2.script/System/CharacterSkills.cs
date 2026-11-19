@@ -1,13 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// 캐릭터 한 명이 보유하는 스킬 3칸(슬롯 0/1/2).
+/// 캐릭터 한 명이 보유하는 스킬 2칸(슬롯 0/1). [2026-11-20] 3칸 → 2칸 (키 A·S)
 /// 각 슬롯에는 Skill 프리팹 참조가 들어가며, 비어 있으면 null.
 /// characterA / characterB 각각의 캐릭터 오브젝트에 이 컴포넌트를 붙인다.
 ///
 /// 슬롯 배정 규칙 (AcquireSkill 사용 시 자동 적용):
 ///  - 0번 슬롯: 무기 스킬(Skill.SkillType.Weapon) 전용. 새로 획득하면 이전 것을 덮어쓴다.
-///  - 1~2번 슬롯: 일반 스킬(Skill.SkillType.Normal). 얻은 순서대로 빈 슬롯에 채워진다.
+///  - 1번 슬롯: 일반 스킬(Skill.SkillType.Normal) 하나. 차 있으면 상점에서 팔고 새로 사야 한다.
 /// 특정 슬롯에 직접 지정하고 싶다면 SetSkill(slot, prefab)을 그대로 사용하면 된다.
 ///
 /// 발동: Activate(슬롯) → 프리팹 Instantiate → Skill.Launch()
@@ -15,20 +15,47 @@ using UnityEngine;
 /// </summary>
 public class CharacterSkills : MonoBehaviour
 {
-    [Header("보유 스킬 3칸 (0번=무기 전용 / 1~2번=일반, 얻은 순서. 비면 null)")]
-    [Tooltip("Skill 스크립트가 붙은 프리팹 3개")]
-    public Skill[] skillSlots = new Skill[3];
+    /// <summary>[2026-11-20] 스킬 칸 수 (0번 무기 + 1번 일반)</summary>
+    public const int SlotCount = 2;
+
+    [Header("보유 스킬 2칸 (0번=무기 전용 [A] / 1번=일반 [S]. 비면 null)")]
+    [Tooltip("Skill 스크립트가 붙은 프리팹 2개")]
+    public Skill[] skillSlots = new Skill[SlotCount];
 
     [Tooltip("스킬 생성 기준이 될 시전자 Transform (비우면 이 오브젝트)")]
     public Transform caster;
 
     // 슬롯별 쿨타임 종료 시각
-    float[] cooldownEndTime = new float[3];
+    float[] cooldownEndTime = new float[SlotCount];
 
     void Awake()
     {
         if (caster == null) caster = transform;
+        FitSlots();
     }
+
+    // [2026-11-20] 예전 프리팹·씬에 3칸으로 저장된 배열을 2칸으로 맞춘다.
+    // 1번이 비고 2번에만 스킬이 있었다면 1번으로 옮겨서 잃지 않게 한다.
+    void FitSlots()
+    {
+        if (skillSlots == null) skillSlots = new Skill[SlotCount];
+        if (skillSlots.Length != SlotCount)
+        {
+            var fit = new Skill[SlotCount];
+            for (int i = 0; i < SlotCount && i < skillSlots.Length; i++) fit[i] = skillSlots[i];
+            if (fit[1] == null && skillSlots.Length > 2) fit[1] = skillSlots[2];
+            skillSlots = fit;
+        }
+        if (cooldownEndTime == null || cooldownEndTime.Length != SlotCount) cooldownEndTime = new float[SlotCount];
+    }
+
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        // 인스펙터에서도 2칸으로 보이게 (에디터 전용)
+        if (skillSlots != null && skillSlots.Length != SlotCount) FitSlots();
+    }
+#endif
 
     /// <summary>슬롯의 스킬 발동. 성공하면 true.</summary>
     public bool Activate(int slot)
@@ -92,8 +119,8 @@ public class CharacterSkills : MonoBehaviour
     /// <summary>
     /// 스킬 획득 시 호출하는 진입점. skillType을 보고 슬롯을 자동으로 정해준다.
     /// - Weapon: 0번 슬롯에 배정 (이미 있던 무기 스킬은 교체됨)
-    /// - Normal: 1번 → 2번 순서로, 비어있는 슬롯에 얻은 순서 그대로 배정
-    /// 일반 스킬 슬롯(1~2번)이 이미 둘 다 차 있으면 배정하지 못하고 false를 반환한다.
+    /// - Normal: 1번 슬롯이 비어 있으면 배정
+    /// 일반 스킬 슬롯(1번)이 이미 차 있으면 배정하지 못하고 false를 반환한다.
     /// </summary>
     public bool AcquireSkill(Skill prefab)
     {
@@ -105,8 +132,8 @@ public class CharacterSkills : MonoBehaviour
             return true;
         }
 
-        // Normal — 1번, 2번 순서로 빈 슬롯을 찾아 얻은 순서대로 채운다
-        for (int slot = 1; slot <= 2; slot++)
+        // Normal — 1번 칸 (칸 수가 늘면 그만큼 순서대로)
+        for (int slot = 1; slot < skillSlots.Length; slot++)
         {
             if (skillSlots[slot] == null)
             {
@@ -115,7 +142,7 @@ public class CharacterSkills : MonoBehaviour
             }
         }
 
-        Debug.LogWarning($"[CharacterSkills] 일반 스킬 슬롯(1~2번)이 이미 가득 찼습니다. '{prefab.skillName}' 획득 실패.");
+        Debug.LogWarning($"[CharacterSkills] 일반 스킬 슬롯이 이미 가득 찼습니다. '{prefab.skillName}' 획득 실패.");
         return false;
     }
 

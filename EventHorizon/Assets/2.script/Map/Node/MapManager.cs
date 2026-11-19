@@ -422,7 +422,8 @@ public class MapManager : PersistentSingleton<MapManager>
             return;
         }
 
-        bool confirm = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.F)
+        // [2026-11-20] F 는 이제 퍼즈 → 결정은 상호작용 키(기본 C)
+        bool confirm = Input.GetKeyDown(KeyCode.Space) || KeyBindings.Down(KeyAction.Interact)
                     || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter);
         if (!confirm) return;
 

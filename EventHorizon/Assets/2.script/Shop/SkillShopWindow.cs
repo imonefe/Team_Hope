@@ -152,12 +152,15 @@ public class SkillShopWindow : ShopWindow
     int PriceOf(Skill s) => s == null ? 0 : (tierPrices != null && (int)s.tier < tierPrices.Length ? tierPrices[(int)s.tier] : 0);
     int SellPriceOf(Skill s) => Mathf.RoundToInt(PriceOf(s) * sellRate);
 
-    // 판매 모드에서 카드 i 가 가리키는 스킬 (카드 0 → 칸 1, 카드 1 → 칸 2)
+    // [2026-11-20] 판매 모드에서 보이는 카드 수 = 일반 스킬 칸 수 (지금 1칸)
+    const int SellCards = CharacterSkills.SlotCount - 1;
+
+    // 판매 모드에서 카드 i 가 가리키는 스킬 (카드 0 → 칸 1)
     Skill OwnedAt(int i)
     {
         var cs = Skills();
         int slot = i + 1;
-        if (cs == null || i > 1 || slot >= cs.skillSlots.Length) return null;
+        if (cs == null || i >= SellCards || slot >= cs.skillSlots.Length) return null;
         return cs.skillSlots[slot];
     }
 
@@ -188,7 +191,7 @@ public class SkillShopWindow : ShopWindow
         if (cs == null) return;
         if (!HasFreeSlot(cs)) { ScreenNotice.Show("스킬 칸이 가득 찼습니다"); return; }
         int price = PriceOf(s);
-        if (!Spend(price)) { ScreenNotice.Show("재화가 부족합니다"); return; }
+        if (!Spend(price)) { NotEnoughMoney(); return; }
         if (!cs.AcquireSkill(s))
         {
             RunManager.Instance?.AddCurrency(price);   // 혹시 실패하면 돌려준다
@@ -197,11 +200,12 @@ public class SkillShopWindow : ShopWindow
         }
         sold[i] = true;
         RefreshAll();
+        OnBought();   // [2026-11-20] 인물 대사
     }
 
     static bool HasFreeSlot(CharacterSkills cs)
     {
-        for (int slot = 1; slot <= 2 && slot < cs.skillSlots.Length; slot++)
+        for (int slot = 1; slot < CharacterSkills.SlotCount && slot < cs.skillSlots.Length; slot++)
             if (cs.skillSlots[slot] == null) return true;
         return false;
     }
@@ -209,7 +213,7 @@ public class SkillShopWindow : ShopWindow
     void Refresh()
     {
         int cost = refreshCost + refreshCount * refreshCostStep;
-        if (!Spend(cost)) { ScreenNotice.Show("재화가 부족합니다"); return; }
+        if (!Spend(cost)) { NotEnoughMoney(); return; }
         refreshCount++;
         Restock();
         RefreshAll();
@@ -276,16 +280,16 @@ public class SkillShopWindow : ShopWindow
     void RefreshSell()
     {
         var cs = Skills();
-        if (selected < 0 || selected > 1 || OwnedAt(selected) == null) selected = OwnedAt(0) != null ? 0 : 1;
+        if (selected < 0 || selected >= SellCards || OwnedAt(selected) == null) selected = 0;
         for (int i = 0; i < SlotCount; i++)
         {
             var c = cards[i];
             if (c == null) continue;
             var s = OwnedAt(i);
-            c.root.gameObject.SetActive(i <= 1);
+            c.root.gameObject.SetActive(i < SellCards);
             if (c.selectFrame != null) c.selectFrame.SetActive(s != null && i == selected);
-            if (i > 1) continue;
-            string key = KeyBindings.KeyName(i == 0 ? KeyAction.Skill2 : KeyAction.Skill3);
+            if (i >= SellCards) continue;
+            string key = KeyBindings.KeyName(KeyAction.Skill1 + i + 1);
             if (s == null)
             {
                 SetText(c.itemName, $"[{key}] 빈 칸");
@@ -328,16 +332,15 @@ public class SkillShopWindow : ShopWindow
         if (t != null) t.text = text;
     }
 
-    // 스킬 칸 1·2 상태 (키 이름은 설정의 조작 키를 따른다)
+    // 일반 스킬 칸 상태 (키 이름은 설정의 조작 키를 따른다)
     static string SlotText(CharacterSkills cs)
     {
         if (cs == null) return "";
         var lines = new List<string>();
-        var keys = new[] { KeyAction.Skill2, KeyAction.Skill3 };
-        for (int slot = 1; slot <= 2 && slot < cs.skillSlots.Length; slot++)
+        for (int slot = 1; slot < CharacterSkills.SlotCount && slot < cs.skillSlots.Length; slot++)
         {
             var s = cs.skillSlots[slot];
-            string key = KeyBindings.KeyName(keys[slot - 1]);
+            string key = KeyBindings.KeyName(KeyAction.Skill1 + slot);
             lines.Add($"[{key}] " + (s != null ? s.skillName : "<color=#8FCB8F>비어 있음</color>"));
         }
         return string.Join("\n", lines);

@@ -66,6 +66,10 @@ public class TutorialController : MonoBehaviour
         public TutorialZone startZone;
         [Tooltip("[2026-11-19] 플레이어가 이 영역(TutorialZone · Reach)까지 오면 조건을 못 채웠어도 통과로 친다 (예: 한 번 점프로 벽을 넘은 경우). 비우면 조건으로만 통과")]
         public TutorialZone passZone;
+        [Tooltip("[2026-11-20] 구간이 시작될 때 조작 안내보다 먼저 한 줄씩 보여 줄 대사 (스토리). 다 보여 준 뒤 조작 안내로 바뀜")]
+        [TextArea(2, 3)] public string[] preLines;
+        [Tooltip("[2026-11-20] 통신창 본문 아래에 항상 붙는 짧은 키 안내 (스토리 대사가 나오는 동안에도). {Jump} 처럼 쓰면 설정 키로 바뀜. 비우면 없음")]
+        public string keyHint;
     }
 
     public List<Step> steps = new List<Step>();
@@ -75,6 +79,13 @@ public class TutorialController : MonoBehaviour
     public TMP_Text guideText;
     public string doneTitle = "튜토리얼 완료";
     [TextArea] public string doneGuide = "오른쪽 끝의 문으로 나가세요";
+    [Tooltip("[2026-11-20] 튜토리얼을 끝내면 차례로 보여 줄 마무리 대사. 비우면 doneGuide 한 줄. 마지막 줄이 뜬 뒤 lobbyDelay 초 뒤 로비로")]
+    [TextArea(2, 3)] public string[] doneLines;
+    [Tooltip("[2026-11-20] 앞 대사·마무리 대사 한 줄을 보여 주는 시간 (초, 메뉴로 멈춘 시간은 세지 않음)")]
+    public float storyLineSeconds = 3f;
+    [Tooltip("[2026-11-20] 키 안내 줄 색 · 크기(%)")]
+    public Color keyHintColor = new Color(0.56f, 0.72f, 0.87f, 1f);
+    public int keyHintSizePercent = 85;
 
     [Header("통신창 안내 (2026-11-18 추가)")]
     [Tooltip("통신창 머리글에 나오는 이름. 아직 정체를 모르므로 ???")]
@@ -106,6 +117,7 @@ public class TutorialController : MonoBehaviour
     Stats watchedDummy;
     PlayerController player;
     bool waitingStart;   // [2026-11-18] 시작 영역에 들어오기 전 (안내 숨김 · 조건 검사 안 함)
+    Coroutine storyLines;   // [2026-11-20] 앞 대사·마무리 대사를 보여 주는 중
 
     void Start()
     {
@@ -126,6 +138,8 @@ public class TutorialController : MonoBehaviour
     void Begin(int i)
     {
         index = i;
+        if (storyLines != null) { StopCoroutine(storyLines); storyLines = null; }   // [2026-11-20] 앞 구간 대사가 남아 있으면 끊음
+        if (Current == null && doneLines != null && doneLines.Length > 0) { storyLines = StartCoroutine(PlayStoryLines(doneLines, true)); return; }
         if (watchedDummy != null) { watchedDummy.OnHpChanged -= OnDummyHp; watchedDummy = null; }
         Step s = Current;
         waitingStart = s != null && s.startZone != null && !s.startZone.reached;
@@ -153,8 +167,27 @@ public class TutorialController : MonoBehaviour
             // 스킬·퍼즈 구간은 스킬을 쓴 뒤에 게이지를 채움 (퍼즈 안내가 나올 때)
             if (s.fillPauseGauge && s.condition != Condition.SkillAndPause && PauseManager.Instance != null) PauseManager.Instance.AddGauge(100f);
             if (s.grantSkill != null) GrantSkill(s.grantSkill);
+            if (s.preLines != null && s.preLines.Length > 0) { storyLines = StartCoroutine(PlayStoryLines(s.preLines, false)); return; }
         }
         RefreshText();
+    }
+
+    // [2026-11-20] 스토리 대사를 한 줄씩 (구간 조건은 그동안에도 검사함 — 먼저 해 버려도 막히지 않게)
+    // holdLast = 마지막 줄을 그대로 둠 (마무리 대사). 아니면 끝난 뒤 조작 안내로 바꿈
+    IEnumerator PlayStoryLines(string[] lines, bool holdLast)
+    {
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string line = WithHint(Keys(lines[i]), holdLast ? null : Current);
+            if (titleText != null && Current == null) titleText.text = doneTitle;
+            if (guideText != null) guideText.text = line;
+            YoungbokChatter.ShowGuide(speakerName, line, hideSpeakerFace, guideTopCenter);
+            if (holdLast && i == lines.Length - 1) break;
+            float t = 0f;
+            while (t < storyLineSeconds) { t += Time.deltaTime; yield return null; }
+        }
+        storyLines = null;
+        if (!holdLast) RefreshText();
     }
 
     void RefreshText()
@@ -162,13 +195,22 @@ public class TutorialController : MonoBehaviour
         // [2026-11-18 수정] 다음 구간 시작 영역에 들어갈 때까지 앞 구간 안내를 그대로 띄워 둔다
         // (구간 하나 = 이 구간 시작 영역 ~ 다음 구간 시작 영역)
         if (waitingStart) return;
+        if (storyLines != null) return;   // [2026-11-20] 스토리 대사를 보여 주는 중에는 조작 안내로 덮지 않음 (키 설정이 바뀌어도)
         Step s = Current;
         string text = s == null ? doneGuide
             : (s.condition == Condition.SkillAndPause && skillUsed && !string.IsNullOrEmpty(s.guide2)) ? s.guide2 : s.guide;
-        string line = Keys(text);
+        string line = WithHint(Keys(text), s);
         if (titleText != null) titleText.text = s != null ? $"{index + 1} / {steps.Count}  {s.title}" : doneTitle;
         if (guideText != null) guideText.text = line;
         YoungbokChatter.ShowGuide(speakerName, line, hideSpeakerFace, guideTopCenter);   // [2026-11-18] 통신창으로 말하듯이
+    }
+
+    // [2026-11-20] 본문 아래에 키 안내 줄을 붙인다
+    string WithHint(string line, Step s)
+    {
+        if (s == null || string.IsNullOrEmpty(s.keyHint)) return line;
+        string hex = ColorUtility.ToHtmlStringRGB(keyHintColor);
+        return line + $"\n<size={keyHintSizePercent}%><color=#{hex}>" + Keys(s.keyHint) + "</color></size>";
     }
 
     /// <summary>{Jump} 처럼 쓴 동작 이름을 지금 설정된 키 이름으로 바꾼다</summary>
@@ -282,6 +324,7 @@ public class TutorialController : MonoBehaviour
     IEnumerator GoToLobby()
     {
         // 마무리 대사를 읽을 시간 (메뉴·인벤토리로 멈춘 시간은 세지 않음)
+        while (storyLines != null) yield return null;   // [2026-11-20] 마무리 대사가 끝까지 나온 뒤
         float t = 0f;
         while (t < lobbyDelay) { t += Time.deltaTime; yield return null; }
 

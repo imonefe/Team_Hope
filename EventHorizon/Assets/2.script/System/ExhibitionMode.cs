@@ -70,6 +70,7 @@ public class ExhibitionMode : MonoBehaviour
     {
         // [2026-11-11] 바꾼 조작 키도 처음 값으로
         if (!KeyBindings.IsDefault()) { KeyBindings.ResetToDefaults(); Debug.Log("[ExhibitionMode] 인트로 진입 — 조작 키를 기본값으로 되돌림"); }
+        ShopWindow.ResetFirstMeetings();   // [2026-11-20] 다음 관람객은 상점 인물 첫 대면 대사부터
 
         Resolution native = Screen.currentResolution;
         bool screenDefault = GameSettings.Fullscreen

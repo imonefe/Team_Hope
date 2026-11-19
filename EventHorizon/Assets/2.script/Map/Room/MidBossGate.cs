@@ -34,6 +34,16 @@ public class MidBossGate : ProximityInteractable
     [Tooltip("부서지면 코어를 아예 숨김")]
     public bool hideWhenBroken = false;
 
+    [Header("스토리 통신 (2026-11-20 추가, 비우면 없음)")]
+    [Tooltip("코어에 처음 다가갔을 때 영복 통신 (한 판에 한 번, 모든 코어 공통)")]
+    [TextArea] public string[] approachLines =
+    {
+        "그 코어, 관리자들이 내부에서 지키고 있어. 건드리면 끌려 들어갈 거야.",
+        "안 건드려도 되긴 하지만… 불길한 기분이 들어.",
+    };
+    [Tooltip("중간 보스를 쓰러뜨리고 코어가 부서진 뒤 영복 통신")]
+    [TextArea] public string defeatedLine = "코어 하나 깨졌다! 서고의 주인을 지키는 방패 하나 줄었어.";
+
     bool broken;
     bool breaking;
     static MidBossGate entered;   // 지금 들어가 있는 코어
@@ -66,6 +76,13 @@ public class MidBossGate : ProximityInteractable
         RoomManager.Instance.EnterSubRoom(midBossRoomPrefab, kind, back);
     }
 
+    // [2026-11-20] 처음 다가가면 영복 통신 (이미 부서진 코어는 제외)
+    protected override void OnPlayerEnter(Collider2D other)
+    {
+        if (broken || approachLines == null || approachLines.Length == 0) return;
+        YoungbokChatter.CommOnce("midboss.approach", approachLines);
+    }
+
     void OnReturned(BossCoreKind k, bool defeated)
     {
         if (entered != this) return;
@@ -92,6 +109,7 @@ public class MidBossGate : ProximityInteractable
         SetBroken(false);
         if (pc != null) pc.ResumeControl(this);
         breaking = false;
+        if (!string.IsNullOrEmpty(defeatedLine)) YoungbokChatter.Comm(defeatedLine);   // [2026-11-20]
     }
 
     void SetBroken(bool instant)

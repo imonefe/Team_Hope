@@ -51,6 +51,18 @@ MonoBehaviour:
   playOnStart: 0
   testKey: 0
   maxContrast: 1
+  maxShift: 0.008
+  maxGap: 0.005
+  maxChroma: 0.0024
+  flashWhite: {r: 1, g: 0.92, b: 0.55, a: 1}
+  overrideColors: 1
+  lineColor: {r: 4, g: 3.3, b: 0.9, a: 1}
+  gapColor: {r: 3, g: 2.4, b: 0.5, a: 1}
+  useGrade: 0
+  useFlash: 1
+  useShift: 1
+  useGap: 0
+  useChroma: 1
 --- !u!114 &1900000000000000204
 MonoBehaviour:
   m_ObjectHideFlags: 0

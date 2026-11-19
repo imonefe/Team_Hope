@@ -22,8 +22,8 @@ public class SkillBarUI : MonoBehaviour
     [Tooltip("쿨타임 남은 시간(초)을 보여주는 텍스트. cooldownOverlays와 함께 켜지고 꺼짐. 없으면 생략")]
     public TextMeshProUGUI[] cooldownTexts = new TextMeshProUGUI[3];
 
-    [Header("발동 키 — [2026-11-11] 지금은 쓰지 않음. 실제 키는 설정의 조작 키(KeyBindings 스킬 1·2·3)")]
-    public KeyCode[] skillKeys = { KeyCode.Q, KeyCode.W, KeyCode.E };
+    [Header("발동 키 — [2026-11-11] 지금은 쓰지 않음. 실제 키는 설정의 조작 키(KeyBindings 스킬 1·2)")]
+    public KeyCode[] skillKeys = { KeyCode.A, KeyCode.S };
 
     CharacterSkills current;
 
@@ -58,14 +58,15 @@ public class SkillBarUI : MonoBehaviour
         if (current == null) return;
 
         // 스킬 발동
-        for (int i = 0; i < skillKeys.Length && i < 3; i++)
+        int n = Mathf.Min(CharacterSkills.SlotCount, current.skillSlots != null ? current.skillSlots.Length : 0);   // [2026-11-20] 2칸
+        for (int i = 0; i < n; i++)
         {
             if (KeyBindings.Down(KeyAction.Skill1 + i))   // [2026-11-11] 설정에서 바꾼 키
                 current.Activate(i);
         }
 
         // 쿨타임 표시: 사용하는 순간 이미지·텍스트 활성화, 쿨타임 끝나면 둘 다 비활성화(재사용 가능 알림)
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < n; i++)
         {
             float remain = current.GetCooldownRemaining(i); // 남은 시간(초). 0이면 사용 가능
             bool onCooldown = remain > 0f;
