@@ -13,6 +13,7 @@ using UnityEngine.Rendering.Universal;
 ///  1) 지금까지 그려진 화면을 복사해서 _CameraSortingLayerTexture 라는 이름으로 모든 셰이더에 알려 준다
 ///     (2D 렌더러가 쓰는 이름과 같게 해서 SG_ScreenDistort 셰이더를 고치지 않고 그대로 쓴다)
 ///  2) 왜곡 오브젝트(렌더링 레이어 표시가 있는 것)만 골라 그린다 → 복사본을 비틀어 그 자리에 덮어씀
+///  3) [2026-11-19 추가] drawAfterDistort 오브젝트(렌더링 레이어 9번)를 그 위에 그린다
 ///
 /// 왜곡 오브젝트가 하나도 없으면 패스를 넣지 않으므로 평소 비용은 0.
 /// </summary>
@@ -75,6 +76,8 @@ public class ScreenDistortFeature : ScriptableRendererFeature
 
         readonly ProfilingSampler sampler = new ProfilingSampler("ScreenDistort");
         FilteringSettings filtering = new FilteringSettings(RenderQueueRange.all, -1, ScreenDistortSource.RenderingLayerBit);
+        // [2026-11-19 추가] 왜곡 다음에 그 위로 그릴 일반 이펙트 (ScreenDistortSource.drawAfterDistort)
+        FilteringSettings overlayFiltering = new FilteringSettings(RenderQueueRange.all, -1, ScreenDistortSource.OverlayLayerBit);
         RTHandle copy;
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
@@ -109,6 +112,10 @@ public class ScreenDistortFeature : ScriptableRendererFeature
                 // 3) 왜곡 오브젝트만 그림 (반투명 정렬 순서 유지)
                 DrawingSettings drawing = CreateDrawingSettings(ShaderTags, ref renderingData, SortingCriteria.CommonTransparent);
                 context.DrawRenderers(renderingData.cullResults, ref drawing, ref filtering);
+
+                // 4) [2026-11-19 추가] 왜곡 위에 보여야 하는 일반 이펙트를 마지막에 그림
+                //    (같은 묶음에서 정렬로 처리하면 Sorting Group 때문에 왜곡보다 먼저 그려져 가려지는 경우가 있어 따로 그림)
+                context.DrawRenderers(renderingData.cullResults, ref drawing, ref overlayFiltering);
             }
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);

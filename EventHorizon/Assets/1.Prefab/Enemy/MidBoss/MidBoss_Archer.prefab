@@ -53,7 +53,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: 9eeb346eebf84d378f198266e14e287a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -165,7 +165,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: 9eeb346eebf84d378f198266e14e287a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -210,6 +210,7 @@ GameObject:
   - component: {fileID: 6716968054950397259}
   - component: {fileID: 6716968054950397260}
   - component: {fileID: 6716968054950397261}
+  - component: {fileID: 641625788729614735}
   m_Layer: 6
   m_Name: SkyIdleSpine
   m_TagString: Untagged
@@ -367,6 +368,21 @@ MonoBehaviour:
   addNormalsDeprecated: 0
   calculateTangentsDeprecated: 0
   maskInteractionDeprecated: 0
+--- !u!114 &641625788729614735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6716968054950397256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bdbb33f0ca5481781cdda6663a66366, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pairs:
+  - original: {fileID: 2100000, guid: 6737bae7c9b848b7b4760024c3b92f7d, type: 2}
+    replacement: {fileID: 2100000, guid: da6c1910268e45b8b4857b1db9eb4701, type: 2}
 --- !u!1 &6716968054950397262
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,7 +436,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: 9eeb346eebf84d378f198266e14e287a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -505,6 +521,7 @@ GameObject:
   - component: {fileID: 6716968054950397301}
   - component: {fileID: 6716968054950397302}
   - component: {fileID: 6716968054950397303}
+  - component: {fileID: 5994923481231074528}
   m_Layer: 6
   m_Name: IdleSpine
   m_TagString: Untagged
@@ -662,6 +679,21 @@ MonoBehaviour:
   addNormalsDeprecated: 0
   calculateTangentsDeprecated: 0
   maskInteractionDeprecated: 0
+--- !u!114 &5994923481231074528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6716968054950397298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bdbb33f0ca5481781cdda6663a66366, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pairs:
+  - original: {fileID: 2100000, guid: 135aed05d2334bb082c5761b1a01213f, type: 2}
+    replacement: {fileID: 2100000, guid: 763cab1b3c0c4dfca2c629702407806f, type: 2}
 --- !u!1 &6716968054950397307
 GameObject:
   m_ObjectHideFlags: 0
@@ -881,24 +913,34 @@ MonoBehaviour:
   wallMask:
     serializedVersion: 2
     m_Bits: 2147483648
-  teleportFx: {fileID: 1300000000000000016, guid: 06ce6db852bf47659cf981c0496c340c, type: 3}
+  teleportFx: {fileID: 0}
   teleportHide: 0.22
   impactFx: {fileID: 7753224053532609282, guid: 84b038528d2645cfa9fb215f5184ab49, type: 3}
-  sparkFx: {fileID: 1300000000000000016, guid: 06ce6db852bf47659cf981c0496c340c, type: 3}
+  sparkFx: {fileID: 0}
   scopePrefab: {fileID: 1300000000000000001, guid: 184f2c1c60db49cf827804082c04a642, type: 3}
   portalPrefab: {fileID: 1300000000000000004, guid: 6b3fe29f24d6404fbf66bed27332f6e0, type: 3}
-  arrowPrefab: {fileID: 1300000000000000007, guid: 5dff1ce9052e4c7aa29421d92ca7339b, type: 3}
+  arrowPrefab: {fileID: 2870746908673518470, guid: 9c28a8859a0fb3543b9806888e7a4dca, type: 3}
+  rainArrowPrefab: {fileID: 2870746908673518470, guid: 9c28a8859a0fb3543b9806888e7a4dca, type: 3}
   scopeCount: 3
-  scopeSpeed: 11
-  scopeStagger: 0.35
+  scopeSpeed: 5.5
+  scopeStagger: 0.2
   scopeLockDistance: 0.35
-  scopeMaxChase: 3.5
+  scopeMaxChase: 1.5
+  scopeSpawnMinHeights: 2
+  scopeSpawnMaxHeights: 3
+  scopeSpawnAngleRange: {x: -20, y: 200}
   scopeLockDelay: 0.45
   scopeStrikeRadius: 1.3
   scopeArrowSpeed: 40
   scopeDamage: 1
   scopeColor: {r: 0.4, g: 0.9, b: 1, a: 1}
   scopeLockColor: {r: 1, g: 0.25, b: 0.25, a: 1}
+  scopeMarkPrefab: {fileID: 5987982068033836512, guid: b12e8e731f3b4cf4be7d40ab39b7abf3, type: 3}
+  scopeMarkAppearTime: 0.4
+  scopeMarkHoldRatio: 0.7
+  scopeMarkRingRadius: 0.765
+  scopeMarkBaseLength: 0.35
+  scopeMarkSpinSpeed: 10
   warningPrefab: {fileID: 6980294778477586927, guid: a652e550122fbc946a09b2828237b226, type: 3}
   streakPrefab: {fileID: 1300000000000000010, guid: b5dd3a77c1ed4ad5bc9b146bef7f864b, type: 3}
   lineTrackTime: 2
@@ -914,8 +956,8 @@ MonoBehaviour:
   rainSafeWidth: 1.8
   rainWarnTime: 2
   rainDuration: 0.8
-  rainArrowCount: 26
-  rainArrowSpeed: 32
+  rainArrowCount: 40
+  rainArrowSpeed: 150
   rainDamage: 1.3
   rainHoverRatio: 0.35
   rainForceHpRatio: 0.5
@@ -923,6 +965,44 @@ MonoBehaviour:
   returnSpeed: 19
   batSpeed: 22
   returnAngle: 35
+  ricoTrackTime: 1.5
+  ricoLockTime: 0.2
+  ricoPortalCount: 3
+  ricoPairCount: 4
+  ricoPairTilt: 0.8
+  ricoPairRise: {x: 4, y: 6}
+  ricoPortalInterval: 0.12
+  ricoPortalMinGap: 3
+  ricoScreenMargin: 0.1
+  ricoDebugLog: 1
+  ricoMinHeightStep: 2.5
+  ricoEdgeWidths: 2
+  ricoEdgeInset: 0.4
+  ricoWallPortalGap: 1.2
+  ricoRelaySpeed: 200
+  ricoWarnDrawTime: 0.5
+  ricoWarnHold: 0.2
+  ricoWarnWidth: 0.2
+  ricoArrowHitWidth: 0.08
+  ricoWarnColor: {r: 1, g: 0.15, b: 0.12, a: 0.85}
+  ricoWarnMaterial: {fileID: 0}
+  ricoWarnTextMaterial: {fileID: 2100000, guid: 97da7a165fa74de49b25ef19bcf6f20a, type: 2}
+  ricoWarnTextScroll: 1.5
+  ricoWarnTextAspect: 8
+  ricoWarnTextFlipV: 0
+  ricoPortalPrefab: {fileID: 2099065386350794571, guid: d841269919eb47548d2a9ddd67480432, type: 3}
+  ricoShotFxPrefab: {fileID: 7753224053532609282, guid: 94a8748099a67ad40b8a8faa0c55318a, type: 3}
+  ricoShotFxFireTime: 2.55
+  ricoShotFxFacesRight: 1
+  ricoShotFxOffset: {x: 0, y: 0}
+  ricoShotFxLength: 6
+  ricoShotFxAnchor: spot
+  ricoBoltPrefab: {fileID: 5512094812236617401, guid: 47a07423fe394cad9630099456694082, type: 3}
+  ricoImpactFx: {fileID: 6604183357208890112, guid: acbe7c2b946c49c3a316e026064631fd, type: 3}
+  ricoPortalScale: 0.6
+  ricoPortalAnimSpeed: 3
+  ricoPortalHoldAt: 2.4
+  ricoPortalAnimLength: 3.5
   ricochetHitRadius: 0.35
   arrowHalfLength: 1.2
   ricochetDamage: 0.9

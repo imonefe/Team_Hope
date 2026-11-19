@@ -18,6 +18,13 @@ public class ScreenDistortSource : MonoBehaviour
     /// <summary>왜곡 오브젝트 표시용 렌더링 레이어 비트 (Rendering Layer 8번). 조명 계산에는 영향 없음 (왜곡 셰이더는 Unlit)</summary>
     public const uint RenderingLayerBit = 1u << 7;
 
+    /// <summary>[2026-11-19 추가] "왜곡 다음에 그릴 일반 이펙트" 표시용 렌더링 레이어 비트 (Rendering Layer 9번).
+    /// 왜곡 오브젝트를 다 그린 뒤 ScreenDistortFeature 가 한 번 더 그려서, 왜곡 위에 항상 보이게 한다.</summary>
+    public const uint OverlayLayerBit = 1u << 8;
+
+    [Tooltip("[2026-11-19 추가] 켜면 이 오브젝트는 왜곡용이 아니라, 왜곡이 끝난 뒤 그 위에 그려지는 일반 이펙트로 취급 (예: 포털 파편 파티클)")]
+    public bool drawAfterDistort = false;
+
     /// <summary>일반 3D 렌더러가 그리는 패스 이름. 왜곡 머티리얼에서는 이 패스를 꺼 둔다</summary>
     public const string ForwardPassName = "UniversalForward";
 
@@ -46,7 +53,10 @@ public class ScreenDistortSource : MonoBehaviour
         var r = GetComponent<Renderer>();
         if (r != null)
         {
-            r.renderingLayerMask |= RenderingLayerBit;
+            if (drawAfterDistort)
+                r.renderingLayerMask = (r.renderingLayerMask & ~RenderingLayerBit) | OverlayLayerBit;
+            else
+                r.renderingLayerMask |= RenderingLayerBit;
             foreach (var m in r.sharedMaterials)
                 if (m != null && m.GetShaderPassEnabled(ForwardPassName))
                     m.SetShaderPassEnabled(ForwardPassName, false);
