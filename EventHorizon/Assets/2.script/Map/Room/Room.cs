@@ -175,11 +175,14 @@ public class Room : MonoBehaviour
         portalOpened = true;
         CancelInvoke(nameof(CheckClear));
         if (portal != null && !portal.IsOpen) portal.SetActive(true);   // [2026-11-11] 이미 열려 있으면 다시 열지 않음
-        YoungbokChatter.OnRoomCleared(this);   // [2026-10-27] 영복 "문 열렸다" (상자보다 먼저 — 레전더리 안내가 덮어쓸 수 있게)
+        // [2026-11-19] 중간 보스 방(원래 방에서 잠깐 들어온 방)에서는 문이 없고 RoomManager 가 복귀시키므로
+        //  "문 열렸다" 대사와 카메라 풀기를 하지 않는다 (카메라는 복귀할 때 RoomManager 가 푼다)
+        bool inSubRoom = RoomManager.Instance != null && RoomManager.Instance.InSubRoom;
+        if (!inSubRoom) YoungbokChatter.OnRoomCleared(this);   // [2026-10-27] 영복 "문 열렸다" (상자보다 먼저 — 레전더리 안내가 덮어쓸 수 있게)
         foreach (var bs in boxSpawners)
             if (bs != null) bs.SetActive(true);
 
-        if (isBossRoom && CameraFollow.Instance != null)
+        if (isBossRoom && !inSubRoom && CameraFollow.Instance != null)
             CameraFollow.Instance.ReleaseRoom();
     }
 
@@ -240,6 +243,13 @@ public class Room : MonoBehaviour
             Vector3 camCenter = roomCameraCenter != null ? roomCameraCenter.position : transform.position;
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireCube(camCenter, new Vector3(roomCameraSize.x, roomCameraSize.y, 0f));
+
+            // [2026-11-19] 실제 게임 화면 범위 (CameraFollow.HoldRoom 이 화면 비율 16:9 에 맞춰 넓힘) — 초록
+            float aspect = 16f / 9f;
+            Vector2 screen = new Vector2(Mathf.Max(roomCameraSize.x, roomCameraSize.y * aspect), Mathf.Max(roomCameraSize.y, roomCameraSize.x / aspect));
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(camCenter, new Vector3(screen.x, screen.y, 0f));
+            Gizmos.color = Color.cyan;
 
             // 카메라 중심점도 작은 십자로 표시
             float crossSize = 0.5f;

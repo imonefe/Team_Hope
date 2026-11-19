@@ -39,6 +39,13 @@ public class CameraFollow : MonoBehaviour
     [Tooltip("FollowSmoothness가 대쉬 값 ↔ 평소 값 사이를 오가는 속도(초당 변화량). 클수록 빨리 전환되고(정지처럼 보이기 쉬움), 작을수록 천천히 부드럽게 전환됨")]
     public float smoothnessBlendSpeed = 1.5f;
 
+    // [2026-11-19] 스프라이트·타일을 그리는 2D 카메라(직교)는 3D 카메라의 자식이라 위치는 따라가지만 크기(줌)는 따라가지 않는다.
+    // 방 고정 등으로 ProCamera2D 가 줌을 바꾸면 같은 비율로 2D 카메라 크기도 바꿔 준다.
+    [Header("[2026-11-19] 2D 카메라 줌 맞추기")]
+    [Tooltip("스프라이트를 그리는 직교 카메라 (비우면 자식에서 찾음)")]
+    public Camera camera2D;
+    float base2DSize, baseScreenH, k2D = 1f;
+
     ProCamera2D proCam;
     ProCamera2DShake proCamShake;
     ProCamera2DRooms proCamRooms;
@@ -67,6 +74,29 @@ public class CameraFollow : MonoBehaviour
             Debug.LogWarning("[CameraFollow] ProCamera2DShake 컴포넌트가 없습니다 — 피격 화면 흔들림이 동작하지 않습니다.");
         if (proCamRooms == null)
             Debug.LogWarning("[CameraFollow] ProCamera2DRooms 컴포넌트가 없습니다 — 보스룸 카메라 고정이 동작하지 않습니다.");
+    }
+
+    void Start()
+    {
+        if (camera2D == null)
+        {
+            Camera self = GetComponent<Camera>();
+            foreach (Camera c in GetComponentsInChildren<Camera>(true))
+                if (c != self && c.orthographic) { camera2D = c; break; }
+        }
+        if (proCam != null && camera2D != null)
+        {
+            base2DSize = camera2D.orthographicSize;
+            baseScreenH = proCam.ScreenSizeInWorldCoordinates.y;
+            // ProCamera2D 가 생각하는 화면 세로(월드) 대비 2D 카메라가 실제로 보여 주는 세로의 비율
+            k2D = baseScreenH > 0.001f ? (2f * base2DSize) / baseScreenH : 1f;
+        }
+    }
+
+    void LateUpdate()
+    {
+        if (camera2D == null || proCam == null || baseScreenH <= 0.001f) return;
+        camera2D.orthographicSize = base2DSize * proCam.ScreenSizeInWorldCoordinates.y / baseScreenH;
     }
 
     void Update()
@@ -108,6 +138,15 @@ public class CameraFollow : MonoBehaviour
     public void HoldRoom(Vector3 center, Vector2 viewSize)
     {
         if (proCamRooms == null) return;
+
+        // [2026-11-19] ProCamera2DRooms 의 "방에 맞춤"은 화면이 방 '안'에 들어가게 맞춘다 (화면 비율과 다른 방이면 일부만 보임).
+        // 방 전체가 화면에 다 보이도록, 화면 비율(가로/세로)에 맞춰 잡을 범위를 넓힌다.
+        // 예) 아레나 24×24 · 화면 16:9 → 42.7×24 를 잡아 세로가 꽉 차고 양옆 벽이 조금 더 보임
+        Camera cam = GetComponent<Camera>();
+        float aspect = cam != null && cam.aspect > 0.01f ? cam.aspect : 16f / 9f;
+        viewSize = new Vector2(Mathf.Max(viewSize.x, viewSize.y * aspect), Mathf.Max(viewSize.y, viewSize.x / aspect));
+        // ProCamera2D 기준 크기로 바꿈 (2D 카메라가 실제로 그 범위를 보여 주도록)
+        viewSize /= k2D;
 
         // 매번 새로 등록/진입 — 이전에 등록해둔 방이 있으면 지우고 딱 하나만 유지한다.
         proCamRooms.Rooms.Clear();

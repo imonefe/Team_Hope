@@ -1,0 +1,16 @@
+archer_idle.png
+size:1024,1252
+filter:Linear,Linear
+pma:false
+archer_idle_arm
+bounds:173,1059,212,151
+archer_idle_body
+bounds:2,2,533,574
+archer_idle_bow
+bounds:2,578,625,479
+archer_idle_calf
+bounds:2,1059,169,191
+archer_idle_hand_arrow
+bounds:629,578,238,237
+archer_quiver
+bounds:387,1059,334,103

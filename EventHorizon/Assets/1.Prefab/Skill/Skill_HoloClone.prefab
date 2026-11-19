@@ -49,7 +49,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: bd57c6d29481414f967910cc76188cf5, type: 3}
   skillName: "\uD640\uB85C \uBD84\uC2E0"
   description: 
-  cooldown: 10
+  cooldown: 1
   spawnOffset: {x: 0, y: 0}
   lifetime: 0
   flipByFacing: 0
@@ -76,12 +76,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   drawTime: 0.6
-  perTargetTime: 0.2
+  perTargetTime: 0.1
   hitDelay: 0.05
   returnTime: 0.6
   finalHitDelay: 0.1
   endTime: 0.5
-  maxTargets: 10
+  attackCount: 10
   screenMargin: 0.3
   viewCamera: {fileID: 0}
   hitDamage: 30

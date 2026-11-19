@@ -96,6 +96,11 @@ Shader "GameEffect/ScreenSlash"
             float4 _FlashColor;
             float  _FlashAmount;
 
+            // [2026-11-19 추가] 동시에 긋는 추가 선 (최대 8개). 수가 0이면 기존과 완전히 같음.
+            // 값은 ScreenSlashMultiLine 이 넣는다: xy = 화면 위치(UV), z = 각도(도)
+            float  _ExtraLineCount;
+            float4 _ExtraLines[8];
+
             // ---------- 유틸 ----------
             float Hash11(float p)
             {
@@ -153,7 +158,38 @@ Shader "GameEffect/ScreenSlash"
                 // ---- 화면 가르기: 양쪽을 라인 방향으로 어긋나게 + 바깥으로 벌림 ----
                 float halfGap = _SplitGap * 0.5 * drawn;
                 float2 offs   = side * (dir * _SplitShift * 0.5 + nrm * halfGap) * drawn;
-                float2 pS     = p - offs;
+                // [2026-11-19] 추가 선들: 어긋남·벌어짐을 더하고, 틈·선 빛은 따로 모아 둠
+                float2 offsAll   = offs;
+                float  extraGap  = 0.0;
+                float  extraLine = 0.0;
+                int    extraCnt  = (int)_ExtraLineCount;
+                [loop] for (int k = 0; k < 8; k++)
+                {
+                    if (k >= extraCnt) break;
+                    float4 L   = _ExtraLines[k];
+                    float2 pk  = (uv - L.xy) * asp;
+                    float  ak  = radians(L.z);
+                    float2 dk  = float2(cos(ak), sin(ak));
+                    float2 nk  = float2(-dk.y, dk.x);
+                    float  alk = dot(pk, dk);
+                    float  dsk = dot(pk, nk);
+                    float  sk  = dsk >= 0 ? 1.0 : -1.0;
+                    float  a01k = alk / halfLen;
+                    a01k = lerp(a01k, -a01k, _SlashReverse);
+                    float  drawnk = 1.0 - smoothstep(head - 0.08, head, a01k);
+                    float  hgk = _SplitGap * 0.5 * drawnk;
+                    offsAll += sk * (dk * _SplitShift * 0.5 + nk * hgk) * drawnk;
+                    float  ragk = 1.0 + _EdgeNoise * (Noise1D(alk * _EdgeNoiseFreq + _Time.y * 30.0 + k * 17.0) - 0.5) * 1.2;
+                    float  gdk  = abs(dsk) - hgk * ragk;
+                    extraGap = max(extraGap, (1.0 - smoothstep(-0.002, 0.002, gdk)) * step(0.0001, hgk));
+                    float  ddk  = max(gdk, 0.0);
+                    float  wk   = _LineWidth * ragk;
+                    float  corek = 1.0 - smoothstep(wk * 0.5, wk, ddk);
+                    float  glowk = exp(-ddk / max(_GlowWidth, 1e-4)) * _GlowStrength;
+                    extraLine = max(extraLine, saturate(corek + glowk) * drawnk);
+                }
+
+                float2 pS     = p - offsAll;
                 float2 uvS    = _SlashCenter.xy + pS / asp;
 
                 // ---- 색수차 (라인 가까울수록 강함) ----
@@ -180,6 +216,7 @@ Shader "GameEffect/ScreenSlash"
                 float gapDist = abs(dist) - halfGap * rag;
                 float inGap   = 1.0 - smoothstep(-0.002, 0.002, gapDist);
                 col = lerp(col, _GapColor.rgb, inGap * step(0.0001, halfGap));
+                col = lerp(col, _GapColor.rgb, extraGap);   // [2026-11-19] 추가 선의 틈
 
                 // ---- 참격 라인 (코어 + 글로우 + 사이드 스트릭) ----
                 float d = max(gapDist, 0.0);
@@ -196,6 +233,7 @@ Shader "GameEffect/ScreenSlash"
                 float headGlow = exp(-abs(a01 - head) * 25.0) * step(_SlashProgress, 0.999) * exp(-d / 0.05);
 
                 float lineMask = saturate(core + glow + streak + headGlow) * drawn * _LineIntensity;
+                lineMask = max(lineMask, extraLine * _LineIntensity);   // [2026-11-19] 추가 선 빛
                 col += _LineColor.rgb * lineMask;
 
                 // ---- 플래시 ----

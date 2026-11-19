@@ -79,6 +79,21 @@ public class RoomMinimap : MonoBehaviour
     [Header("켜고 끄는 키")]
     public KeyCode toggleKey = KeyCode.M;
 
+    [Header("중간 보스 방 글리치 — [2026-11-19 추가]")]
+    [Tooltip("중간 보스 방(코어로 들어간 방)에 있는 동안 미니맵이 고장 난 것처럼 잡음이 낀다")]
+    public bool glitchInSubRoom = true;
+    [Tooltip("잡음 그림을 새로 그리는 횟수 (초당)")]
+    public float glitchFps = 20f;
+    [Tooltip("글리치 중 이름판 글자")]
+    public string glitchLabel = "NO SIGNAL";
+    [Tooltip("모래 잡음 색")]
+    public Color glitchColor = new Color(0.78f, 0.8f, 0.86f, 0.9f);
+    [Tooltip("찢김 띠 색 1 · 2 (색 어긋남)")]
+    public Color glitchTearA = new Color(1f, 0.3f, 0.32f, 0.85f);
+    public Color glitchTearB = new Color(0.35f, 0.9f, 1f, 0.85f);
+    [Tooltip("방 그림이 좌우로 흔들리는 최대 거리 (픽셀)")]
+    public float glitchShake = 14f;
+
     [Header("목록 갱신 간격(초) — 적 목록을 다시 찾는 주기")]
     public float listRefreshInterval = 0.4f;
 
@@ -107,6 +122,13 @@ public class RoomMinimap : MonoBehaviour
     Sprite arrowSprite;
     readonly List<Image> arrowPool = new List<Image>();
     int arrowsUsed;
+    // [2026-11-19] 중간 보스 방 글리치
+    RawImage glitchImage;
+    Texture2D glitchTex;
+    Color32[] glitchPixels;
+    float glitchTimer;
+    bool glitchOn;
+    TextMeshProUGUI frameLabelText;
 
     void Awake()
     {
@@ -170,6 +192,21 @@ public class RoomMinimap : MonoBehaviour
         arrowLayer.sizeDelta = panelSize;
         arrowSprite = MakeArrowSprite(32);
 
+        // [2026-11-19] 글리치 잡음 층 — 패널 전체를 덮는다 (평소엔 꺼 둠)
+        var gGo = new GameObject("Glitch", typeof(RectTransform), typeof(RawImage));
+        gGo.transform.SetParent(panel.transform, false);
+        glitchImage = gGo.GetComponent<RawImage>();
+        glitchImage.raycastTarget = false;
+        var grt = glitchImage.rectTransform;
+        grt.anchorMin = Vector2.zero; grt.anchorMax = Vector2.one;
+        grt.offsetMin = Vector2.zero; grt.offsetMax = Vector2.zero;
+        glitchTex = new Texture2D(96, 60, TextureFormat.RGBA32, false);
+        glitchTex.filterMode = FilterMode.Point;
+        glitchTex.wrapMode = TextureWrapMode.Clamp;
+        glitchPixels = new Color32[glitchTex.width * glitchTex.height];
+        glitchImage.texture = glitchTex;
+        glitchImage.enabled = false;
+
         BuildFrameArt(cgo.transform, frame);
 
         dotSprite = MakeCircleSprite(32);
@@ -203,6 +240,7 @@ public class RoomMinimap : MonoBehaviour
         label.alignment = TextAlignmentOptions.Center;
         label.enableWordWrapping = false;
         label.raycastTarget = false;
+        frameLabelText = label;   // [2026-11-19] 글리치 중 글자를 깨뜨리기 위해
         var lrt = label.rectTransform;
         // 이름판 가운데 = 패널 왼쪽 위에서 오른쪽 90, 위로 17 (그림 기준, 패널 크기에 맞춰 가로 비율 조정)
         lrt.anchorMin = lrt.anchorMax = new Vector2(0f, 1f);
@@ -253,7 +291,13 @@ public class RoomMinimap : MonoBehaviour
         group.alpha = Mathf.MoveTowards(group.alpha, show ? 1f : 0f, Time.unscaledDeltaTime * 6f);
         active = this;
         VisibleAlpha = group.alpha;
+
+        // [2026-11-19] 중간 보스 방에 있는 동안은 미니맵이 고장 난 것처럼 (점·화살표 대신 잡음)
+        bool glitch = glitchInSubRoom && RoomManager.Instance != null && RoomManager.Instance.InSubRoom;
+        if (glitch != glitchOn) SetGlitch(glitch);
+
         if (!show && group.alpha <= 0f) return;
+        if (glitchOn) { UpdateGlitch(); return; }
 
         refreshTimer -= Time.unscaledDeltaTime;
         if (refreshTimer <= 0f)
@@ -487,8 +531,90 @@ public class RoomMinimap : MonoBehaviour
         dot.enabled = true;
     }
 
+    // ── [2026-11-19 추가] 중간 보스 방 글리치 ─────────────────
+    void SetGlitch(bool on)
+    {
+        glitchOn = on;
+        glitchTimer = 0f;
+        if (glitchImage != null) glitchImage.enabled = on;
+        if (dotLayer != null) dotLayer.gameObject.SetActive(!on);
+        if (arrowLayer != null) arrowLayer.gameObject.SetActive(!on);
+        if (!on)
+        {
+            if (layoutImage != null) layoutImage.color = Color.white;
+            if (frameLabelText != null) frameLabelText.text = frameLabel;
+            if (mapArea != null) mapArea.anchoredPosition = TargetOffset(true);
+        }
+    }
+
+    void UpdateGlitch()
+    {
+        glitchTimer -= Time.unscaledDeltaTime;
+        if (glitchTimer > 0f) return;
+        glitchTimer = 1f / Mathf.Max(1f, glitchFps);
+
+        int w = glitchTex.width, h = glitchTex.height;
+        Color32 clear = new Color32(0, 0, 0, 0);
+        Color32 snow = glitchColor;
+
+        // 모래 잡음 (가끔 확 몰아친다)
+        float density = Random.value < 0.15f ? 0.45f : 0.1f;
+        for (int i = 0; i < glitchPixels.Length; i++)
+            glitchPixels[i] = Random.value < density ? Fade(snow, Random.Range(0.25f, 1f)) : clear;
+
+        // 가로 찢김 띠 (흰색 / 빨강 / 하늘 — 색이 어긋난 느낌)
+        int bands = Random.Range(1, 5);
+        for (int b = 0; b < bands; b++)
+        {
+            float pick = Random.value;
+            Color32 c = pick < 0.4f ? snow : (pick < 0.7f ? (Color32)glitchTearA : (Color32)glitchTearB);
+            int y0 = Random.Range(0, h), bh = Random.Range(1, 6);
+            int x0 = Random.Range(-w / 2, w), bw = Random.Range(w / 4, w);
+            for (int y = y0; y < Mathf.Min(h, y0 + bh); y++)
+                for (int x = Mathf.Max(0, x0); x < Mathf.Min(w, x0 + bw); x++)
+                    if (Random.value < 0.85f) glitchPixels[y * w + x] = c;
+        }
+
+        // 주사선 (한 줄 걸러 어둡게)
+        for (int y = 0; y < h; y += 2)
+            for (int x = 0; x < w; x++)
+            {
+                Color32 p = glitchPixels[y * w + x];
+                p.a = (byte)(p.a * 0.55f);
+                glitchPixels[y * w + x] = p;
+            }
+        glitchTex.SetPixels32(glitchPixels);
+        glitchTex.Apply();
+
+        // 방 그림을 좌우로 툭툭 흔들고 깜빡이게
+        Vector2 jitter = Random.value < 0.35f
+            ? new Vector2(Random.Range(-glitchShake, glitchShake), Random.Range(-glitchShake, glitchShake) * 0.2f)
+            : Vector2.zero;
+        mapArea.anchoredPosition = TargetOffset(false) + jitter;
+        float r = Random.value;
+        if (r < 0.12f) layoutImage.color = Color.clear;
+        else if (r < 0.2f) layoutImage.color = new Color(glitchTearA.r, glitchTearA.g, glitchTearA.b, 0.6f);
+        else if (r < 0.28f) layoutImage.color = new Color(glitchTearB.r, glitchTearB.g, glitchTearB.b, 0.6f);
+        else layoutImage.color = new Color(1f, 1f, 1f, Random.Range(0.3f, 0.75f));
+
+        if (frameLabelText != null) frameLabelText.text = Corrupt(glitchLabel);
+    }
+
+    static Color32 Fade(Color32 c, float k) { c.a = (byte)(c.a * k); return c; }
+
+    static string Corrupt(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return s;
+        const string junk = "#%&@$*!?/\\|<>_01";
+        var chars = s.ToCharArray();
+        for (int i = 0; i < chars.Length; i++)
+            if (chars[i] != ' ' && Random.value < 0.25f) chars[i] = junk[Random.Range(0, junk.Length)];
+        return new string(chars);
+    }
+
     void OnDestroy()
     {
+        if (glitchTex != null) Destroy(glitchTex);
         if (active == this) { active = null; VisibleAlpha = 1f; }
         if (layoutTexture != null) Destroy(layoutTexture);
         if (dotSprite != null) { Destroy(dotSprite.texture); Destroy(dotSprite); }

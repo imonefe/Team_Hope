@@ -206,6 +206,8 @@ public class RoomManager : MonoBehaviour
         currentRoomObj = Instantiate(subRoomPrefab);
         Room room = currentRoomObj.GetComponent<Room>();
         if (room != null) room.DisablePortal();   // [2026-11-19] 중간 보스 방 포탈로 나가지 못하게 (돌아가기는 아래 WatchSubBoss 가 함)
+        MidBossRoomRoster roster = currentRoomObj.GetComponent<MidBossRoomRoster>();   // [2026-11-19] 공용 방: 들어온 코어 종류의 보스만 남김
+        if (roster != null) roster.Activate(kind);
         MovePlayerTo(room != null ? room.GetSpawnPosition() : Vector3.zero);
         TestMaster testMaster = FindObjectOfType<TestMaster>();
         if (testMaster != null) testMaster.RefreshSpawners();
@@ -221,15 +223,30 @@ public class RoomManager : MonoBehaviour
         // 보스(BossController)가 있으면 보스가 쓰러질 때까지,
         // [2026-11-19] 보스가 없으면(일반 적으로 만든 중간 보스·시험용 몬스터) 방 안 적이 한 번이라도 나온 뒤 모두 사라질 때까지 기다린다.
         // (원래 방의 적은 꺼져 있어서 찾기에 잡히지 않는다)
+        // [2026-11-19 수정] 보스를 한 번 찾은 뒤에는 "처치 표시 / 체력 0 / 오브젝트가 지워짐" 중 하나면 처치로 본다
+        //  (처치 표시를 놓친 채 보스가 지워지면 영원히 기다리던 문제)
         BossController boss = null;
+        Stats bossStats = null;
+        bool sawBoss = false;
         bool sawEnemy = false;
+        Debug.Log("[RoomManager] 중간 보스 감시 시작");
         while (true)
         {
-            if (currentRoomObj == null) yield break;
-            if (boss == null) boss = currentRoomObj.GetComponentInChildren<BossController>(true);
-            if (boss != null)
+            if (currentRoomObj == null) { Debug.LogWarning("[RoomManager] 중간 보스 방이 사라져 감시 중단"); yield break; }
+            if (!sawBoss)
             {
-                if (boss.IsDefeated) break;
+                foreach (BossController b in currentRoomObj.GetComponentsInChildren<BossController>(false))
+                    if (b != null) { boss = b; break; }
+                if (boss != null)
+                {
+                    sawBoss = true;
+                    bossStats = boss.GetComponent<Stats>();
+                    Debug.Log($"[RoomManager] 중간 보스 찾음: {boss.name}");
+                }
+            }
+            if (sawBoss)
+            {
+                if (boss == null || boss.IsDefeated || (bossStats != null && bossStats.currentHp <= 0)) break;
             }
             else
             {
@@ -241,9 +258,18 @@ public class RoomManager : MonoBehaviour
             }
             yield return null;
         }
-        yield return new WaitForSeconds(subRoomReturnDelay);
+        Debug.Log("[RoomManager] 중간 보스 처치 감지 → " + subRoomReturnDelay + "초 뒤 복귀");
+        // [2026-11-19 수정] 실제 시간으로 센다 (공격 연출의 순간 정지 등으로 게임 시간이 느려진 채 남아도 복귀하도록).
+        //  일시정지 메뉴가 열려 있는 동안은 세지 않는다
+        float waited = 0f;
+        while (waited < subRoomReturnDelay)
+        {
+            if (!GamePause.IsPaused && Time.timeScale > 0f) waited += Time.unscaledDeltaTime;
+            yield return null;
+        }
         if (RunManager.Instance != null) RunManager.Instance.SetUpgradeLevel(BossCore.DefeatKey(subKind), 1);
         subWatch = null;
+        Debug.Log("[RoomManager] 원래 방으로 복귀 시작");
         ReturnFromSubRoom(true);
     }
 

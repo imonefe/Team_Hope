@@ -49,7 +49,7 @@ MonoBehaviour:
   interactKey: 102
   promptOffset: {x: 0, y: 0, z: 0}
   kind: 0
-  midBossRoomPrefab: {fileID: 8548028022454420013, guid: 304e5b3e5e154c24a95262ebe655b7de, type: 3}
+  midBossRoomPrefab: {fileID: 8548028022454420013, guid: 25fe4f9e95e34bbe9c5c5068f02b3f9a, type: 3}
   skeleton: {fileID: 1200000000000000016}
   idleAnim: idle
   breakAnim: deactivate_break

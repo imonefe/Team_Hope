@@ -107,6 +107,14 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: d02a14800a2c7174bad32502c13dcdfb, type: 2}
+    - target: {fileID: 6363140507240064910, guid: 66e3c3559ba889a4ca1338fa069e144c, type: 3}
+      propertyPath: lengthInSec
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6363140507240064910, guid: 66e3c3559ba889a4ca1338fa069e144c, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 7189544702032346829, guid: 66e3c3559ba889a4ca1338fa069e144c, type: 3}
       propertyPath: m_Name
       value: baek_slash03

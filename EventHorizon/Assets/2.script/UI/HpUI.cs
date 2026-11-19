@@ -15,12 +15,22 @@ public enum HpUITargetMode
             // HP 캔버스 자체를 화면에서 치운다.
 }
 
+// [2026-11-19 추가] Boss 모드에서 어떤 보스를 따라갈지 (보스 체력바 / 중간보스 체력바를 나눠 쓰기 위해)
+public enum HpUIBossFilter
+{
+    Any,            // 아무 보스나 (예전과 같음)
+    StageBossOnly,  // 중간보스(MidBossController)는 무시
+    MidBossOnly,    // 중간보스만
+}
+
 public class HpUI : MonoBehaviour
 {
     [Header("추적 대상")]
     public HpUITargetMode targetMode = HpUITargetMode.Player;
     [Tooltip("Boss 모드에서 BossController를 찾는 재시도 간격(초). Player 모드에서는 사용하지 않음.")]
     public float findRetryInterval = 0.5f;
+    [Tooltip("[2026-11-19] Boss 모드에서 따라갈 보스 종류. 보스 체력바 = 스테이지 보스만, 중간보스 체력바 = 중간보스만")]
+    public HpUIBossFilter bossFilter = HpUIBossFilter.Any;
 
     public Slider hpSlider;
 
@@ -172,6 +182,13 @@ public class HpUI : MonoBehaviour
         ApplyCurrentHpImmediate();
     }
 
+    bool MatchesFilter(BossController b)
+    {
+        if (bossFilter == HpUIBossFilter.Any) return true;
+        bool isMid = b is MidBossController;
+        return bossFilter == HpUIBossFilter.MidBossOnly ? isMid : !isMid;
+    }
+
     void TryFindBoss()
     {
         if (targetStats != null)
@@ -183,7 +200,7 @@ public class HpUI : MonoBehaviour
         // [2026-11-18] 이미 쓰러진 보스는 건너뜀 (중간보스를 잡은 뒤 나오는 다음 보스를 잡기 위해)
         BossController boss = null;
         foreach (BossController b in FindObjectsOfType<BossController>())
-            if (b != null && !b.IsDefeated) { boss = b; break; }
+            if (b != null && !b.IsDefeated && MatchesFilter(b)) { boss = b; break; }
         if (boss == null) return;
 
         Stats s = boss.GetComponent<Stats>();

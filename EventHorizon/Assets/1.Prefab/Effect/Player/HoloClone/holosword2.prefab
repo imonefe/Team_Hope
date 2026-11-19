@@ -107,6 +107,14 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 3.9908767
       objectReference: {fileID: 0}
+    - target: {fileID: 6363140507240064910, guid: b40c435d68e4a9c4eb55620907ec9fc9, type: 3}
+      propertyPath: lengthInSec
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6363140507240064910, guid: b40c435d68e4a9c4eb55620907ec9fc9, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 7189544702032346829, guid: b40c435d68e4a9c4eb55620907ec9fc9, type: 3}
       propertyPath: m_Name
       value: baek_slash02

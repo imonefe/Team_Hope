@@ -18,7 +18,9 @@ public class HoloCloneSkill : MonoBehaviour
     public float endTime = 0.5f;            // 화면 가르기 후 스킬 정리까지
 
     [Header("대상")]
-    public int maxTargets = 10;
+    // [Faust 2026-11-09] 대상 수가 아니라 "공격 횟수". 화면 안 적이 이보다 적으면 남은 횟수만큼 적을 랜덤으로 다시 골라 채움
+    [UnityEngine.Serialization.FormerlySerializedAs("maxTargets")]
+    public int attackCount = 10;
     public float screenMargin = 0.3f;       // 화면 가장자리에서 이만큼 안쪽에 있는 적만 (월드 단위)
     public Camera viewCamera;               // 비우면 적을 그리는 카메라 중 화면이 가장 넓은 것 (이 씬에선 Camera_2D)
 
@@ -27,10 +29,6 @@ public class HoloCloneSkill : MonoBehaviour
     public float hitKnockbackX = 2f, hitKnockbackY = 1f;
     public int finalDamage = 60;            // 화면 가르기
     public float finalKnockbackX = 4f, finalKnockbackY = 2f;
-    [Tooltip("[2026-11-09] 켜면 화면 가르기에 맞은 일반 적은 체력과 상관없이 즉사 (보스는 아래 값만큼만)")]
-    public bool finalExecute = true;
-    public int executeDamage = 9999;        // 즉사 피해 (방어·상성을 거쳐도 남지 않을 만큼 크게)
-    public int finalBossDamage = 60;        // 보스가 화면 가르기에 받는 피해
     public AudioClip hitSfx;
     public AudioClip criticalSfx;
     [Header("효과음 [2026-11-09] — 여러 개 넣으면 무작위")]
@@ -160,11 +158,18 @@ public class HoloCloneSkill : MonoBehaviour
 
         // ── 2) 순간이동 참격 ──
         var targets = PickTargets();
-        Debug.Log($"[HoloClone] 대상 {targets.Count}명 (카메라 {(viewCamera ? viewCamera.name : "없음")})");
+        Debug.Log($"[HoloClone] 공격 {targets.Count}회 (화면 안 적 {CountDistinct(targets)}명, 카메라 {(viewCamera ? viewCamera.name : "없음")})");
         Vector3 prev = origin;
-        foreach (var h in targets)
+        Health last = null;
+        int done = 0;
+        for (int i = 0; i < targets.Count; i++)
         {
-            if (h == null || !h.gameObject.activeInHierarchy) continue;   // 그사이 죽었거나 사라짐
+            var h = targets[i];
+            if (h == null || !h.gameObject.activeInHierarchy)              // 그사이 죽었거나 사라짐 → 화면 안 다른 적으로 대신 (횟수 유지)
+            {
+                h = PickReplacement(last);
+                if (h == null) break;                                        // 남은 적이 없으면 끝
+            }
             Vector3 tp = h.transform.position;
             var col = h.GetComponent<Collider2D>();
             if (col != null) tp = col.bounds.center;
@@ -183,7 +188,10 @@ public class HoloCloneSkill : MonoBehaviour
             float rest = perTargetTime - hitDelay;
             if (rest > 0f) yield return new WaitForSeconds(rest);
             prev = clonePos;
+            last = h;
+            done++;
         }
+        if (targets.Count > 0) Debug.Log($"[HoloClone] 실제 공격 {done}회");
 
         // ── 3) 시전 좌표로 복귀 ──
         if (targets.Count > 0) DrawLine(prev, origin);
@@ -202,9 +210,7 @@ public class HoloCloneSkill : MonoBehaviour
         {
             if (h == null) continue;
             int dir = h.transform.position.x >= origin.x ? 1 : -1;
-            bool isBoss = h.GetComponentInParent<BossController>() != null;
-            int dmg = isBoss ? finalBossDamage : (finalExecute ? executeDamage : finalDamage);
-            if (Hitbox.DealDirectHit(h, dmg, stats, dir, finalKnockbackX, finalKnockbackY, h.transform.position,
+            if (Hitbox.DealDirectHit(h, finalDamage, stats, dir, finalKnockbackX, finalKnockbackY, h.transform.position,
                                      firstFinal ? hitSfx : null, firstFinal ? criticalSfx : null, "HoloCloneFinal", true))
                 firstFinal = false;
         }
@@ -213,14 +219,41 @@ public class HoloCloneSkill : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // 화면 안 적 중 최대 maxTargets 명, 랜덤 순서
+    // [Faust 2026-11-09] 공격 순서 attackCount 개 만들기
+    // 화면 안 적이 attackCount 이상: 랜덤으로 attackCount 명, 한 번씩
+    // 적으면: 전원 한 번씩(랜덤 순서) 먼저 → 남은 횟수는 적을 랜덤으로 다시 골라 채움 (적이 2명 이상이면 같은 적 연속은 피함)
     List<Health> PickTargets()
     {
         var list = OnScreenEnemies();
-        for (int i = list.Count - 1; i > 0; i--) { int j = Random.Range(0, i + 1); (list[i], list[j]) = (list[j], list[i]); }
-        if (list.Count > maxTargets) list.RemoveRange(maxTargets, list.Count - maxTargets);
-        return list;
+        var plan = new List<Health>();
+        if (list.Count == 0 || attackCount <= 0) return plan;
+        Shuffle(list);
+        if (list.Count >= attackCount) { plan.AddRange(list.GetRange(0, attackCount)); return plan; }
+        plan.AddRange(list);
+        while (plan.Count < attackCount)
+        {
+            Health h = list[Random.Range(0, list.Count)];
+            if (list.Count > 1) while (h == plan[plan.Count - 1]) h = list[Random.Range(0, list.Count)];
+            plan.Add(h);
+        }
+        return plan;
     }
+
+    // 예정된 적이 죽었을 때 대신할 적 (직전 적은 되도록 피함)
+    Health PickReplacement(Health avoid)
+    {
+        var list = OnScreenEnemies();
+        if (list.Count == 0) return null;
+        if (list.Count > 1) list.Remove(avoid);
+        return list[Random.Range(0, list.Count)];
+    }
+
+    static void Shuffle(List<Health> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--) { int j = Random.Range(0, i + 1); (list[i], list[j]) = (list[j], list[i]); }
+    }
+
+    static int CountDistinct(List<Health> list) => new HashSet<Health>(list).Count;
 
     List<Health> OnScreenEnemies()
     {
