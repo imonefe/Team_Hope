@@ -13,9 +13,18 @@ MonoBehaviour:
   m_Name: "Errorrrrrr"
   m_EditorClassIdentifier: 
   itemName: "Errorrrrrr"
-  description: "\uc694\uccad\ud55c \uc815\ubcf4\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4. (404)"
+  description: "\u25A1\u25A1\u25A1 \u25A1\u25A1 \u25A1\u25A1\u25A1 \u25A1 \u25A1\u25A1\u25A1\u25A1. (404)"
   icon: {fileID: -1586477040, guid: 650fb88925584ad1ae8f3f6673a62410, type: 3}
   itemType: 0
   tier: 2
   effects:
   - {fileID: 11400000, guid: 58e6bbaab78c418e9e8bd94b69eeb3af, type: 2}
+  keywords:
+  - 4
+  - 5
+  abilityName: "404"
+  abilityText: "\uCC98\uD615 \uB300\uC0C1 \uC77C\uBC18 \uC801\uC744 \uB9DE\uD788\uBA74 \uC77C\uC815 \uD655\uB960\uB85C \uAE00\uB9AC\uCE58\uC640 \uD568\uAED8 \uC989\uC2DC \uC0AD\uC81C, \uD0C8\uCDE8 \uB370\uC774\uD130 1\uAC1C"
+  levelValues:
+  - "15%"
+  - "22%"
+  - "30%"

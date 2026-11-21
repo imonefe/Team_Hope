@@ -12,6 +12,11 @@ using TMPro;
 /// </summary>
 public class CurrencyUI : MonoBehaviour
 {
+    // [2026-11-21 추가] 어떤 재화를 보여줄지 — 일반 재화 / 증강 파편 (인벤토리에서 아이콘과 함께 한 줄씩)
+    public enum Kind { Currency = 0, Shards = 1 }
+    [Tooltip("Currency = 일반 재화, Shards = 증강 파편")]
+    public Kind kind = Kind.Currency;
+
     public TMP_Text amountText;
     [Tooltip("숫자 앞에 붙일 텍스트 (필요 없으면 비워둠)")]
     public string prefix = "";
@@ -33,15 +38,19 @@ public class CurrencyUI : MonoBehaviour
         if (subscribed) return;
         if (RunManager.Instance == null) return;
 
-        RunManager.Instance.OnCurrencyChanged += Refresh;
+        if (kind == Kind.Shards) RunManager.Instance.OnShardsChanged += Refresh;
+        else RunManager.Instance.OnCurrencyChanged += Refresh;
         subscribed = true;
-        Refresh(RunManager.Instance.Amount);
+        Refresh(kind == Kind.Shards ? RunManager.Instance.Shards : RunManager.Instance.Amount);
     }
 
     void OnDisable()
     {
         if (subscribed && RunManager.Instance != null)
+        {
             RunManager.Instance.OnCurrencyChanged -= Refresh;
+            RunManager.Instance.OnShardsChanged -= Refresh;
+        }
         subscribed = false;
     }
 

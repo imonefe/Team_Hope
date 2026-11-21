@@ -24,10 +24,10 @@ public static class ShopCanvasBuilder
 {
     const string ParentFolder = "Assets/1.Prefab/UI/Canvas";
     const string Folder = ParentFolder + "/상점";
-    const string FramePath = "Assets/4. Art/UI/HUD/inventori.png";
-    const string SlotPath = "Assets/4. Art/UI/HUD/레이어 54.png";
-    const string CoinPath = "Assets/4. Art/UI/HUD/coin01.png";
-    const string YoungbokPath = "Assets/4. Art/Illustration/이영복_대화.png";
+    const string FramePath = "Assets/4. Art/Textures/UI/HUD/inventori.png";
+    const string SlotPath = "Assets/4. Art/Textures/UI/HUD/레이어 54.png";
+    const string CoinPath = "Assets/4. Art/Textures/UI/HUD/coin01.png";
+    const string YoungbokPath = "Assets/4. Art/Textures/Illustration/이영복_대화.png";
     const string TitleFontPath = "Assets/Etc/Font/HiKR-ExtraBold SDF.asset";
     const string BodyFontPath = "Assets/Etc/Font/KoPubWorld Dotum_Pro Medium SDF.asset";
 

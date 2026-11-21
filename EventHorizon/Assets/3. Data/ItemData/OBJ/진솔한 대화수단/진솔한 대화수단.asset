@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 상대와의 말투를 부드럽게 만들어 주는 진솔한 대화수단.
   icon: {fileID: 838178547, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 1
+  tier: 0
   element: 0
   power: 0
   effects:
   - {fileID: 11400000, guid: f0ea9cd08a074b72b2a26d73a112b457, type: 2}
+  keywords:
+  - 5
+  abilityName: "\uC124\uB4DD"
+  abilityText: "\uD0C8\uCDE8 \uB370\uC774\uD130\uB97C \uC2E4\uC740 \uACF5\uACA9\uC774 \uC801\uC744 \uD06C\uAC8C \uB0A0\uB9B0\uB2E4. \uB0A0\uC544\uAC04 \uC801\uC774 \uB2E4\uB978 \uC801\uACFC \uBD80\uB52A\uCE58\uBA74 \uB458 \uB2E4 \uACF5\uACA9\uB825 100%"
+  levelValues:
+  - "100%"
+  - "150%"
+  - "200%"

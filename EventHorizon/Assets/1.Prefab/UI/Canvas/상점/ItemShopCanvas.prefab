@@ -2277,13 +2277,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1fce28c25acf42ac959c0072c550403c, type: 2}
   - {fileID: 11400000, guid: 7d2feb1389904d87a9000b2b4aa61a7d, type: 2}
   - {fileID: 11400000, guid: f04cea09823d4ba0af0baeaeecea0ccd, type: 2}
-  - {fileID: 11400000, guid: 7d2457aa7a4b4a5995b53b6bbdf9a1ff, type: 2}
   - {fileID: 11400000, guid: 511eccb0688849d58ceb33f9465d934c, type: 2}
-  tierPrices: 280000004600000078000000c8000000
+  tierPrices: 64000000c80000005e01000000000000
   tierOdds:
-  - 37
-  - 36
-  - 20
-  - 7
-  refreshCost: 20
-  refreshCostStep: 10
+  - 55
+  - 35
+  - 10
+  - 0
+  refreshCost: 50
+  refreshCostStep: 25
+  allowSell: 1
+  exclusiveOffer: {fileID: 11400000, guid: 7d2457aa7a4b4a5995b53b6bbdf9a1ff, type: 2}
+  exclusiveChance: 0.3
+  exclusivePrice: 600

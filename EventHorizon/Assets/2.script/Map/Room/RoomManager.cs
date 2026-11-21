@@ -38,7 +38,11 @@ public class RoomManager : MonoBehaviour
         foreach (GameObject root in SceneManager.GetActiveScene().GetRootGameObjects())
             persistentRoots.Add(root);
 
-        if (startRoomPrefab != null)
+        // [2026-11-21] 스테이지 구성(일시정지 화면 '스테이지 설정')이 있으면 켜 둔 첫 칸부터 시작
+        if (MapManager.Instance != null && MapManager.Instance.BeginPlannedRun())
+        {
+        }
+        else if (startRoomPrefab != null)
         {
             LoadRoom(startRoomPrefab);
         }
@@ -259,6 +263,9 @@ public class RoomManager : MonoBehaviour
             yield return null;
         }
         Debug.Log("[RoomManager] 중간 보스 처치 감지 → " + subRoomReturnDelay + "초 뒤 복귀");
+        // [2026-11-21] 보스 보상 증강을 고를 때까지 복귀 연출(회로 셰이더)·방 이동을 보류
+        yield return null;
+        while (AugmentOfferDirector.IsBusy) yield return null;
         // [2026-11-19 수정] 실제 시간으로 센다 (공격 연출의 순간 정지 등으로 게임 시간이 느려진 채 남아도 복귀하도록).
         //  일시정지 메뉴가 열려 있는 동안은 세지 않는다
         float waited = 0f;

@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 반응속도를 높여주는 사이버웨어. 몸이 빨라지고 판단도 빨라진다.
   icon: {fileID: -1177572294, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 1
+  tier: 0
   element: 2
   power: 3
   effects:
   - {fileID: 11400000, guid: 5e4268ecc15c4241aea3a514b6f763b8, type: 2}
+  keywords:
+  - 3
+  abilityName: "\uC5F0\uACA9 \uCE74\uC6B4\uD130"
+  abilityText: "\uC5F0\uACA9 \uC2A4\uD0DD\uB2F9 \uACF5\uACA9 \uC18D\uB3C4 +2%"
+  levelValues:
+  - "+2%"
+  - "+3%"
+  - "+4%"

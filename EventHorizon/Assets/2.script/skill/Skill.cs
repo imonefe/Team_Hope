@@ -122,6 +122,9 @@ public class Skill : MonoBehaviour
     public GameObject buffExtraHitEffectPrefab;
 
     int facing = 1; // 시전 방향 저장 (애니메이션 이벤트 소환 시 사용)
+    /// <summary>[2026-11-21] 증강: 이 시전의 피해 배율 (혈류 대체 회로 · 열람)</summary>
+    [System.NonSerialized] public float damageScale = 1f;
+
     Transform casterRef; // 시전자 저장 (소환물에 attackerStats 전달용 — 치명타/속성상성 계산에 필요)
 
     /// <summary>
@@ -334,7 +337,9 @@ public class Skill : MonoBehaviour
             hb.attackerStats = casterStats;
             if (casterStats != null)
                 hb.damage += Mathf.RoundToInt(casterStats.Atk);
+            if (!Mathf.Approximately(damageScale, 1f)) hb.damage = Mathf.RoundToInt(hb.damage * damageScale);   // [2026-11-21] 증강
         }
+        go.AddComponent<SkillMark>();   // [2026-11-21] 증강: 스킬이 낸 판정 표시
 
         // 투사체(ProjectileStraight/ProjectileHoming 공통)에도 시전자 스탯 전달 + 공격력 가산
         ProjectileBase[] allProjectiles = go.GetComponentsInChildren<ProjectileBase>(true);
@@ -343,6 +348,7 @@ public class Skill : MonoBehaviour
             pb.attackerStats = casterStats;
             if (casterStats != null)
                 pb.damage += Mathf.RoundToInt(casterStats.Atk);
+            if (!Mathf.Approximately(damageScale, 1f)) pb.damage = Mathf.RoundToInt(pb.damage * damageScale);   // [2026-11-21] 증강
         }
 
         // 직선 투사체(ProjectileStraight) 전용 — Init() 안에서 이동 방향(=회전)과 수명 타이머

@@ -22,6 +22,13 @@ public class RestHealEffect : ItemEffect
         stats.gameObject.AddComponent<RestHealRunner>().Init(stats, restDelay, interval, healRatio);
     }
 
+    // [2026-11-21] 증강 판매
+    public override void Revert(Stats stats, MonoBehaviour runner, int level)
+    {
+        var r = stats != null ? stats.GetComponent<RestHealRunner>() : null;
+        if (r != null) Destroy(r);
+    }
+
     // 예) "2초간 움직이지 않으면 1초마다 최대 체력의 2% 회복"
     protected override void AppendDescription(List<string> lines)
     {

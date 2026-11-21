@@ -71,7 +71,7 @@ public class Portal : ProximityInteractable
 
     // [2026-09-29 변경] Player 태그 감지 + F키 입력 처리(Update/OnTrigger)는 공용 베이스
     // ProximityInteractable로 이동.
-    protected override bool CanInteract() => isActive && !transitioning;
+    protected override bool CanInteract() => isActive && !transitioning && !AugmentOfferDirector.IsBusy;   // [2026-11-21] 증강 고르기 전엔 이동 불가
 
     // [2026-11-11] 열린 문 앞에 서면 머리 위에 "[F] 이동" 안내 (상자 "열기", NPC "대화"와 같은 방식)
     protected override string PromptLabel => "이동";

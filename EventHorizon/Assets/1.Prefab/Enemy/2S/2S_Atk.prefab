@@ -307,7 +307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 160
+  maxHp: 190
   currentHp: 160
   Atk: 15
   Def: 3
@@ -337,6 +337,7 @@ MonoBehaviour:
   minCurrencyDrop: 12
   maxCurrencyDrop: 18
   invincibleTime: 0
+  elite: 1
 --- !u!50 &7399741341257212592
 Rigidbody2D:
   serializedVersion: 4

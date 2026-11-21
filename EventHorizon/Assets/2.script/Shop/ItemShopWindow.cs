@@ -16,6 +16,10 @@ using UnityEngine.UI;
 ///    판매가 = 등급별 가격 × sellRate
 ///
 /// 가격·확률·새로고침 비용은 전부 임시값 — 인스펙터에서 바꾸면 된다.
+///
+/// [2026-11-21] 증강 상점으로 전환 (증강 기획서 '상점 판매'): 일반 100 · 희귀 200 · 영웅 350, 전설은 무작위 진열 안 함.
+///  전용 진열(exclusiveOffer, 백자 열람 권한): 진열할 때마다 exclusiveChance 확률로 마지막 칸에 나옴.
+///  가진 증강 팔기: 증강 파편을 받고, 그 증강의 능력·능력치가 함께 사라진다 (AugmentRules.SellShards).
 /// </summary>
 public class ItemShopWindow : ShopWindow
 {
@@ -23,17 +27,25 @@ public class ItemShopWindow : ShopWindow
     public List<ItemData> itemPool = new List<ItemData>();
 
     [Header("등급별 가격 (일반 / 레어 / 유니크 / 레전더리) — 임시값")]
-    public int[] tierPrices = { 30, 60, 100, 160 };
+    public int[] tierPrices = { 100, 200, 350, 0 };
 
     [Header("등급별 진열 확률 % (일반 / 레어 / 유니크 / 레전더리) — 임시값")]
-    public float[] tierOdds = { 37, 36, 20, 7 };
+    public float[] tierOdds = { 55, 35, 10, 0 };
 
     [Header("판매가 = 등급별 가격 × 이 비율 — 임시값")]
     [Range(0f, 1f)] public float sellRate = 0.4f;
 
     [Header("새로고침 비용 — 임시값")]
-    public int refreshCost = 20;
-    public int refreshCostStep = 10;
+    public int refreshCost = 50;
+    public int refreshCostStep = 25;
+
+    [Header("[2026-11-21] 가진 증강 팔기 (증강 파편을 받음)")]
+    public bool allowSell = true;
+
+    [Header("[2026-11-21] 이 상점 전용 증강 (백자 열람 권한)")]
+    public ItemData exclusiveOffer;
+    [Range(0f, 1f)] public float exclusiveChance = 0.3f;
+    public int exclusivePrice = 600;
 
     const int SlotCount = 4;
 
@@ -100,9 +112,10 @@ public class ItemShopWindow : ShopWindow
         if (refreshBtn != null) refreshBtn.onClick.AddListener(() => { if (selling) NextPage(); else Refresh(); });
         sellBtn = Find("Window/BottomRow/SellButton")?.GetComponent<Button>();
         if (sellBtn != null) sellBtn.onClick.AddListener(ToggleSell);
+        if (sellBtn != null && !allowSell) sellBtn.gameObject.SetActive(false);   // [2026-11-21]
 
         if (odds != null)
-            odds.text = $"일반 {tierOdds[0]:0}% · 레어 {tierOdds[1]:0}% · 유니크 {tierOdds[2]:0}% · 레전더리 {tierOdds[3]:0}%";
+            odds.text = OddsLine();
     }
 
     protected override void OnOpened()
@@ -131,6 +144,14 @@ public class ItemShopWindow : ShopWindow
                 RunManager.Instance?.HoldItem(offers[i], this);
             }
         }
+        // [2026-11-21] 전용 증강: 확률로 마지막 칸에
+        if (exclusiveOffer != null && (RunManager.Instance == null || RunManager.Instance.IsNewItem(exclusiveOffer)) && Random.value < exclusiveChance)
+        {
+            int last = SlotCount - 1;
+            if (offers[last] != null) RunManager.Instance?.ReleaseItem(offers[last], this);
+            offers[last] = exclusiveOffer;
+            RunManager.Instance?.HoldItem(exclusiveOffer, this);
+        }
         selected = -1;
         for (int i = 0; i < SlotCount; i++) if (offers[i] != null) { selected = i; break; }
     }
@@ -148,7 +169,7 @@ public class ItemShopWindow : ShopWindow
         for (int t = 0; t < 4; t++) byTier[t] = new List<ItemData>();
         foreach (var it in itemPool)
         {
-            if (it == null || used.Contains(it)) continue;
+            if (it == null || used.Contains(it) || it == exclusiveOffer) continue;
             if (RunManager.Instance != null && !RunManager.Instance.IsNewItem(it)) continue;
             byTier[(int)it.tier].Add(it);
         }
@@ -163,14 +184,23 @@ public class ItemShopWindow : ShopWindow
             r -= Odd(t);
             if (r <= 0) return byTier[t][Random.Range(0, byTier[t].Count)];
         }
-        for (int t = 3; t >= 0; t--) if (byTier[t].Count > 0) return byTier[t][Random.Range(0, byTier[t].Count)];
+        for (int t = 3; t >= 0; t--) if (byTier[t].Count > 0 && Odd(t) > 0) return byTier[t][Random.Range(0, byTier[t].Count)];   // [2026-11-21] 확률 0 등급(전설)은 진열 안 함
         return null;
     }
 
+    // [2026-11-21] 확률 0 등급은 빼고 표시 (증강 등급 이름)
+    string OddsLine()
+    {
+        var parts = new List<string>();
+        for (int t = 0; t < 4; t++) if (Odd(t) > 0) parts.Add($"{AugmentRules.TierName((ItemTier)t)} {Odd(t):0}%");
+        return string.Join(" · ", parts);
+    }
+
     float Odd(int t) => tierOdds != null && t < tierOdds.Length ? Mathf.Max(0, tierOdds[t]) : 0;
-    int PriceOf(ItemData d) => d == null ? 0 : (tierPrices != null && (int)d.tier < tierPrices.Length ? tierPrices[(int)d.tier] : 0);
+    int PriceOf(ItemData d) => d == null ? 0 : d == exclusiveOffer ? exclusivePrice : (tierPrices != null && (int)d.tier < tierPrices.Length ? tierPrices[(int)d.tier] : 0);
     int CurrentRefreshCost => refreshCost + refreshCount * refreshCostStep;
-    int SellPriceOf(ItemData d) => Mathf.RoundToInt(PriceOf(d) * sellRate);
+    // [2026-11-21] 증강 판매가 = 증강 파편 (등급 기본값 + 강화에 쓴 파편의 절반)
+    int SellPriceOf(ItemData d) => d == null ? 0 : AugmentRules.SellShards(d.tier, RunManager.Instance != null ? Mathf.Max(1, RunManager.Instance.GetAugmentLevel(d)) : 1);
 
     static List<ItemData> Owned => Inventory.Instance != null ? Inventory.Instance.passives : new List<ItemData>();
     int PageCount => Mathf.Max(1, Mathf.CeilToInt(Owned.Count / (float)SlotCount));
@@ -209,14 +239,46 @@ public class ItemShopWindow : ShopWindow
         }
     }
 
-    // 팔기: 인벤토리 목록에서만 뺀다 (효과는 되돌리지 않음)
+    // [2026-11-21] 팔기: 증강 파편을 받고, 그 증강의 능력치 효과를 되돌린 뒤 인벤토리에서 뺀다
+    //  (고유능력·키워드는 인벤토리를 읽어 돌아가므로 빠지는 순간 함께 꺼진다)
     void Sell(int i)
     {
         var d = sellItems[i];
         if (d == null || Inventory.Instance == null) return;
+        int shards = SellPriceOf(d);
+        int level = RunManager.Instance != null ? Mathf.Max(1, RunManager.Instance.GetAugmentLevel(d)) : 1;
         if (!Inventory.Instance.RemovePassiveAt(sellIndex[i], d)) return;
-        RunManager.Instance?.AddCurrency(SellPriceOf(d));
+        var p = Player();
+        if (d.effects != null && p.stats != null)
+            foreach (var e in d.effects)
+                if (e != null) e.Revert(p.stats, p.go != null ? p.go.GetComponent<MonoBehaviour>() : null, level);
+        RunManager.Instance?.ForgetObtained(d);
+        RunManager.Instance?.AddShards(shards);
+        AugmentRuntime.Instance?.Refresh();
         RefreshAll();
+    }
+
+    // [2026-11-21] 키보드: ← → 고르기 · Space/Enter 구매(판매 화면이면 판매) · R 새로고침(판매 화면이면 다음 쪽) · Tab 판매 화면 전환 · Esc 닫기
+    protected override void Update()
+    {
+        base.Update();
+        if (!IsOpen) return;
+        if (Input.GetKeyDown(KeyCode.LeftArrow)) MoveSelect(-1);
+        if (Input.GetKeyDown(KeyCode.RightArrow)) MoveSelect(+1);
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) && selected >= 0) Buy(selected);
+        if (Input.GetKeyDown(KeyCode.R)) { if (selling) NextPage(); else Refresh(); }
+        if (Input.GetKeyDown(KeyCode.Tab) && allowSell) ToggleSell();
+    }
+
+    void MoveSelect(int dir)
+    {
+        int s = selected < 0 ? 0 : selected;
+        for (int k = 0; k < SlotCount; k++)
+        {
+            s = (s + dir + SlotCount) % SlotCount;
+            bool has = selling ? sellItems[s] != null : offers[s] != null;
+            if (has) { selected = s; RefreshAll(); return; }
+        }
     }
 
     // ── 버튼 ──
@@ -262,9 +324,9 @@ public class ItemShopWindow : ShopWindow
     {
         if (selling) { RefreshSell(); return; }
         int money = Money;
-        if (sellBtn != null) SetSecondaryLabel(sellBtn, "가진 아이템 팔기");
+        if (sellBtn != null) SetSecondaryLabel(sellBtn, "가진 증강 팔기");
         if (odds != null)
-            odds.text = $"일반 {tierOdds[0]:0}% · 레어 {tierOdds[1]:0}% · 유니크 {tierOdds[2]:0}% · 레전더리 {tierOdds[3]:0}%";
+            odds.text = OddsLine();
         for (int i = 0; i < SlotCount; i++)
         {
             var c = cards[i];
@@ -289,9 +351,12 @@ public class ItemShopWindow : ShopWindow
             if (c.gradeBar != null) c.gradeBar.color = tc;
             SetBorderColor(c.gradeRing, tc);
             SetBorderColor(c.badgeBorder, tc);
-            if (c.badge != null) { c.badge.text = ShopColors.TierName(d.tier); c.badge.color = tc; }
+            if (c.badge != null) { c.badge.text = AugmentRules.TierName(d.tier); c.badge.color = tc; }
             SetText(c.itemName, d.itemName);
-            SetText(c.desc, d.description);
+            // [2026-11-21] 증강: 고유능력 이름 · 효과 · 키워드 (설명문 대신)
+            string kw = AugmentRules.KeywordsRich(d);
+            string ab = string.IsNullOrEmpty(d.abilityText) ? d.description : d.abilityText;   // [2026-11-21] 고유능력 이름은 보이지 않음
+            SetText(c.desc, string.IsNullOrEmpty(kw) ? ab : $"{kw}\n{ab}");
             if (c.icon != null)
             {
                 c.icon.sprite = d.icon;
@@ -313,9 +378,9 @@ public class ItemShopWindow : ShopWindow
         else
         {
             SetText(dName, sel.itemName);
-            if (dGrade != null) { dGrade.text = ShopColors.TierName(sel.tier); dGrade.color = ShopColors.Tier(sel.tier); }
+            if (dGrade != null) { dGrade.text = AugmentRules.TierWithLevel(sel.tier, 1); dGrade.color = ShopColors.Tier(sel.tier); }
             SetText(dFlavor, sel.description);
-            SetText(dEffects, string.Join("\n", EffectText.Collect(sel)));
+            SetText(dEffects, AugmentRules.Describe(sel, 1));   // [2026-11-21] 고유능력 · 강화 값 · 키워드
             SetText(dStats, StatPreview(sel));
         }
 
@@ -340,7 +405,7 @@ public class ItemShopWindow : ShopWindow
             if (c.selectFrame != null) c.selectFrame.SetActive(d != null && i == selected);
             if (d == null)
             {
-                SetText(c.itemName, "팔 아이템 없음");
+                SetText(c.itemName, "팔 증강 없음");
                 SetText(c.desc, "");
                 SetText(c.badge, "-");
                 SetText(c.price, "-");
@@ -353,21 +418,21 @@ public class ItemShopWindow : ShopWindow
             if (c.gradeBar != null) c.gradeBar.color = tc;
             SetBorderColor(c.gradeRing, tc);
             SetBorderColor(c.badgeBorder, tc);
-            if (c.badge != null) { c.badge.text = ShopColors.TierName(d.tier); c.badge.color = tc; }
+            if (c.badge != null) { c.badge.text = AugmentRules.TierName(d.tier); c.badge.color = tc; }
             SetText(c.itemName, d.itemName);
             SetText(c.desc, d.description);
             if (c.icon != null) { c.icon.sprite = d.icon; c.icon.color = d.icon != null ? Color.white : new Color(1, 1, 1, 0); }
             if (c.iconPlaceholder != null) c.iconPlaceholder.SetActive(d.icon == null);
-            SetText(c.price, "+" + SellPriceOf(d).ToString("#,0"));
+            SetText(c.price, $"파편 +{SellPriceOf(d)}");
             SetButton(c.buy, true, "판매");
         }
 
         var sel = sellItems[selected];
         SetText(dName, sel != null ? sel.itemName : "-");
-        if (dGrade != null) { dGrade.text = sel != null ? ShopColors.TierName(sel.tier) : ""; if (sel != null) dGrade.color = ShopColors.Tier(sel.tier); }
+        if (dGrade != null) { dGrade.text = sel != null ? AugmentRules.TierWithLevel(sel.tier, RunManager.Instance != null ? Mathf.Max(1, RunManager.Instance.GetAugmentLevel(sel)) : 1) : ""; if (sel != null) dGrade.color = ShopColors.Tier(sel.tier); }
         SetText(dFlavor, sel != null ? sel.description : "");
         SetText(dEffects, sel != null ? string.Join("\n", EffectText.Collect(sel)) : "");
-        SetText(dStats, sel != null ? $"팔면 재화 +{SellPriceOf(sel):#,0}\n<color=#{ColorUtility.ToHtmlStringRGB(ShopColors.Up)}>팔아도 효과는 그대로 남습니다</color>" : "");
+        SetText(dStats, sel != null ? $"팔면 증강 파편 +{SellPriceOf(sel)}\n<color=#{ColorUtility.ToHtmlStringRGB(ShopColors.Down)}>능력과 능력치가 함께 사라집니다</color>" : "");
 
         if (sellBtn != null) SetSecondaryLabel(sellBtn, "구매로 돌아가기");
         if (refreshBtn != null)
@@ -375,7 +440,7 @@ public class ItemShopWindow : ShopWindow
             SetSecondaryLabel(refreshBtn, $"다음 쪽 ({sellPage + 1}/{PageCount})");
             refreshBtn.interactable = PageCount > 1;
         }
-        if (odds != null) odds.text = $"가진 아이템 {Owned.Count}개 · 판매가는 구매가의 {sellRate * 100:0}%";
+        if (odds != null) odds.text = $"가진 증강 {Owned.Count}개 · 판매가는 등급과 강화 단계에 따라 증강 파편";
     }
 
     static void SetSecondaryLabel(Button b, string label)

@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 비상시를 대비해 급조 이식한 장기. 체력이 위험 수준으로 떨어지면 서서히 회복시켜 준다.
   icon: {fileID: -1720199133, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 1
+  tier: 0
   element: 5
   power: 3
   effects:
   - {fileID: 11400000, guid: 623c371e738b42e0b7fec422e744fa4d, type: 2}
+  keywords:
+  - 7
+  abilityName: "\uBE44\uC0C1 \uC774\uC2DD"
+  abilityText: "\uCCB4\uB825\uC774 30% \uC544\uB798\uB85C \uB5A8\uC5B4\uC9C0\uBA74 5\uCD08 \uB3D9\uC548 \uCD08\uB2F9 \uCCB4\uB825 \uD68C\uBCF5 (\uBC29\uB9C8\uB2E4 \uD55C \uBC88)"
+  levelValues:
+  - "2%"
+  - "3%"
+  - "4%"

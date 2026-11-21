@@ -145,8 +145,9 @@ public class PauseManager : PersistentSingleton<PauseManager>
 
         IsPaused = true;
         GaugeValue = 0f;
+        CombatEvents.RaisePauseStart();   // [2026-11-21] 증강
 
-        maxTime = Mathf.Clamp(playerStats.PauseDuration, 0f, maxPauseTime);
+        maxTime = Mathf.Clamp(playerStats.PauseDuration + CombatEvents.PauseDurationBonus, 0f, maxPauseTime + CombatEvents.PauseDurationBonus);   // [2026-11-21] 증강 (정지)
         maxDist = playerStats.spd * distPerSpd;
         elapsedRealTime = 0f;
         RemainingTime = maxTime;
@@ -162,7 +163,9 @@ public class PauseManager : PersistentSingleton<PauseManager>
     // ── 퍼즈 해제 ─────────────────────────────────────────
     public void DeactivatePause()
     {
+        bool was = IsPaused;
         IsPaused = false;
+        if (was) CombatEvents.RaisePauseEnd();   // [2026-11-21] 증강
 
         Debug.Log("[Pause] 해제");
     }
@@ -178,10 +181,19 @@ public class PauseManager : PersistentSingleton<PauseManager>
 
     // ── 적·투사체는 각자 PauseManager.IsPaused 체크로 처리 ───
 
+    /// <summary>[2026-11-21] 증강 '느린 정리': 퍼즈 중 남은 시간을 늘림</summary>
+    public void ExtendPause(float seconds)
+    {
+        if (!IsPaused || seconds <= 0f) return;
+        maxTime += seconds;
+        MaxTime = maxTime;
+    }
+
     // ── 게이지 충전 (Hitbox 에서 호출) ───────────────────
     public void AddGauge(float amount)
     {
         if (IsPaused) return;
+        if (amount > 0f) amount *= CombatEvents.PauseGaugeMultiplier;   // [2026-11-21] 증강 (정지)
         GaugeValue = Mathf.Min(100f, GaugeValue + amount);
     }
 

@@ -115,7 +115,7 @@ MonoBehaviour:
   frozenVisualPrefab: {fileID: 0}
   hitboxPrefab: {fileID: 0}
   hitboxPoint: {fileID: 3224858629989917569}
-  projectilePrefab: {fileID: 8282207425675862682, guid: 16ed94fe8c52a4c43a15afc25c60c34c, type: 3}
+  projectilePrefab: {fileID: 7610000000000001, guid: 2646ad8d8890aaf63a71c4e74c6a6812, type: 3}
   attackEffectPrefab: {fileID: 0}
   attackEffectPoint: {fileID: 0}
   effectFlipByFacing: 1
@@ -172,6 +172,7 @@ MonoBehaviour:
   minCurrencyDrop: 4
   maxCurrencyDrop: 6
   invincibleTime: 0
+  elite: 1
 --- !u!50 &7689002136509595055
 Rigidbody2D:
   serializedVersion: 4

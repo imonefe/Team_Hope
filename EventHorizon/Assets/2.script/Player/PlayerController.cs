@@ -112,6 +112,7 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public int DeshCount;
     bool isDashing;
+    float dashSpeedMul = 1f;   // [2026-11-21] 증강 (원거리 관측)
     public bool IsDashing => isDashing;
 
     // ── 대화/컷씬/메뉴 조작 잠금 ──────────────────────────
@@ -383,7 +384,7 @@ public class PlayerController : MonoBehaviour
         float baseAttackAnimSpeed = isAttacking
             ? GetGauntletSpeed() * (EquippedWeapon != null ? EquippedWeapon.attackSpeed : 1f)
             : 1f;
-        animator.speed = baseAttackAnimSpeed * attackBuffAnimSpeedMultiplier;
+        animator.speed = baseAttackAnimSpeed * attackBuffAnimSpeedMultiplier * (isAttacking ? CombatEvents.AttackSpeedMultiplier : 1f);   // [2026-11-21] 증강 (연격)
     }
 
     // ── 특수 대기모션(idle02) 랜덤 트리거 ──────────────────
@@ -416,7 +417,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         if (isDashing)
-            rigid.velocity = new Vector2(dashDir * DashPower, 0);
+            rigid.velocity = new Vector2(dashDir * DashPower * dashSpeedMul, 0);
 
         if (attackDashPending)
         {
@@ -677,6 +678,7 @@ public class PlayerController : MonoBehaviour
         if (!wasGrounded && grounded && rigid.velocity.y <= 0)
         {
             animator.SetTrigger(ParamLand);
+            CombatEvents.RaiseLanded(transform.position);   // [2026-11-21] 증강 (히어로 착지)
         }
 
         // 점프 횟수 리셋은 착지 "순간"이 아니라 바닥에 닿아있는 "동안" 매 프레임 계속 걸어준다.
@@ -769,6 +771,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>[2026-11-21] 스킬 캔슬 대시 — 조작을 잠근 스킬(연격 등)이 대시 키로 끊긴 직후 부른다.
+    /// 방향키를 누르고 있으면 그쪽, 아니면 바라보는 쪽으로 대시</summary>
+    public void DashFromSkillCancel()
+    {
+        if (controlLocked) return;
+        float h = Input.GetAxisRaw("Horizontal");
+        TriggerDash(Mathf.Abs(h) > 0.1f ? Mathf.Sign(h) : Mathf.Sign(transform.localScale.x));
+    }
+
     void TriggerDash(float dir)
     {
         if (isDashing || DeshCount >= MaxDashCount) return;
@@ -778,7 +789,9 @@ public class PlayerController : MonoBehaviour
 
         isDashing = true;
         dashTimer = DashDuration;
+        dashSpeedMul = CombatEvents.DashSpeed(transform.position, dir);   // [2026-11-21] 증강 '원거리 관측' (처형 대상 쪽 대시 속도 증가)
         dashDir = dir;
+        CombatEvents.RaiseDashStart(transform.position, dir);   // [2026-11-21] 증강 (대시 시작)
         Flip(dir); // 대시 방향으로 캐릭터도 전환
         rigid.gravityScale = 0;
         rigid.velocity = Vector2.zero;
@@ -819,6 +832,12 @@ public class PlayerController : MonoBehaviour
     // 대시 종료 (keepMomentum = 대시 속도의 절반을 남겨 자연스럽게 감속 / false = 그 자리에서 멈춤)
     void EndDash(bool keepMomentum)
     {
+        // [2026-11-21] 증강: 대시 끝 알림 + 잔상 키워드의 추가 무적
+        if (isDashing)
+        {
+            CombatEvents.RaiseDashEnd(transform.position);
+            if (CombatEvents.DashExtraInvuln > 0f) GetComponent<Health>()?.GrantInvincibility(CombatEvents.DashExtraInvuln);
+        }
         isDashing = false;
         dashTimer = 0f;
         rigid.gravityScale = originalGravity;
@@ -1263,6 +1282,18 @@ public class PlayerController : MonoBehaviour
             if (weapontype == Weapontype.Sword && comboIndex == 3)
                 hb.forceCrit = true;
         }
+
+        // [2026-11-21] 증강: 이 판정이 어떤 동작인지 붙여 두고 알림 (검무·과충전 망치·히어로 착지·박자 칼날 등)
+        float chargePower = 0f;
+        if (isChargedHit && EquippedWeapon != null)
+        {
+            float cr = EquippedWeapon.maxChargeMultiplier - EquippedWeapon.minChargeMultiplier;
+            chargePower = cr > 0f ? Mathf.Clamp01((pendingChargeMultiplier - EquippedWeapon.minChargeMultiplier) / cr) : 1f;
+        }
+        var tag = obj.AddComponent<SwingTag>();
+        tag.weapon = weapontype; tag.combo = comboIndex; tag.charged = isChargedHit; tag.chargePower = chargePower;
+        tag.airborne = !lastGrounded; tag.facing = (int)Mathf.Sign(transform.localScale.x);
+        CombatEvents.RaiseSwing(tag);
     }
 
     // ── 공격 강화 버프: 적용 / 해제 (Skill.cs에서 호출) ───
@@ -1340,6 +1371,7 @@ public class PlayerController : MonoBehaviour
 
         GameObject anchor = new GameObject("EffectAnchor");
         anchor.transform.position = spawnPos;
+        if (!Mathf.Approximately(CombatEvents.SwingScale, 1f)) anchor.transform.localScale = Vector3.one * CombatEvents.SwingScale;   // [2026-11-21] 증강 '조준 고정': 무기 궤적도 판정과 같이 커짐
 
         GameObject fx = Instantiate(piece.prefab, anchor.transform);
         fx.transform.localPosition = Vector3.zero;
@@ -1355,7 +1387,7 @@ public class PlayerController : MonoBehaviour
         if (doFlip && piece.mirrorByScale)
         {
             // [2026-11-01 추가] 스케일 반전: 앵커를 X -1 로 뒤집어 메쉬·파티클 궤적까지 거울처럼 반전
-            anchor.transform.localScale = new Vector3(-1f, 1f, 1f);
+            anchor.transform.localScale = new Vector3(-CombatEvents.SwingScale, CombatEvents.SwingScale, CombatEvents.SwingScale);
 
             // 파티클은 음수 스케일을 제대로 처리하지 못하므로, 파티클 오브젝트만 X 스케일을 다시 뒤집어
             // "위치·방향은 거울처럼, 크기는 양수"로 만들고, 방향이 있는 값들(속도 X, 회전 방향)을 직접 반전한다.

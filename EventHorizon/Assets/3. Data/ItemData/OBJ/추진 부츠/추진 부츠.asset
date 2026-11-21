@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 이름 그대로 이동속도를 크게 높여주는 추진 부츠.
   icon: {fileID: -1710665833, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 1
+  tier: 0
   element: 1
   power: 3
   effects:
   - {fileID: 11400000, guid: c7d66f18cd1242cea21878300c39a86b, type: 2}
+  keywords:
+  - 2
+  abilityName: "\uC774\uB2E8 \uBD84\uC0AC"
+  abilityText: "\uC794\uC0C1\uC774 \uC8FC\uB294 \uD53C\uD574 \uC99D\uAC00"
+  levelValues:
+  - "+20%"
+  - "+30%"
+  - "+40%"

@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public static class UIGradientSpriteCreator
 {
-    const string SavePath = "Assets/4. Art/UI/ui_gradient_right.png";
+    const string SavePath = "Assets/4. Art/Textures/UI/ui_gradient_right.png";
 
     [MenuItem("Tools/Event Horizon/UI 그라데이션 스프라이트 생성")]
     public static void Create()

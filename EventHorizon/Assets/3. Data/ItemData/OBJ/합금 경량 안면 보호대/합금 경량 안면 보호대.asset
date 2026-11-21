@@ -19,3 +19,11 @@ MonoBehaviour:
   tier: 1
   effects:
   - {fileID: 11400000, guid: 132e944db18647bdbdeb757ed33441b3, type: 2}
+  keywords:
+  - 1
+  abilityName: "\uD30C\uD3B8 \uBC18\uC0AC"
+  abilityText: "\uB300\uC2DC\uB85C \uC801\uC744 \uD1B5\uACFC\uD558\uBA74 \uADE0\uC5F4 1\uC2A4\uD0DD + \uD295\uAE34 \uD30C\uD3B8 \uD53C\uD574"
+  levelValues:
+  - "30%"
+  - "45%"
+  - "60%"

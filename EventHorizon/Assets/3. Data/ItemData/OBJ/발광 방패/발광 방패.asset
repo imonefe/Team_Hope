@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 빛나는 것 외엔 별다른 기능이 없는 방패.
   icon: {fileID: 417693198, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 0
+  tier: 1
   element: 0
   power: 0
   effects:
   - {fileID: 11400000, guid: dbbc96d7a2514cd2bf57f96a6fac9653, type: 2}
+  keywords:
+  - 6
+  abilityName: "\uC5ED\uB958 \uD0C4\uB3C4"
+  abilityText: "\uD37C\uC988 \uC911 \uBA48\uCD98 \uC801 \uD22C\uC0AC\uCCB4\uB97C \uCE58\uBA74 \uB0B4 \uAC83\uC774 \uB418\uACE0, \uD480\uB9AC\uBA74 \uC3DC \uC801\uC5D0\uAC8C 2\uBC30 \uC18D\uB3C4\uB85C \uB3CC\uC544\uAC04\uB2E4 (\uD37C\uC988\uB2F9 8\uAC1C)"
+  levelValues:
+  - "150%"
+  - "225%"
+  - "300%"

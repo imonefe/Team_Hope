@@ -15,6 +15,9 @@ public abstract class ItemEffect : ScriptableObject
 
     public abstract void Apply(Stats stats, MonoBehaviour runner);
 
+    /// <summary>[2026-11-21] 증강 판매: 이 효과를 되돌린다 (level = 판매 직전 강화 단계). 기본은 아무것도 안 함 (시간형 효과)</summary>
+    public virtual void Revert(Stats stats, MonoBehaviour runner, int level) { }
+
     /// <summary>팝업에 표시할 설명 항목들을 lines 에 추가한다. (직접 입력한 설명이 있으면 그걸 우선 사용)</summary>
     public void Describe(List<string> lines)
     {

@@ -19,6 +19,13 @@ public class HpInverseAtkEffect : ItemEffect
         stats.gameObject.AddComponent<HpInverseAtkRunner>().Init(stats, maxAtkPercent);
     }
 
+    // [2026-11-21] 증강 판매 (부품이 사라질 때 더해 둔 공격력을 뺌)
+    public override void Revert(Stats stats, MonoBehaviour runner, int level)
+    {
+        var r = stats != null ? stats.GetComponent<HpInverseAtkRunner>() : null;
+        if (r != null) Destroy(r);
+    }
+
     // 예) "잃은 체력에 비례해 공격력 증가 (최대 +80%)"
     protected override void AppendDescription(List<string> lines)
     {

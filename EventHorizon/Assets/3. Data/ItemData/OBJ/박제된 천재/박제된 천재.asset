@@ -20,3 +20,12 @@ MonoBehaviour:
   effects:
   - {fileID: 11400000, guid: ec90b6027fd0416e99bc3dd5b92f876d, type: 2}
   - {fileID: 11400000, guid: a3d1e986b2474f7ab4ef22469a2ff1b2, type: 2}
+  keywords:
+  - 6
+  - 2
+  abilityName: "92\uD37C\uC13C\uD2B8"
+  abilityText: "\uBC29 \uC815\uB9AC\uB9C8\uB2E4 \uB5A0\uC62C\uB9BC(\uCD5C\uB300 12, \uD558\uB098\uB2F9 \uACF5\uACA9\uB825 +2%). 6\uAC1C\uBD80\uD130 \uD37C\uC988 \uC911 \uB0A8\uAE34 \uC794\uC0C1\uC758 20%\uAC00 \uD37C\uC988\uAC00 \uD480\uB9B0 \uB4A4 5\uCD08 \uB3D9\uC548 \uB0A8\uC544 \uB0B4 \uACF5\uACA9\uC744 \uB530\uB77C \uD55C\uB2E4"
+  levelValues:
+  - "\uB530\uB77C \uD558\uB294 \uD53C\uD574 60%"
+  - "80%"
+  - "100%"

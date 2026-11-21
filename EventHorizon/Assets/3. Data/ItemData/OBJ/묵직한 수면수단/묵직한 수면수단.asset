@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 묵직한 충격을 가해 상대를 재우는 둔기.
   icon: {fileID: 1563539453, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 1
+  tier: 0
   element: 3
   power: 2
   effects:
   - {fileID: 11400000, guid: 22573f5d089a4f42b68b7be0772ee5c0, type: 2}
+  keywords:
+  - 1
+  abilityName: "\uC7A0\uC7AC\uC6B0\uAE30"
+  abilityText: "\uAC19\uC740 \uC801\uC744 \uC138 \uBC88 \uB9DE\uD790 \uB54C\uB9C8\uB2E4 \uADE0\uC5F4 2\uC2A4\uD0DD + \uACBD\uC9C1"
+  levelValues:
+  - "0.4\uCD08"
+  - "0.6\uCD08"
+  - "0.8\uCD08"

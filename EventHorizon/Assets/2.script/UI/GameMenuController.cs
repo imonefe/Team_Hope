@@ -123,7 +123,8 @@ public class GameMenuController : MonoBehaviour
     void Update()
     {
         if (closing) return;
-        if (SettingsWindow.BlocksEscape) return;   // [2026-10-18] 설정 창이 열려 있거나 방금 ESC 로 닫혔으면 메뉴는 그대로 둔다
+        if (SettingsWindow.BlocksEscape) return;
+        if (StageSettingsWindow.BlocksEscape) return;   // [2026-11-21] 스테이지 설정 창   // [2026-10-18] 설정 창이 열려 있거나 방금 ESC 로 닫혔으면 메뉴는 그대로 둔다
         if (!Input.GetKeyDown(KeyCode.Escape)) return;
 
         if (creditsPanel != null && creditsPanel.activeSelf)
@@ -195,6 +196,12 @@ public class GameMenuController : MonoBehaviour
     public void OpenSettings()
     {
         SettingsWindow.Open();
+    }
+
+    /// <summary>[2026-11-21 추가] 스테이지 설정 버튼 — 켜 둔 스테이지만 밟도록 고르는 창 (새 게임부터 적용)</summary>
+    public void OpenStageSettings()
+    {
+        StageSettingsWindow.Open();
     }
 
     public void ShowCredits()

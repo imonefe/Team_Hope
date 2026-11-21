@@ -109,6 +109,9 @@ public class MapManager : PersistentSingleton<MapManager>
     // ── 마인드맵 열기 ─────────────────────────────────────
     public void OpenMap()
     {
+        // [2026-11-21] 스테이지 구성(StagePlan)으로 진행 중이면 그 순서대로
+        if (StageFlow.Active) { OpenMapPlanned(); return; }
+
         // 방금 클리어하고 나온 노드가 보스 노드였다면 → 스테이지 전환.
         // 이때는 캔버스를 바로 띄우지 않고, 새 스테이지의 로비로 먼저 보낸다.
         // (로비는 노드가 아니라 그냥 들어가 있는 방 — 로비 안의 포탈을 다시 써야
@@ -324,6 +327,24 @@ public class MapManager : PersistentSingleton<MapManager>
             prefab = selected.roomData.GetRoom(usedRoomPrefabs);
             if (prefab != null)
                 usedRoomPrefabs.Add(prefab); // 이제 타입 상관없이 한 번 나온 맵은 이번 스테이지 동안 다시 안 나옴
+        }
+
+        // [2026-11-21] 스테이지 구성: 지금 칸 기록. 방이 아직 없는 칸이면 → 마지막 칸이면 클리어, 아니면 건너뜀
+        if (StageFlow.Active && planIndex.TryGetValue(selected, out int planI))
+        {
+            StageFlow.SetCurrent(planI);
+            if (prefab == null)
+            {
+                RefreshAllButtons();
+                selecting = false;
+                if (StageFlow.CurrentIsLast) GameClear();
+                else
+                {
+                    ScreenNotice.Show("아직 준비 중인 방이라 건너뜁니다");
+                    OpenMapPlanned();
+                }
+                yield break;
+            }
         }
 
         // 페이드 아웃 → 마인드맵 닫고(비활성화만, 삭제 아님) 방 로드 → 페이드 인
@@ -583,5 +604,272 @@ public class MapManager : PersistentSingleton<MapManager>
         currentButton = null;
         usedRoomPrefabs.Clear();
         startButtons.Clear();
+        planIndex.Clear();   // [2026-11-21]
+        planGroup = null;
+    }
+
+    // ───────── [2026-11-21 추가] 스테이지 구성(StagePlan)으로 진행 ─────────
+    // 이번 판 순서(StageFlow)는 새 게임을 시작할 때 설정(일시정지 화면 '스테이지 설정')을 읽어 정해진다.
+    //  - 튜토리얼 · 로비 칸: 그 방으로 바로 들어감
+    //  - 노드 칸(전투 · 중간 보스 · 상점 · 보스): 같은 묶음(1S · 2S)의 켜 둔 칸만 한 줄로 이은 노드 지도를 만든다
+    //  - 켜 둔 칸 중 마지막 칸에서 적이 모두 없어지거나, 마지막 칸 방이 아직 없으면 → 게임 클리어
+
+    [Header("스테이지 구성 (2026-11-21) — 일시정지 화면 '스테이지 설정'과 연결")]
+    [Tooltip("튜토리얼~마지막 스테이지 순서표. 비우면 예전 방식(stagePools)으로 진행")]
+    public StagePlan stagePlan;
+    [Tooltip("노드 지도 바탕 캔버스 (Start · Combat · Shop · Boss 노드 본보기가 들어 있는 것). 비우면 stagePools 첫 캔버스")]
+    public GameObject planCanvasPrefab;
+    [Header("노드 지도 배치 — B안 구간 띠 (1920×1080 기준, 캔버스 가운데가 0)")]
+    [Tooltip("노드 · 띠가 들어갈 가로 폭 (넘치면 전체를 줄임)")]
+    public float planAreaWidth = 1760f;
+    [Tooltip("구간 안 노드 사이 간격")]
+    public float planNodeStep = 125f;
+    [Tooltip("구간 띠 좌우 여백 합")]
+    public float planBandPadding = 70f;
+    [Tooltip("띠 사이 간격")]
+    public float planBandGap = 30f;
+    [Tooltip("시작(로비) 띠 너비")]
+    public float planStartBandWidth = 180f;
+    [Tooltip("구간 첫 칸 높이 · 마지막(중간 보스 · 보스) 칸 높이")]
+    public float planBaseY = -110f;
+    public float planPeakY = 40f;
+    [Tooltip("띠 위 · 아래 끝 (y)")]
+    public float planBandTop = 270f;
+    public float planBandBottom = -330f;
+    [Tooltip("노드 크기 (본보기 노드 크기에 곱함)")]
+    public float planStartScale = 0.5f;
+    public float planCombatScale = 0.6f;
+    public float planShopScale = 0.65f;
+    public float planMidBossScale = 0.8f;
+    public float planBossScale = 0.95f;
+
+    readonly Dictionary<MapButton, int> planIndex = new Dictionary<MapButton, int>();
+    string planGroup;
+
+    /// <summary>스테이지 구성으로 진행 중인지</summary>
+    public bool PlanActive => StageFlow.Active;
+
+    /// <summary>RoomManager.Start 에서 부름. 이번 판 순서를 정하고 첫 칸으로 들어간다. 예전 방식이면 false</summary>
+    public bool BeginPlannedRun()
+    {
+        if (stagePlan == null || !StageFlow.Begin(stagePlan)) return false;
+        planIndex.Clear();
+        planGroup = null;
+        OpenMapPlanned();
+        return true;
+    }
+
+    /// <summary>다음 칸으로 (튜토리얼이 끝났을 때 등)</summary>
+    public void GoNext() => OpenMapPlanned();
+
+    void OpenMapPlanned()
+    {
+        if (StageFlow.Cleared) return;
+        StagePlan.Entry next = StageFlow.PeekNext();
+        if (next == null) { GameClear(); return; }
+
+        if (!next.IsNode)
+        {
+            StageFlow.SetCurrent(StageFlow.Current + 1);
+            DestroyPlanCanvas();
+            EndMapPause();
+            if (next.room != null) RoomManager.Instance.LoadRoom(next.room);
+            else OpenMapPlanned();   // 방이 비어 있는 칸은 건너뜀
+            return;
+        }
+
+        if (currentCanvasInstance == null || planGroup != next.group) BuildPlanCanvas(next.group);
+        if (currentCanvasInstance == null) return;
+        currentCanvasInstance.SetActive(true);
+        BeginMapPause();
+        RefreshAllButtons();
+    }
+
+    void DestroyPlanCanvas()
+    {
+        if (currentCanvasInstance != null) Destroy(currentCanvasInstance);
+        currentCanvasInstance = null;
+        planIndex.Clear();
+        planGroup = null;
+        currentButton = null;
+    }
+
+    // 묶음(1S · 2S)의 켜 둔 노드 칸만 한 줄로 이은 지도를 만든다.
+    // 캔버스 프리팹에 놓인 노드들은 모양 본보기로만 쓰고 지운다 (전투 · 상점 · 보스 · 시작 모양)
+    void BuildPlanCanvas(string group)
+    {
+        DestroyPlanCanvas();
+        GameObject prefab = planCanvasPrefab;
+        if (prefab == null && stagePools != null && stagePools.Length > 0 && stagePools[0].canvasPrefabs != null && stagePools[0].canvasPrefabs.Length > 0)
+            prefab = stagePools[0].canvasPrefabs[0];
+        if (prefab == null) { Debug.LogWarning("[MapManager] 스테이지 구성용 노드 캔버스가 없습니다 (planCanvasPrefab)."); return; }
+
+        Transform parent = canvasParent != null ? canvasParent : transform;
+        currentCanvasInstance = Instantiate(prefab, parent);
+        roomInfo = currentCanvasInstance.GetComponentInChildren<MapRoomInfoUI>(true);
+        if (currentCanvasInstance.GetComponent<UIPanelAnimator>() == null)
+            currentCanvasInstance.AddComponent<UIPanelAnimator>();
+        planGroup = group;
+        CurrentStageIndex = GroupOrder(group);
+        usedRoomPrefabs.Clear();
+        selecting = false;
+
+        // 모양 본보기
+        MapButton tStart = null, tCombat = null, tShop = null, tBoss = null;
+        MapButton[] originals = currentCanvasInstance.GetComponentsInChildren<MapButton>(true);
+        foreach (var b in originals)
+        {
+            if (b.isStartRoom) { if (tStart == null) tStart = b; continue; }
+            MapType t = b.roomData != null ? b.roomData.type : MapType.Combat;
+            if (t == MapType.Shop) { if (tShop == null) tShop = b; }
+            else if (t == MapType.Boss) { if (tBoss == null) tBoss = b; }
+            else if (tCombat == null) tCombat = b;
+        }
+        if (tCombat == null && originals.Length > 0) tCombat = originals[0];
+        if (tCombat == null) { Debug.LogWarning("[MapManager] 노드 캔버스에 본보기 노드가 없습니다."); return; }
+        if (tStart == null) tStart = tCombat;
+        if (tShop == null) tShop = tCombat;
+        if (tBoss == null) tBoss = tCombat;
+
+        // 이번 묶음의 노드 칸 (지금 칸 다음부터, 같은 묶음 · 노드인 동안)
+        var idx = new List<int>();
+        for (int i = StageFlow.Current + 1; i < StageFlow.Run.Count; i++)
+        {
+            StagePlan.Entry e = StageFlow.At(i);
+            if (e.group != group || !e.IsNode) break;
+            idx.Add(i);
+        }
+
+        // [2026-11-21] B안 '구간 띠': 왼쪽 → 오른쪽 한 줄. 중간 보스 · 보스까지를 한 구간으로 묶어 띠(배경)를 깔고,
+        // 구간 안에서는 조금씩 올라가 마지막(중간 보스 · 보스)이 가장 높다. 칸 수가 바뀌어도(설정으로 끈 칸) 같은 규칙으로 다시 배치
+        var chapters = new List<List<int>>();   // idx 의 위치(0부터) 묶음
+        var curCh = new List<int>();
+        for (int i = 0; i < idx.Count; i++)
+        {
+            curCh.Add(i);
+            StageKind kind = StageFlow.At(idx[i]).kind;
+            if (kind == StageKind.MidBoss || kind == StageKind.Boss) { chapters.Add(curCh); curCh = new List<int>(); }
+        }
+        if (curCh.Count > 0) chapters.Add(curCh);
+
+        // 띠 너비: 시작 띠 + 구간마다 (칸 수 × 간격 + 여백). 화면(planAreaWidth)보다 넓으면 전체를 줄임
+        float total = planStartBandWidth;
+        foreach (var ch in chapters) total += planBandGap + ch.Count * planNodeStep + planBandPadding;
+        float fit = total > planAreaWidth ? planAreaWidth / total : 1f;
+        float left = -total * fit * 0.5f;
+
+        var bandRects = new List<KeyValuePair<Vector2, string>>();   // (x 범위, 제목)
+        var posList = new List<Vector2>();
+        float bx = left;
+        posList.Add(new Vector2(bx + planStartBandWidth * fit * 0.5f, planBaseY));
+        StagePlan.Entry before = StageFlow.At(StageFlow.Current);
+        bandRects.Add(new KeyValuePair<Vector2, string>(new Vector2(bx, bx + planStartBandWidth * fit), before != null && before.kind == StageKind.Lobby ? "로비" : "시작"));
+        bx += planStartBandWidth * fit;
+        for (int c = 0; c < chapters.Count; c++)
+        {
+            bx += planBandGap * fit;
+            var ch = chapters[c];
+            float w = (ch.Count * planNodeStep + planBandPadding) * fit;
+            for (int j = 0; j < ch.Count; j++)
+            {
+                float t01 = ch.Count > 1 ? (float)j / (ch.Count - 1) : 1f;
+                StageKind kind = StageFlow.At(idx[ch[j]]).kind;
+                bool top = kind == StageKind.MidBoss || kind == StageKind.Boss;
+                float y = ch.Count > 1 ? Mathf.Lerp(planBaseY, planPeakY, Mathf.Pow(t01, 1.3f)) : (top ? planPeakY : planBaseY);
+                posList.Add(new Vector2(bx + (planBandPadding * 0.5f + (j + 0.5f) * planNodeStep) * fit, y));
+            }
+            bandRects.Add(new KeyValuePair<Vector2, string>(new Vector2(bx, bx + w), $"구간 {c + 1}"));
+            bx += w;
+        }
+        BuildBands(bandRects);
+
+        int count = idx.Count + 1;
+        Transform holder = tCombat.transform.parent;
+        var made = new List<MapButton>();
+        for (int k = 0; k < count; k++)
+        {
+            StagePlan.Entry e = k == 0 ? null : StageFlow.At(idx[k - 1]);
+            MapButton tpl = k == 0 ? tStart
+                          : e.kind == StageKind.Shop ? tShop
+                          : (e.kind == StageKind.Boss || e.kind == StageKind.MidBoss) ? tBoss : tCombat;
+            MapButton b = Instantiate(tpl, holder);
+            b.gameObject.SetActive(true);
+            b.name = k == 0 ? "Start" : $"{k:00}_{e.label}";
+            var rt = (RectTransform)b.transform;
+            rt.anchoredPosition = posList[k];
+            float sc = k == 0 ? planStartScale
+                     : e.kind == StageKind.MidBoss ? planMidBossScale
+                     : e.kind == StageKind.Boss ? planBossScale
+                     : e.kind == StageKind.Shop ? planShopScale : planCombatScale;
+            rt.localScale = Vector3.one * sc * Mathf.Max(0.6f, fit);
+            b.isStartRoom = k == 0;
+            b.roomData = e != null ? e.roomData : null;
+            b.connectedButtons = new List<MapButton>();
+            b.isCompleted = b.isCurrent = b.isSelectable = b.isReachableLater = b.keyFocused = false;
+            if (k > 0) planIndex[b] = idx[k - 1];
+            made.Add(b);
+        }
+        for (int k = 0; k < made.Count - 1; k++) made[k].connectedButtons.Add(made[k + 1]);
+        foreach (var b in originals) { b.gameObject.SetActive(false); Destroy(b.gameObject); }
+
+        startButtons = new List<MapButton> { made[0] };
+        currentButton = made[0];
+        made[0].isCurrent = true;
+        CreatePositionMarker();
+        CreateMapLabels();
+    }
+
+    // 캔버스 프리팹 Panel/Bands 안의 BandTemplate(꺼 둠)을 복제해 구간 띠를 깐다 (글자 없음) (선은 MapButton 이 띠 바로 위에 그림)
+    void BuildBands(List<KeyValuePair<Vector2, string>> bands)
+    {
+        Transform layer = currentCanvasInstance.transform.Find("Panel/Bands");
+        Transform tpl = layer != null ? layer.Find("BandTemplate") : null;
+        if (tpl == null) return;
+        foreach (var b in bands)
+        {
+            var rt = (RectTransform)Instantiate(tpl, layer);
+            rt.gameObject.SetActive(true);
+            rt.name = "Band_" + b.Value;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(b.Key.x, planBandTop);
+            rt.sizeDelta = new Vector2(b.Key.y - b.Key.x, planBandTop - planBandBottom);
+            // [2026-11-21] 띠 제목(구간 N)은 표시하지 않음 — 띠 모양만으로 구간을 구분
+        }
+    }
+
+    // 묶음이 몇 번째 노드 묶음인지 (게임오버 화면 '해결한 스테이지' 용, 0부터)
+    int GroupOrder(string group)
+    {
+        var seen = new List<string>();
+        for (int i = 0; i < StageFlow.Run.Count; i++)
+        {
+            StagePlan.Entry e = StageFlow.At(i);
+            if (!e.IsNode || seen.Contains(e.group)) continue;
+            if (e.group == group) return seen.Count;
+            seen.Add(e.group);
+        }
+        return seen.Count;
+    }
+
+    /// <summary>방의 적이 모두 없어졌을 때 (Room.OpenPortal). 켜 둔 마지막 칸이면 게임 클리어</summary>
+    public void NotifyRoomCleared(Room room)
+    {
+        if (!StageFlow.Active || StageFlow.Cleared || !StageFlow.CurrentIsLast) return;
+        StagePlan.Entry e = StageFlow.CurrentEntry;
+        if (e == null || e.kind == StageKind.Tutorial) return;   // 튜토리얼은 마무리 대사가 끝난 뒤 판정
+        GameClear();
+    }
+
+    /// <summary>게임 클리어 — 게임오버 화면을 'Thank you for playing.' 제목으로 띄운다</summary>
+    public void GameClear()
+    {
+        if (StageFlow.Cleared) return;
+        StageFlow.Cleared = true;
+        if (currentCanvasInstance != null) currentCanvasInstance.SetActive(false);
+        EndMapPause();
+        Stats st = PlayerController.Instance != null ? PlayerController.Instance.GetComponent<Stats>() : null;
+        if (GameOverUI.Instance != null) GameOverUI.Instance.ShowClear(st);
+        else Debug.Log("[MapManager] 게임 클리어 (GameOverUI 없음)");
     }
 }

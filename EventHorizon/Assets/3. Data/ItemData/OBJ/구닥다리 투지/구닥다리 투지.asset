@@ -16,8 +16,16 @@ MonoBehaviour:
   description: "\uD2B9\uBCC4\uD55C \uAE30\uC220 \uC5C6\uB294 \uADFC\uC811 \uBB34\uAE30."
   icon: {fileID: 1104192199, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 0
+  tier: 2
   element: 0
   power: 0
   effects:
   - {fileID: 11400000, guid: bc1911bdb7f7bbf47b99663e5e092db6, type: 2}
+  keywords:
+  - 3
+  abilityName: "\uAC15\uCCA0 \uB9AC\uB4EC"
+  abilityText: "\uAC74\uD2C0\uB9BF \uC5F0\uACA9 \uC720\uC9C0 4\uCD08. \uC5F0\uACA9 10\uC5D0\uC11C 5\uD0C0\uB9C8\uB2E4 \uD5E4\uB124\uC2DC\uB97C \uC911\uC2EC\uC73C\uB85C \uB465\uADFC \uCDA9\uACA9\uD30C"
+  levelValues:
+  - "70%"
+  - "105%"
+  - "140%"

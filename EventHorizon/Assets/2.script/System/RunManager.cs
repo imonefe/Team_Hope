@@ -48,6 +48,35 @@ public class RunManager : PersistentSingleton<RunManager>
     public int GetUpgradeLevel(string key) => key != null && upgradeLevels.TryGetValue(key, out int lv) ? lv : 0;
     public void SetUpgradeLevel(string key, int level) { if (key != null) upgradeLevels[key] = Mathf.Max(0, level); }
 
+    // ───────── [2026-11-21 추가] 증강 단계 · 증강 파편 ─────────
+    // 증강 단계: 얻은 증강은 Lv1, 강화 NPC에서 Lv2 → Lv3 (AugmentRules). 이번 판 동안만 유지
+    readonly Dictionary<ItemData, int> augmentLevels = new Dictionary<ItemData, int>();
+
+    /// <summary>증강 단계. 얻은 적 없으면 0, 얻었으면 최소 1</summary>
+    public int GetAugmentLevel(ItemData data)
+    {
+        if (data == null) return 0;
+        if (augmentLevels.TryGetValue(data, out int lv)) return lv;
+        return obtainedItems.Contains(data) ? 1 : 0;
+    }
+
+    public void SetAugmentLevel(ItemData data, int level)
+    {
+        if (data != null) augmentLevels[data] = Mathf.Clamp(level, 0, AugmentRules.MaxLevel);
+    }
+
+    /// <summary>증강 파편 (강화 재화). 일반 재화와 따로 센다</summary>
+    public int Shards { get; private set; }
+
+    /// <summary>증강 파편 수가 바뀔 때 (새 개수 전달)</summary>
+    public event System.Action<int> OnShardsChanged;
+
+    [Header("증강 파편 연출 색 (2026-11-21)")]
+    public Color shardColorA = new Color(0.69f, 0.55f, 0.88f, 1f);
+    public Color shardColorB = new Color(0.90f, 0.82f, 1f, 1f);
+    [Tooltip("파편 1개당 튀는 조각 수")]
+    public int shardFxPerShard = 6;
+
     // ───────── 통계 ─────────
 
     public int EnemiesKilled { get; private set; }
@@ -81,6 +110,14 @@ public class RunManager : PersistentSingleton<RunManager>
     {
         if (data == null) return;
         obtainedItems.Add(data);
+    }
+
+    /// <summary>[2026-11-21] 얻은 기록을 지운다 (증강 시험 방 · 튜토리얼 체험용 — 다시 나올 수 있게)</summary>
+    public void ForgetObtained(ItemData data)
+    {
+        if (data == null) return;
+        obtainedItems.Remove(data);
+        augmentLevels.Remove(data);
     }
 
     /// <summary>이번 판에 이미 얻었는지</summary>
@@ -157,6 +194,35 @@ public class RunManager : PersistentSingleton<RunManager>
         CurrencyShardFX.Spawn(position, amount);
     }
 
+    // ══════════════ [2026-11-21] 증강 파편 ══════════════
+
+    public void AddShards(int amount)
+    {
+        if (amount == 0) return;
+        Shards = Mathf.Max(0, Shards + amount);
+        OnShardsChanged?.Invoke(Shards);
+    }
+
+    public bool SpendShards(int amount)
+    {
+        if (amount < 0 || Shards < amount) return false;
+        AddShards(-amount);
+        return true;
+    }
+
+    /// <summary>chance(0~1) 확률로 min~max(포함)개를 지급하고 보랏빛 파편 연출 + 화면 알림</summary>
+    public void DropShards(Vector3 position, float chance, int min, int max)
+    {
+        if (chance <= 0f || Random.value > chance) return;
+        if (max < min) max = min;
+        int amount = Random.Range(min, max + 1);
+        if (amount <= 0) return;
+
+        AddShards(amount);
+        CurrencyShardFX.Spawn(position, amount * shardFxPerShard, shardColorA, shardColorB);
+        ScreenNotice.Show($"증강 파편 +{amount}");
+    }
+
     // ══════════════ 통계 ══════════════
 
     /// <summary>이번 런 시작부터 지금까지 흐른 시간(초). Time.timeScale=0(메뉴/일시정지) 동안은 흐르지 않는다.</summary>
@@ -186,6 +252,9 @@ public class RunManager : PersistentSingleton<RunManager>
         itemHolders.Clear();
         stackCounts.Clear();
         upgradeLevels.Clear();   // [2026-11-16] 능력치 강화 단계 초기화
+        augmentLevels.Clear();   // [2026-11-21] 증강 단계 · 증강 파편 초기화
+        Shards = 0;
+        OnShardsChanged?.Invoke(Shards);
 
         Amount = 0;
         OnCurrencyChanged?.Invoke(Amount);

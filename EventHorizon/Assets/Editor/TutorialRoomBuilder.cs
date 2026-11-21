@@ -25,7 +25,7 @@ public static class TutorialRoomBuilder
     const string SourcePath = "Assets/1.Prefab/Room/Shop/ShopRoom_2S.prefab";
     const string OutFolder = "Assets/1.Prefab/Room/Tutorial";
     const string OutPath = OutFolder + "/TutorialRoom.prefab";
-    const string WhiteBoxPath = "Assets/1.Prefab/Room/Shop/WhiteBox.png";
+    const string WhiteBoxPath = "Assets/4. Art/Textures/Environment/Room/WhiteBox.png";
     const string DummyPath = "Assets/1.Prefab/Room/Lobby/TrainingDummy.prefab";
     const string BoxPath = "Assets/1.Prefab/item/EtcOBJ/Box_Normal.prefab";
     const string Pickup1Path = "Assets/1.Prefab/Skill/Pickup/SkillPickup_Skill03.prefab";

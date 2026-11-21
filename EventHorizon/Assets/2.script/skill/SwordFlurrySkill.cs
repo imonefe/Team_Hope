@@ -335,6 +335,16 @@ public class SwordFlurrySkill : MonoBehaviour
 
     void Update()
     {
+        // [2026-11-21] 시전 중 대시 키 → 스킬을 끊고 바로 대시 (남은 타격·돌진·경직은 취소)
+        if (locked && pc != null && Time.timeScale > 0f && KeyBindings.Down(KeyAction.Dash))
+        {
+            StopAllCoroutines();
+            Finish();                    // 조작 잠금 · 중력 · 적 충돌 · 이펙트 · 모션 원래대로
+            pc.DashFromSkillCancel();
+            Destroy(gameObject);
+            return;
+        }
+
         // 반복 재생 (클립 자체의 Loop 설정과 상관없이)
         if (animLoop && animPlay.IsValid())
         {

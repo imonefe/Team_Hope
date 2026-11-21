@@ -20,3 +20,11 @@ MonoBehaviour:
   tier: 0
   effects:
   - {fileID: 11400000, guid: 44eb69fda89647fd9bfc192ece1affb7, type: 2}
+  keywords:
+  - 0
+  abilityName: "\uAC00\uC2A4 \uBD84\uC0AC"
+  abilityText: "\uB300\uC2DC\uAC00 \uB05D\uB09C \uC790\uB9AC\uC5D0 \uAC00\uB85C\uB85C \uB113\uC740 \uAC00\uC2A4 \uAD6C\uB984. \uC548\uC758 \uC801\uC740 0.5\uCD08\uB9C8\uB2E4 \uACFC\uC5F4 1\uC2A4\uD0DD"
+  levelValues:
+  - "2\uCD08"
+  - "3\uCD08"
+  - "4\uCD08"

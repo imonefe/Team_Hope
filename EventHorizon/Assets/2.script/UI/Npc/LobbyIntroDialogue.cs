@@ -41,6 +41,7 @@ public class LobbyIntroDialogue : MonoBehaviour
         }
         PlayerController player = PlayerController.Instance;
         if (player == null) yield break;
+        while (TransitionCanvas.GlitchBusy) yield return null;   // [2026-11-21] 노이즈·블러 전환이 끝난 뒤 대화
 
         for (float w = 0f; w < startDelay; w += Time.unscaledDeltaTime) yield return null;
 

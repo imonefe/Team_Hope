@@ -19,12 +19,19 @@ public class GameOverUI : MonoBehaviour
     public TMP_Text statsText;
     public TMP_Text currencyText;
 
+    [Header("제목 (2026-11-21) — 게임 클리어 때 바뀜")]
+    public TMP_Text titleText;
+    [Tooltip("켜 둔 마지막 스테이지를 끝냈을 때 제목")]
+    public string clearTitle = "Thank you for playing.";
+    string gameOverTitle;
+
     [Header("버튼")]
     public Button retryButton;
 
     void Awake()
     {
         Instance = this;
+        if (titleText != null) gameOverTitle = titleText.text;   // [2026-11-21] 원래 제목 (GAME OVER) 기억
         gameObject.SetActive(false);
 
         if (retryButton != null)
@@ -39,6 +46,7 @@ public class GameOverUI : MonoBehaviour
     /// <summary>게임오버 시 CharacterManager.GameOver()에서 호출. finalStats는 마지막으로 죽은 캐릭터의 Stats.</summary>
     public void Show(Stats finalStats)
     {
+        if (titleText != null && gameOverTitle != null) titleText.text = gameOverTitle;   // [2026-11-21]
         gameObject.SetActive(true);
         GamePause.Push(GamePause.GameOver);
 
@@ -62,6 +70,13 @@ public class GameOverUI : MonoBehaviour
                   $"치명타 확률 {finalStats.EffectiveCritChance * 100f:0}%   치명타 배율 {finalStats.critMultiplier:0.#}배"
                 : "스탯 정보 없음";
         }
+    }
+
+    /// <summary>[2026-11-21] 게임 클리어 — 같은 화면을 'Thank you for playing.' 제목으로 띄운다 (MapManager.GameClear)</summary>
+    public void ShowClear(Stats finalStats)
+    {
+        Show(finalStats);
+        if (titleText != null) titleText.text = clearTitle;
     }
 
     void OnRetryClicked()

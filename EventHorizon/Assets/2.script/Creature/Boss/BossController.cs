@@ -53,6 +53,11 @@ public abstract class BossController : MonoBehaviour
     [Header("[ 재화 드랍 ]")]
     public int minCurrencyDrop = 100;
     public int maxCurrencyDrop = 130;
+    // [2026-11-21 추가] 증강 파편 (증강 기획서: 스테이지 보스 6개, 중간보스 3개)
+    [Tooltip("보스 처치 수에 들어가는 보스(countAsBossKill 켜짐)가 주는 증강 파편")]
+    public int bossShardDrop = 6;
+    [Tooltip("중간보스(countAsBossKill 꺼짐)가 주는 증강 파편")]
+    public int midBossShardDrop = 3;
 
     // ── 공통 상태 변수 ────────────────────────────────────
     protected BossState state = BossState.Inactive;
@@ -473,6 +478,11 @@ public abstract class BossController : MonoBehaviour
         // [2026-11-17] 중간보스는 보스 처치 수에 넣지 않도록 끌 수 있게 (countAsBossKill)
         if (countAsBossKill) RunManager.Instance?.RegisterBossKilled();
         RunManager.Instance?.DropRandomCurrency(transform.position, minCurrencyDrop, maxCurrencyDrop);
+        int shards = countAsBossKill ? bossShardDrop : midBossShardDrop;
+        RunManager.Instance?.DropShards(transform.position, 1f, shards, shards);
+        AugmentOfferDirector.RequestBossOffer();
+        var bh = GetComponent<Health>();
+        if (bh != null) CombatEvents.RaiseKilled(bh, transform.position);   // [2026-11-21] 증강 (처치 알림)   // [2026-11-21] 중간보스·보스 처치 → 증강 고르기 (희귀 이상)
 
         // 사망 이펙트
         if (deathEffectPrefab != null)

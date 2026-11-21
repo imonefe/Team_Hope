@@ -18,6 +18,16 @@ public class MenuBackdrop : MonoBehaviour
     // ── 렌더러 기능이 읽어 가는 값 ──
     /// <summary>블러 세기 (0~1)</summary>
     public static float BlurAmount { get; private set; }
+    // [2026-11-21] 화면 전환(튜토리얼 → 로비)용 블러 세기 0~1. 메뉴 블러와 큰 쪽을 쓴다
+    public static float TransitionBlur;
+    static float menuAmount;
+
+    /// <summary>[2026-11-21] 전환 블러 세기 (메뉴가 안 열려 있으면 전환용 반경·횟수로)</summary>
+    public static void SetTransition(float amount)
+    {
+        TransitionBlur = Mathf.Clamp01(amount);
+        if (!open && TransitionBlur > 0f) { BlurRadius = 2.5f; BlurIterations = 5; BlurDim = 0.15f; }
+    }
     /// <summary>블러를 그려야 하는지</summary>
     public static bool BlurActive => BlurAmount > 0.001f;
     /// <summary>블러 반경 배율 (반복마다 샘플 간격에 곱함)</summary>
@@ -37,6 +47,8 @@ public class MenuBackdrop : MonoBehaviour
     {
         open = false;
         BlurAmount = 0f;
+        menuAmount = 0f;
+        TransitionBlur = 0f;
         hiddenCanvases.Clear();
     }
 
@@ -103,6 +115,7 @@ public class MenuBackdrop : MonoBehaviour
         float target = open ? 1f : 0f;
         float time = open ? fadeInTime : fadeOutTime;
         float speed = time > 0f ? 1f / time : 1000f;
-        BlurAmount = Mathf.MoveTowards(BlurAmount, target, speed * Time.unscaledDeltaTime);   // 일시정지 중에도 동작
+        menuAmount = Mathf.MoveTowards(menuAmount, target, speed * Time.unscaledDeltaTime);   // 일시정지 중에도 동작
+        BlurAmount = Mathf.Max(menuAmount, TransitionBlur);   // [2026-11-21] 전환 블러
     }
 }

@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 흔들리는 조준점을 붙잡아 정확도를 증폭시키는 장치.
   icon: {fileID: -1319205242, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 1
+  tier: 0
   element: 2
   power: 2
   effects:
   - {fileID: 11400000, guid: f28919a8ca1745f3af8f479ee2685291, type: 2}
+  keywords:
+  - 3
+  abilityName: "\uC870\uC900 \uACE0\uC815"
+  abilityText: "\uC5F0\uACA9 5 \u00B7 10\uC5D0\uC11C \uD3C9\uD0C0 \uD310\uC815\uACFC \uBB34\uAE30 \uADA4\uC801, \uCC38\uACA9\uD30C\u00B7\uCDA9\uACA9\uD30C\u00B7\uD22C\uC0AC\uCCB4\uAC00 \uCEE4\uC9C4\uB2E4"
+  levelValues:
+  - "+15% / +30%"
+  - "+22% / +45%"
+  - "+30% / +60%"

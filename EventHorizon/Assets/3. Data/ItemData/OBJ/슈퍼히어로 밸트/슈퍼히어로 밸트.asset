@@ -21,3 +21,12 @@ MonoBehaviour:
   power: 3
   effects:
   - {fileID: 11400000, guid: ac9718677fe84625b0b7a1c0131cfa68, type: 2}
+  keywords:
+  - 0
+  - 3
+  abilityName: "\uD788\uC5B4\uB85C \uCC29\uC9C0"
+  abilityText: "\uC5F0\uACA9\uC774 \uC77C\uC815 \uC774\uC0C1\uC774\uBA74 \uACF5\uACA9\uB9C8\uB2E4 \uACFC\uC5F4 1\uC2A4\uD0DD \uD655\uC815"
+  levelValues:
+  - "\uC5F0\uACA9 5"
+  - "\uC5F0\uACA9 4"
+  - "\uC5F0\uACA9 3"

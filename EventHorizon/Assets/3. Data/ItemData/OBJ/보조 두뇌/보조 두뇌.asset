@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 필요한 정보를 실시간으로 주입해 판단력과 대응력을 높여주는 보조 두뇌.
   icon: {fileID: -666034205, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 1
+  tier: 0
   element: 2
   power: 2
   effects:
   - {fileID: 11400000, guid: 03999115ada74ffca957b41bca9ecdd0, type: 2}
+  keywords:
+  - 3
+  abilityName: "\uC608\uCE21 \uC5F0\uC0B0"
+  abilityText: "\uC5F0\uACA9\uC774 \uC77C\uC815 \uC2A4\uD0DD \uC313\uC77C \uB54C\uB9C8\uB2E4 \uB2E4\uC74C \uACF5\uACA9 \uCE58\uBA85\uD0C0 \uD655\uC815"
+  levelValues:
+  - "5"
+  - "4"
+  - "3\uC2A4\uD0DD\uB9C8\uB2E4"

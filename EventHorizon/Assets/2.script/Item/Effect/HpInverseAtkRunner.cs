@@ -32,6 +32,6 @@ public class HpInverseAtkRunner : MonoBehaviour
 
     void OnDestroy()
     {
-        if (stats != null) stats.OnHpChanged -= OnHpChanged;
+        if (stats != null) { stats.OnHpChanged -= OnHpChanged; stats.Atk -= bonus; bonus = 0f; }   // [2026-11-21] 증강 판매 때 더해 둔 공격력을 되돌림
     }
 }

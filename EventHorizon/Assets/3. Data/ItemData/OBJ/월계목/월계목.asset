@@ -21,3 +21,11 @@ MonoBehaviour:
   power: 4
   effects:
   - {fileID: 11400000, guid: c4ff71e755f5466d9fea4b8215d4e070, type: 2}
+  keywords:
+  - 7
+  abilityName: "\uCE58\uC720 \uACB0\uACC4"
+  abilityText: "\uCCB4\uB825 50% \uC774\uD558\uC778 \uB3D9\uC548 \uC8FC\uBCC0 3m \uC801\uC5D0\uAC8C \uCD08\uB2F9 \uD53C\uD574, 50% \uCD08\uACFC\uBA74 \uCD08\uB2F9 \uCCB4\uB825 1% \uD68C\uBCF5"
+  levelValues:
+  - "15%"
+  - "22%"
+  - "30%"

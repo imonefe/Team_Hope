@@ -207,7 +207,9 @@ public class ItemInfoPopup : MonoBehaviour
     {
         // 등급 — 한글 이름 + 등급 색
         int tier = (int)item.tier;
-        SetHeader(item.icon, item.itemName, item.description, GetTierName(tier), GetTierColor(tier));
+        // [2026-11-21] 증강: 설명 자리에 고유능력 · 강화 값 · 키워드 (고유능력이 비어 있으면 예전 설명)
+        int lv = RunManager.Instance != null ? Mathf.Max(1, RunManager.Instance.GetAugmentLevel(item)) : 1;
+        SetHeader(item.icon, item.itemName, AugmentRules.Describe(item, lv), $"{GetTierName(tier)}  Lv{lv} {AugmentRules.Stars(lv)}", GetTierColor(tier));   // [2026-11-21] 등급 오른쪽에 단계·별
 
         // 효과 — 칸으로 정리. 효과가 없으면 칸 영역 자체를 숨김
         FillEffects(EffectText.Collect(item));

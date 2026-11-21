@@ -178,12 +178,16 @@ public class Room : MonoBehaviour
         // [2026-11-19] 중간 보스 방(원래 방에서 잠깐 들어온 방)에서는 문이 없고 RoomManager 가 복귀시키므로
         //  "문 열렸다" 대사와 카메라 풀기를 하지 않는다 (카메라는 복귀할 때 RoomManager 가 푼다)
         bool inSubRoom = RoomManager.Instance != null && RoomManager.Instance.InSubRoom;
+        if (!inSubRoom) CombatEvents.RaiseRoomCleared(this);   // [2026-11-21] 증강 (방 정리)
         if (!inSubRoom) YoungbokChatter.OnRoomCleared(this);   // [2026-10-27] 영복 "문 열렸다" (상자보다 먼저 — 레전더리 안내가 덮어쓸 수 있게)
         foreach (var bs in boxSpawners)
             if (bs != null) bs.SetActive(true);
 
         if (isBossRoom && !inSubRoom && CameraFollow.Instance != null)
             CameraFollow.Instance.ReleaseRoom();
+
+        // [2026-11-21] 켜 둔 마지막 스테이지에서 적이 모두 없어지면 게임 클리어
+        if (MapManager.Instance != null) MapManager.Instance.NotifyRoomCleared(this);
     }
 
     /// <summary>

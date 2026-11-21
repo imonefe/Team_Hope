@@ -158,7 +158,9 @@ public class InventoryUI : MonoBehaviour
         if (item == null) return;
         UIUtil.SetIcon(detailIcon, item.icon);
         if (detailName != null) detailName.text = item.itemName;
-        if (detailDesc != null) detailDesc.text = item.description;
+        // [2026-11-21] 증강: 고유능력 · 지금 강화 단계 · 키워드
+        int lv = RunManager.Instance != null ? Mathf.Max(1, RunManager.Instance.GetAugmentLevel(item)) : 1;
+        if (detailDesc != null) detailDesc.text = AugmentRules.Describe(item, lv);
     }
 
     // ────────────────────────────────────────────
@@ -172,8 +174,8 @@ public class InventoryUI : MonoBehaviour
         if (hoverText != null)
         {
             hoverText.text = item.itemName
-                + "\n등급 " + item.tier
-                + "\n" + item.description;
+                + "\n" + AugmentRules.TierWithLevel(item.tier, RunManager.Instance != null ? Mathf.Max(1, RunManager.Instance.GetAugmentLevel(item)) : 1)
+                + "\n" + AugmentRules.Describe(item, 0);
         }
     }
 

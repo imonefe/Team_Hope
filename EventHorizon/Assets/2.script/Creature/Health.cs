@@ -9,7 +9,9 @@ public class Health : MonoBehaviour
     public int lastHitDir;
     // [2026-11-16 추가] 보스방 코어 보호막: true를 돌려주는 동안 피해 0 (맞는 반응은 그대로). 비어 있으면 기존과 같음
     public System.Func<bool> invulnerable;
-    public bool IsInvulnerable => invulnerable != null && invulnerable();
+    public bool IsInvulnerable => invulnerable != null && Time.time >= invulnSuppressedUntil && invulnerable();
+    /// <summary>[2026-11-21] 증강 '백자 열람 권한': 이 시각까지 방패·무적 함수를 무시</summary>
+    [System.NonSerialized] public float invulnSuppressedUntil;
 
     Stats stats;
 
@@ -33,6 +35,13 @@ public class Health : MonoBehaviour
     [Header("재화 드랍 (적 전용 — 보스는 BossController에서 별도 관리)")]
     public int minCurrencyDrop = 8;
     public int maxCurrencyDrop = 16;
+    // [2026-11-21 추가] 증강 파편 드롭 (일반 적: 증강 기획서 8% 확률로 1개)
+    [Range(0f, 1f)] public float shardDropChance = 0.08f;
+    [Tooltip("[2026-11-21] 엘리트 적: 증강 파편 드롭 확률이 eliteShardDropChance 로 바뀜")]
+    public bool elite = false;
+    [Range(0f, 1f)] public float eliteShardDropChance = 0.3f;
+    public int minShardDrop = 1;
+    public int maxShardDrop = 1;
 
     [Header("피격 무적 시간 (0 = 없음)")]
     public float invincibleTime = 0f;
@@ -104,7 +113,10 @@ public class Health : MonoBehaviour
         lastHitDir = dir;   // [Faust 2026-11-08] 피격 방향
         if (IsInvulnerable) damage = 0;   // [2026-11-16 추가] 코어 보호막
         if (damageAbsorber != null) damage = damageAbsorber(damage);
+        if (isPlayer) damage = CombatEvents.Incoming(damage);   // [2026-11-21] 증강 (받는 피해 감소)
+        else damage = CombatEvents.EnemyIncoming(this, damage);   // [2026-11-21] 증강 (사건의 지평선: 퍼즈 중 저장)
         if (damage > 0) stats.TakeDamage(damage);
+        if (isPlayer) CombatEvents.RaisePlayerDamaged(damage);
 
         // 플레이어 피격 시 퍼즈 게이지 3% 충전
         if (gameObject.CompareTag("Player"))
@@ -148,6 +160,32 @@ public class Health : MonoBehaviour
         }
     }
 
+    /// <summary>[2026-11-21] 증강 지속 피해 (과열 등) — 넉백·경직·피격 연출 없이 체력만 깎고, 0이면 정식 사망 처리</summary>
+    public void TakeDotDamage(int damage)
+    {
+        if (isDead || damage <= 0 || stats == null) return;
+        if (IsInvulnerable) return;
+        if (damageAbsorber != null) damage = damageAbsorber(damage);
+        if (!gameObject.CompareTag("Player")) damage = CombatEvents.EnemyIncoming(this, damage);   // [2026-11-21] 증강
+        if (damage <= 0) return;
+        stats.TakeDamage(damage);
+        if (stats.currentHp <= 0)
+        {
+            isDead = true;
+            BossController boss = GetComponent<BossController>();
+            if (boss != null) boss.OnDie();
+            else Die();
+        }
+    }
+
+    /// <summary>[2026-11-21] 플레이어 무적 시간을 잠깐 준다 (증강: 대시 무적 연장)</summary>
+    public void GrantInvincibility(float seconds)
+    {
+        if (seconds > invincibleTimer) invincibleTimer = seconds;
+    }
+
+    public bool IsDead => isDead;
+
     void Die()
     {
         if (CompareTag("Player"))
@@ -166,10 +204,12 @@ public class Health : MonoBehaviour
 
             // 일반 적(Enemy 컴포넌트가 붙은 대상)만 처치 수 집계 + 재화 드랍.
             // 보스는 Health.Die()를 거치지 않고 BossController.OnTrueDeath()에서 따로 처리한다.
+            CombatEvents.RaiseKilled(this, transform.position);   // [2026-11-21] 증강 (처치 알림)
             if (GetComponent<Enemy>() != null)
             {
                 RunManager.Instance?.RegisterEnemyKilled();
                 RunManager.Instance?.DropRandomCurrency(transform.position, minCurrencyDrop, maxCurrencyDrop);
+                RunManager.Instance?.DropShards(transform.position, Mathf.Clamp01((elite ? eliteShardDropChance : shardDropChance) * CombatEvents.ShardDropMultiplier), minShardDrop, maxShardDrop);   // [2026-11-21] 보급 우선권
             }
         }
 

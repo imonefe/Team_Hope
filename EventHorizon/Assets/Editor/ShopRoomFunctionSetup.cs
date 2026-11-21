@@ -47,7 +47,7 @@ public static class ShopRoomFunctionSetup
         });
         EditPrefab(ShopCanvasBuilder.StatUpgradePath, go =>
         {
-            if (go.GetComponent<StatUpgradeWindow>() == null) go.AddComponent<StatUpgradeWindow>();
+            if (go.GetComponent<AugmentUpgradeWindow>() == null) go.AddComponent<AugmentUpgradeWindow>();   // [2026-11-21] 능력치 강화 → 증강 강화
         });
 
         // 3) 상점 방

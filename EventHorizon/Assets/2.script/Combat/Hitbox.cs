@@ -81,6 +81,13 @@ public class Hitbox : MonoBehaviour
 
     float age = 0f;
 
+    // [2026-11-21] 증강 '조준 고정': 플레이어의 오래 남는 판정(참격파·충격파)은 크기 배율
+    void Start()
+    {
+        if (ownerLayer == "Player" && lifetime >= 0.25f && GetComponent<SwingTag>() == null && !Mathf.Approximately(CombatEvents.PlayerProjectileScale, 1f))   // 평타 판정은 SwingScale 로 따로
+            transform.localScale *= CombatEvents.PlayerProjectileScale;
+    }
+
     // [2026-10-10 수정] 수명을 Destroy 예약 대신 직접 센다 — Q 퍼즈 중에는 적이 만든 판정의 수명이 흐르지 않고
     // 판정도 꺼진다 (예전엔 보스 차징 판정(3초)이 퍼즈 중에도 살아 있어 멈춘 보스 앞에서 맞았음)
     void Update()
@@ -225,11 +232,13 @@ public class Hitbox : MonoBehaviour
         {
             float critChance = attacker.EffectiveCritChance;   // [2026-11-16] 상한 적용
             if (byPlayer && PauseManager.Instance != null && PauseManager.Instance.IsPaused)
-                critChance = Mathf.Max(critChance, PauseManager.Instance.pauseCritChance);
-            isCrit = Random.value < critChance;
+                critChance = Mathf.Max(critChance, PauseManager.Instance.pauseCritChance + CombatEvents.PauseCritBonus);
+            if (byPlayer) critChance += CombatEvents.ExtraCrit(target);   // [2026-11-21] 증강
+            isCrit = (byPlayer && CombatEvents.TakeForcedCrit()) || Random.value < critChance;
             if (isCrit) finalDamage = Mathf.RoundToInt(baseDamage * attacker.critMultiplier);
         }
         finalDamage = Stats.ApplyAdvantageMultiplierWithLog(finalDamage, attacker, targetStats, logTag, target.name);
+        if (byPlayer) finalDamage = CombatEvents.Outgoing(target, finalDamage, isCrit);   // [2026-11-21] 증강 피해 보너스
 
         // 화면 흔들림 (근접 판정 기본값과 같은 기준)
         float magnitude = Mathf.Clamp(finalDamage * 0.01f, 0.05f, isCrit ? 0.5f : 0.3f);
@@ -242,6 +251,7 @@ public class Hitbox : MonoBehaviour
         if (target.IsInvulnerable) FloatingTextSpawner.SpawnText(hitPos, "무적", Color.gray);   // [2026-11-16] 코어 보호막
         else FloatingTextSpawner.SpawnDamage(hitPos, finalDamage, isCrit);
         if (isCrit && byPlayer) YoungbokChatter.OnPlayerCrit();   // [2026-10-27] 영복 잡담 (5%)
+        if (byPlayer && !target.IsInvulnerable) CombatEvents.RaiseHit(target, finalDamage, isCrit, hitPos, false, CombatEvents.DirectHitSource);   // [2026-11-21] 증강
         return true;
     }
 
@@ -279,8 +289,9 @@ public class Hitbox : MonoBehaviour
             float critChance = attackerStats.EffectiveCritChance;   // [2026-11-16] 상한 적용
             // 퍼즈 중 플레이어 공격은 치명타 확률을 최소 PauseManager.pauseCritChance (기본 20%) 로 올림
             if (ownerLayer == "Player" && PauseManager.Instance != null && PauseManager.Instance.IsPaused)
-                critChance = Mathf.Max(critChance, PauseManager.Instance.pauseCritChance);
-            isCrit = forceCrit || Random.value < critChance;   // [2026-10-31] 확정 치명타
+                critChance = Mathf.Max(critChance, PauseManager.Instance.pauseCritChance + CombatEvents.PauseCritBonus);
+            if (ownerLayer == "Player") critChance += CombatEvents.ExtraCrit(target);   // [2026-11-21] 증강 (처형 대상 치명타 등)
+            isCrit = forceCrit || (ownerLayer == "Player" && CombatEvents.TakeForcedCrit()) || Random.value < critChance;   // [2026-10-31] 확정 치명타
             if (isCrit)
                 finalDamage = Mathf.RoundToInt(baseDamage * attackerStats.critMultiplier);
         }
@@ -288,6 +299,7 @@ public class Hitbox : MonoBehaviour
         // 속성 배율 (공격자 ↔ 대상 상성) — ProjectileBase.CalcDamage()와 동일 로직/로그라
         // Stats.ApplyAdvantageMultiplierWithLog()로 공유한다.
         finalDamage = Stats.ApplyAdvantageMultiplierWithLog(finalDamage, attackerStats, targetStats, "Hitbox", target.name);
+        if (ownerLayer == "Player") finalDamage = CombatEvents.Outgoing(target, finalDamage, isCrit);   // [2026-11-21] 증강 피해 보너스
 
         // 카메라 쉐이크
         float shakeCap = heavyImpact ? shakeMaxHeavy : (isCrit ? shakeMaxCrit : shakeMax);
@@ -341,6 +353,7 @@ public class Hitbox : MonoBehaviour
         if (target.IsInvulnerable) FloatingTextSpawner.SpawnText(other.transform.position, "무적", Color.gray);   // [2026-11-16] 코어 보호막
         else FloatingTextSpawner.SpawnDamage(other.transform.position, finalDamage, isCrit);
         if (isCrit && ownerLayer == "Player") YoungbokChatter.OnPlayerCrit();   // [2026-10-27] 영복 잡담 (5%)
+        if (ownerLayer == "Player" && !target.IsInvulnerable) CombatEvents.RaiseHit(target, finalDamage, isCrit, other.transform.position, false, gameObject);   // [2026-11-21] 증강
 
     }
 }

@@ -803,6 +803,8 @@ MonoBehaviour:
   stageText: {fileID: 787661942933186}
   statsText: {fileID: 926306926170011}
   currencyText: {fileID: 881493373261378}
+  titleText: {fileID: 290764341417702}
+  clearTitle: Thank you for playing.
   retryButton: {fileID: 974410467070343}
 --- !u!1 &635565139222098
 GameObject:

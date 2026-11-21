@@ -17,7 +17,7 @@ public static class TutorialTileDataSetup
 {
     const string RoomPath = "Assets/1.Prefab/Room/Tutorial/TutorialRoom.prefab";
     const string ShaderName = "EventHorizon/TileDataBlue";
-    const string MatDir = "Assets/6. Shader/Materials";
+    const string MatDir = "Assets/4. Art/Materials/Shader";
     const string MatMain = MatDir + "/M_TileData_Blue.mat";
     const string MatBG = MatDir + "/M_TileData_Blue_BG.mat";
 

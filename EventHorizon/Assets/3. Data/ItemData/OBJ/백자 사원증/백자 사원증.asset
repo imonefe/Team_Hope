@@ -16,6 +16,15 @@ MonoBehaviour:
   description: "\ubc31\uc790 \uae30\uc220 \uc9c1\uc6d0\uc5d0\uac8c\ub9cc \ubc1c\uae09\ub418\ub358 \uc0ac\uc6d0\uc99d. \ud68c\uc0ac\ub294 \uc0ac\ub77c\uc84c\uc9c0\ub9cc \ubcf5\uc9c0\ub294 \uc544\uc9c1 \uc720\ud6a8\ud558\ub2e4."
   icon: {fileID: 1179789124, guid: 650fb88925584ad1ae8f3f6673a62410, type: 3}
   itemType: 0
-  tier: 2
+  tier: 3
   effects:
   - {fileID: 11400000, guid: 75cea93eecbd4f06bddbb69b11a5355f, type: 2}
+  keywords:
+  - 5
+  - 1
+  abilityName: "\uBC31\uC790 \uC5F4\uB78C \uAD8C\uD55C"
+  abilityText: "\uC2A4\uD0AC\uC5D0 \uB9DE\uC740 \uC801\uC758 \uBC29\uD328\u00B7\uBC84\uD504\uB97C 2\uCD08 \uBB34\uD6A8\uB85C \uD558\uACE0 \uADE0\uC5F4 2\uC2A4\uD0DD (\uAC19\uC740 \uC801 8\uCD08\uC5D0 \uD55C \uBC88). \uD0C8\uCDE8 \uB370\uC774\uD130\uAC00 \uC788\uC73C\uBA74 1\uAC1C\uB97C \uC368\uC11C \uADF8 \uC2A4\uD0AC \uD53C\uD574 \uC99D\uAC00. \uC6A9\uBCD1 \uC0C1\uC810 \uC804\uC6A9"
+  levelValues:
+  - "+100%"
+  - "+150%"
+  - "+200%"

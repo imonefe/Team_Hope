@@ -33,6 +33,9 @@ public class TutorialController : MonoBehaviour
         BoxAndInventory, // 상자 열기 + 인벤토리 열기
         DummyHits,     // [2026-11-18] 허수아비를 정해진 횟수만큼 때리기
         SkillAndPause, // [2026-11-18] 스킬 한 번 + 퍼즈 한 번 (순서 상관없음)
+        AttackSkillPause,     // [2026-11-21] 허수아비 하나로: 정해진 횟수 때리기 → 스킬 → 퍼즈 (guide → guide2 → guide3)
+        AugmentAndInventory,  // [2026-11-21] 상자 대신: 증강 3개 중 하나 고르기 → 인벤토리 열기 (여기서 얻은 증강은 로비로 갈 때 빠짐)
+        CombatBasics,         // [2026-11-21] 마지막 구간: 공격 → 스킬 → 무기 교체 → 퍼즈 (퍼즈 중에 설명) → 증강 고르기 → 인벤토리
     }
 
     [System.Serializable]
@@ -42,6 +45,16 @@ public class TutorialController : MonoBehaviour
         [TextArea(2, 3)] public string guide;
         [Tooltip("[2026-11-18] 스킬·퍼즈처럼 두 동작 구간에서, 앞 동작(스킬)을 마치면 바뀌는 두 번째 안내")]
         [TextArea(2, 3)] public string guide2;
+        [Tooltip("[2026-11-21] 공격·스킬·퍼즈 구간의 세 번째 안내 (퍼즈)")]
+        [TextArea(2, 3)] public string guide3;
+        [Tooltip("[2026-11-21] CombatBasics: 무기 교체 안내")]
+        [TextArea(2, 3)] public string guideSwap;
+        [Tooltip("[2026-11-21] CombatBasics: 퍼즈가 켜져 있는 동안 보여 줄 설명 (퍼즈가 풀리면 다음 안내로)")]
+        [TextArea(2, 3)] public string guidePaused;
+        [Tooltip("[2026-11-21] CombatBasics: 퍼즈가 끝난 뒤 증강 고르기 안내 (고르기 창이 같이 열림, 여기서 얻은 증강은 로비로 갈 때 빠짐)")]
+        [TextArea(2, 3)] public string guideAugment;
+        [Tooltip("[2026-11-21] CombatBasics: 증강을 고른 뒤 인벤토리 안내")]
+        [TextArea(2, 3)] public string guideInventory;
         public Condition condition;
         [Tooltip("이 구간을 통과하면 꺼지는 막이")]
         public GameObject gate;
@@ -114,6 +127,8 @@ public class TutorialController : MonoBehaviour
     int dummyHits;
     bool boxOpened, inventoryAfterBox;
     bool skillUsed;   // [2026-11-18] SkillAndPause 용 (스킬을 썼는지)
+    bool attackDone;  // [2026-11-21] AttackSkillPause 용 (허수아비를 다 때렸는지)
+    int phase;        // [2026-11-21] CombatBasics 진행 단계 0 공격 · 1 스킬 · 2 무기 교체 · 3 퍼즈 켜기 · 4 퍼즈 중 · 5 증강 고르기 · 6 인벤토리
     Stats watchedDummy;
     PlayerController player;
     bool waitingStart;   // [2026-11-18] 시작 영역에 들어오기 전 (안내 숨김 · 조건 검사 안 함)
@@ -128,6 +143,7 @@ public class TutorialController : MonoBehaviour
     void OnDestroy()
     {
         KeyBindings.Changed -= RefreshText;
+        AugmentSandbox.End();   // [2026-11-21] 다른 길로 방을 떠나도 연습용 증강은 남기지 않음
         YoungbokChatter.HideGuide();   // [2026-11-18] 방이 바뀌면 안내 창도 내림
         if (watchedDummy != null) watchedDummy.OnHpChanged -= OnDummyHp;
     }
@@ -155,6 +171,8 @@ public class TutorialController : MonoBehaviour
         dummyHits = 0;
         boxOpened = inventoryAfterBox = false;
         skillUsed = false;
+        attackDone = false;
+        phase = 0;
         if (watchedDummy != null) { watchedDummy.OnHpChanged -= OnDummyHp; watchedDummy = null; }
 
         Step s = Current;
@@ -165,8 +183,14 @@ public class TutorialController : MonoBehaviour
             if (s.dummy != null) { watchedDummy = s.dummy; watchedDummy.OnHpChanged += OnDummyHp; }
             if (s.box != null) s.box.SetActive(true);
             // 스킬·퍼즈 구간은 스킬을 쓴 뒤에 게이지를 채움 (퍼즈 안내가 나올 때)
-            if (s.fillPauseGauge && s.condition != Condition.SkillAndPause && PauseManager.Instance != null) PauseManager.Instance.AddGauge(100f);
+            if (s.fillPauseGauge && s.condition != Condition.SkillAndPause && s.condition != Condition.AttackSkillPause && s.condition != Condition.CombatBasics && PauseManager.Instance != null) PauseManager.Instance.AddGauge(100f);
             if (s.grantSkill != null) GrantSkill(s.grantSkill);
+            // [2026-11-21] 증강 체험: 지금 상태를 기억해 두고(로비로 갈 때 되돌림) 고르기 창을 연다
+            if (s.condition == Condition.AugmentAndInventory)
+            {
+                AugmentSandbox.Begin();
+                AugmentOfferDirector.RequestTutorialOffer();
+            }
             if (s.preLines != null && s.preLines.Length > 0) { storyLines = StartCoroutine(PlayStoryLines(s.preLines, false)); return; }
         }
         RefreshText();
@@ -199,11 +223,45 @@ public class TutorialController : MonoBehaviour
         Step s = Current;
         string text = s == null ? doneGuide
             : (s.condition == Condition.SkillAndPause && skillUsed && !string.IsNullOrEmpty(s.guide2)) ? s.guide2 : s.guide;
+        // [2026-11-21] 공격 → 스킬 → 퍼즈 / 증강 고른 뒤 → 인벤토리
+        if (s != null && s.condition == Condition.AttackSkillPause)
+            text = !attackDone ? s.guide : (!skillUsed || string.IsNullOrEmpty(s.guide3)) ? (string.IsNullOrEmpty(s.guide2) ? s.guide : s.guide2) : s.guide3;
+        if (s != null && s.condition == Condition.AugmentAndInventory && AugmentSandbox.GainedCount > 0 && !string.IsNullOrEmpty(s.guide2))
+            text = s.guide2;
+        if (s != null && s.condition == Condition.CombatBasics)
+            text = PhaseText(s);
         string line = WithHint(Keys(text), s);
         if (titleText != null) titleText.text = s != null ? $"{index + 1} / {steps.Count}  {s.title}" : doneTitle;
         if (guideText != null) guideText.text = line;
         YoungbokChatter.ShowGuide(speakerName, line, hideSpeakerFace, guideTopCenter);   // [2026-11-18] 통신창으로 말하듯이
     }
+
+    // [2026-11-21] CombatBasics 단계별 안내 (비어 있는 칸은 앞 안내를 그대로)
+    string PhaseText(Step s)
+    {
+        string Pick(string a, string fallback) => string.IsNullOrEmpty(a) ? fallback : a;
+        switch (phase)
+        {
+            case 0: return s.guide;
+            case 1: return Pick(s.guide2, s.guide);
+            case 2: return Pick(s.guideSwap, s.guide);
+            case 3: return Pick(s.guide3, s.guide);
+            case 4: return Pick(s.guidePaused, s.guide3);
+            case 5: return Pick(s.guideAugment, s.guide);
+            default: return Pick(s.guideInventory, s.guide);
+        }
+    }
+
+    void SetPhase(int p)
+    {
+        phase = p;
+        RefreshText();
+    }
+
+    bool SkillPressed() =>
+        (KeyBindings.Down(KeyAction.Skill1) && HasSkill(0))
+        || (KeyBindings.Down(KeyAction.Skill2) && HasSkill(1))
+        || (KeyBindings.Down(KeyAction.Skill3) && HasSkill(2));
 
     // [2026-11-20] 본문 아래에 키 안내 줄을 붙인다
     string WithHint(string line, Step s)
@@ -249,7 +307,7 @@ public class TutorialController : MonoBehaviour
             if (s.moreGates != null)
                 foreach (GameObject g in s.moreGates) if (g != null) StartCoroutine(GlitchOut(g));
             Begin(index + 1);
-            if (Current == null && lobbyRoom != null) StartCoroutine(GoToLobby());
+            if (Current == null && (lobbyRoom != null || (MapManager.Instance != null && MapManager.Instance.PlanActive))) StartCoroutine(GoToLobby());
         }
     }
 
@@ -330,11 +388,19 @@ public class TutorialController : MonoBehaviour
 
         if (RoomManager.Instance == null) yield break;
         GameObject room = lobbyRoom;
-        // 방이 바뀌면 이 오브젝트도 지워지므로, 페이드는 씬에 남는 TransitionCanvas 쪽에서 돌린다 (Portal 과 같은 방식)
+        // [2026-11-21] 노이즈·블러가 짙어지며 어두워짐 → (튜토리얼 증강 정리 + 로비로) → 블러·노이즈가 걷히며 밝아짐 → 대화 (그동안 조작 잠금)
+        // 방이 바뀌면 이 오브젝트도 지워지므로, 연출은 씬에 남는 TransitionCanvas 쪽에서 돌린다
+        // [2026-11-21] 스테이지 구성으로 진행 중이면 켜 둔 다음 칸으로 (로비를 꺼 두었으면 그다음, 남은 칸이 없으면 클리어)
+        System.Action move = () =>
+        {
+            AugmentSandbox.End();
+            if (MapManager.Instance != null && MapManager.Instance.PlanActive) MapManager.Instance.GoNext();
+            else RoomManager.Instance.LoadRoom(room);
+        };
         if (TransitionCanvas.Instance != null)
-            TransitionCanvas.Instance.StartCoroutine(TransitionCanvas.Instance.Transition(() => RoomManager.Instance.LoadRoom(room)));
+            TransitionCanvas.Instance.StartCoroutine(TransitionCanvas.Instance.GlitchTransition(move));
         else
-            RoomManager.Instance.LoadRoom(room);
+            move();
     }
 
     bool Done(Step s)
@@ -372,6 +438,58 @@ public class TutorialController : MonoBehaviour
                     return false;
                 }
                 return PauseManager.Instance != null && PauseManager.Instance.IsPaused;
+            case Condition.AttackSkillPause:
+                if (!attackDone)
+                {
+                    if (dummyHits < s.hitsNeeded) return false;
+                    attackDone = true;
+                    RefreshText();
+                    return false;
+                }
+                if (!skillUsed)
+                {
+                    if ((KeyBindings.Down(KeyAction.Skill1) && HasSkill(0))
+                        || (KeyBindings.Down(KeyAction.Skill2) && HasSkill(1))
+                        || (KeyBindings.Down(KeyAction.Skill3) && HasSkill(2)))
+                    {
+                        skillUsed = true;
+                        if (s.fillPauseGauge && PauseManager.Instance != null) PauseManager.Instance.AddGauge(100f);
+                        RefreshText();
+                    }
+                    return false;
+                }
+                return PauseManager.Instance != null && PauseManager.Instance.IsPaused;
+            case Condition.CombatBasics:
+            {
+                bool paused = PauseManager.Instance != null && PauseManager.Instance.IsPaused;
+                switch (phase)
+                {
+                    case 0: if (dummyHits >= s.hitsNeeded) SetPhase(1); return false;
+                    case 1: if (SkillPressed()) SetPhase(2); return false;
+                    case 2:
+                        if (KeyBindings.Down(KeyAction.WeaponSwap))
+                        {
+                            if (s.fillPauseGauge && PauseManager.Instance != null) PauseManager.Instance.AddGauge(100f);
+                            SetPhase(3);
+                        }
+                        return false;
+                    case 3: if (paused) SetPhase(4); return false;            // 퍼즈가 켜지면 → 퍼즈 설명
+                    case 4:                                                   // 퍼즈가 풀리면 → 증강 고르기 (창을 연다)
+                        if (!paused)
+                        {
+                            SetPhase(5);
+                            AugmentSandbox.Begin();   // 지금 상태를 기억해 두고 로비로 갈 때 되돌림
+                            AugmentOfferDirector.RequestTutorialOffer();
+                        }
+                        return false;
+                    case 5: if (AugmentSandbox.GainedCount > 0) SetPhase(6); return false;   // 하나 고르면 → 인벤토리 안내
+                    default: return !paused && KeyBindings.Down(KeyAction.Inventory);
+                }
+            }
+            case Condition.AugmentAndInventory:
+                if (!boxOpened && AugmentSandbox.GainedCount > 0) { boxOpened = true; RefreshText(); }
+                if (boxOpened && KeyBindings.Down(KeyAction.Inventory)) inventoryAfterBox = true;
+                return inventoryAfterBox;
             case Condition.BoxAndInventory:
                 if (s.box != null && s.box.IsOpened) boxOpened = true;
                 if (boxOpened && KeyBindings.Down(KeyAction.Inventory)) inventoryAfterBox = true;

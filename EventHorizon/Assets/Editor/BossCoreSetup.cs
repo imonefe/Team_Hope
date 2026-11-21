@@ -10,7 +10,7 @@ using UnityEngine.Tilemaps;
 public static class BossCoreSetup
 {
     const string RoomPath = "Assets/_Test/Room/Room_BossTest.prefab";
-    const string WhiteBoxPath = "Assets/1.Prefab/Room/Shop/WhiteBox.png";
+    const string WhiteBoxPath = "Assets/4. Art/Textures/Environment/Room/WhiteBox.png";
 
     [MenuItem("EventHorizon/보스방 코어 배치")]
     public static void Build()

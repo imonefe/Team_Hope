@@ -145,6 +145,13 @@ public class Box : ProximityInteractable
     public int fallbackCurrencyMin = 10;
     public int fallbackCurrencyMax = 20;
 
+    // [2026-11-21 추가] 증강은 전투방 입장·보스 처치 때 고르기 창으로 주므로, 상자는 일부만 증강을 준다 (밸런스)
+    [Header("증강 드롭 (2026-11-21)")]
+    [Tooltip("일반 상자가 증강을 줄 확률. 실패하면 재화 + 증강 파편(아래 확률). 레전더리 상자는 항상 증강")]
+    [Range(0f, 1f)] public float augmentDropChance = 0.35f;
+    [Tooltip("증강 대신 재화를 줄 때 증강 파편 1개를 같이 줄 확률")]
+    [Range(0f, 1f)] public float shardInsteadChance = 0.5f;
+
 
     // 무기: 지금 들고 있는 무기와 같은 무기는 제외
     static bool CanDropWeapon(GameObject prefab)
@@ -187,6 +194,18 @@ public class Box : ProximityInteractable
             LaunchOne(skillPickupPrefabs, pos, -1, CanDropSkill);  // 스킬 — 왼쪽
             // [2026-11-16 삭제] 무기 보상 — Tab 무기 교체로 무기를 줍지 않게 되어 뺐다 (목록이 채워져 있어도 무기는 나오지 않음)
             // LaunchOne(weaponPickupPrefabs, pos, 1, CanDropWeapon); // 무기 — 오른쪽
+            return;
+        }
+
+        // [2026-11-21] 증강 대신 재화 + 증강 파편 (레전더리 상자는 제외)
+        if (!isLegendary && Random.value > augmentDropChance)
+        {
+            ReleasePlan();
+            if (RunManager.Instance != null)
+            {
+                RunManager.Instance.DropRandomCurrency(pos, fallbackCurrencyMin, fallbackCurrencyMax);
+                RunManager.Instance.DropShards(pos, shardInsteadChance, 1, 1);
+            }
             return;
         }
 

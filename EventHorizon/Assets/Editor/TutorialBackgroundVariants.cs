@@ -12,7 +12,7 @@ using UnityEngine;
 public static class TutorialBackgroundVariants
 {
     const string RoomPath = "Assets/1.Prefab/Room/Tutorial/TutorialRoom.prefab";
-    const string Dir = "Assets/6. Shader/Materials/";
+    const string Dir = "Assets/4. Art/Materials/Shader/";
     // [2026-11-16 2차] 색·크기만 다른 시안 → 회로 모양 자체가 다른 시안 4종으로 교체 (예전 색 시안 재질은 지우지 않고 남겨 둠)
     static readonly string[] Paths =
     {

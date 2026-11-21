@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 손상된 성대를 대체하는 소형 스피커.
   icon: {fileID: -352095082, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 0
+  tier: 1
   element: 4
   power: 1
   effects:
   - {fileID: 11400000, guid: 5c9c0a64602a43d4ba93602b368f9973, type: 2}
+  keywords:
+  - 2
+  abilityName: "\uC794\uD5A5 \uACF5\uBA85"
+  abilityText: "\uC794\uC0C1\uC774 \uC0AC\uB77C\uC9C8 \uB54C \uD3ED\uBC1C(\uBC18\uACBD 1.5m). \uC794\uC0C1 \uD53C\uD574\uB3C4 \uACFC\uC5F4\u00B7\uADE0\uC5F4\uC744 \uBD99\uC778\uB2E4"
+  levelValues:
+  - "80%"
+  - "120%"
+  - "160%"

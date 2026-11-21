@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 200
+  maxHp: 240
   currentHp: 200
   Atk: 15
   Def: 3
@@ -184,6 +184,7 @@ MonoBehaviour:
   minCurrencyDrop: 4
   maxCurrencyDrop: 6
   invincibleTime: 0
+  elite: 1
 --- !u!50 &6675472273354913407
 Rigidbody2D:
   serializedVersion: 4

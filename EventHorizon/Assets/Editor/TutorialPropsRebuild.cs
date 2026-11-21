@@ -21,8 +21,8 @@ public static class TutorialPropsRebuild
 {
     const string RoomPath = "Assets/1.Prefab/Room/Tutorial/TutorialRoom.prefab";
     const string DummyPath = "Assets/1.Prefab/Room/Lobby/TrainingDummy.prefab";
-    const string StandSpritePath = "Assets/4. Art/Character/Enemy/Stage2/hosuabibody.png";
-    const string WallSpritePath = "Assets/1.Prefab/Room/Shop/WhiteBox.png";   // 원래 막이벽 그림
+    const string StandSpritePath = "Assets/4. Art/Textures/Character/Enemy/hosuabibody.png";
+    const string WallSpritePath = "Assets/4. Art/Textures/Environment/Room/WhiteBox.png";   // 원래 막이벽 그림
     static readonly Color WallColor = new Color(0.6f, 0.85f, 1f, 0.55f);     // 원래 막이벽 색
     const string BoxStandPath = "Assets/1.Prefab/item/EtcOBJ/box_sponer.prefab";
     const string GrantSkillPath = "Assets/1.Prefab/Skill/skill03.prefab";   // 스킬 구간 시작 때 넣어 줄 스킬

@@ -46,20 +46,20 @@ public static class SkillFxLibraryBuilder
     const string MeshStrike = "Assets/4. Art/VFX/Skill/strike.fbx";
     const string MeshCone   = "Assets/4. Art/VFX/Skill/cone_wrap.fbx";
     const string MeshHemi   = "Assets/4. Art/VFX/Skill/shield_hemi.fbx";
-    const string SrcStrikeTop  = "Assets/4. Art/VFX/Skill/strike_burst1_top.mat";
-    const string SrcStrikeBase = "Assets/4. Art/VFX/Skill/strike_burst1_base.mat";
-    const string SrcFog        = "Assets/6. Shader/Materials/M_fog.mat";
-    const string SrcOrbEnergy  = "Assets/4. Art/VFX/Skill/M_ShieldEnergy.mat";
-    const string SrcOrbHex     = "Assets/4. Art/VFX/Skill/M_ShieldHex.mat";
-    const string SrcDistort    = "Assets/6. Shader/Materials/Distort_Hammer1.mat";
-    const string SrcSoftSmoke  = "Assets/4. Art/VFX/Player/M_SoftSmoke.mat";
-    const string SrcKirakira   = "Assets/4. Art/VFX/Enemy/2sBoss/L_Desh_impactlightparticle.mat";
+    const string SrcStrikeTop  = "Assets/4. Art/Materials/VFX/Skill/strike_burst1_top.mat";
+    const string SrcStrikeBase = "Assets/4. Art/Materials/VFX/Skill/strike_burst1_base.mat";
+    const string SrcFog        = "Assets/4. Art/Materials/Shader/M_fog.mat";
+    const string SrcOrbEnergy  = "Assets/4. Art/Materials/VFX/Skill/M_ShieldEnergy.mat";
+    const string SrcOrbHex     = "Assets/4. Art/Materials/VFX/Skill/M_ShieldHex.mat";
+    const string SrcDistort    = "Assets/4. Art/Materials/Shader/Distort_Hammer1.mat";
+    const string SrcSoftSmoke  = "Assets/4. Art/Materials/VFX/Player/M_SoftSmoke.mat";
+    const string SrcKirakira   = "Assets/4. Art/Materials/VFX/Enemy/L_Desh_impactlightparticle.mat";
     const string ShSoftSmokeP  = "Assets/6. Shader/Library/SG_SoftSmoke_Particle.shadergraph";
     const string ShKirakiraP   = "Assets/6. Shader/Library/kirakira_Particle.shadergraph";
 
     // 재질 원본(설정 복사용). 더하기 혼합 / 알파 혼합 URP 파티클 재질
-    const string SrcAdditive = "Assets/4. Art/VFX/Skill/M_ShieldShard.mat";
-    const string SrcAlpha    = "Assets/4. Art/VFX/Enemy/2sBoss/cloud.mat";
+    const string SrcAdditive = "Assets/4. Art/Materials/VFX/Skill/M_ShieldShard.mat";
+    const string SrcAlpha    = "Assets/4. Art/Materials/VFX/Enemy/cloud.mat";
 
     // 정렬 순서. 플레이어 스프라이트가 5000 이므로 그 앞에 그린다.
     const int OrderSmoke = 5100, OrderGround = 5101, OrderGlow = 5102,

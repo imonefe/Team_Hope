@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 무기에 발라 사용하는 백신 캡슐. 상처에 침투해 추가 피해를 입힌다.
   icon: {fileID: 1803119794, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 1
+  tier: 0
   element: 1
   power: 3
   effects:
   - {fileID: 11400000, guid: 5afc0c130d9149debc7dbcc3bdecc577, type: 2}
+  keywords:
+  - 1
+  abilityName: "\uADE0\uC5F4 \uD0D0\uCE68"
+  abilityText: "\uACF5\uACA9\uC774 \uB9DE\uC73C\uBA74 \uADE0\uC5F4 1\uC2A4\uD0DD (\uAC19\uC740 \uC801\uC5D0\uAC8C 0.5\uCD08\uC5D0 \uD55C \uBC88)"
+  levelValues:
+  - "0.5\uCD08"
+  - "0.35\uCD08"
+  - "0.25\uCD08"

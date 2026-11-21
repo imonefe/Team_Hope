@@ -23,8 +23,8 @@ public static class TileAtlasMaker
     const string AtlasPath = "Assets/4. Art/Environment/Stage2/Stage2Tiles.spriteatlasv2";
     static readonly string[] Sheets =
     {
-        "Assets/4. Art/Environment/Stage2/Props/test02 1.png",
-        "Assets/4. Art/Environment/Stage2/Tiles/tile.png",
+        "Assets/4. Art/Textures/Environment/Stage2/test02 1.png",
+        "Assets/4. Art/Textures/Environment/Stage2/tile.png",
     };
 
     static TileAtlasMaker()

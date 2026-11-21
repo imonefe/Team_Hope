@@ -71,7 +71,8 @@ public class CharacterSkills : MonoBehaviour
 
         Skill prefab = skillSlots[slot];
         if (prefab == null) return false;                 // 빈 슬롯
-        if (Time.time < cooldownEndTime[slot]) return false; // 쿨타임 중
+        bool free = CombatEvents.CanCastFree();   // [2026-11-21] 증강 '확장 소켓': 재사용 대기 없이 나가는 시전이 남았는지
+        if (Time.time < cooldownEndTime[slot] && !free) return false; // 쿨타임 중
 
         // [2026-11-11] 홀로분신처럼 대상이 필요한 스킬은 화면에 적이 없으면 발동도, 쿨타임도 없이 무시
         HoloCloneSkill holo = prefab.GetComponent<HoloCloneSkill>();
@@ -81,10 +82,11 @@ public class CharacterSkills : MonoBehaviour
 
         // 프리팹 생성 후 발동
         Skill instance = Instantiate(prefab);
+        instance.damageScale = CombatEvents.SkillCast(slot, free);   // [2026-11-21] 증강 (스킬 피해 배율 · 알림)
         instance.Launch(caster, facing);
 
-        // 쿨타임 시작
-        cooldownEndTime[slot] = Time.time + prefab.cooldown;
+        // 쿨타임 시작 (증강으로 공짜 시전이면 남은 쿨타임 그대로)
+        if (!free) cooldownEndTime[slot] = Time.time + prefab.cooldown;
         return true;
     }
 

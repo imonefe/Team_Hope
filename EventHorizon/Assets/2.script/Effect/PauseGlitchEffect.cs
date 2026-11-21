@@ -19,6 +19,8 @@ public class PauseGlitchEffect : MonoBehaviour
     // ── 렌더러 기능이 읽어 가는 값 ──
     /// <summary>노이즈 세기 (0~1)</summary>
     public static float ScreenIntensity { get; private set; }
+    /// <summary>[2026-11-21] 화면 전환(튜토리얼 → 로비)용 노이즈 세기 0~1 (퍼즈가 아닐 때 화면 노이즈로 씀, 푸른 색은 없음)</summary>
+    public static float TransitionNoise;
     /// <summary>화면 전체 푸른 색 세기 (0~1)</summary>
     public static float ColorIntensity { get; private set; }
     /// <summary>번개 세기 (0~1)</summary>
@@ -130,6 +132,16 @@ public class PauseGlitchEffect : MonoBehaviour
                 ScreenIntensity = 0f;
                 BoltIntensity = 0f;
                 ColorIntensity = 0f;
+                // [2026-11-21] 화면 전환 노이즈
+                if (TransitionNoise > 0f)
+                {
+                    ScreenIntensity = TransitionNoise * Random.Range(0.75f, 1f);
+                    if (Time.unscaledTime >= nextSeedTime)
+                    {
+                        nextSeedTime = Time.unscaledTime + settings.glitchInterval;
+                        ScreenSeed = Random.Range(0f, 1000f);
+                    }
+                }
                 return;
             }
             level = settings.fadeOutTime > 0f ? Mathf.Max(0f, level - dt / settings.fadeOutTime) : 0f;

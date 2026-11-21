@@ -19,7 +19,22 @@ public class HpRegenEffect : ItemEffect
 
     public override void Apply(Stats stats, MonoBehaviour runner)
     {
-        runner.StartCoroutine(RegenRoutine(stats));
+        var co = runner.StartCoroutine(RegenRoutine(stats));
+        running.Add((runner, co));
+    }
+
+    // [2026-11-21] 증강 판매: 돌던 회복을 멈춘다
+    [System.NonSerialized] readonly List<(MonoBehaviour, Coroutine)> running = new List<(MonoBehaviour, Coroutine)>();
+    public override void Revert(Stats stats, MonoBehaviour runner, int level)
+    {
+        for (int i = running.Count - 1; i >= 0; i--)
+        {
+            if (running[i].Item1 == null) { running.RemoveAt(i); continue; }
+            if (running[i].Item1 != runner) continue;
+            running[i].Item1.StopCoroutine(running[i].Item2);
+            running.RemoveAt(i);
+            return;
+        }
     }
 
     IEnumerator RegenRoutine(Stats stats)

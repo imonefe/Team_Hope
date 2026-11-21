@@ -29,6 +29,14 @@ public static class CurrencyShardFX
     public static void Spawn(Vector3 position, int amount)
     {
         if (amount <= 0) return;
+        Spawn(position, Mathf.Clamp(Mathf.RoundToInt(amount * CountPerAmount), MinCount, MaxCount), ColorA, ColorB);
+    }
+
+    /// <summary>[2026-11-21 추가] 색·개수를 정해서 뿌린다 (증강 파편 = 보랏빛)</summary>
+    public static void Spawn(Vector3 position, int count, Color colorA, Color colorB)
+    {
+        if (count <= 0) return;
+        count = Mathf.Min(count, MaxCount);
         EnsureMaterial();
 
         position.z -= TowardCamera;
@@ -38,8 +46,6 @@ public static class CurrencyShardFX
         var ps = go.AddComponent<ParticleSystem>();
         ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
-        int count = Mathf.Clamp(Mathf.RoundToInt(amount * CountPerAmount), MinCount, MaxCount);
-
         var main = ps.main;
         main.duration = 0.1f;
         main.loop = false;
@@ -48,7 +54,7 @@ public static class CurrencyShardFX
         main.startSpeed = new ParticleSystem.MinMaxCurve(MinSpeed, MaxSpeed);
         main.startSize = new ParticleSystem.MinMaxCurve(MinSize, MaxSize);
         main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
-        main.startColor = new ParticleSystem.MinMaxGradient(ColorA, ColorB);
+        main.startColor = new ParticleSystem.MinMaxGradient(colorA, colorB);
         main.gravityModifier = Gravity;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.scalingMode = ParticleSystemScalingMode.Local;

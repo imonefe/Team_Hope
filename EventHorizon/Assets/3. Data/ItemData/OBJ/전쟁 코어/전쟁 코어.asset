@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 전쟁병기에 쓰이던 코어. 장착하면 공격력과 체력이 함께 오른다.
   icon: {fileID: 117717658, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 2
+  tier: 1
   element: 1
   power: 4
   effects:
   - {fileID: 11400000, guid: dbbeb32ff6644ce8841c3a278e691f97, type: 2}
+  keywords:
+  - 0
+  abilityName: "\uC5F0\uC1C4 \uBC1C\uD654"
+  abilityText: "\uACFC\uC5F4 5\uC2A4\uD0DD\uC5D0 \uB2FF\uC73C\uBA74 \uD3ED\uBC1C(\uBC18\uACBD 2m), \uC8FC\uBCC0 \uC801\uC5D0\uAC8C \uACFC\uC5F4 2\uC2A4\uD0DD \uC804\uC774"
+  levelValues:
+  - "120%"
+  - "180%"
+  - "240%"

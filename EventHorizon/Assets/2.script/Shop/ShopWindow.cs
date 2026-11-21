@@ -50,7 +50,8 @@ public abstract class ShopWindow : MonoBehaviour
 
     public bool IsOpen { get; private set; }
 
-    TMP_Text currencyText, dialogueText, npcNameText;
+    protected TMP_Text currencyText;   // [2026-11-21] 증강 강화 창이 파편 수로 바꿔 쓰도록 protected
+    TMP_Text dialogueText, npcNameText;
     bool built;
 
     // ── 열기 / 닫기 ──
@@ -94,7 +95,8 @@ public abstract class ShopWindow : MonoBehaviour
         if (IsOpen) CloseInternal(false);
     }
 
-    void Update()
+    // [2026-11-21] 증강 강화 창이 키보드 조작을 더하도록 protected virtual
+    protected virtual void Update()
     {
         if (!IsOpen) return;
         if (Input.GetKeyDown(KeyCode.Escape)) Close();
@@ -104,6 +106,7 @@ public abstract class ShopWindow : MonoBehaviour
     {
         if (built) return;
         built = true;
+        if (!UsesShopFrame) { Build(); return; }   // [2026-11-21] 증강 고르기 창: 상점 틀(재화·대사창·Esc) 없음
         currencyText = FindText("Window/HeaderRow/CurrencyAmount");
         dialogueText = FindText("DialogueBox/DialogueText");
         npcNameText = FindText("DialogueBox/NpcName");
@@ -161,7 +164,7 @@ public abstract class ShopWindow : MonoBehaviour
 
     void OnCurrency(int amount)
     {
-        if (currencyText != null) currencyText.text = amount.ToString("#,0");
+        if (currencyText != null && ShowsMoneyInHeader) currencyText.text = amount.ToString("#,0");
         OnCurrencyChanged(amount);
     }
 
@@ -172,6 +175,10 @@ public abstract class ShopWindow : MonoBehaviour
     protected abstract void OnOpened();
     /// <summary>재화가 바뀔 때 (살 수 있는지 버튼 상태 갱신 등)</summary>
     protected virtual void OnCurrencyChanged(int amount) { }
+    /// <summary>[2026-11-21] 위쪽 숫자에 재화를 보여 줄지 (증강 강화 창은 false → 증강 파편을 직접 표시)</summary>
+    protected virtual bool ShowsMoneyInHeader => true;
+    /// <summary>[2026-11-21] 상점 공용 틀(위쪽 재화 · 아래 대사창 · Esc 닫기 글자)을 쓰는지. 증강 고르기 창은 false</summary>
+    protected virtual bool UsesShopFrame => true;
 
     // ── 공용 도우미 ──
     protected static int Money => RunManager.Instance != null ? RunManager.Instance.Amount : 0;

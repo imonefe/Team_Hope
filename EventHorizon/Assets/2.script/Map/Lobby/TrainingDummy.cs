@@ -71,6 +71,7 @@ public class TrainingDummy : MonoBehaviour
     // 체력이 줄면 바로 다시 채움 (Health 가 사망 판정을 하기 전에 채워지므로 죽지 않음)
     void OnHpChanged(int current, int max)
     {
+        if (!enabled) return;   // [2026-11-21] 꺼 두면 체력을 채우지 않음 → 증강 시험 방의 '죽는 허수아비'가 실제로 쓰러짐
         if (current >= max) return;
         stats.currentHp = max;
         wobbleTimer = wobbleTime;

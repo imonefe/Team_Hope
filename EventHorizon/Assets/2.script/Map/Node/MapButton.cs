@@ -206,7 +206,10 @@ public class MapButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             if (target == null) continue;
 
             GameObject line = Instantiate(linePrefab, lineParent);
-            line.transform.SetAsFirstSibling(); // 라인은 버튼 뒤에
+            // 라인은 버튼 뒤에. [2026-11-21] 구간 띠(Bands)가 있으면 띠 바로 위에 (띠에 가려지지 않게)
+            Transform bands = lineParent.Find("Bands");
+            if (bands != null) line.transform.SetSiblingIndex(bands.GetSiblingIndex() + 1);
+            else line.transform.SetAsFirstSibling();
 
             RectTransform rt = line.GetComponent<RectTransform>();
             RectTransform myRT = GetComponent<RectTransform>();

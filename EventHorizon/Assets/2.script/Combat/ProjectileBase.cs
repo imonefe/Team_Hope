@@ -19,6 +19,9 @@ public abstract class ProjectileBase : MonoBehaviour
     [Header("이펙트")]
     public GameObject hitEffectPrefab;
 
+    [Tooltip("[2026-11-21] 대시 중인 플레이어에 닿으면 피해 없이 사라짐 (원거리 적 에너지 구체)")]
+    public bool destroyOnDashContact = false;
+
     protected Rigidbody2D rigid;
     protected bool hit = false;
 
@@ -48,6 +51,13 @@ public abstract class ProjectileBase : MonoBehaviour
     // 공통 공식은 Stats.CalculateEffectiveDamage() 참고 (Hitbox.cs 와 동일 공식 공유).
     // 상성 배율 적용 + 로그 출력도 Hitbox.cs와 완전히 같은 코드였어서
     // Stats.ApplyAdvantageMultiplierWithLog()로 공유한다.
+    // [2026-11-21] 증강 '조준 고정': 플레이어 투사체 크기 배율 (ownerLayer 는 생성 직후 정해지므로 Start 에서)
+    void Start()
+    {
+        if (IsPlayerOwned && !Mathf.Approximately(CombatEvents.PlayerProjectileScale, 1f))
+            transform.localScale *= CombatEvents.PlayerProjectileScale;
+    }
+
     protected int CalcDamage(int rawDamage, Health targetHealth)
     {
         Stats targetStats = targetHealth.GetComponent<Stats>();
@@ -85,6 +95,19 @@ public abstract class ProjectileBase : MonoBehaviour
         // 같은 편 제외 — 적 투사체는 다른 적·보스에게 피해를 주지 않는다
         if (health != null && ownerLayer == "Enemy" && Hitbox.IsEnemySide(health.gameObject)) return;
 
+        // [2026-11-21] 대시로 닿으면 피해 없이 사라지는 투사체
+        if (health != null && destroyOnDashContact && !IsPlayerOwned)
+        {
+            var dashPc = health.GetComponent<PlayerController>();
+            if (dashPc != null && dashPc.IsDashing)
+            {
+                hit = true;
+                if (hitEffectPrefab != null) Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+                Destroy(gameObject);
+                return;
+            }
+        }
+
         // [2026-10-10 추가] 대시·피격 무적 중인 대상은 그대로 통과 (피해 없는데 투사체만 사라지던 문제)
         if (health != null && !health.CanBeHit()) return;
 
@@ -93,7 +116,9 @@ public abstract class ProjectileBase : MonoBehaviour
             hit = true;
             int dir = FacingX >= 0 ? 1 : -1;
             int finalDamage = CalcDamage(damage, health);
+            if (IsPlayerOwned) finalDamage = CombatEvents.Outgoing(health, finalDamage, false);   // [2026-11-21] 증강
             health.TakeDamage(finalDamage, dir, knockbackX, knockbackY);
+            if (IsPlayerOwned && !health.IsInvulnerable) CombatEvents.RaiseHit(health, finalDamage, false, transform.position, true, gameObject);
             if (health.IsInvulnerable) FloatingTextSpawner.SpawnText(transform.position, "무적", Color.gray);   // [2026-11-16] 코어 보호막
 
             if (hitEffectPrefab != null)

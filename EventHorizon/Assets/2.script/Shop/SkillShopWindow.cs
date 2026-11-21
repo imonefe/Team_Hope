@@ -174,6 +174,31 @@ public class SkillShopWindow : ShopWindow
         RefreshAll();
     }
 
+    // [2026-11-21] 키보드: ← → 고르기 · Space/Enter 구매(판매 화면이면 판매) · R 새로고침 · Tab 판매 화면 전환 · Esc 닫기
+    protected override void Update()
+    {
+        base.Update();
+        if (!IsOpen) return;
+        if (Input.GetKeyDown(KeyCode.LeftArrow)) MoveSelect(-1);
+        if (Input.GetKeyDown(KeyCode.RightArrow)) MoveSelect(+1);
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) && selected >= 0) Buy(selected);
+        if (Input.GetKeyDown(KeyCode.R) && !selling) Refresh();
+        if (Input.GetKeyDown(KeyCode.Tab)) { selling = !selling; selected = 0; RefreshAll(); }
+    }
+
+    void MoveSelect(int dir)
+    {
+        int n = selling ? SellCards : SlotCount;
+        if (n <= 0) return;
+        int s = selected < 0 ? 0 : selected;
+        for (int k = 0; k < n; k++)
+        {
+            s = (s + dir + n) % n;
+            bool has = selling ? OwnedAt(s) != null : offers[s] != null;
+            if (has) { selected = s; RefreshAll(); return; }
+        }
+    }
+
     void Select(int i)
     {
         if (selling) { if (OwnedAt(i) != null) { selected = i; RefreshAll(); } return; }

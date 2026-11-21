@@ -121,6 +121,52 @@ public class TransitionCanvas : PersistentSingleton<TransitionCanvas>
         }
     }
 
+    /// <summary>[2026-11-21] 노이즈·블러 전환이 진행 중인지 (로비 대화가 이게 끝날 때까지 기다림)</summary>
+    public static bool GlitchBusy { get; private set; }
+
+    /// <summary>
+    /// [2026-11-21 추가] 노이즈 + 블러가 짙어지며 어두워짐 → 콜백(방 이동) → 블러·노이즈가 걷히며 밝아짐.
+    /// 그동안과 끝난 뒤 대화가 열릴 때까지(최대 holdControlMax 초) 조작 잠금. 튜토리얼 → 로비에서 사용.
+    /// </summary>
+    public IEnumerator GlitchTransition(System.Action onMidpoint, float outTime = 1.3f, float hold = 0.35f, float inTime = 1.5f, float holdControlMax = 3f)
+    {
+        GlitchBusy = true;
+        object lockKey = this;
+        var pc = PlayerController.Instance;
+        if (pc != null) pc.LockControl(lockKey);
+
+        // 1) 노이즈·블러가 먼저 오르고, 뒤따라 어두워짐
+        for (float t = 0f; t < outTime; t += Time.unscaledDeltaTime)
+        {
+            float k = t / outTime;
+            PauseGlitchEffect.TransitionNoise = Mathf.SmoothStep(0f, 0.9f, Mathf.Clamp01(k * 1.4f));
+            MenuBackdrop.SetTransition(Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(k * 1.25f)));
+            SetAlpha(Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((k - 0.35f) / 0.65f)));
+            yield return null;
+        }
+        SetAlpha(1f);
+        onMidpoint?.Invoke();
+        for (float t = 0f; t < hold; t += Time.unscaledDeltaTime) yield return null;
+
+        // 2) 밝아지면서 블러·노이즈가 서서히 걷힘
+        for (float t = 0f; t < inTime; t += Time.unscaledDeltaTime)
+        {
+            float k = t / inTime;
+            SetAlpha(1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(k * 1.5f)));
+            MenuBackdrop.SetTransition(1f - Mathf.SmoothStep(0f, 1f, k));
+            PauseGlitchEffect.TransitionNoise = 0.9f * (1f - Mathf.SmoothStep(0f, 1f, k));
+            yield return null;
+        }
+        SetAlpha(0f);
+        MenuBackdrop.SetTransition(0f);
+        PauseGlitchEffect.TransitionNoise = 0f;
+        GlitchBusy = false;
+
+        // 3) 대화가 열릴 때까지 조작 잠금 유지 (대화가 열리면 대화가 잠금을 맡음)
+        for (float t = 0f; t < holdControlMax && !NPC.AnyTalking; t += Time.unscaledDeltaTime) yield return null;
+        if (pc != null) pc.ResumeControl(lockKey);
+    }
+
     /// <summary>
     /// 페이드 아웃(어두워짐) → 콜백 → 페이드 인(밝아짐)
     /// RoomManager 에서 호출

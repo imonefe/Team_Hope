@@ -49,7 +49,18 @@ public class RandomStatBoostEffect : ItemEffect
             case 5: modifier.critChance = amount * critChancePerAmount; break;
         }
 
-        modifier.Apply(stats);
+        var snap = modifier.Apply(stats);
+        if (!applied.TryGetValue(stats, out var list)) applied[stats] = list = new List<StatSnapshot>();
+        list.Add(snap);
+    }
+
+    // [2026-11-21] 증강 판매: 뽑혔던 수치를 그대로 뺀다
+    [System.NonSerialized] readonly Dictionary<Stats, List<StatSnapshot>> applied = new Dictionary<Stats, List<StatSnapshot>>();
+    public override void Revert(Stats stats, MonoBehaviour runner, int level)
+    {
+        if (stats == null || !applied.TryGetValue(stats, out var list) || list.Count == 0) return;
+        StatModifier.Remove(stats, list[list.Count - 1]);
+        list.RemoveAt(list.Count - 1);
     }
 
     // 예) "무작위 스탯 1개 +3" / "공격력·방어력 중 1개 +3"

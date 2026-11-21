@@ -130,6 +130,33 @@ public class Enemy : MonoBehaviour
     SpriteRenderer sr;
     Material originalMaterial;
     MaterialPropertyBlock flashBlock;
+
+    // [2026-11-21] 증강: 기절 (이 시각까지 이동·공격 안 함)
+    [System.NonSerialized] public float stunUntil;
+    public bool IsStunned => Time.time < stunUntil;
+    public void Stun(float seconds) { stunUntil = Mathf.Max(stunUntil, Time.time + seconds); }
+    public bool IsAttacking => isAttacking;
+
+    /// <summary>[2026-11-21] 증강: 몸을 키워드 색으로 잠깐 번쩍 (피격 번쩍과 같은 셰이더)</summary>
+    public void TintFlash(Color c, float amount, float seconds)
+    {
+        if (!isActiveAndEnabled) return;
+        if (hitFlashRoutine != null) StopCoroutine(hitFlashRoutine);
+        hitFlashRoutine = StartCoroutine(TintFlashRoutine(c, amount, seconds));
+    }
+
+    IEnumerator TintFlashRoutine(Color c, float amount, float seconds)
+    {
+        float t = 0f;
+        while (t < seconds)
+        {
+            ApplyFlash(c, amount * (1f - t / seconds), 0f);
+            t += Time.deltaTime;
+            yield return null;
+        }
+        ClearFlash();
+        hitFlashRoutine = null;
+    }
     Stats stats;
     Transform player;
 
@@ -225,6 +252,8 @@ public class Enemy : MonoBehaviour
         }
 
         GroundCheck();
+        // [2026-11-21] 증강: 기절 중엔 멈춤
+        if (IsStunned) { rigid.velocity = new Vector2(0f, rigid.velocity.y); anim.SetBool("isMove", false); return; }
         attackTimer -= Time.deltaTime;
 
         // 스폰 직후 대기 (등장 연출 동안 행동 안 함)
@@ -552,6 +581,7 @@ public class Enemy : MonoBehaviour
     {
         if (isAttacking) return;
         isAttacking = true;
+        CombatEvents.RaiseEnemyAttack(this);   // [2026-11-21] 증강 (궤적 예측)
         attackTimer = attackCooldown;
         attackDurTimer = 0f;
         attackAnimReleased = false;

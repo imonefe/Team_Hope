@@ -12,8 +12,8 @@ public static class TutorialBackgroundSetup
 {
     const string RoomPath = "Assets/1.Prefab/Room/Tutorial/TutorialRoom.prefab";
     // [2026-11-18 수정] 배경을 "시뮬레이션 방" 셰이더(TutorialSimRoomBG) 재질로 바꿈. 예전 값: M_TutorialCircuit.mat
-    const string MatPath = "Assets/6. Shader/Materials/M_TutorialSimRoom.mat";
-    const string WhiteBoxPath = "Assets/1.Prefab/Room/Shop/WhiteBox.png";
+    const string MatPath = "Assets/4. Art/Materials/Shader/M_TutorialSimRoom.mat";
+    const string WhiteBoxPath = "Assets/4. Art/Textures/Environment/Room/WhiteBox.png";
     const float Margin = 6f;
 
     [MenuItem("EventHorizon/튜토리얼 배경 배치")]

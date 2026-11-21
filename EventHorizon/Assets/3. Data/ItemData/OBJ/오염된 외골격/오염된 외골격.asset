@@ -16,8 +16,16 @@ MonoBehaviour:
   description: 과하게 개조된 외골격. 공격력과 기동성은 오르지만 오염된 부위 탓에 방어가 약해진다.
   icon: {fileID: 942211375, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
-  tier: 2
+  tier: 0
   element: 1
   power: 4
   effects:
   - {fileID: 11400000, guid: d91dfd4c894041d698528ba65dc40819, type: 2}
+  keywords:
+  - 7
+  abilityName: "\uACFC\uBD80\uD558 \uD4E8\uC988"
+  abilityText: "\uCCB4\uB825 50% \uC774\uD558\uC5D0\uC11C \uACF5\uACA9\uB825 +15%"
+  levelValues:
+  - "+15%"
+  - "+22%"
+  - "+30%"

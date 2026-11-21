@@ -20,3 +20,11 @@ MonoBehaviour:
   effects:
   - {fileID: 11400000, guid: 6b2e7296d63f42c3bc1d6847ed5e37bd, type: 2}
   - {fileID: 11400000, guid: bc089e6316554c2697f2e42183fe2427, type: 2}
+  keywords:
+  - 3
+  abilityName: "\uAC80\uBB34"
+  abilityText: "\uAC80 3\uD0C0 \uB9C8\uBB34\uB9AC\uAC00 \uB9DE\uC73C\uBA74 \uACFC\uC5F4"
+  levelValues:
+  - "\uACFC\uC5F4 1"
+  - "\uACFC\uC5F4 2"
+  - "\uACFC\uC5F4 3"
