@@ -1,5 +1,208 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3962146969687038257
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6442731425602645464}
+  - component: {fileID: 7070525569850728296}
+  - component: {fileID: 8524509623976878890}
+  - component: {fileID: 857891498553304654}
+  - component: {fileID: 6082116721613586043}
+  - component: {fileID: 2869103053568979492}
+  m_Layer: 0
+  m_Name: SpinePortrait
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6442731425602645464
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962146969687038257}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.3513589, y: 1.3513514, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 221053909278337518}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 1939.2, y: 150}
+  m_SizeDelta: {x: 10, y: 10}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &7070525569850728296
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962146969687038257}
+  m_CullTransparentMesh: 0
+--- !u!114 &8524509623976878890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962146969687038257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d85b887af7e6c3f45a2e2d2920d641bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 2100000, guid: 9c6ec24bca5fc42489fe47358fef0d4a, type: 2}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  skeletonDataAsset: {fileID: 11400000, guid: eadd060fac9463b48aad0a524803bef2, type: 2}
+  initialSkinName: 
+  initialFlipX: 0
+  initialFlipY: 0
+  meshSettings:
+    useClipping: 1
+    zSpacing: 0
+    tintBlack: 0
+    canvasGroupCompatible: 0
+    pmaVertexColors: 1
+    addNormals: 0
+    calculateTangents: 0
+    immutableTriangles: 0
+  updateWhenInvisible: 3
+  clearStateOnDisable: 0
+  separatorSlotNames: []
+  enableSeparatorSlots: 0
+  disableRenderingOnOverride: 1
+  physicsPositionInheritanceFactor: {x: 1, y: 1}
+  physicsRotationInheritanceFactor: 1
+  physicsPositionInheritanceLimit: {x: Infinity, y: Infinity}
+  physicsRotationInheritanceLimit: 3.4028235e+38
+  physicsMovementRelativeTo: {fileID: 0}
+  threadedMeshGeneration: 2
+  m_SkeletonColor: {r: 1, g: 1, b: 1, a: 1}
+  freeze: 0
+  allowMultipleCanvasRenderers: 0
+  updateSeparatorPartLocation: 1
+  updateSeparatorPartScale: 0
+  additiveMaterial: {fileID: 0}
+  multiplyMaterial: {fileID: 0}
+  screenMaterial: {fileID: 0}
+  forceAdditiveMaterial: 0
+  layoutScaleMode: 0
+  referenceSize: {x: 1, y: 1}
+  pivotOffset: {x: 0, y: 0}
+  referenceScale: 1
+  layoutScale: 1
+  rectTransformSize: {x: 0, y: 0}
+  editReferenceRect: 0
+  canvasRenderers: []
+  separatorParts: []
+  disableMeshAssignmentOnOverride: 1
+  wasDeprecatedTransferred: 1
+  startingAnimationDeprecated: 
+  startingLoopDeprecated: 0
+  timeScaleDeprecated: 1
+  unscaledTimeDeprecated: 0
+--- !u!114 &857891498553304654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962146969687038257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updateTiming: 1
+  threadedAnimation: 2
+  animationName: idle
+  loop: 1
+  timeScale: 1
+  unscaledTime: 1
+  wasDeprecatedTransferred: 1
+  skeletonDataAssetDeprecated: {fileID: 0}
+  initialSkinNameDeprecated: 
+  editorSkipSkinSyncDeprecated: 0
+  initialFlipXDeprecated: 0
+  initialFlipYDeprecated: 0
+  updateModeDeprecated: 3
+  updateWhenInvisibleDeprecated: 3
+  separatorSlotNamesDeprecated: []
+  zSpacingDeprecated: 0
+  useClippingDeprecated: 1
+  immutableTrianglesDeprecated: 0
+  pmaVertexColorsDeprecated: 1
+  clearStateOnDisableDeprecated: 0
+  tintBlackDeprecated: 0
+  singleSubmeshDeprecated: 0
+  addNormalsDeprecated: 0
+  calculateTangentsDeprecated: 0
+  maskInteractionDeprecated: 0
+--- !u!114 &6082116721613586043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962146969687038257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updateTiming: 1
+  threadedAnimation: 2
+  animationName: idle
+  loop: 1
+  timeScale: 1
+  unscaledTime: 1
+  wasDeprecatedTransferred: 1
+  skeletonDataAssetDeprecated: {fileID: 0}
+  initialSkinNameDeprecated: 
+  editorSkipSkinSyncDeprecated: 0
+  initialFlipXDeprecated: 0
+  initialFlipYDeprecated: 0
+  updateModeDeprecated: 3
+  updateWhenInvisibleDeprecated: 3
+  separatorSlotNamesDeprecated: []
+  zSpacingDeprecated: 0
+  useClippingDeprecated: 1
+  immutableTrianglesDeprecated: 0
+  pmaVertexColorsDeprecated: 1
+  clearStateOnDisableDeprecated: 0
+  tintBlackDeprecated: 0
+  singleSubmeshDeprecated: 0
+  addNormalsDeprecated: 0
+  calculateTangentsDeprecated: 0
+  maskInteractionDeprecated: 0
+--- !u!114 &2869103053568979492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962146969687038257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2790b6e2a043f4b875aea44ab5d1a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  source: {fileID: 1333474232888987118}
 --- !u!1001 &554964128040279854
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44,6 +247,26 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 63b0b9e95a8ed5043b661def50f39008, type: 3}
+    - target: {fileID: 1527515567715570368, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2941476610137560355, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: loop
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2941476610137560355, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: unscaledTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2941476610137560355, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: animationName
+      value: idle
+      objectReference: {fileID: 0}
+    - target: {fileID: 5204313148693351687, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 28.007812
+      objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.size
       value: 4
@@ -54,7 +277,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: speakerNames.Array.data[0]
-      value: "\ud5e4\ub124\uc2dc"
+      value: "\uD5E4\uB124\uC2DC"
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: speakerNames.Array.data[1]
@@ -85,52 +308,97 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[1].lines.Array.size
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[2].lines.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[3].lines.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.data[0].lines.Array.data[0]
-      value: "\ub9c8\uc9c0\ub9c9 \uc11c\uac00 \ub108\uba38, \ud5c8\uacf5\uc5d0 \ucc45\uc744 \ud3bc\uce5c \uc5ec\uc790\uac00 \ub5a0 \uc788\ub2e4."
+      value: "\uB9C8\uC9C0\uB9C9 \uC11C\uAC00 \uB108\uBA38, \uD5C8\uACF5\uC5D0 \uCC45\uC744
+        \uD3BC\uCE5C \uC5EC\uC790\uAC00 \uB5A0 \uC788\uB2E4."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[1].lines.Array.data[0]
+      value: "\uC0DD\uAC01\uBCF4\uB2E4 \uC624\uB798 \uAC78\uB838\uB124? \uB098\uB294
+        \uC774 \uC11C\uACE0\uC758 \uC8FC\uC778\uC774\uC57C. \uB0B4 \uBD80\uD558\uB4E4\uC744
+        \uB9CE\uC774\uB3C4 \uBD80\uC234 \uBA39\uC5C8\uB354\uB77C?"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[1].lines.Array.data[1]
+      value: "\uBB50, \uB410\uC5B4. \uADF8\uB7F0 \uAC78 \uCC0D\uC5B4 \uB0B4\uB294
+        \uAC74 \uC77C\uB3C4 \uC544\uB2C8\uB2C8\uAE4C. \uADF8\uB9AC\uACE0 \uC774\uC81C,
+        \uB124 \uB0A8\uC740 8\uD37C\uC13C\uD2B8\uB97C \uBC1B\uC544 \uB458 \uCC28\uB840\uC57C."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[1].lines.Array.data[2]
+      value: "\uAC70\uC808\uD558\uACA0\uC2B5\uB2C8\uB2E4. \uC800\uB294 \uCC45\uC774
+        \uB418\uC9C0 \uC54A\uACA0\uC2B5\uB2C8\uB2E4."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[1].lines.Array.data[3]
+      value: "\uBF51\uD600 \uB098\uAC04 92\uD37C\uC13C\uD2B8\uB3C4 \uB3CC\uB824\uBC1B\uACA0\uC2B5\uB2C8\uB2E4."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[1].lines.Array.data[4]
+      value: "\u202690\uD37C\uC13C\uD2B8\uAC00 \uB118\uAC8C \uCD94\uCD9C\uB410\uB294\uB370\uB3C4
+        \uAC70\uBD80\uC5D0 \uB300\uD55C \uC815\uBCF4\uAC00 \uC788\uB2E4\uACE0\u2026?"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[1].lines.Array.data[5]
+      value: "\uC774\uAC74 \uC880 \uC704\uD5D8\uD55C\uB370. \uC7A5\uC11C\uB85C \uB458
+        \uC218 \uC5C6\uC744 \uAC83 \uAC19\uC544."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[1].lines.Array.data[6]
+      value: "\uAE30\uB85D\uC740 \uC5C6\uB358 \uAC78\uB85C \uD560\uAC8C. \uC81C\uAC70\uAC00
+        \uB0AB\uACA0\uC5B4. \uC774\uD574\uD558\uC9C0?"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[2].lines.Array.data[0]
+      value: "\uC8FC\uC778\uC774 \uCC45\uC744 \uB36E\uB294\uB2E4. \uBC29 \uC548\uC758
+        \uACF5\uAE30\uAC00 \uBB34\uAC81\uAC8C \uC9D3\uB20C\uB9B0\uB2E4."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[2].lines.Array.data[1]
+      value: "\u2026\u2026\uADF8\uB798\uB3C4, \uB2F9\uC2E0 \uCC45\uC7A5\uC5D0\uB294
+        \uAF42\uD788\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[2].lines.Array.data[2]
+      value: "\uADF8\uB798. \uC0AD\uC81C\uB77C\uACE0 \uB9D0\uD588\uC796\uC544."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[3].lines.Array.data[0]
+      value: "\uBAB8\uC774 \uC0B0\uC0B0\uC870\uAC01 \uB098\uACE0, \uC2DC\uAC01 \uC13C\uC11C\uAC00
+        \uB04A\uACBC\uB2E4. \uB208\uC774 \uD750\uB824\uC9C0\uACE0, \uC774\uD6C4\uB294
+        \uBA54\uBAA8\uB9AC\uC5D0 \uAE30\uB85D\uB418\uC5B4 \uC788\uC9C0 \uC54A\uB2E4."
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.data[0].speakerIndex.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[0].speakerIndex.Array.data[0]
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[1].lines.Array.size
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[1].lines.Array.data[0]
-      value: "\uc0dd\uac01\ubcf4\ub2e4 \uc624\ub798 \uac78\ub838\ub124? \ub098\ub294 \uc774 \uc11c\uace0\uc758 \uc8fc\uc778\uc774\uc57c. \ub0b4 \ubd80\ud558\ub4e4\uc744 \ub9ce\uc774\ub3c4 \ubd80\uc234 \uba39\uc5c8\ub354\ub77c?"
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[1].lines.Array.data[1]
-      value: "\ubb50, \ub410\uc5b4. \uadf8\ub7f0 \uac78 \ucc0d\uc5b4 \ub0b4\ub294 \uac74 \uc77c\ub3c4 \uc544\ub2c8\ub2c8\uae4c. \uadf8\ub9ac\uace0 \uc774\uc81c, \ub124 \ub0a8\uc740 8\ud37c\uc13c\ud2b8\ub97c \ubc1b\uc544 \ub458 \ucc28\ub840\uc57c."
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[1].lines.Array.data[2]
-      value: "\uac70\uc808\ud558\uaca0\uc2b5\ub2c8\ub2e4. \uc800\ub294 \ucc45\uc774 \ub418\uc9c0 \uc54a\uaca0\uc2b5\ub2c8\ub2e4."
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[1].lines.Array.data[3]
-      value: "\ubf51\ud600 \ub098\uac04 92\ud37c\uc13c\ud2b8\ub3c4 \ub3cc\ub824\ubc1b\uaca0\uc2b5\ub2c8\ub2e4."
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[1].lines.Array.data[4]
-      value: "\u202690\ud37c\uc13c\ud2b8\uac00 \ub118\uac8c \ucd94\ucd9c\ub410\ub294\ub370\ub3c4 \uac70\ubd80\uc5d0 \ub300\ud55c \uc815\ubcf4\uac00 \uc788\ub2e4\uace0\u2026?"
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[1].lines.Array.data[5]
-      value: "\uc774\uac74 \uc880 \uc704\ud5d8\ud55c\ub370. \uc7a5\uc11c\ub85c \ub458 \uc218 \uc5c6\uc744 \uac83 \uac19\uc544."
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[1].lines.Array.data[6]
-      value: "\uae30\ub85d\uc740 \uc5c6\ub358 \uac78\ub85c \ud560\uac8c. \uc81c\uac70\uac00 \ub0ab\uaca0\uc5b4. \uc774\ud574\ud558\uc9c0?"
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.data[1].speakerIndex.Array.size
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[2].speakerIndex.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[3].speakerIndex.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      propertyPath: dialogueSets.Array.data[0].speakerIndex.Array.data[0]
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.data[1].speakerIndex.Array.data[0]
@@ -161,26 +429,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[2].lines.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[2].lines.Array.data[0]
-      value: "\uc8fc\uc778\uc774 \ucc45\uc744 \ub36e\ub294\ub2e4. \ubc29 \uc548\uc758 \uacf5\uae30\uac00 \ubb34\uac81\uac8c \uc9d3\ub20c\ub9b0\ub2e4."
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[2].lines.Array.data[1]
-      value: "\u2026\u2026\uadf8\ub798\ub3c4, \ub2f9\uc2e0 \ucc45\uc7a5\uc5d0\ub294 \uaf42\ud788\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4."
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[2].lines.Array.data[2]
-      value: "\uadf8\ub798. \uc0ad\uc81c\ub77c\uace0 \ub9d0\ud588\uc796\uc544."
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[2].speakerIndex.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.data[2].speakerIndex.Array.data[0]
       value: 2
       objectReference: {fileID: 0}
@@ -193,18 +441,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[3].lines.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[3].lines.Array.data[0]
-      value: "\ubab8\uc774 \uc0b0\uc0b0\uc870\uac01 \ub098\uace0, \uc2dc\uac01 \uc13c\uc11c\uac00 \ub04a\uacbc\ub2e4. \ub208\uc774 \ud750\ub824\uc9c0\uace0, \uc774\ud6c4\ub294 \uba54\ubaa8\ub9ac\uc5d0 \uae30\ub85d\ub418\uc5b4 \uc788\uc9c0 \uc54a\ub2e4."
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
-      propertyPath: dialogueSets.Array.data[3].speakerIndex.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.data[3].speakerIndex.Array.data[0]
       value: 2
       objectReference: {fileID: 0}
@@ -214,6 +450,25 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 334101678474393280, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6442731425602645464}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+--- !u!224 &221053909278337518 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 334101678474393280, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+  m_PrefabInstance: {fileID: 554964128040279854}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1333474232888987118 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1527515567715570368, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
+  m_PrefabInstance: {fileID: 554964128040279854}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

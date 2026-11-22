@@ -198,7 +198,7 @@ public static class KeyBindings
             case KeyAction.Skill1: return "스킬 1";
             case KeyAction.Skill2: return "스킬 2";
             case KeyAction.Skill3: return "스킬 3";
-            case KeyAction.Pause: return "퍼즈";
+            case KeyAction.Pause: return "제로포인트";
             case KeyAction.Interact: return "상호작용";
             case KeyAction.Inventory: return "인벤토리";
             case KeyAction.WeaponSwap: return "무기 교체";

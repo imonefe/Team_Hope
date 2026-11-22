@@ -20,7 +20,7 @@ public class HitGlitchScreenFeature : ScriptableRendererFeature
     [Tooltip("피격용: HitGlitchScreen 셰이더를 쓰는 머티리얼 (Assets/Etc/Resources/HitGlitchScreen.mat). 모양은 이 머티리얼에서 조절")]
     public Material material;
 
-    [Tooltip("퍼즈용: PauseGlitchScreen 셰이더를 쓰는 머티리얼 (Assets/Etc/Resources/PauseGlitchScreen.mat). 모양은 이 머티리얼에서 조절")]
+    [Tooltip("제로포인트용: PauseGlitchScreen 셰이더를 쓰는 머티리얼 (Assets/Etc/Resources/PauseGlitchScreen.mat). 모양은 이 머티리얼에서 조절")]
     public Material pauseMaterial;
 
     [Tooltip("저체력용: LowHpGlitchScreen 셰이더를 쓰는 머티리얼 (Assets/Etc/Resources/LowHpGlitchScreen.mat). 모양은 이 머티리얼에서 조절")]

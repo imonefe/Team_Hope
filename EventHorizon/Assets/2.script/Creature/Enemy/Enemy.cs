@@ -137,6 +137,19 @@ public class Enemy : MonoBehaviour
     public void Stun(float seconds) { stunUntil = Mathf.Max(stunUntil, Time.time + seconds); }
     public bool IsAttacking => isAttacking;
 
+    // [2026-11-22] 증강 '설득': 날려 보내는 동안 AI·피격 넉백이 속도를 덮어쓰지 않게 (무게 · 돌격형 상관없이 똑같이 날아감)
+    [System.NonSerialized] public float flungUntil;
+    Vector2 flingVelocity; float flingHoldUntil;
+    public bool IsFlung => Time.time < flungUntil;
+    public void Fling(Vector2 velocity, float seconds)
+    {
+        if (isAttacking) EndAttack();
+        flungUntil = Time.time + seconds;
+        flingVelocity = velocity;
+        flingHoldUntil = Time.time + 0.08f;   // 같은 순간의 피격 넉백(속도 0 + 작은 힘)에 지지 않게 잠깐 속도를 다시 넣음
+        if (rigid != null) rigid.velocity = velocity;
+    }
+
     /// <summary>[2026-11-21] 증강: 몸을 키워드 색으로 잠깐 번쩍 (피격 번쩍과 같은 셰이더)</summary>
     public void TintFlash(Color c, float amount, float seconds)
     {
@@ -252,6 +265,13 @@ public class Enemy : MonoBehaviour
         }
 
         GroundCheck();
+        // [2026-11-22] 날아가는 중: 속도는 물리에 맡김 (처음 잠깐만 다시 넣어 줌)
+        if (IsFlung)
+        {
+            if (Time.time < flingHoldUntil) rigid.velocity = flingVelocity;
+            anim.SetBool("isMove", false);
+            return;
+        }
         // [2026-11-21] 증강: 기절 중엔 멈춤
         if (IsStunned) { rigid.velocity = new Vector2(0f, rigid.velocity.y); anim.SetBool("isMove", false); return; }
         attackTimer -= Time.deltaTime;

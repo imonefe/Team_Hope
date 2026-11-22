@@ -66,7 +66,7 @@ public class GameOverUI : MonoBehaviour
         {
             statsText.text = finalStats != null
                 ? $"공격력 {finalStats.Atk:0}   방어력 {finalStats.Def:0}   " +
-                  $"이동속도 {finalStats.spd:0.0}   퍼즈 {finalStats.PauseDuration:0.#}초   " +
+                  $"이동속도 {finalStats.spd:0.0}   제로포인트 {finalStats.PauseDuration:0.#}초   " +
                   $"치명타 확률 {finalStats.EffectiveCritChance * 100f:0}%   치명타 배율 {finalStats.critMultiplier:0.#}배"
                 : "스탯 정보 없음";
         }

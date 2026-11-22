@@ -28,4 +28,14 @@ public class ItemData : ScriptableObject
     [TextArea(2, 4)] public string abilityText;
     [Tooltip("강화 단계별 값 Lv1 / Lv2 / Lv3 (예: 10% / 30% / 50%)")]
     public string[] levelValues = new string[3];
+
+    // [2026-11-23 추가] 증강 서술 규칙 (조건 · 문장 · 제한 · 역할)
+    //  abilityText 안의 [과열] 은 키워드 색, {10%/30%/50%} 는 지금 단계 값만 밝게 보인다.
+    [Header("증강 서술 (2026-11-23)")]
+    [Tooltip("언제 켜지는지 — 짧은 칩 글자 (예: 맞힐 때, 처치, 대시, 제로포인트 중)")]
+    public string triggerText;
+    [Tooltip("얼마나 자주 — 재사용 대기 · 횟수 · 대상 제외 (예: 2초에 한 번 · 보스 제외). 없으면 비움")]
+    public string limitText;
+    [Tooltip("주고받는 것 — '+데이터'(만든다) '-데이터'(쓴다) '?과열'(있어야 켜짐) 같은 짧은 태그. 함께 작동 문장에 씀")]
+    public string[] roles;
 }

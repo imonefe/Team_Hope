@@ -12,7 +12,7 @@ public static class EffectText
     public const string Atk = "공격력";
     public const string Def = "방어력";
     public const string Spd = "이동속도";
-    public const string PauseDuration = "퍼즈 지속시간";   // [2026-11-16 수정] 집중력 → 퍼즈 지속시간으로 이름 변경
+    public const string PauseDuration = "제로포인트 지속시간";   // [2026-11-16 수정] 집중력 → 퍼즈 지속시간으로 이름 변경
     public const string CritChance = "치명타 확률";
     public const string CritMultiplier = "치명타 배율";
 

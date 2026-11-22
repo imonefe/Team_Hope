@@ -43,15 +43,15 @@ public class TutorialController : MonoBehaviour
     {
         public string title;
         [TextArea(2, 3)] public string guide;
-        [Tooltip("[2026-11-18] 스킬·퍼즈처럼 두 동작 구간에서, 앞 동작(스킬)을 마치면 바뀌는 두 번째 안내")]
+        [Tooltip("[2026-11-18] 스킬·제로포인트처럼 두 동작 구간에서, 앞 동작(스킬)을 마치면 바뀌는 두 번째 안내")]
         [TextArea(2, 3)] public string guide2;
-        [Tooltip("[2026-11-21] 공격·스킬·퍼즈 구간의 세 번째 안내 (퍼즈)")]
+        [Tooltip("[2026-11-21] 공격·스킬·제로포인트 구간의 세 번째 안내 (제로포인트)")]
         [TextArea(2, 3)] public string guide3;
         [Tooltip("[2026-11-21] CombatBasics: 무기 교체 안내")]
         [TextArea(2, 3)] public string guideSwap;
-        [Tooltip("[2026-11-21] CombatBasics: 퍼즈가 켜져 있는 동안 보여 줄 설명 (퍼즈가 풀리면 다음 안내로)")]
+        [Tooltip("[2026-11-21] CombatBasics: 제로포인트가 켜져 있는 동안 보여 줄 설명 (제로포인트가 풀리면 다음 안내로)")]
         [TextArea(2, 3)] public string guidePaused;
-        [Tooltip("[2026-11-21] CombatBasics: 퍼즈가 끝난 뒤 증강 고르기 안내 (고르기 창이 같이 열림, 여기서 얻은 증강은 로비로 갈 때 빠짐)")]
+        [Tooltip("[2026-11-21] CombatBasics: 제로포인트가 끝난 뒤 증강 고르기 안내 (고르기 창이 같이 열림, 여기서 얻은 증강은 로비로 갈 때 빠짐)")]
         [TextArea(2, 3)] public string guideAugment;
         [Tooltip("[2026-11-21] CombatBasics: 증강을 고른 뒤 인벤토리 안내")]
         [TextArea(2, 3)] public string guideInventory;
@@ -69,7 +69,7 @@ public class TutorialController : MonoBehaviour
         public int hitsNeeded = 3;
         [Tooltip("BoxAndInventory 조건용 상자 (구간이 시작될 때 열 수 있게 됨)")]
         public Box box;
-        [Tooltip("구간이 시작될 때 퍼즈 게이지를 가득 채움 (게이지 모으기 생략)")]
+        [Tooltip("구간이 시작될 때 제로포인트 게이지를 가득 채움 (게이지 모으기 생략)")]
         public bool fillPauseGauge;
         [Tooltip("[2026-11-18] 구간이 시작될 때 플레이어에게 바로 넣어 줄 스킬 (줍기 생략)")]
         public Skill grantSkill;

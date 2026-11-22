@@ -23,8 +23,13 @@ MonoBehaviour:
   - 4
   - 5
   abilityName: "404"
-  abilityText: "\uCC98\uD615 \uB300\uC0C1 \uC77C\uBC18 \uC801\uC744 \uB9DE\uD788\uBA74 \uC77C\uC815 \uD655\uB960\uB85C \uAE00\uB9AC\uCE58\uC640 \uD568\uAED8 \uC989\uC2DC \uC0AD\uC81C, \uD0C8\uCDE8 \uB370\uC774\uD130 1\uAC1C"
+  abilityText: "[\ucc98\ud615 \ub300\uc0c1] \uc77c\ubc18 \uc801\uc744 {15/22/30}% \ud655\ub960\ub85c \uc989\uc2dc \uc0ad\uc81c\ud558\uace0 [\ud0c8\ucde8 \ub370\uc774\ud130] 1."
   levelValues:
   - "15%"
   - "22%"
   - "30%"
+  triggerText: "\ub9de\ud790 \ub54c"
+  limitText: ""
+  roles:
+  - "?\ucc98\ud615"
+  - "+\ub370\uc774\ud130"

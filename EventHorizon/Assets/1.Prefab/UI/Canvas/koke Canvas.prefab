@@ -127,11 +127,12 @@ MonoBehaviour:
   portraits:
   - {fileID: 3194474661694523762}
   - {fileID: 2464059087802854349}
+  speakerPortraits: []
   namePlate: {fileID: 8513652135459900034}
   nameText: {fileID: 2228785910304876237}
   speakerNames:
   - "\uC8FC\uC778\uACF5"
-  - "???"
+  - ???
   dialogueSets:
   - conditionKey: 
     lines:
@@ -140,6 +141,20 @@ MonoBehaviour:
       \uC5BC\uB9C8\uB098 \uD2BC\uD2BC\uD558\uAC8C \uC9DC\uC5EC\uC9C4\uAC70\uC57C?"
     - "\uBCF8\uC778\uC774 \uC9C1\uC811 \uC218\uB9AC\uD558\uC2E0 \uAC74\uAC00\uC694?"
     speakerIndex: 0100000000000000
+  showNextIndicator: 1
+  nextIndicatorSize: 11
+  nextIndicatorOffset: {x: 14, y: 8}
+  nextIndicatorBob: 3
+  nextIndicatorSpeed: 1.6
+  holdDelay: 0.4
+  holdRepeat: 0.1
+  showSkipButton: 1
+  skipLabel: "\uAC74\uB108\uB6F0\uAE30 >>"
+  skipButtonOffset: {x: -40, y: -40}
+  skipButtonSize: {x: 190, y: 50}
+  skipFontSize: 24
+  skipBackColor: {r: 0, g: 0, b: 0, a: 0.45}
+  skipTextColor: {r: 1, g: 1, b: 1, a: 0.85}
   cutscenes: []
   cutsceneStartLines: 
   cutsceneEndLines: 

@@ -65,6 +65,10 @@ public class ItemInfoPopup : MonoBehaviour
     [Header("설명")]
     public TextMeshProUGUI descText;
 
+    [Header("아래 칸 — 키워드 진행 · 설정 글 (2026-11-23)")]
+    [Tooltip("효과 칸 아래 글상자. 증강이면 키워드 진행과 설정 한 줄, 키워드 설명이면 1·3·5개 단계")]
+    public TextMeshProUGUI footerText;
+
     [Header("효과 칸")]
     [Tooltip("효과 줄들이 쌓이는 곳 (세로 배치)")]
     public RectTransform effectsRoot;
@@ -207,12 +211,56 @@ public class ItemInfoPopup : MonoBehaviour
     {
         // 등급 — 한글 이름 + 등급 색
         int tier = (int)item.tier;
-        // [2026-11-21] 증강: 설명 자리에 고유능력 · 강화 값 · 키워드 (고유능력이 비어 있으면 예전 설명)
         int lv = RunManager.Instance != null ? Mathf.Max(1, RunManager.Instance.GetAugmentLevel(item)) : 1;
-        SetHeader(item.icon, item.itemName, AugmentRules.Describe(item, lv), $"{GetTierName(tier)}  Lv{lv} {AugmentRules.Stars(lv)}", GetTierColor(tier));   // [2026-11-21] 등급 오른쪽에 단계·별
+
+        // [2026-11-23] A방식: 등급 옆 별 / 고유능력 이름 + 발동 조건 / 단계 값이 들어간 문장 / 제한 / 효과 칸 / 키워드 진행 · 설정 글
+        string desc;
+        string footer = "";
+        if (!string.IsNullOrEmpty(item.abilityText))
+        {
+            desc = AugmentRules.AbilityHeader(item) + "\n" + AugmentRules.AbilityBody(item, lv);
+            string lim = AugmentRules.LimitLine(item, lv);
+            if (lim.Length > 0) desc += "\n" + lim;
+            var owned = Inventory.Instance != null ? Inventory.Instance.passives : null;
+            int[] counts = AugmentRules.CountKeywords(owned);
+            if (owned == null || !owned.Contains(item))   // 아직 안 가진 증강(필드 · 상점)이면 얻었을 때 기준으로
+                if (item.keywords != null) foreach (var k in item.keywords) counts[(int)k]++;
+            footer = AugmentRules.KeywordProgress(item, counts);
+            if (!string.IsNullOrEmpty(item.description))
+                footer += (footer.Length > 0 ? "\n" : "") + $"<size=85%><color=#7D786F>{item.description}</color></size>";
+        }
+        else desc = item.description;
+        SetHeader(item.icon, item.itemName, desc, $"{GetTierName(tier)}  <color=#FFB547>{AugmentRules.Stars(lv)}</color>", GetTierColor(tier));
+        SetFooter(footer);
 
         // 효과 — 칸으로 정리. 효과가 없으면 칸 영역 자체를 숨김
         FillEffects(EffectText.Collect(item));
+    }
+
+    /// <summary>[2026-11-23 추가] 키워드 설명 팝업 — 인벤토리 오른쪽 키워드 아이콘에 마우스를 올렸을 때 (커서를 따라다님)</summary>
+    public void ShowKeyword(AugmentKeyword k, Sprite icon)
+    {
+        if (popupRoot == null) return;
+        followMode = FollowMode.Mouse;
+        worldTarget = null;
+        Open(() =>
+        {
+            var owned = Inventory.Instance != null ? Inventory.Instance.passives : null;
+            int count = AugmentRules.CountKeywords(owned)[(int)k];
+            Color c;
+            if (!ColorUtility.TryParseHtmlString("#" + AugmentRules.KeywordHex(k), out c)) c = Color.white;
+            SetHeader(icon, AugmentRules.KeywordName(k), AugmentRules.KeywordPopupBody(k), count > 0 ? $"키워드 · 보유 {count}개" : "키워드 · 아직 없음", c);
+            SetFooter(AugmentRules.KeywordPopupSteps(k, count, owned));
+            LayoutEffects(new List<EffectEntry>());
+        });
+    }
+
+    void SetFooter(string text)
+    {
+        if (footerText == null) return;
+        bool has = !string.IsNullOrEmpty(text);
+        footerText.gameObject.SetActive(has);
+        if (has) footerText.text = text;
     }
 
     // [2026-10-17 추가] 스킬 채우기 — 등급 칸에 일반/무기 스킬, 효과 칸에 쿨타임·들어갈 칸
@@ -222,6 +270,7 @@ public class ItemInfoPopup : MonoBehaviour
         string typeName = (skillTypeNames != null && type >= 0 && type < skillTypeNames.Length) ? skillTypeNames[type] : skill.skillType.ToString();
         Color typeColor = (skillTypeColors != null && type >= 0 && type < skillTypeColors.Length) ? skillTypeColors[type] : Color.white;
         SetHeader(skill.icon, skill.skillName, skill.description, typeName, typeColor);
+        SetFooter("");
 
         var entries = new List<EffectEntry>();
         if (skill.cooldown > 0f)

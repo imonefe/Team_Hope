@@ -25,7 +25,7 @@ public class PauseGaugeUI : MonoBehaviour
     [Tooltip("게이지 채워지는 Image (비우면 gaugeSlider 의 Fill Rect 에서 자동으로 찾음)")]
     public Image gaugeFill;
 
-    [Header("퍼즈 중 표시")]
+    [Header("제로포인트 중 표시")]
     public GameObject pausePanel;    // 퍼즈 중에만 보이는 패널
     public Slider timeSlider;    // 남은 시간 바
     public Slider distSlider;    // 남은 거리 바
@@ -43,7 +43,7 @@ public class PauseGaugeUI : MonoBehaviour
     [Tooltip("안내 글꼴 (한글이 들어 있는 글꼴)")]
     public TMP_FontAsset labelFont;
     public string keyText = "Q";
-    public string labelText = "퍼즈";
+    public string labelText = "제로포인트";
     public Color hintColor = new Color(0.95f, 0.92f, 0.85f, 1f);
     [Tooltip("마름모 색")]
     public Color markerColor = new Color(1f, 0.93f, 0.7f, 1f);
@@ -59,7 +59,7 @@ public class PauseGaugeUI : MonoBehaviour
     CanvasGroup hintGroup;
     RectTransform fillRT;
     readonly Vector3[] fillCorners = new Vector3[4];
-    [Tooltip("[2026-10-21] [Q] 퍼즈 안내와 바 아래쪽 사이 간격 (px)")]
+    [Tooltip("[2026-10-21] [Q] 제로포인트 안내와 바 아래쪽 사이 간격 (px)")]
     public float hintGap = 4f;
     Color currentColor;
     bool colorInit;
@@ -85,7 +85,7 @@ public class PauseGaugeUI : MonoBehaviour
     public Color burstColorB = new Color(1f, 1f, 1f, 1f);
     [Tooltip("가득 찬 순간 바가 하얗게 번쩍이는 시간 (초)")]
     public float flashTime = 0.15f;
-    [Tooltip("가득 찬 순간 마름모·[Q] 퍼즈가 커졌다 돌아오는 배율과 시간")]
+    [Tooltip("가득 찬 순간 마름모·[Q] 제로포인트가 커졌다 돌아오는 배율과 시간")]
     public float popScale = 1.6f;
     public float popTime = 0.25f;
 

@@ -109,25 +109,53 @@ MonoBehaviour:
     label: "12. \ubcf4\uc2a4\ubc29"
     kind: 5
     room: {fileID: 0}
-    roomData: {fileID: 11400000, guid: 0e3b8aae43da30d47910bc590969469a, type: 2}
+    roomData: {fileID: 11400000, guid: a7a69df3d4a7efe4294e61da39729519, type: 2}
+    defaultOn: 1
+  - id: 2s_lobby
+    group: "2S"
+    label: "\ub85c\ube44"
+    kind: 1
+    room: {fileID: 8548028022454420013, guid: 085831358d7842c585da074824a8821b, type: 3}
+    roomData: {fileID: 0}
     defaultOn: 1
   - id: 2s_01
     group: "2S"
     label: "1. \uc804\ud22c"
     kind: 2
     room: {fileID: 0}
-    roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
+    roomData: {fileID: 11400000, guid: dc4f7257bb39bbb4ca7d5f28e35ec294, type: 2}
     defaultOn: 1
   - id: 2s_02
     group: "2S"
     label: "2. \uc804\ud22c"
     kind: 2
     room: {fileID: 0}
-    roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
+    roomData: {fileID: 11400000, guid: dc4f7257bb39bbb4ca7d5f28e35ec294, type: 2}
     defaultOn: 1
   - id: 2s_03
     group: "2S"
-    label: "3. \uc911\uac04 \ubcf4\uc2a4 (\uc5d4\ub529)"
+    label: "3. \uc804\ud22c"
+    kind: 2
+    room: {fileID: 0}
+    roomData: {fileID: 11400000, guid: dc4f7257bb39bbb4ca7d5f28e35ec294, type: 2}
+    defaultOn: 1
+  - id: 2s_04
+    group: "2S"
+    label: "4. \uc0c1\uc810"
+    kind: 4
+    room: {fileID: 0}
+    roomData: {fileID: 11400000, guid: fb8957abaadaf7e44a90fb802d04cee9, type: 2}
+    defaultOn: 1
+  - id: 2s_05
+    group: "2S"
+    label: "5. \ubcf4\uc2a4\ubc29"
+    kind: 5
+    room: {fileID: 0}
+    roomData: {fileID: 11400000, guid: 0e3b8aae43da30d47910bc590969469a, type: 2}
+    defaultOn: 1
+  - id: 2s_end
+    group: "2S"
+    label: "6. \uc5d4\ub529"
     kind: 3
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 5f27167883a4422491777bb19a40314a, type: 2}

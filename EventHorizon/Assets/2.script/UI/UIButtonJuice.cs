@@ -41,6 +41,14 @@ public class UIButtonJuice : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         baseScale = rt != null ? rt.localScale : Vector3.one;
     }
 
+    /// <summary>[2026-11-22] 코드가 크기를 바꾼 뒤 '원래 크기'를 다시 정함 (노드 지도처럼 생성 후 크기를 줄이는 경우 — 안 하면 마우스를 올리거나 창이 꺼질 때 1배로 돌아감)</summary>
+    public void SetBaseScale(Vector3 scale)
+    {
+        if (rt == null) rt = transform as RectTransform;
+        baseScale = scale;
+        if (rt != null) { rt.DOKill(); rt.localScale = scale; }
+    }
+
     void OnDisable()
     {
         pointerInside = false;

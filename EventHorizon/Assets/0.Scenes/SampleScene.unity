@@ -1225,7 +1225,7 @@ MonoBehaviour:
   keyBoxSprite: {fileID: 21300000, guid: 11213f2a4dc24f05bdf4a38aa72e13ee, type: 3}
   labelFont: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   keyText: D
-  labelText: "\uD37C\uC988"
+  labelText: "\uC81C\uB85C\uD3EC\uC778\uD2B8"
   hintColor: {r: 0.95, g: 0.92, b: 0.85, a: 1}
   markerColor: {r: 1, g: 0.93, b: 0.7, a: 1}
   markerSize: 10
@@ -12906,8 +12906,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD37C\uC988 <size=78%><color=#A79F8D>\xB7 \uAC8C\uC774\uC9C0\uAC00 \uAC00\uB4DD
-    \uCC28\uBA74</color></size>"
+  m_text: "\uC81C\uB85C\uD3EC\uC778\uD2B8 <size=78%><color=#A79F8D>\xB7 \uAC8C\uC774\uC9C0\uAC00
+    \uAC00\uB4DD \uCC28\uBA74</color></size>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   m_sharedMaterial: {fileID: 7224087456951919524, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
@@ -15217,7 +15217,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD37C\uC988"
+  m_text: "\uC81C\uB85C\uD3EC\uC778\uD2B8"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   m_sharedMaterial: {fileID: 7224087456951919524, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
@@ -16620,8 +16620,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 270, y: -906}
-  m_SizeDelta: {x: 200, y: 34}
+  m_AnchoredPosition: {x: 312, y: -906}
+  m_SizeDelta: {x: 158, y: 34}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &7353100000000023
 CanvasRenderer:
@@ -16685,7 +16685,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 4
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -17039,7 +17039,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD37C\uC988 \uC9C0\uC18D\uC2DC\uAC04"
+  m_text: "\uC81C\uB85C\uD3EC\uC778\uD2B8 \uC9C0\uC18D\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 378c9d43829f44cd95d59ddb9c7dc0ea, type: 2}
   m_sharedMaterial: {fileID: 6434377909109911239, guid: 378c9d43829f44cd95d59ddb9c7dc0ea, type: 2}
@@ -19405,7 +19405,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 4
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -20755,6 +20755,26 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1927499918811781834, guid: 4d68c2ec99d1feb47a6fad393ea7be73, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712721279702756928, guid: 4d68c2ec99d1feb47a6fad393ea7be73, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712721279702756928, guid: 4d68c2ec99d1feb47a6fad393ea7be73, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712721279702756928, guid: 4d68c2ec99d1feb47a6fad393ea7be73, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712721279702756928, guid: 4d68c2ec99d1feb47a6fad393ea7be73, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712721279702756928, guid: 4d68c2ec99d1feb47a6fad393ea7be73, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
@@ -22202,7 +22222,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 4
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -24338,8 +24358,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 270, y: -868}
-  m_SizeDelta: {x: 200, y: 34}
+  m_AnchoredPosition: {x: 312, y: -868}
+  m_SizeDelta: {x: 158, y: 34}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &7041258417204097291
 MonoBehaviour:

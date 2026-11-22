@@ -102,7 +102,7 @@ public class WeaponData : ScriptableObject
     [Range(0.5f, 2f)]
     public float attackSpeed = 1f;
 
-    [Header("퍼즈 게이지")]
+    [Header("제로포인트 게이지")]
     public float pauseGaugePerHit = 2.5f; // 기본 2.5% (40타 = 100%) [2026-10-20 방당 약 1번 기준으로 다시 낮춤]
 
     [Header("사운드 (여러 개 넣으면 그중 하나가 랜덤 재생)")]

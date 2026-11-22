@@ -355,7 +355,7 @@ public class ItemShopWindow : ShopWindow
             SetText(c.itemName, d.itemName);
             // [2026-11-21] 증강: 고유능력 이름 · 효과 · 키워드 (설명문 대신)
             string kw = AugmentRules.KeywordsRich(d);
-            string ab = string.IsNullOrEmpty(d.abilityText) ? d.description : d.abilityText;   // [2026-11-21] 고유능력 이름은 보이지 않음
+            string ab = string.IsNullOrEmpty(d.abilityText) ? d.description : AugmentRules.Rich(d.abilityText, 1);   // [2026-11-23] [키워드] · {단계 값} 표시
             SetText(c.desc, string.IsNullOrEmpty(kw) ? ab : $"{kw}\n{ab}");
             if (c.icon != null)
             {
@@ -474,7 +474,7 @@ public class ItemShopWindow : ShopWindow
         Line(lines, "공격력", p.stats.Atk, atk, "0.#");
         Line(lines, "방어력", p.stats.Def, def, "0.#");
         Line(lines, "이동속도", p.stats.spd, spd, "0.#");
-        Line(lines, "퍼즈 시간", p.stats.PauseDuration, pause, "0.#");
+        Line(lines, "제로포인트 시간", p.stats.PauseDuration, pause, "0.#");
         if (!Mathf.Approximately(cc, 0)) lines.Add($"치명타 확률  {p.stats.critChance * 100:0}% → {Colored((p.stats.critChance + cc) * 100, cc, "0")}%");
         if (!Mathf.Approximately(cm, 0)) lines.Add($"치명타 배율  {p.stats.critMultiplier:0.#} → {Colored(p.stats.critMultiplier + cm, cm, "0.#")}");
         return lines.Count > 0 ? string.Join("\n", lines) : "바뀌는 능력치 없음";

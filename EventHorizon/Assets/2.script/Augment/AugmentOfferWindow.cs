@@ -322,8 +322,10 @@ public class AugmentOfferWindow : ShopWindow
             bool hasAbility = !string.IsNullOrEmpty(d.abilityText);
             SetText(c.abilityName, "");   // [2026-11-21] 고유능력 이름은 보이지 않음 (아이템 이름만)
             if (c.abilityName != null) c.abilityName.gameObject.SetActive(false);
-            SetText(c.abilityText, hasAbility ? d.abilityText : d.description);
-            string lv = AugmentRules.LevelLine(d, 1);
+            // [2026-11-23] 증강 서술 규칙: [키워드] 색 · {단계 값} 중 1단계 강조 · 제한 줄. 단계 값이 문장 안에 있으면 '강화' 줄은 비움
+            string lim = AugmentRules.LimitLine(d, 1);
+            SetText(c.abilityText, hasAbility ? AugmentRules.Rich(d.abilityText, 1) + (lim.Length > 0 ? "\n" + lim : "") : d.description);
+            string lv = AugmentRules.HasInlineLevels(d) ? "" : AugmentRules.LevelLine(d, 1);
             SetText(c.levelValues, string.IsNullOrEmpty(lv) ? "" : $"강화  {lv}");
             SetText(c.footerLeft, "");
             SetText(c.footerRight, KeywordDelta(d, counts));

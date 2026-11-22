@@ -9,20 +9,20 @@ public class PauseManager : PersistentSingleton<PauseManager>
 {
     public static KeyCode PauseKey => KeyBindings.Get(KeyAction.Pause);   // [2026-11-11] 설정에서 바꿀 수 있음 (기본 D)
 
-    [Header("퍼즈 설정")]
+    [Header("제로포인트 설정")]
     [Tooltip("적·투사체 속도 배율 (0.1 = 10% 속도)")]
     public float slowTimeScale = 0.1f;
 
     // [2026-11-16 수정] 집중력 → 퍼즈 지속시간. 능력치 숫자가 곧 초 단위라 배율(timePerFocus) 삭제
     // [2026-11-17 수정] 상한 12초 → 7초. 퍼즈 아이템을 전부 모아도 한 번 사용은 7초를 넘지 않는다 (기본 5초 + 아이템 최대 2초)
-    [Tooltip("아이템으로 퍼즈 지속시간이 쌓여도 넘지 않는 최대 시간 (초)")]
+    [Tooltip("아이템으로 제로포인트 지속시간이 쌓여도 넘지 않는 최대 시간 (초)")]
     public float maxPauseTime = 7f;
 
     [Tooltip("Spd 1당 이동 가능 거리")]
     public float distPerSpd = 2.0f;
 
-    [Header("퍼즈 중 보너스")]
-    [Tooltip("퍼즈 중 플레이어 공격의 치명타 확률 (0.2 = 20%). 원래 확률이 더 높으면 원래 값 유지")]
+    [Header("제로포인트 중 보너스")]
+    [Tooltip("제로포인트 중 플레이어 공격의 치명타 확률 (0.2 = 20%). 원래 확률이 더 높으면 원래 값 유지")]
     [Range(0f, 1f)] public float pauseCritChance = 0.2f;
 
     [Header("게이지 설정")]

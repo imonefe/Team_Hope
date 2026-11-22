@@ -68,7 +68,7 @@ public partial class AugmentRuntime
     void ResetAdvancedState()
     {
         recall = 0; savedCombo = 0; backupReadyAt = 0; bladeCharged = false; collectorBoost = false;
-        meleeBoost = rangedSlash = false; dashFirstHitArmed = false;
+        meleeBoost = rangedSlash = false; dashFirstHitArmed = false; socketUsed = false;
         reflectUntil = 0; slowAdded = 0; queuedGauge = 0; restDeferred = 0; restStill = 0; replayTimer = 0; rhythmCount = 0;
         observeArmed = false; predictUntil = 0; predicted.Clear(); countered.Clear();
         foreach (var o in stasisOrbs) if (o != null) Destroy(o);
@@ -112,14 +112,19 @@ public partial class AugmentRuntime
         return (1f - hp) * ByLevel(lv, 0.15f, 0.20f, 0.25f);
     }
 
-    /// <summary>확장 소켓: 데이터가 다 모였는지 (Lv2 1개 덜, Lv3 2개 덜)</summary>
+    /// <summary>확장 소켓: 데이터가 충분히 모였는지 (Lv2 1개 덜, Lv3 2개 덜) — 모으기 한 번에 한 번
+    /// [2026-11-23] B안: 데이터를 쓰지 않음. 방출이 끝나 다시 모으기 시작하면 다시 쓸 수 있음</summary>
     bool SocketReady()
     {
         int lv = L("확장 소켓");
-        if (lv <= 0) return false;
+        if (lv <= 0 || socketUsed) return false;
         int need = Mathf.Max(1, FragmentMax - (lv - 1));
-        return fragments >= need;
+        return releasing || fragments >= need;
     }
+    bool socketUsed;
+
+    /// <summary>[2026-11-23] 방출이 끝나 데이터가 0개가 됨 → 확장 소켓 다시 준비</summary>
+    void OnReleaseEnd() { socketUsed = false; }
 
     bool GauntletRhythm() => Has("강철 리듬") && pc != null && pc.weapontype == Weapontype.Glove;
 
@@ -200,7 +205,7 @@ public partial class AugmentRuntime
         // 확장 소켓: 데이터가 다 모이면 → 데이터를 모두 써서 이번 스킬은 재사용 대기 없음
         if (free && SocketReady())
         {
-            fragments = 0; fragKinds.Clear(); fragTimes.Clear();
+            socketUsed = true;   // [2026-11-23] 데이터는 쓰지 않음
             if (pc != null) { AugmentFx.BodyFlash(pc, CPlunder, 0.8f, 0.3f); AugmentFx.Ring(PCenter, CPlunder, 1.6f, 0.3f, 0.08f, 2); }
         }
         // 혈류 대체 회로: 최대 체력 5% 소모 → 스킬 피해 증가 (체력 10% 이하면 소모·보너스 없음)
@@ -295,11 +300,12 @@ public partial class AugmentRuntime
         }
 
         // 고장난 비서: 대시를 시작한 자리에 홀로그램 잔상이 4초 서서 내 공격을 따라 함 (6초에 한 번)
-        if (Has("고장난 비서") && Time.time >= secretaryReady && psprite != null)
+        if (SecretaryWillSpawn())
         {
             secretaryReady = Time.time + 6f;
             if (secretary != null && secretary.ghost != null) secretary.ghost.Release();
-            secretary = MakeMimic(psprite.transform.position, 4f, ByLevel(L("고장난 비서"), 0.30f, 0.45f, 0.60f), CAfter, true);
+            // [2026-11-22] 다른 잔상(푸른빛)과 구분되는 하늘색 홀로그램
+            secretary = MakeMimic(psprite.transform.position, 4f, ByLevel(L("고장난 비서"), 0.30f, 0.45f, 0.60f), CSecretary, true);
             BuffIcon("고장난 비서", 4f);
         }
     }
@@ -314,6 +320,10 @@ public partial class AugmentRuntime
         }
         if (Has("접속 단자")) { dashFirstHitArmed = true; dashFirstHitUntil = Time.time + 1.5f; }
     }
+
+    static readonly Color CSecretary = new Color(0.55f, 1f, 0.95f, 1f);
+    /// <summary>[2026-11-22] 이번 대시에 고장난 비서 홀로그램이 생기는지 (잔상 그림 겹침 방지에도 씀)</summary>
+    bool SecretaryWillSpawn() => Has("고장난 비서") && Time.time >= secretaryReady && psprite != null;
 
     Mimic MakeMimic(Vector3 spritePos, float life, float ratio, Color c, bool wrongWay)
     {
@@ -663,6 +673,7 @@ public partial class AugmentRuntime
             var e = h.GetComponent<Enemy>();
             bool ranged = e != null && e.projectilePrefab != null;
             if (ranged) rangedSlash = true; else meleeBoost = true;
+            if (releasing) { rangedSlash = true; meleeBoost = true; }   // [2026-11-23] 방출 중 처치하면 두 기술 모두
             AugmentFx.Fly(c, pc.transform, ranged ? new Color(0.3f, 0.95f, 0.95f) : CPlunder, 1, 0.4f, null, 0.26f);
         }
         // 느린 정리: 퍼즈 중 처치 → 퍼즈 시간 증가
@@ -758,12 +769,8 @@ public partial class AugmentRuntime
     {
         // 잔향 공명: 잔상 피해도 과열·균열
         if (Has("잔향 공명")) { var st = StatusOf(e); st.AddOverheat(1); st.AddFracture(1); }
-        // 접속 단자: 잔상이 맞히면 연격 +1 (잔상과 헤네시를 잇는 노란 신호선)
-        if (Has("접속 단자") && pc != null)
-        {
-            AddCombo(1, e.transform.position);
-            if (ghost != null) AugmentFx.Link(ghost, pc.transform, CCombo, 0.25f, 0.07f);
-        }
+        // 접속 단자: 잔상이 맞히면 연격 +1 ([2026-11-22] 노란 신호선 제거)
+        if (Has("접속 단자") && pc != null) AddCombo(1, e.transform.position);
     }
 
     void OnAfterimageEnd(Vector3 center)

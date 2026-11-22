@@ -66,7 +66,7 @@ public class PauseGlitchEffect : MonoBehaviour
         PauseGlitchSettings s = Resources.Load<PauseGlitchSettings>(SettingsPath);
         if (s == null)
         {
-            Debug.LogWarning("[PauseGlitchEffect] Resources/PauseGlitchSettings 가 없어서 퍼즈 화면 효과를 끕니다.");
+            Debug.LogWarning("[PauseGlitchEffect] Resources/PauseGlitchSettings 가 없어서 제로포인트 화면 효과를 끕니다.");
             return;
         }
 

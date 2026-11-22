@@ -481,6 +481,7 @@ public abstract class BossController : MonoBehaviour
         int shards = countAsBossKill ? bossShardDrop : midBossShardDrop;
         RunManager.Instance?.DropShards(transform.position, 1f, shards, shards);
         AugmentOfferDirector.RequestBossOffer();
+        BossSlowMotion.Play();   // [2026-11-22] 보스급 처치: 30% 속도 → 1.2초에 걸쳐 원래대로
         var bh = GetComponent<Health>();
         if (bh != null) CombatEvents.RaiseKilled(bh, transform.position);   // [2026-11-21] 증강 (처치 알림)   // [2026-11-21] 중간보스·보스 처치 → 증강 고르기 (희귀 이상)
 

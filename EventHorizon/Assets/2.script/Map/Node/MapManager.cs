@@ -802,6 +802,9 @@ public class MapManager : PersistentSingleton<MapManager>
                      : e.kind == StageKind.Boss ? planBossScale
                      : e.kind == StageKind.Shop ? planShopScale : planCombatScale;
             rt.localScale = Vector3.one * sc * Mathf.Max(0.6f, fit);
+            // [2026-11-22] 버튼 반응(UIButtonJuice)이 기억한 원래 크기도 같이 바꿈 (마우스를 올리면 1배로 커지던 오류)
+            foreach (var juice in b.GetComponentsInChildren<UIButtonJuice>(true))
+                juice.SetBaseScale(juice.transform == b.transform ? rt.localScale : juice.transform.localScale);
             b.isStartRoom = k == 0;
             b.roomData = e != null ? e.roomData : null;
             b.connectedButtons = new List<MapButton>();

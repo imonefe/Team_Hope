@@ -30,20 +30,24 @@ public static class DialoguePortraitSpineSetup
         new Entry { sprite = "boy",     data = "hero_idle",    w = 1948, h = 2806, ox = 900,  oy = 2730 },
         new Entry { sprite = "npc01",   data = "baek_idle",    w = 3330, h = 5150, ox = 1665, oy = 5050 },
         new Entry { sprite = "2s_boos", data = "boss_idle",    w = 2870, h = 3811, ox = 1435, oy = 3700 },
+        new Entry { sprite = "이영복_대화", data = "youngbok_idle", w = 1948, h = 2806, ox = 975, oy = 2535 },   // [2026-11-23] 영복 추가
     };
 
     const string SpineDir = "Assets/4. Art/Illustration/Spine/";
-    const string IlluDir  = "Assets/4. Art/Illustration/";
+    const string IlluDir  = "Assets/4. Art/Textures/Illustration/";   // [2026-11-23] 팀에서 일러스트 폴더를 옮김
     const string ChildName = "SpinePortrait";
 
     // 기본 프리팹을 먼저, 그 변형을 뒤에 (변형은 기본에서 물려받은 것을 고친다)
     static readonly string[] Prefabs =
     {
         "Assets/1.Prefab/UI/Canvas/대화/대화창_기본.prefab",
+        "Assets/1.Prefab/UI/Canvas/대화/프롤로그_대화.prefab",      // [2026-11-23] 인물별 초상 쓰는 변형들
+        "Assets/1.Prefab/UI/Canvas/대화/상점_첫만남_대화.prefab",
         "Assets/1.Prefab/UI/Canvas/대화/엔딩_대화.prefab",
         "Assets/1.Prefab/UI/Canvas/koke Canvas.prefab",
         "Assets/1.Prefab/UI/Canvas/상점/ItemShopCanvas.prefab",
         "Assets/1.Prefab/UI/Canvas/상점/SkillShopCanvas.prefab",
+        "Assets/1.Prefab/UI/Canvas/상점/StatUpgradeCanvas.prefab",
     };
 
     // 상점 캔버스의 Illustration 칸에 넣을 그림 (지금은 고정 — 기획서 "대화 장면")
@@ -51,6 +55,7 @@ public static class DialoguePortraitSpineSetup
     {
         { "ItemShopCanvas", "boy" },     // 남주
         { "SkillShopCanvas", "npc01" },  // 백이연
+        { "StatUpgradeCanvas", "이영복_대화" },  // [2026-11-23] 영복 (능력치 강화)
     };
 
     [MenuItem("EventHorizon/대화 초상 스파인 배치")]
@@ -65,10 +70,17 @@ public static class DialoguePortraitSpineSetup
         foreach (var e in Map)
         {
             var ti = AssetImporter.GetAtPath(SpineDir + e.data + "/" + e.data + ".png") as TextureImporter;
-            if (ti != null && ti.maxTextureSize < 4096) { ti.maxTextureSize = 4096; ti.SaveAndReimport(); }
+            if (ti != null && (ti.maxTextureSize < 4096 || !ti.sRGBTexture))
+            {
+                ti.maxTextureSize = 4096;
+                ti.sRGBTexture = true;          // [2026-11-23] 선형 색 공간 + 일반 투명도 아틀라스 → sRGB 꺼져 있으면 밝고 흐리게(채도 낮게) 보임
+                ti.alphaIsTransparency = true;
+                ti.SaveAndReimport();
+            }
             var d = Data(e);
             if (d == null) { Debug.LogError("[대화 초상] 뼈대 자료 없음: " + e.data); return; }
-            if (!Mathf.Approximately(d.scale, 0.01f)) { d.scale = 0.01f; d.Clear(); EditorUtility.SetDirty(d); }
+            if (!Mathf.Approximately(d.scale, 0.01f)) { d.scale = 0.01f; EditorUtility.SetDirty(d); }
+            d.Clear();   // [2026-11-23] 스파인 파일(json)을 새로 바꿔 끼웠을 때 예전 뼈대를 쓰지 않게 다시 읽음
         }
         AssetDatabase.SaveAssets();
 
@@ -82,7 +94,10 @@ public static class DialoguePortraitSpineSetup
                 string name = Path.GetFileNameWithoutExtension(path);
                 var targets = new List<Image>();
                 foreach (var npc in root.GetComponentsInChildren<NPC>(true))
+                {
                     if (npc.portraits != null) targets.AddRange(npc.portraits.Where(p => p != null));
+                    if (npc.speakerPortraits != null) targets.AddRange(npc.speakerPortraits.Where(p => p != null));   // [2026-11-23] 인물별 초상 칸
+                }
 
                 if (ShopIllustration.TryGetValue(name, out string spriteName))
                 {
@@ -142,6 +157,48 @@ public static class DialoguePortraitSpineSetup
             finally { PrefabUtility.UnloadPrefabContents(root); }
         }
         Debug.Log($"[대화 초상] 완료 — 새로 붙임 {made}, 다시 맞춤 {fixedCount}");
+    }
+
+    // ── [2026-11-23 추가] 자동 실행 ──
+    // 메뉴를 직접 누르지 않아도, Unity 가 스크립트를 다시 읽을 때 저절로 실행된다.
+    //   - 버전 숫자를 올렸을 때 한 번
+    //   - 또는 다른 사람이 올린 프리팹으로 덮여서 초상 스파인(SpinePortrait)이 빠져 있을 때
+    // 플레이 중 · 컴파일 중에는 끝날 때까지 기다림
+    const int AutoRunVersion = 3;
+    const string AutoRunKey = "EventHorizon.DialoguePortraitSpine.AutoRun";
+
+    [InitializeOnLoadMethod]
+    static void ScheduleAutoRun()
+    {
+        if (EditorPrefs.GetInt(AutoRunKey, 0) >= AutoRunVersion && !AnyPortraitMissing()) return;
+        EditorApplication.update -= AutoRunTick;
+        EditorApplication.update += AutoRunTick;
+    }
+
+    // 스파인 칸이 직접 붙는 프리팹(변형이 아닌 쪽) 중 하나라도 SpinePortrait 가 없으면 true
+    static readonly string[] DirectHolders =
+    {
+        "Assets/1.Prefab/UI/Canvas/대화/대화창_기본.prefab",
+        "Assets/1.Prefab/UI/Canvas/koke Canvas.prefab",
+        "Assets/1.Prefab/UI/Canvas/상점/ItemShopCanvas.prefab",
+        "Assets/1.Prefab/UI/Canvas/상점/SkillShopCanvas.prefab",
+        "Assets/1.Prefab/UI/Canvas/상점/StatUpgradeCanvas.prefab",
+    };
+
+    static bool AnyPortraitMissing()
+    {
+        foreach (string p in DirectHolders)
+            if (File.Exists(p) && !File.ReadAllText(p).Contains("m_Name: " + ChildName)) return true;
+        return false;
+    }
+
+    static void AutoRunTick()
+    {
+        if (EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode) return;
+        EditorApplication.update -= AutoRunTick;
+        EditorPrefs.SetInt(AutoRunKey, AutoRunVersion);
+        Debug.Log("[대화 초상] 스파인 배치 자동 실행 (버전 " + AutoRunVersion + ")");
+        Run();
     }
 
     static SkeletonDataAsset Data(Entry e) =>

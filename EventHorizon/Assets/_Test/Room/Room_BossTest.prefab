@@ -315,6 +315,11 @@ MonoBehaviour:
   enemyDeathEffectPrefab: {fileID: 0}
   minCurrencyDrop: 8
   maxCurrencyDrop: 16
+  shardDropChance: 0.08
+  elite: 0
+  eliteShardDropChance: 0.3
+  minShardDrop: 1
+  maxShardDrop: 1
   invincibleTime: 0
 --- !u!1 &1196710896204434452
 GameObject:
@@ -1701,6 +1706,11 @@ MonoBehaviour:
   enemyDeathEffectPrefab: {fileID: 0}
   minCurrencyDrop: 8
   maxCurrencyDrop: 16
+  shardDropChance: 0.08
+  elite: 0
+  eliteShardDropChance: 0.3
+  minShardDrop: 1
+  maxShardDrop: 1
   invincibleTime: 0
 --- !u!1 &4757195628198285895
 GameObject:
@@ -26407,6 +26417,11 @@ MonoBehaviour:
   enemyDeathEffectPrefab: {fileID: 0}
   minCurrencyDrop: 8
   maxCurrencyDrop: 16
+  shardDropChance: 0.08
+  elite: 0
+  eliteShardDropChance: 0.3
+  minShardDrop: 1
+  maxShardDrop: 1
   invincibleTime: 0
 --- !u!1 &8079468956568330717
 GameObject:
@@ -27350,6 +27365,10 @@ PrefabInstance:
     - target: {fileID: 3934630688952475864, guid: 8c8573d3b6154db2bf3c722aedc65ab2, type: 3}
       propertyPath: m_LocalPosition.y
       value: -6.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668319659219603968, guid: 8c8573d3b6154db2bf3c722aedc65ab2, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 28.007812
       objectReference: {fileID: 0}
     - target: {fileID: 5794509703423806578, guid: 8c8573d3b6154db2bf3c722aedc65ab2, type: 3}
       propertyPath: m_LocalPosition.x

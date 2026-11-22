@@ -220,7 +220,7 @@ public class RunManager : PersistentSingleton<RunManager>
 
         AddShards(amount);
         CurrencyShardFX.Spawn(position, amount * shardFxPerShard, shardColorA, shardColorB);
-        ScreenNotice.Show($"증강 파편 +{amount}");
+        // [2026-11-22] 화면 아래 '증강 파편 +N' 글자 제거 (떨어지는 파편 연출만)
     }
 
     // ══════════════ 통계 ══════════════

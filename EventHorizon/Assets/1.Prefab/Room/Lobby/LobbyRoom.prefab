@@ -32625,6 +32625,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: koke Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 4868832290020943550, guid: ff1843ce720e47598fd5cb301dc9f4c5, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 28.007812
+      objectReference: {fileID: 0}
     - target: {fileID: 8983332997643140817, guid: ff1843ce720e47598fd5cb301dc9f4c5, type: 3}
       propertyPath: m_Pivot.x
       value: 0

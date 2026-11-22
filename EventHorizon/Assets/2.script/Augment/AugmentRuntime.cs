@@ -56,6 +56,12 @@ public partial class AugmentRuntime : MonoBehaviour
     int combo; float comboTimer; int comboSinceForced;
     bool forcedCrit;
     int fragments;                         // 탈취 데이터
+    // [2026-11-23] 강탈 B안 '모으고 터뜨리기': 가득 차면 방출 시작 → 방출 중에만 데이터를 씀 → 0개가 되면 다시 모으기
+    bool releasing;
+    float releaseDrain;                    // 방출 중 저절로 줄어드는 시간 (쓰는 증강이 없어도 방출이 끝나게)
+    const float ReleaseDrainSeconds = 2f;
+    /// <summary>탈취 데이터 방출 중인지 (머리 위 결정이 회전하며 빛남)</summary>
+    public bool IsReleasing => releasing;
     readonly List<int> fragKinds = new List<int>();   // 데이터 종류 (색 표시용)
     readonly List<float> fragTimes = new List<float>();   // [2026-11-21] 얻은 시각 — 이번 공격 중에 얻은 데이터는 이번 공격에 못 씀
     float nextAttackBonus;                 // 다음 공격 피해 추가 (시력교정 안약 · 원거리 관측 · 불명의 데이터)
@@ -141,6 +147,7 @@ public partial class AugmentRuntime : MonoBehaviour
     void ResetRunState()
     {
         combo = 0; comboTimer = 0; comboSinceForced = 0; forcedCrit = false; fragments = 0; fragKinds.Clear(); fragTimes.Clear(); nextAttackBonus = 0;
+        releasing = false; releaseDrain = 0f;
         pierceUntil = 0; lostThisRoom = 0; emergencyUsed = false; pauseMarks.Clear(); afterimagesAlive = 0;
         pc = null; psprite = null;
         ResetAdvancedState();
@@ -430,7 +437,7 @@ public partial class AugmentRuntime : MonoBehaviour
             bool lit = i < fragments;
             int kind = lit && i < fragKinds.Count ? fragKinds[i] : 0;
             Color c = kind == 2 ? new Color(0.3f, 0.95f, 0.95f) : kind == 3 ? new Color(1f, 0.85f, 0.4f) : CPlunder;
-            bool fullGlow = fragments >= FragmentMax && SocketReady();
+            bool fullGlow = releasing;   // [2026-11-23] 방출 중에 빛남
             float pulse = fullGlow ? 1f + 0.25f * Mathf.Sin(Time.time * 9f) : 1f;
             r.color = lit ? c : new Color(c.r * 0.25f, c.g * 0.25f, c.b * 0.25f, 0.55f);
             r.transform.localScale = Vector3.one * (lit ? 0.22f : 0.14f) * pulse;
@@ -530,9 +537,21 @@ public partial class AugmentRuntime : MonoBehaviour
                 }
         }
 
-        // 통신_도발: 탈취 데이터가 가득이면 주변 적이 끌려옴 (적과 헤네시를 잇는 초록 신호선)
+        // [2026-11-23] 방출 중에는 데이터가 2초마다 1개씩 저절로 줄어듦 (쓰는 증강이 없어도 방출이 끝나고 다시 모이게)
+        if (releasing && !paused)
+        {
+            releaseDrain -= Time.deltaTime;
+            if (releaseDrain <= 0f)
+            {
+                releaseDrain = ReleaseDrainSeconds;
+                if (fragments > 0) RemoveFragmentAt(fragments - 1);
+                CheckReleaseEnd();
+            }
+        }
+
+        // 통신_도발: 방출 중이면 주변 적이 끌려옴 ([2026-11-23] 조건: 가득 → 방출 중)
         int lvTaunt = L("통신_도발");
-        if (lvTaunt > 0 && fragments >= FragmentMax && FragmentMax > 0 && pc != null && !paused)
+        if (lvTaunt > 0 && releasing && FragmentMax > 0 && pc != null && !paused)
         {
             float r = ByLevel(lvTaunt, 4f, 5f, 6f);
             tauntPulse -= Time.deltaTime;
@@ -585,6 +604,22 @@ public partial class AugmentRuntime : MonoBehaviour
             Color c = kind == 2 ? new Color(0.3f, 0.95f, 0.95f) : kind == 3 ? new Color(1f, 0.85f, 0.4f) : CPlunder;
             if (pc != null) AugmentFx.Fly(from, pc.transform, c, 1, 0.45f, null, 0.24f);   // 처치 자리에서 헤네시에게 빨려 듦 (곡선)
         }
+        // [2026-11-23] 가득 차는 순간 방출 시작
+        if (!releasing && FragmentMax > 0 && fragments >= FragmentMax) StartRelease();
+    }
+
+    void StartRelease()
+    {
+        releasing = true;
+        releaseDrain = ReleaseDrainSeconds;
+        if (pc != null) { AugmentFx.BodyFlash(pc, CPlunder, 0.7f, 0.25f); AugmentFx.Ring(PCenter, CPlunder, 1.8f, 0.35f, 0.08f, 2); }
+    }
+
+    void CheckReleaseEnd()
+    {
+        if (!releasing || fragments > 0) return;
+        releasing = false;
+        OnReleaseEnd();
     }
 
     void RemoveFragmentAt(int i)
@@ -606,6 +641,7 @@ public partial class AugmentRuntime : MonoBehaviour
     /// <summary>탈취 데이터 하나를 쓴다 (강탈 5개: 50% 확률로 남음). before 보다 먼저 얻은 것만. 쓴 데이터 종류를 돌려줌, 없으면 -1</summary>
     int UseFragmentKind(float before = float.MaxValue)
     {
+        if (!releasing) return -1;   // [2026-11-23] B안: 가득 차서 방출 중일 때만 씀
         int idx = -1;
         for (int i = Mathf.Min(fragments, fragTimes.Count) - 1; i >= 0; i--) if (fragTimes[i] < before) { idx = i; break; }
         if (idx < 0) return -1;
@@ -614,6 +650,7 @@ public partial class AugmentRuntime : MonoBehaviour
         if (!keep) RemoveFragmentAt(idx);
         if (pc != null) AugmentFx.Sparks(PHead, CPlunder, 5, 2f, 0.3f, 2f, 0.12f);
         OnFragmentUsed(kind);
+        CheckReleaseEnd();
         return kind;
     }
 
@@ -733,7 +770,7 @@ public partial class AugmentRuntime : MonoBehaviour
             int lvPersuade = L("설득");
             if (lvPersuade > 0 && Time.time >= persuadeReady && FragmentsBefore(AttackStart(hi)) > 0 && !IsBoss(hi.target) && UseFragment(AttackStart(hi)))   // 이번 공격으로 얻은 데이터는 이번 공격에 안 씀
             {
-                persuadeReady = Time.time + 0.35f;
+                persuadeReady = Time.time + 1f;   // [2026-11-23] B안: 방출 중에만 쓰므로 2초 → 1초
                 StartCoroutine(Persuade(hi.target, ByLevel(lvPersuade, 1.0f, 1.5f, 2.0f)));
             }
 
@@ -754,7 +791,10 @@ public partial class AugmentRuntime : MonoBehaviour
         if (target == null) yield break;
         var rb = target.GetComponent<Rigidbody2D>();
         float dir = pc != null ? Mathf.Sign(target.transform.position.x - PPos.x) : 1f;
-        if (rb != null) rb.velocity = new Vector2(dir * 16f, 5f);
+        // [2026-11-22] 적 AI · 피격 넉백이 속도를 덮어써 몇몇 적이 안 날아가던 문제 → 날아가는 동안 AI 정지
+        var en = target.GetComponent<Enemy>();
+        if (en != null) en.Fling(new Vector2(dir * 16f, 5f), 0.6f);
+        else if (rb != null) rb.velocity = new Vector2(dir * 16f, 5f);
         AugmentFx.BodyFlash(target, CPlunder, 0.8f, 0.6f);
         float end = Time.time + 0.6f;
         Vector3 last = target.transform.position;
@@ -869,17 +909,21 @@ public partial class AugmentRuntime : MonoBehaviour
         float ratio = lvCloak > 0 ? ByLevel(lvCloak, 0.6f, 0.9f, 1.2f) : 0.6f;
         // [2026-11-21] 잔상 키워드가 있으면 대시 출발 자리에 기본 잔상 (1초 · 공격력 40%) — 잔상 증강이 스텔스 우의 없이도 돌아감
         //  스텔스 우의가 있으면 그 잔상이 강해짐 (1.5초 · 60~120%, 붉은색 + 나타날 때 붉은 폭발)
-        if (lvCloak > 0) SpawnAfterimage(pos, 1.5f + extra, ratio, CloakRed, true);
-        else if (Kw(AugmentKeyword.Afterimage) >= 1) SpawnAfterimage(pos, 1f + extra, 0.4f, CAfter, false);
+        // [2026-11-22] 스텔스 우의도 다른 잔상과 같은 푸른빛 (나타날 때 푸른 폭발)
+        // [2026-11-22] 이번 대시에 고장난 비서 홀로그램이 같은 자리에 서면 잔상 그림은 그리지 않음 (두 그림이 겹쳐 지저분하던 문제) — 피해는 그대로
+        bool drawGhost = !SecretaryWillSpawn();
+        if (lvCloak > 0) SpawnAfterimage(pos, 1.5f + extra, ratio, CAfter, true, drawGhost);
+        else if (Kw(AugmentKeyword.Afterimage) >= 1) SpawnAfterimage(pos, 1f + extra, 0.4f, CAfter, false, drawGhost);
         lastDashTime = Time.time;
 
         // 가스 분사: 대시하는 자리에 작은 붉은 폭발
-        if (L("가스 분사") > 0) AugmentFx.Burst(DashFx(pos), GasColor * 1.8f, 0.35f, 1.2f);
+        if (L("가스 분사") > 0) AugmentFx.Burst(DashFx(pos), GasColor, 0.45f, 1.4f);
 
         // 기억 갈고리: 데이터 하나를 써서 대시 경로를 꿰뚫음 — 청록 잔상이 빠르게 지워지며 이어붙는 대시 잔상
         int lvHook = L("기억 갈고리");
-        if (lvHook > 0 && UseFragment())
+        if (lvHook > 0 && Time.time >= hookReady && UseFragment())
         {
+            hookReady = Time.time + 1.5f;   // [2026-11-22] 대시마다 데이터를 써 버리지 않게 1.5초에 한 번
             pierceUntil = Time.time + 0.3f;
             pierceRatio = ByLevel(lvHook, 0.10f, 0.30f, 0.50f);
             pierced.Clear();
@@ -890,6 +934,7 @@ public partial class AugmentRuntime : MonoBehaviour
     }
 
     static readonly Color CTeal = new Color(0.2f, 0.95f, 0.85f, 1f);
+    float hookReady;   // [2026-11-22] 기억 갈고리 재사용 대기
     static readonly Color CloakRed = new Color(1f, 0.22f, 0.2f, 1f);
 
     void OnDashEnd(Vector3 pos)
@@ -900,7 +945,8 @@ public partial class AugmentRuntime : MonoBehaviour
     }
 
     // 가스: 어두운 붉은색, 가로로 넓게 (판정도 가로 4.2m × 세로 1.8m)
-    static readonly Color GasColor = new Color(0.42f, 0.05f, 0.04f, 1f);
+    // [2026-11-22] 더 밝고 진하게 (예전 0.42,0.05,0.04 는 어두운 배경에 묻혔음)
+    static readonly Color GasColor = new Color(0.95f, 0.18f, 0.12f, 1f);
     const float GasWidth = 4.2f, GasHeight = 1.8f;
 
     IEnumerator GasCloud(Vector3 pos, float seconds)
@@ -913,9 +959,9 @@ public partial class AugmentRuntime : MonoBehaviour
                 var sh = ps.shape;
                 sh.scale = new Vector3(sh.scale.x * 2.8f, sh.scale.y * 0.8f, sh.scale.z);
                 var em = ps.emission;
-                em.rateOverTimeMultiplier *= 1.3f;   // [2026-11-21] 입자 양 130%
+                em.rateOverTimeMultiplier *= 1.8f;   // [2026-11-22] 입자 양 180% (130% → 더 눈에 띄게)
                 var main = ps.main;
-                var c = main.startColor.color; main.startColor = new ParticleSystem.MinMaxGradient(new Color(c.r, c.g, c.b, c.a * 0.45f));   // 더 옅게
+                var c = main.startColor.color; main.startColor = new ParticleSystem.MinMaxGradient(new Color(c.r, c.g, c.b, Mathf.Clamp01(c.a * 1.0f)));   // [2026-11-22] 불투명도 원래대로 (예전 45%)
             }
         // [2026-11-21] 위험 표시 상자 없앰
         float end = Time.time + seconds;
@@ -928,21 +974,21 @@ public partial class AugmentRuntime : MonoBehaviour
     }
 
     // ── 잔상 (PauseAfterimage 셰이더로 헤네시 그림 복사) ──
-    void SpawnAfterimage(Vector3 pos, float life, float ratio, Color? color = null, bool burst = false)
+    void SpawnAfterimage(Vector3 pos, float life, float ratio, Color? color = null, bool burst = false, bool drawGhost = true)
     {
         if (afterimagesAlive >= 6) return;
-        StartCoroutine(Afterimage(pos, life, ratio * AfterimageDamageMul, true, color ?? CAfter, burst));
+        StartCoroutine(Afterimage(pos, life, ratio * AfterimageDamageMul, true, color ?? CAfter, burst, drawGhost));
     }
 
     /// <summary>추진 부츠: 잔상 피해 +20% (Lv2 +30%, Lv3 +40%)</summary>
     float AfterimageDamageMul => 1f + (L("이단 분사") > 0 ? ByLevel(L("이단 분사"), 0.20f, 0.30f, 0.40f) : 0f);
 
-    IEnumerator Afterimage(Vector3 pos, float life, float ratio, bool canSplit, Color color, bool burst)
+    IEnumerator Afterimage(Vector3 pos, float life, float ratio, bool canSplit, Color color, bool burst, bool drawGhost = true)
     {
         afterimagesAlive++;
-        var ghost = AugmentFx.Ghost(psprite, color, life, 0.75f, false, psprite != null ? (Vector3?)(psprite.transform.position + (pos - PPos)) : null);
+        var ghost = drawGhost ? AugmentFx.Ghost(psprite, color, life, 0.75f, false, psprite != null ? (Vector3?)(psprite.transform.position + (pos - PPos)) : null) : null;
         Vector3 center = pos + (PCenter - PPos);
-        if (burst) AugmentFx.Burst(center, color, 0.55f, 1.2f);   // 스텔스 우의: 잔상이 나타날 때 붉은 폭발 (홀로그램 생성 연출)
+        if (burst) AugmentFx.Burst(center, color, 0.55f, 1.2f);   // 스텔스 우의: 잔상이 나타날 때 푸른 폭발 (홀로그램 생성 연출)
         var hitSet = new HashSet<Health>();
         float end = Time.time + life;
         while (Time.time < end)
@@ -955,7 +1001,7 @@ public partial class AugmentRuntime : MonoBehaviour
                 OnAfterimageHit(e, ghost != null ? ghost.transform : null);
                 // 잔상 5개: 잔상이 적을 맞히면 잔상 하나 더 (동시에 최대 3)
                 if (canSplit && Kw(AugmentKeyword.Afterimage) >= 5 && afterimagesAlive < 3)
-                    StartCoroutine(Afterimage(EFeet(e) + (PPos - PFeet) + new Vector3(Random.Range(-1f, 1f), 0f, 0f), 1.5f, ratio, false, color, burst));
+                    StartCoroutine(Afterimage(EFeet(e) + (PPos - PFeet) + new Vector3(Random.Range(-1f, 1f), 0f, 0f), 1.5f, ratio, false, color, burst, true));
             }
             yield return new WaitForSeconds(0.1f);
         }

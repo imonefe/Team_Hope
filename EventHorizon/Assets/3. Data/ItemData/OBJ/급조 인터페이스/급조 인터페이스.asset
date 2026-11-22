@@ -25,8 +25,13 @@ MonoBehaviour:
   - 3
   - 2
   abilityName: "\uC811\uC18D \uB2E8\uC790"
-  abilityText: "\uC794\uC0C1\uC774 \uC801\uC744 \uB9DE\uD788\uBA74 \uC5F0\uACA9 +1, \uB300\uC2DC \uC9C1\uD6C4 \uCCAB \uACF5\uACA9\uC740 \uC5F0\uACA9 \uCD94\uAC00"
+  abilityText: "[\uc794\uc0c1]\uc774 \uc801\uc744 \ub9de\ud788\uba74 [\uc5f0\uaca9] +1. \ub300\uc2dc \uc9c1\ud6c4 \uccab \uacf5\uaca9\uc740 [\uc5f0\uaca9] +{2/3/4}."
   levelValues:
   - "+2"
   - "+3"
   - "+4"
+  triggerText: "\uc794\uc0c1 \uc801\uc911 \u00b7 \ub300\uc2dc"
+  limitText: ""
+  roles:
+  - "?\uc794\uc0c1"
+  - "+\uc5f0\uaca9"

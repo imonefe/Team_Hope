@@ -44,13 +44,13 @@ public class MageMidBoss : MidBossTestBase
     public float laserDamage = 1.3f;
     public Color laserColor = new Color(1f, 0.6f, 0.15f, 0.9f);
 
-    [Header("[ 패턴 3 — 퍼즈 기믹 ]")]
+    [Header("[ 패턴 3 — 제로포인트 기믹 ]")]
     [Range(0f, 1f)] public float pauseGimmickHpRatio = 0.5f;
     public float gimmickChargeTime = 9f;
     [Tooltip("시간 오브젝트 (FX_MageTimeAnchor — 적 레이어, 체력 있음)")]
     public GameObject anchorPrefab;
     public int anchorCount = 3;
-    [Tooltip("파훼 후 스턴 시간 (플레이어 퍼즈가 끝난 뒤부터)")]
+    [Tooltip("파훼 후 스턴 시간 (플레이어 제로포인트가 끝난 뒤부터)")]
     public float stunTime = 4f;
     public float timeStopTime = 2.2f;
     public int timeStopOrbs = 5;
@@ -266,7 +266,7 @@ public class MageMidBoss : MidBossTestBase
                 if (pm != null) pm.AddGauge(gaugePer);                       // 부서진 오브젝트 → 게이지
             }
             float left01 = Mathf.Max(0f, gimmickChargeTime - t);
-            Say($"시간 정지 차징 {left01:0.0}\n<size=70%>오브젝트를 부숴 퍼즈를 써라</size>", new Color(1f, 0.85f, 0.3f, 1f));
+            Say($"시간 정지 차징 {left01:0.0}\n<size=70%>오브젝트를 부숴 제로포인트를 써라</size>", new Color(1f, 0.85f, 0.3f, 1f));
             yield return null;
         }
         foreach (var a in anchors) if (a != null) { live.Remove(a); Destroy(a); }

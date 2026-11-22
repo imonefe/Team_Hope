@@ -24,8 +24,12 @@ MonoBehaviour:
   keywords:
   - 2
   abilityName: "\uC774\uB2E8 \uBD84\uC0AC"
-  abilityText: "\uC794\uC0C1\uC774 \uC8FC\uB294 \uD53C\uD574 \uC99D\uAC00"
+  abilityText: "[\uc794\uc0c1] \ud53c\ud574 +{20/30/40}%."
   levelValues:
   - "+20%"
   - "+30%"
   - "+40%"
+  triggerText: "\uc0c1\uc2dc"
+  limitText: ""
+  roles:
+  - "?\uc794\uc0c1"
