@@ -127,7 +127,7 @@ public class ItemInfoPopup : MonoBehaviour
         // 위에 그려지도록 확실히 고정한다.
         rootCanvas = GetComponent<Canvas>();
         if (rootCanvas != null)
-            rootCanvas.sortingOrder = 100;
+            rootCanvas.sortingOrder = 700;   // [2026-11-23] 100 → 700: 게임오버 · 엔딩 화면(600)의 증강 아이콘 위에도 뜨게
 
         if (popupRoot != null)
         {

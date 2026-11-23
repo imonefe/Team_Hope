@@ -26,6 +26,8 @@ public partial class AugmentRuntime : MonoBehaviour
     public const int OverheatBurst = 5;
     public static float OverheatDuration => Instance != null && Instance.Kw(AugmentKeyword.Overheat) >= 3 ? 6f : 4f;
     public static int FractureMax => Instance != null && Instance.Kw(AugmentKeyword.Fracture) >= 3 ? 4 : 3;
+    /// <summary>[2026-11-23] 탈취 데이터 최대치 (설명 글의 %M데이터% 자리)</summary>
+    public static int DataMax => Instance != null ? Instance.FragmentMax : 3;
     public static float FractureDuration => 6f;
     public static float PlayerAtk => Instance != null && Instance.PStats != null ? Instance.PStats.Atk : 10f;
     public static TMP_FontAsset Font => Instance != null ? Instance.font : null;
@@ -60,6 +62,8 @@ public partial class AugmentRuntime : MonoBehaviour
     bool releasing;
     float releaseDrain;                    // 방출 중 저절로 줄어드는 시간 (쓰는 증강이 없어도 방출이 끝나게)
     const float ReleaseDrainSeconds = 2f;
+    Vector3 releaseLastPos; float releaseTrail, releaseGhost;   // [2026-11-23] 방출 중 등 뒤 잔상 · 파편
+    static readonly Color PlunderIconColor = new Color(0.337f, 0.839f, 0.671f, 1f);   // 강탈 아이콘 바탕색 #56D6AB
     /// <summary>탈취 데이터 방출 중인지 (머리 위 결정이 회전하며 빛남)</summary>
     public bool IsReleasing => releasing;
     readonly List<int> fragKinds = new List<int>();   // 데이터 종류 (색 표시용)
@@ -538,6 +542,36 @@ public partial class AugmentRuntime : MonoBehaviour
         }
 
         // [2026-11-23] 방출 중에는 데이터가 2초마다 1개씩 저절로 줄어듦 (쓰는 증강이 없어도 방출이 끝나고 다시 모이게)
+        // [2026-11-23] 방출 중 표식: 움직이는 동안 등 뒤로 강탈 색 파편이 흩날림 (원거리 관측 대시 잔상처럼 '지금 켜져 있음'을 보여 줌)
+        if (releasing && !paused && pc != null)
+        {
+            Vector3 now = PPos;
+            float moved = Time.deltaTime > 0f ? (now - releaseLastPos).magnitude / Time.deltaTime : 0f;
+            releaseLastPos = now;
+            releaseTrail -= Time.deltaTime;
+            // [2026-11-23 수정] 원거리 관측 대시 잔상과 같은 방식: 헤네시 모습의 초록 잔상이 뒤에 남아 부서지고,
+            //   등 뒤에서 강탈 아이콘 색 세모 파편이 흩날린다 (예전: 아주 작은 점이 떨어지기만 해서 거의 안 보였음)
+            releaseGhost -= Time.deltaTime;
+            if (moved > 1.5f && releaseGhost <= 0f && psprite != null)
+            {
+                releaseGhost = 0.08f;
+                AugmentFx.Ghost(psprite, PlunderIconColor, 0.35f, 0.5f);
+            }
+            if (moved > 1.5f && releaseTrail <= 0f)
+            {
+                releaseTrail = 0.05f;
+                int back = -PFacing;
+                var b = PBody;
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector3 p = new Vector3(b.center.x + back * b.extents.x * Random.Range(0.3f, 0.9f), Random.Range(b.min.y + b.size.y * 0.2f, b.max.y), PPos.z);
+                    Vector2 v = new Vector2(back * Random.Range(2.5f, 5f), Random.Range(-0.4f, 1.4f));
+                    Color c = Color.Lerp(PlunderIconColor, Color.white, Random.Range(0f, 0.35f));
+                    AugmentFx.Shard(p, v, c, Random.Range(0.45f, 0.8f), Random.Range(0.16f, 0.3f), psprite);
+                }
+            }
+        }
+
         if (releasing && !paused)
         {
             releaseDrain -= Time.deltaTime;
@@ -612,6 +646,7 @@ public partial class AugmentRuntime : MonoBehaviour
     {
         releasing = true;
         releaseDrain = ReleaseDrainSeconds;
+        releaseLastPos = PPos; releaseTrail = 0f;
         if (pc != null) { AugmentFx.BodyFlash(pc, CPlunder, 0.7f, 0.25f); AugmentFx.Ring(PCenter, CPlunder, 1.8f, 0.35f, 0.08f, 2); }
     }
 
@@ -988,7 +1023,7 @@ public partial class AugmentRuntime : MonoBehaviour
         afterimagesAlive++;
         var ghost = drawGhost ? AugmentFx.Ghost(psprite, color, life, 0.75f, false, psprite != null ? (Vector3?)(psprite.transform.position + (pos - PPos)) : null) : null;
         Vector3 center = pos + (PCenter - PPos);
-        if (burst) AugmentFx.Burst(center, color, 0.55f, 1.2f);   // 스텔스 우의: 잔상이 나타날 때 푸른 폭발 (홀로그램 생성 연출)
+        if (burst) AugmentFx.Burst(center, color, 0.55f, 1.2f);   // 스텔스 우의: 잔상이 나타날 때 폭발 (잔상 색 = 무채색 흰·회색, 2026-11-23)
         var hitSet = new HashSet<Health>();
         float end = Time.time + life;
         while (Time.time < end)

@@ -321,7 +321,7 @@ public partial class AugmentRuntime
         if (Has("접속 단자")) { dashFirstHitArmed = true; dashFirstHitUntil = Time.time + 1.5f; }
     }
 
-    static readonly Color CSecretary = new Color(0.55f, 1f, 0.95f, 1f);
+    static readonly Color CSecretary = new Color(0.72f, 0.74f, 0.77f, 1f);   // [2026-11-23] 잔상 계열 무채색 (기본 잔상보다 조금 어두운 회색)
     /// <summary>[2026-11-22] 이번 대시에 고장난 비서 홀로그램이 생기는지 (잔상 그림 겹침 방지에도 씀)</summary>
     bool SecretaryWillSpawn() => Has("고장난 비서") && Time.time >= secretaryReady && psprite != null;
 

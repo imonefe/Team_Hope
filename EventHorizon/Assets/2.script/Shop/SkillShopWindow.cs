@@ -250,7 +250,7 @@ public class SkillShopWindow : ShopWindow
         int money = Money;
         var cs = Skills();
         bool free = cs != null && HasFreeSlot(cs);
-        if (sellBtn != null) Label(sellBtn, "가진 스킬 팔기");
+        if (sellBtn != null) Label(sellBtn, "<size=80%><color=#E3C27E>[Tab]</color></size> 가진 스킬 팔기");   // [2026-11-23] 단축키 표시
         if (odds != null)
             odds.text = $"일반 {tierOdds[0]:0}% · 레어 {tierOdds[1]:0}% · 유니크 {tierOdds[2]:0}%" + (tierOdds[3] > 0 ? $" · 레전더리 {tierOdds[3]:0}%" : "");
 
@@ -297,7 +297,7 @@ public class SkillShopWindow : ShopWindow
         {
             int cost = refreshCost + refreshCount * refreshCostStep;
             var t = refreshBtn.GetComponentInChildren<TMP_Text>(true);
-            if (t != null) t.text = $"새로고침 · {cost}";
+            if (t != null) t.text = $"<size=80%><color=#E3C27E>[R]</color></size> 새로고침 · {cost}";
             refreshBtn.interactable = money >= cost;
         }
     }
@@ -346,7 +346,7 @@ public class SkillShopWindow : ShopWindow
         SetText(dEffects, sel != null ? $"재사용 대기 {sel.cooldown:0.#}초" : "");
         SetText(dStats, sel != null ? $"팔면 재화 +{SellPriceOf(sel):#,0}\n그 칸은 비게 됩니다" : SlotText(cs));
 
-        if (sellBtn != null) Label(sellBtn, "구매로 돌아가기");
+        if (sellBtn != null) Label(sellBtn, "<size=80%><color=#E3C27E>[Tab]</color></size> 구매로 돌아가기");
         if (refreshBtn != null) { Label(refreshBtn, "새로고침 (구매 화면에서)"); refreshBtn.interactable = false; }
         if (odds != null) odds.text = $"판매가는 구매가의 {sellRate * 100:0}% · 무기 스킬 칸은 팔 수 없습니다";
     }

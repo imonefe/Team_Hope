@@ -23,12 +23,12 @@ MonoBehaviour:
   keywords:
   - 3
   abilityName: "\uAC80\uBB34"
-  abilityText: "\uac80 3\ud0c0 \ub9c8\ubb34\ub9ac\uac00 \ub9de\uc73c\uba74 [\uacfc\uc5f4] {1/2/3}."
+  abilityText: "\uac80 3\ud0c0 \ub9c8\ubb34\ub9ac\ub85c \uc801\uc744 \uacf5\uaca9\ud588\uc744 \uacbd\uc6b0, [\uacfc\uc5f4]\uc774 \uc801\uc5d0\uac8c {1/2/3}\uac1c \ubd80\uc5ec\ub41c\ub2e4."
   levelValues:
   - "\uACFC\uC5F4 1"
   - "\uACFC\uC5F4 2"
   - "\uACFC\uC5F4 3"
-  triggerText: "\uac80 3\ud0c0"
+  triggerText: "\uacf5\uaca9"
   limitText: ""
   roles:
   - "+\uacfc\uc5f4"

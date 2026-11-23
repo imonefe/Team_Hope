@@ -92,7 +92,7 @@ public static class AugmentRules
         {
             case AugmentKeyword.Overheat: return "E8542A";
             case AugmentKeyword.Fracture: return "9B7BFF";
-            case AugmentKeyword.Afterimage: return "4FC3E8";
+            case AugmentKeyword.Afterimage: return "D4D7DC";   // [2026-11-23] 푸른빛 → 무채색 흰·회색
             case AugmentKeyword.Combo: return "F2C230";
             case AugmentKeyword.Execute: return "D23A4A";
             case AugmentKeyword.Plunder: return "3FBF8A";
@@ -171,6 +171,15 @@ public static class AugmentRules
     public static string Rich(string text, int level)
     {
         if (string.IsNullOrEmpty(text)) return "";
+        // [2026-11-23] %M균열% · %M데이터% (−1 · −2) → 지금 최대치 숫자 (설명 규칙 '스택 풀차징 = M')
+        if (text.IndexOf('%') >= 0 && text.Contains("%M"))
+        {
+            int fm = AugmentRuntime.FractureMax, dm = AugmentRuntime.DataMax;
+            text = text.Replace("%M균열%", fm.ToString())
+                       .Replace("%M데이터-1%", Mathf.Max(1, dm - 1).ToString())
+                       .Replace("%M데이터-2%", Mathf.Max(1, dm - 2).ToString())
+                       .Replace("%M데이터%", dm.ToString());
+        }
         string s = KwTag.Replace(text, m =>
         {
             int k = KeywordOfWord(m.Groups[1].Value);
@@ -243,19 +252,19 @@ public static class AugmentRules
     /// <summary>키워드 기본 기능 (코드 값 그대로)</summary>
     public static readonly string[] KeywordBase =
     {
-        "0.5초마다 스택당 공격력 2% 지속 피해. 4초 동안 새로 안 쌓이면 절반으로 줄어든다. 5스택 이상이면 '과열 폭발' 계열의 조건이 된다.",
-        "스택당 받는 피해 +5%. 최대 3스택(키워드 3개: 4), 6초 유지. '균열 최대'가 여러 증강의 조건.",
-        "대시하면 생기고, 닿은 적에게 피해를 준다. 잔상 피해·지속·개수를 늘리는 증강과 '잔상이 맞히면' 조건이 있다.",
-        "맞힐 때마다 +1, 최대 10. 2초 안에 다시 맞히지 못하면 끊긴다. 스택 수가 조건·배율로 쓰인다.",
-        "체력 30% 이하인 적이 '처형 대상'(키워드 3개: 35%). 대상에게 피해·치명타·즉시 처치 효과.",
-        "처치하면 1개, 최대 3개(키워드 3개: 5). 가득 차면 '방출'이 시작돼 머리 위 결정이 빛나고, 방출 중에만 데이터를 쓰는 증강이 켜진다. 0개가 되면 다시 모은다(방출 중엔 2초마다 1개씩 줄어듦).",
-        "게이지가 차면 Q로 5초 동안 시간을 멈춘다. '제로포인트 중' · '풀릴 때' 효과와 게이지 충전 효과.",
-        "체력이 낮을수록(50% · 30% · 25%) 강해지거나 회복한다. 체력을 써서 힘을 얻는 증강도 있다.",
+        // [2026-11-23] 덕팔 정리본 그대로 (과열 피해 n% = 코드 값 2%)
+        "부여된 적에게 0.5초마다 공격력의 2% 피해를 입힌다.\n4초 동안 부여되지 않으면 절반씩 사라진다.",
+        "균열 1개당 받는 피해 + 5% 증가.\n6초 동안 유지된다.",
+        "대시 사용 시 분신이 생기며 적에게 직접 영향을 준다.",
+        "적을 공격했을 경우 1개 획득.\n2초 동안 공격하지 않으면 연격 값은 사라진다.",
+        "일정 체력 이하인 적을 처형 대상으로 지정한다.",
+        "적 처치 시 + 1. 강탈을 모두 얻었을 경우 '방출' 상태로 전환된다.\n해당 경우에 탈취 데이터를 소모하는 증강이 발동한다.",
+        "제로포인트 게이지를 채우거나, 사용됐을 경우에 발동한다.",
+        "체력이 낮을 경우에 발동한다.",
     };
 
     /// <summary>키워드 설명 팝업의 본문: 무엇인지 + 기본 기능</summary>
-    public static string KeywordPopupBody(AugmentKeyword k)
-        => $"<color=#{MutedHex}>{KeywordWhat[(int)k]}</color>\n{KeywordBase[(int)k]}";
+    public static string KeywordPopupBody(AugmentKeyword k) => KeywordBase[(int)k];   // [2026-11-23] '무엇인지' 회색 줄은 빼고 정리본만
 
     /// <summary>키워드 설명 팝업의 아래 칸: 1 · 3 · 5개 단계 (달성한 단계는 밝게) + 이 키워드를 가진 보유 증강</summary>
     public static string KeywordPopupSteps(AugmentKeyword k, int count, IEnumerable<ItemData> owned)
@@ -296,14 +305,15 @@ public static class AugmentRules
     /// <summary>[키워드, 단계(0=1개,1=3개,2=5개)] 짧은 설명 (증강 기획서 '키워드 8개와 단계 능력')</summary>
     public static readonly string[,] KeywordTierText =
     {
-        { "모든 공격이 10% 확률로 과열 1스택", "과열이 절반으로 줄기까지 +2초", "과열 5스택 이상인 적 처치 시 폭발" },
-        { "치명타가 균열 1스택을 붙인다", "균열 최대 4스택", "균열 최대 스택인 적은 받는 피해 +20%" },
-        { "대시하면 출발 자리에 잔상 (1초 · 공격력 40%)", "잔상 유지 +1초", "잔상이 적을 맞히면 잔상 1개 추가" },
-        { "연격 유지 시간 +0.5초", "끊길 때 절반만 잃음", "연격 10스택에서 공격 속도 상한 +30%" },
-        { "처형 대상에게 피해 +5%", "처형 기준 +5%p", "처형 대상 처치 시 제로포인트 게이지 +10" },
-        { "처치하면 탈취 데이터 1개", "탈취 데이터 최대 5개", "탈취 데이터를 쓸 때 50% 확률로 남음" },
-        { "제로포인트 게이지 충전 +10%", "제로포인트가 풀릴 때 화면 안 일반 적 0.5초 경직", "제로포인트 지속 +1초, 제로포인트 중 치명타 +20%p" },
-        { "체력 50% 이하일 때 받는 피해 -5%", "과부하로 잃은 체력 20%를 방 정리 때 회복", "체력 25% 이하에서 공격력 +25%" },
+        // [2026-11-23] 증강 설명 규칙 표에 맞춰 다시 씀 (~했을 경우 · ~라면 · 부여 · 얻는다 · + n% · ~다.)
+        { "적을 공격했을 경우, 10% 확률로 과열이 적에게 1개 부여된다.", "과열이 절반으로 줄기까지 + 2초.", "과열이 5개 이상인 적을 처치했을 경우, 폭발한다." },
+        { "적을 치명타로 공격했을 경우, 균열이 적에게 1개 부여된다.", "균열 최대치가 4가 된다.", "균열이 최대인 적이 받는 피해 + 20%." },
+        { "대시했을 경우, 출발 자리에 잔상이 1초 동안 남아 공격력의 40% 피해를 준다.", "잔상 유지 시간 + 1초.", "잔상이 적을 공격했을 경우, 잔상을 1개 더 얻는다." },
+        { "연격 유지 시간 + 0.5초.", "연격이 끊겼을 경우, 절반만 잃는다.", "연격이 10이라면, 공격 속도 상한 + 30%." },
+        { "처형 대상에게 주는 피해 + 5%.", "처형 기준 + 5%.", "처형 대상을 처치했을 경우, 제로포인트 게이지 + 10." },
+        { "적을 처치했을 경우, 탈취 데이터를 1개 얻는다.", "탈취 데이터 최대치가 5가 된다.", "탈취 데이터를 소모했을 경우, 50% 확률로 잃지 않는다." },
+        { "제로포인트 게이지 충전 + 10%.", "제로포인트가 풀렸을 경우, 화면 안의 일반 적이 0.5초 동안 경직된다.", "제로포인트 시간 + 1초. 제로포인트 중일 경우, 치명타 확률 + 20%." },
+        { "체력이 50% 이하라면, 받는 피해 - 5%.", "과부하로 잃은 체력의 20%를 방을 정리했을 경우 다시 얻는다.", "체력이 25% 이하라면, 공격력 + 25%." },
     };
 
     /// <summary>"<color=#..>과열</color> · <color=#..>균열</color>" 형태 (키워드 없으면 빈 글자)</summary>

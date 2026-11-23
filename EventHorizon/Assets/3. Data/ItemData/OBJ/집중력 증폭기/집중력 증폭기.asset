@@ -24,12 +24,12 @@ MonoBehaviour:
   keywords:
   - 3
   abilityName: "\uC870\uC900 \uACE0\uC815"
-  abilityText: "\ud3c9\ud0c0 \ud310\uc815 \u00b7 \ubb34\uae30 \uada4\uc801 \u00b7 \ucc38\uaca9\ud30c \u00b7 \ucda9\uaca9\ud30c \u00b7 \ud22c\uc0ac\uccb4 \ud06c\uae30 +{15/22/30}% (\uc5f0\uaca9 10\uc774\uba74 +{30/45/60}%)."
+  abilityText: "[\uc5f0\uaca9]\uc774 5\uac1c \uc774\uc0c1\uc774\ub77c\uba74, \ud3c9\ud0c0\u00b7\ubb34\uae30 \uada4\uc801\u00b7\ucc38\uaca9\ud30c\u00b7\ucda9\uaca9\ud30c\u00b7\ud22c\uc0ac\uccb4 \ud06c\uae30 + {15/22/30}%. [\uc5f0\uaca9]\uc774 10\uac1c \uc774\uc0c1\uc774\ub77c\uba74 + {30/45/60}%."
   levelValues:
   - "+15% / +30%"
   - "+22% / +45%"
   - "+30% / +60%"
-  triggerText: "\uc5f0\uaca9 5 \u00b7 10"
+  triggerText: "\uc5f0\uaca9"
   limitText: ""
   roles:
   - "?\uc5f0\uaca9"

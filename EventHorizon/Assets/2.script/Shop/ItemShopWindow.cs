@@ -324,7 +324,7 @@ public class ItemShopWindow : ShopWindow
     {
         if (selling) { RefreshSell(); return; }
         int money = Money;
-        if (sellBtn != null) SetSecondaryLabel(sellBtn, "가진 증강 팔기");
+        if (sellBtn != null) SetSecondaryLabel(sellBtn, "<size=80%><color=#E3C27E>[Tab]</color></size> 가진 증강 팔기");
         if (odds != null)
             odds.text = OddsLine();
         for (int i = 0; i < SlotCount; i++)
@@ -387,7 +387,7 @@ public class ItemShopWindow : ShopWindow
         if (refreshBtn != null)
         {
             var t = refreshBtn.GetComponentInChildren<TMP_Text>(true);
-            if (t != null) t.text = $"새로고침 · {CurrentRefreshCost}";
+            if (t != null) t.text = $"<size=80%><color=#E3C27E>[R]</color></size> 새로고침 · {CurrentRefreshCost}";   // [2026-11-23] 단축키 표시
             refreshBtn.interactable = money >= CurrentRefreshCost;
         }
     }
@@ -434,10 +434,10 @@ public class ItemShopWindow : ShopWindow
         SetText(dEffects, sel != null ? string.Join("\n", EffectText.Collect(sel)) : "");
         SetText(dStats, sel != null ? $"팔면 증강 파편 +{SellPriceOf(sel)}\n<color=#{ColorUtility.ToHtmlStringRGB(ShopColors.Down)}>능력과 능력치가 함께 사라집니다</color>" : "");
 
-        if (sellBtn != null) SetSecondaryLabel(sellBtn, "구매로 돌아가기");
+        if (sellBtn != null) SetSecondaryLabel(sellBtn, "<size=80%><color=#E3C27E>[Tab]</color></size> 구매로 돌아가기");
         if (refreshBtn != null)
         {
-            SetSecondaryLabel(refreshBtn, $"다음 쪽 ({sellPage + 1}/{PageCount})");
+            SetSecondaryLabel(refreshBtn, $"<size=80%><color=#E3C27E>[R]</color></size> 다음 쪽 ({sellPage + 1}/{PageCount})");
             refreshBtn.interactable = PageCount > 1;
         }
         if (odds != null) odds.text = $"가진 증강 {Owned.Count}개 · 판매가는 등급과 강화 단계에 따라 증강 파편";

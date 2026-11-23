@@ -24,7 +24,7 @@ MonoBehaviour:
   keywords:
   - 2
   abilityName: "\uC774\uB2E8 \uBD84\uC0AC"
-  abilityText: "[\uc794\uc0c1] \ud53c\ud574 +{20/30/40}%."
+  abilityText: "[\uc794\uc0c1] \ud53c\ud574 + {20/30/40}%."
   levelValues:
   - "+20%"
   - "+30%"

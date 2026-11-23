@@ -125,6 +125,42 @@ public static class AugmentFx
         return r;
     }
 
+    // [2026-11-24] 웹 빌드 최적화: 불티·파편처럼 1초에 수십 개씩 생기는 작은 그림은 만들고 지우지 않고 돌려 쓴다
+    //   (웹은 가비지 수집이 끊김으로 바로 보이기 때문). 이 함수들로 꺼낸 것은 반드시 Recycle 로 돌려놓는다
+    static readonly Stack<SpriteRenderer> spritePool = new Stack<SpriteRenderer>();
+    const int SpritePoolMax = 160;
+
+    static SpriteRenderer PooledSprite(string name, Sprite s, Vector3 pos, Color c, float size)
+    {
+        SpriteRenderer r = null;
+        while (r == null && spritePool.Count > 0) r = spritePool.Pop();   // 씬이 바뀌며 지워진 것은 건너뜀
+        if (r == null) return NewSprite(name, s, pos, c, size);
+        var t = r.transform;
+        t.SetPositionAndRotation(pos, Quaternion.identity);
+        t.localScale = Vector3.one * size;
+        r.sprite = s; r.color = c; r.flipX = r.flipY = false;
+        r.sortingLayerID = 0; r.sortingOrder = SortFront;
+        r.gameObject.SetActive(true);
+        return r;
+    }
+
+    static void Recycle(SpriteRenderer r)
+    {
+        if (r == null) return;
+        if (spritePool.Count >= SpritePoolMax) { UnityEngine.Object.Destroy(r.gameObject); return; }
+        r.gameObject.SetActive(false);
+        spritePool.Push(r);
+    }
+
+    /// <summary>[2026-11-24] r.material / r.materials 로 복제된 재질은 오브젝트가 지워져도 남는다 → 이펙트가 지워질 때 같이 지움</summary>
+    static void OwnMaterials(GameObject fx, Material[] mats)
+    {
+        if (fx == null || mats == null || mats.Length == 0) return;
+        var c = fx.GetComponent<FxMatCleanup>();
+        if (c == null) c = fx.AddComponent<FxMatCleanup>();
+        c.Add(mats);
+    }
+
     static LineRenderer NewLine(string name, int points, float width, Color c, bool loop)
     {
         var go = new GameObject(name);
@@ -162,6 +198,7 @@ public static class AugmentFx
         {
             if (r is SpriteRenderer sr) { sr.color = new Color(c.r, c.g, c.b, sr.color.a); continue; }
             var mats = r.materials;
+            OwnMaterials(fx, mats);
             foreach (var m in mats)
             {
                 if (m == null) continue;
@@ -333,7 +370,11 @@ public static class AugmentFx
         var fx = UnityEngine.Object.Instantiate(ExplosionPrefab, pos, Quaternion.identity);
         fx.transform.localScale *= scale;
         foreach (var r in fx.GetComponentsInChildren<ParticleSystemRenderer>(true))
-            if (r.material != null && r.material.HasProperty(ColorId)) r.material.SetColor(ColorId, c * 3f);
+        {
+            if (r.sharedMaterial == null || !r.sharedMaterial.HasProperty(ColorId)) continue;
+            var m = r.material; OwnMaterials(fx, new[] { m });
+            m.SetColor(ColorId, c * 3f);
+        }
         if (life > 0f) UnityEngine.Object.Destroy(fx, life);
         return fx;
     }
@@ -362,8 +403,9 @@ public static class AugmentFx
         fx.transform.localScale = s;
         foreach (var r in fx.GetComponentsInChildren<Renderer>(true))
         {
-            if (r.material == null) continue;
-            if (r.material.HasProperty(ColorId)) r.material.SetColor(ColorId, c * 2f);
+            if (r.sharedMaterial == null || !r.sharedMaterial.HasProperty(ColorId)) continue;
+            var m = r.material; OwnMaterials(fx, new[] { m });
+            m.SetColor(ColorId, c * 2f);
         }
         UnityEngine.Object.Destroy(fx, 1.5f);
     }
@@ -400,11 +442,41 @@ public static class AugmentFx
         }
     }
 
+    /// <summary>[2026-11-23] 강탈 방출 표식용 파편 — 세모 조각이 돌면서 흩날리고 옅어짐. behind 의 바로 뒤 순서로 그려 '등 뒤'에 보이게</summary>
+    public static void Shard(Vector3 pos, Vector2 velocity, Color c, float life, float size, SpriteRenderer behind = null)
+        => Run(ShardRoutine(pos, velocity, c, life, size, behind));
+
+    static IEnumerator ShardRoutine(Vector3 pos, Vector2 v, Color c, float life, float size, SpriteRenderer behind)
+    {
+        var r = PooledSprite("FxShard", Triangle, pos, c, size);
+        if (behind != null) { r.sortingLayerID = behind.sortingLayerID; r.sortingOrder = behind.sortingOrder - 1; }
+        float spin = UnityEngine.Random.Range(-540f, 540f);
+        r.transform.rotation = Quaternion.Euler(0f, 0f, UnityEngine.Random.Range(0f, 360f));
+        r.transform.localScale = new Vector3(size * UnityEngine.Random.Range(0.6f, 1f), size, 1f);   // 길쭉한 조각
+        float t = 0f;
+        while (t < life && r != null)
+        {
+            float k = t / life;
+            v *= 1f - 2.2f * Time.deltaTime;            // 공기 저항: 처음엔 빠르게 튀고 점점 느려짐
+            v.y += 0.6f * Time.deltaTime;               // 살짝 떠오름
+            r.transform.position += (Vector3)(v * Time.deltaTime);
+            r.transform.Rotate(0f, 0f, spin * Time.deltaTime);
+            r.color = A(c, (1f - k) * (1f - k));
+            t += Time.deltaTime;
+            yield return null;
+        }
+        Recycle(r);
+    }
+
+    /// <summary>[2026-11-23] 정해진 방향으로 흩날리는 파편 하나 (강탈 방출 중 등 뒤 파편 등)</summary>
+    public static void Drift(Vector3 pos, Vector2 velocity, Color c, float life, float gravity = 0.8f, float size = 0.12f)
+        => Run(SparkRoutine(pos, velocity, c, life, gravity, size));
+
     static IEnumerator SparkRoutine(Vector3 pos, Vector2 v, Color c, float life, float gravity, float size)
     {
-        var r = NewSprite("FxSpark", Diamond, pos, c, size);
+        var r = PooledSprite("FxSpark", Diamond, pos, c, size);
         float t = 0f;
-        while (t < life)
+        while (t < life && r != null)   // [2026-11-24] 씬이 바뀌어 지워졌으면 멈춤 (예전엔 오류가 났음)
         {
             float k = t / life;
             v.y -= gravity * Time.deltaTime;
@@ -414,7 +486,7 @@ public static class AugmentFx
             t += Time.deltaTime;
             yield return null;
         }
-        UnityEngine.Object.Destroy(r.gameObject);
+        Recycle(r);
     }
 
     // ══════════════ 날아가는 것 · 연결선 ══════════════
@@ -541,9 +613,11 @@ public static class AugmentFx
             fx.transform.localScale *= scale;
             foreach (var r in fx.GetComponentsInChildren<ParticleSystemRenderer>(true))
             {
-                if (r.material == null) continue;
-                if (r.material.HasProperty(RingColorId)) r.material.SetColor(RingColorId, c * 1.6f);
-                if (r.material.HasProperty(ColorId)) r.material.SetColor(ColorId, c * 1.6f);
+                var sm = r.sharedMaterial;
+                if (sm == null || !(sm.HasProperty(RingColorId) || sm.HasProperty(ColorId))) continue;
+                var m = r.material; OwnMaterials(fx, new[] { m });
+                if (m.HasProperty(RingColorId)) m.SetColor(RingColorId, c * 1.6f);
+                if (m.HasProperty(ColorId)) m.SetColor(ColorId, c * 1.6f);
             }
             foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
             {
@@ -833,6 +907,14 @@ public class FxCircle : MonoBehaviour
         }
         lr.startColor = lr.endColor = color;
     }
+}
+
+/// <summary>[2026-11-24] 이펙트가 지워질 때 그 이펙트용으로 복제한 재질도 함께 지운다 (웹 빌드 메모리 누수 방지)</summary>
+public class FxMatCleanup : MonoBehaviour
+{
+    readonly List<Material> mats = new List<Material>();
+    public void Add(Material[] list) { foreach (var m in list) if (m != null && !mats.Contains(m)) mats.Add(m); }
+    void OnDestroy() { foreach (var m in mats) if (m != null) Destroy(m); mats.Clear(); }
 }
 
 public class FxGhost : MonoBehaviour

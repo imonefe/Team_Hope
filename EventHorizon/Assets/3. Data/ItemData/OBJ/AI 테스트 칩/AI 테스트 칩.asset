@@ -26,7 +26,7 @@ MonoBehaviour:
   - 4
   - 7
   abilityName: "\uCC98\uD615\uC778\uC758 \uC800\uC6B8"
-  abilityText: "\ub0b4 \uccb4\ub825\uc774 \ub0ae\uc744\uc218\ub85d [\ucc98\ud615 \ub300\uc0c1] \uae30\uc900 \uc0c1\uc2b9 (\ucd5c\ub300 +{15/20/25}%p)."
+  abilityText: "\ub0b4 \uccb4\ub825\uc774 \ub0ae\uc744\uc218\ub85d [\ucc98\ud615 \ub300\uc0c1] \uae30\uc900\uc774 + {15/20/25}%."
   levelValues:
   - "\uCD5C\uB300 +15"
   - "+20"

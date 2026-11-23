@@ -631,6 +631,17 @@ public class PlayerController : MonoBehaviour
     }
 
     float lastJumpTime = -1f;   // 마지막 점프 시각 (점프 직후 점프 횟수가 되돌려지지 않게)
+    float groundedStill;        // [2026-11-23] 바닥에 가만히 붙어 있은 시간 (착지 순간을 놓쳤을 때 대비)
+
+    /// <summary>[2026-11-23] 착지: 착지 애니메이션 + 점프 횟수 리셋을 항상 함께 (따로 리셋되는 길 없음)</summary>
+    void Land()
+    {
+        groundedStill = 0f;
+        if (Time.time - lastJumpTime < 0.15f && rigid.velocity.y > 0.1f) return;   // 막 뛰어오르는 중
+        animator.SetTrigger(ParamLand);
+        CombatEvents.RaiseLanded(transform.position);   // [2026-11-21] 증강 (히어로 착지)
+        JumpCount = 0;
+    }
     Collider2D bodyCollider;
     // Scene 시각화용
     Vector2 lastCastOrigin;
@@ -674,12 +685,21 @@ public class PlayerController : MonoBehaviour
         lastCastDist = castDist;
         lastGrounded = grounded;
 
+        bool justJumped = rigid.velocity.y > 0.1f && Time.time - lastJumpTime < 0.15f;
+
         // 4. 착지 순간 — 착지 애니메이션 트리거는 "막 착지한 순간"에만 1회
+        // [2026-11-23] 점프 횟수 리셋도 여기서만 한다 (착지 애니메이션이 나올 때만 2단 점프가 다시 채워짐).
+        //   예전에는 바닥에 닿아 있는 '동안' 매 프레임 0으로 되돌려서, 공중에서 벽 모서리·발판 끝을 스치기만 해도
+        //   점프가 다시 채워지는 문제가 있었다.
         if (!wasGrounded && grounded && rigid.velocity.y <= 0)
+            Land();
+        // 착지 순간을 놓친 경우 (낮은 천장 밑에서 뛰어 바닥을 못 떠난 경우 등): 바닥에 0.25초 가만히 붙어 있으면 착지로 처리
+        if (grounded && JumpCount > 0 && !justJumped && Mathf.Abs(rigid.velocity.y) < 0.05f)
         {
-            animator.SetTrigger(ParamLand);
-            CombatEvents.RaiseLanded(transform.position);   // [2026-11-21] 증강 (히어로 착지)
+            groundedStill += Time.fixedDeltaTime;
+            if (groundedStill >= 0.25f) Land();
         }
+        else groundedStill = 0f;
 
         // 점프 횟수 리셋은 착지 "순간"이 아니라 바닥에 닿아있는 "동안" 매 프레임 계속 걸어준다.
         // 엣지에 걸쳐서 박스캐스트가 한두 프레임 반짝이며 놓쳐도(grounded가 true/false를 오가도)
@@ -690,10 +710,6 @@ public class PlayerController : MonoBehaviour
         // 점프 직후 2~3 물리 프레임 동안 아직 바닥에 닿은 걸로 나오는데, 그때 0이 되면
         // 공중에서 2번 더 뛸 수 있는 3단 점프가 됐었다.
         // (점프하고 0.15초가 지났으면 위로 움직이는 중이어도 되돌림 → 오르막에서도 점프 가능)
-        bool justJumped = rigid.velocity.y > 0.1f && Time.time - lastJumpTime < 0.15f;
-        if (grounded && !justJumped)
-            JumpCount = 0;
-
         wasGrounded = grounded;
         animator.SetBool(ParamIsGrounded, grounded);
     }
