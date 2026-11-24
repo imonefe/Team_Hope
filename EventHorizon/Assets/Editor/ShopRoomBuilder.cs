@@ -6,16 +6,16 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// [2026-11-16 추가] 2스테이지 상점 방 프리팹 생성기 (에디터 전용).
+/// [2026-11-16 추가] 1스테이지(금서고) 상점 방 프리팹 생성기 (에디터 전용).
 ///
-/// 메뉴: EventHorizon → 상점 방 프리팹 만들기 (2스테이지)
-///   1.Prefab/Room/Shop/ShopRoom_2S.prefab 을 만든다.
+/// 메뉴: EventHorizon → 상점 방 프리팹 만들기 (1스테이지(금서고))
+///   1.Prefab/Room/Shop/ShopRoom_1S.prefab 을 만든다.
 ///
 /// 만드는 방법
-///   - 2스테이지 전투 방(GradRoom_01)을 복사해서 시작한다 → 배경(3D 기둥·조명·볼륨), 문(포탈), 방 스크립트 설정을 그대로 물려받는다.
+///   - 1스테이지(금서고) 전투 방(GradRoom_01)을 복사해서 시작한다 → 배경(3D 기둥·조명·볼륨), 문(포탈), 방 스크립트 설정을 그대로 물려받는다.
 ///   - 몬스터 스포너·스폰 트리거·상자 생성기·함정을 지운다. 배경 책장은 원래 자리에 그대로 둔다.
-///   - 땅/발판 타일맵을 비우고 2스테이지 타일로 작은 상점 방을 새로 칠한다.
-///     (어떤 타일이 윗면·모서리·벽인지는 기존 2스테이지 방 5개에서 쓰인 방식을 그대로 따름)
+///   - 땅/발판 타일맵을 비우고 1스테이지(금서고) 타일로 작은 상점 방을 새로 칠한다.
+///     (어떤 타일이 윗면·모서리·벽인지는 기존 1스테이지(금서고) 방 5개에서 쓰인 방식을 그대로 따름)
 ///   - 오른쪽 단상 위에 상점 인물 자리(NPC), 왼쪽에 시작 위치, 오른쪽 끝에 문.
 ///   - [2026-11-16 수정] 조명·볼륨·3D 오브젝트(배경 책장·돌 배경 등)를 전부 지운다 → 타일맵만 남은 회색 상자 방.
 ///     상점 인물 자리는 흰색 상자(ShopNpc)로 표시한다. 그림·대화 연결은 나중에 이 상자를 바꿔 끼우면 된다.
@@ -25,12 +25,12 @@ using UnityEngine.Tilemaps;
 /// </summary>
 public static class ShopRoomBuilder
 {
-    const string SourceRoom = "Assets/1.Prefab/Room/graduate_S/GradRoom_01.prefab";
+    const string SourceRoom = "Assets/1.Prefab/Room/1S/GradRoom_01.prefab";
     const string NpcPrefab = "Assets/1.Prefab/Room/Lobby/NPC/NPC_Idle.prefab";
-    const string TileFolder = "Assets/4. Art/Environment/Stage2/Tiles/";
+    const string TileFolder = "Assets/4. Art/Environment/Stage1/Tiles/";
     const string OutFolderParent = "Assets/1.Prefab/Room";
     const string OutFolder = OutFolderParent + "/Shop";
-    const string OutPath = OutFolder + "/ShopRoom_2S.prefab";
+    const string OutPath = OutFolder + "/ShopRoom_1S.prefab";
     const string WhiteBoxPath = OutFolder + "/WhiteBox.png";
     const string LabelFontPath = "Assets/Etc/Font/HiKR-ExtraBold SDF.asset";
     static readonly Vector2 NpcBoxSize = new Vector2(1.5f, 2.5f);   // 흰 상자 크기 (칸 단위)
@@ -53,13 +53,13 @@ public static class ShopRoomBuilder
     static readonly (string name, int x)[] Shelves = { };
 
     // 전투용 오브젝트만 지운다 (몬스터 스포너·스폰 트리거·상자 생성기·언덕 장애물)
-    static readonly string[] RemovePrefixes = { "2sSp_", "SpawnTrigger", "box_sponer", "hillobj" };
+    static readonly string[] RemovePrefixes = { "2sSp_", "1sSp_", "SpawnTrigger", "box_sponer", "hillobj" };
 
-    [MenuItem("EventHorizon/상점 방 프리팹 만들기 (2스테이지)")]
+    [MenuItem("EventHorizon/상점 방 프리팹 만들기 (1스테이지(금서고))")]
     public static void Build()
     {
         if (AssetDatabase.LoadAssetAtPath<GameObject>(OutPath) != null &&
-            !EditorUtility.DisplayDialog("상점 방 프리팹", "이미 있는 ShopRoom_2S 프리팹을 덮어씁니다. 손으로 고친 내용은 사라집니다.", "덮어쓰기", "취소"))
+            !EditorUtility.DisplayDialog("상점 방 프리팹", "이미 있는 ShopRoom_1S 프리팹을 덮어씁니다. 손으로 고친 내용은 사라집니다.", "덮어쓰기", "취소"))
             return;
 
         var src = AssetDatabase.LoadAssetAtPath<GameObject>(SourceRoom);
@@ -80,7 +80,7 @@ public static class ShopRoomBuilder
         {
             var room = (GameObject)PrefabUtility.InstantiatePrefab(src, scene);
             PrefabUtility.UnpackPrefabInstance(room, PrefabUnpackMode.OutermostRoot, InteractionMode.AutomatedAction);
-            room.name = "ShopRoom_2S";
+            room.name = "ShopRoom_1S";
 
             var ground = Find(room.transform, "Tilemap_Grund").GetComponent<Tilemap>();
             var platform = Find(room.transform, "Tilemap_Platform").GetComponent<Tilemap>();

@@ -32,7 +32,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 16.19, y: 6.6, z: 0}
-  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_LocalScale: {x: 1.44, y: 1.44, z: 1.44}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6248209275996739836}
@@ -109,6 +109,7 @@ MonoBehaviour:
   hitFlashTime: 0.1
   flashMaterial: {fileID: 2100000, guid: 27766ac43c36d4f487e09e491baf06fb, type: 2}
   hitboxPrefab: {fileID: 0}
+  spawnScale: 1.2
   hitboxPoint: {fileID: 3224858629989917569}
   iceShardPrefab: {fileID: 5244563724159452596, guid: d0d75d2c8c8188443bd5e37e879fcb65, type: 3}
   projectilePrefab: {fileID: 8282207425675862682, guid: 16ed94fe8c52a4c43a15afc25c60c34c, type: 3}

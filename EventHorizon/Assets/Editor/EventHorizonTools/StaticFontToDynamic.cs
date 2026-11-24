@@ -6,7 +6,7 @@ using TMPro;
 /// <summary>
 /// [2026-10-27 추가] 한글 2,488자를 4096 글자판에 미리 구워 둔 "고정(Static)" 글꼴 에셋을 "동적(Dynamic)" 으로 바꾼다.
 ///
-/// - 대상: HiKR-ExtraBold SDF, BoldGFCRedSpiritSDF, BlackGFCRedSpirit SDF (각 34.8MB → 거의 0)
+/// - 대상: HiKR-ExtraBold SDF, BlackGFCRedSpirit SDF (각 34.8MB → 거의 0)
 /// - 바꾸는 것: 미리 구운 글자 전부 지움 → 글자판 2048 한 장(모자라면 자동으로 한 장 더) →
 ///   화면에 처음 나오는 글자만 그때 글꼴 파일에서 그려 넣음. 빌드할 때는 그려 둔 글자를 비워서 빌드 크기도 작게.
 /// - 유니티가 켜지거나 스크립트가 다시 불러와질 때 아직 고정 방식이면 자동으로 한 번 실행된다 (이미 동적이면 아무것도 안 함).
@@ -20,7 +20,6 @@ public static class StaticFontToDynamic
     static readonly string[] Targets =
     {
         "Assets/Etc/Font/HiKR-ExtraBold SDF.asset",
-        "Assets/Etc/Font/BoldGFCRedSpiritSDF.asset",
         "Assets/Etc/Font/BlackGFCRedSpirit SDF.asset",
     };
     const int AtlasSize = 2048;

@@ -101,6 +101,7 @@ public class RoomManager : MonoBehaviour
         if (playerObj != null)
         {
             playerObj.transform.position = room.GetSpawnPosition();
+            FaceRight(playerObj.transform);   // [2026-11-24] 방에 들어가면 항상 오른쪽을 봄
 
             // [2026-10-10 추가] 포탈에서 점프·낙하 중이던 속도가 새 방까지 이어지지 않게 초기화
             Rigidbody2D playerRb = playerObj.GetComponent<Rigidbody2D>();
@@ -324,8 +325,16 @@ public class RoomManager : MonoBehaviour
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj == null) return;
         playerObj.transform.position = pos;
+        FaceRight(playerObj.transform);   // [2026-11-24] 중간보스 방 드나들 때도 오른쪽
         Rigidbody2D rb = playerObj.GetComponent<Rigidbody2D>();
         if (rb != null) { rb.velocity = Vector2.zero; rb.position = pos; }
         if (CameraFollow.Instance != null) CameraFollow.Instance.SnapToTargets();
+    }
+
+    /// <summary>[2026-11-24] 플레이어가 오른쪽을 보게 (PlayerController.Flip 과 같은 방식: 가로 크기 부호 = 보는 방향)</summary>
+    static void FaceRight(Transform player)
+    {
+        Vector3 s = player.localScale;
+        player.localScale = new Vector3(Mathf.Abs(s.x), s.y, s.z);
     }
 }

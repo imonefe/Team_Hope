@@ -30,6 +30,8 @@ public class Enemy : MonoBehaviour
     public GameObject hitboxPrefab;
     public Transform hitboxPoint;
     public GameObject projectilePrefab; // 원거리 투사체 (없으면 미사용)
+    [Tooltip("[2026-11-24] 이 적이 만드는 공격 판정 · 투사체 · 공격 이펙트의 크기 배율. 몸을 키운 적(2스테이지 1.2배)은 같은 배율로")]
+    public float spawnScale = 1f;
 
     [Header("공격 스프라이트 이펙트 (선택)")]
     [Tooltip("공격 애니메이션 이벤트로 소환할 이펙트 프리펩")]
@@ -658,6 +660,7 @@ public class Enemy : MonoBehaviour
         if (hitboxPrefab != null && hitboxPoint != null)
         {
             GameObject obj = Instantiate(hitboxPrefab, hitboxPoint.position, hitboxPoint.rotation);
+            if (spawnScale != 1f) obj.transform.localScale *= spawnScale;
             // 돌진 공격 등: 판정이 적을 따라 움직이도록 (월드 크기는 그대로 유지)
             if (hitboxFollowAttacker) obj.transform.SetParent(hitboxPoint, true);
             Hitbox hb = obj.GetComponent<Hitbox>();
@@ -675,6 +678,7 @@ public class Enemy : MonoBehaviour
         {
             Vector3 spawnPos = hitboxPoint != null ? hitboxPoint.position : transform.position;
             GameObject proj = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
+            if (spawnScale != 1f) proj.transform.localScale *= spawnScale;
 
             ProjectileStraight ps = proj.GetComponent<ProjectileStraight>();
             if (ps != null)
@@ -712,6 +716,7 @@ public class Enemy : MonoBehaviour
                     : (hitboxPoint != null ? hitboxPoint.position : transform.position);
 
         GameObject fx = Instantiate(attackEffectPrefab, pos, Quaternion.identity);
+        if (spawnScale != 1f) fx.transform.localScale *= spawnScale;
 
         // 왼쪽을 향하면 좌우 반전 (파티클/스프라이트 공통)
         if (effectFlipByFacing && dir < 0)

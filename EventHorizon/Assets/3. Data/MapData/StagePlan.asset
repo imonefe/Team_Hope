@@ -14,148 +14,148 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entries:
   - id: tutorial
-    group: "\uc2dc\uc791"
-    label: "\ud29c\ud1a0\ub9ac\uc5bc"
+    group: "\uC2DC\uC791"
+    label: "\uD29C\uD1A0\uB9AC\uC5BC"
     kind: 0
     room: {fileID: 8274060166707066929, guid: 12479a49aa394754fa4bbe788bd0d635, type: 3}
     roomData: {fileID: 0}
     defaultOn: 1
   - id: 1s_lobby
-    group: "1S"
-    label: "\ub85c\ube44"
+    group: 1S
+    label: "\uB85C\uBE44"
     kind: 1
     room: {fileID: 8548028022454420013, guid: 085831358d7842c585da074824a8821b, type: 3}
     roomData: {fileID: 0}
     defaultOn: 1
   - id: 1s_01
-    group: "1S"
-    label: "1. \uc804\ud22c"
+    group: 1S
+    label: "1. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_02
-    group: "1S"
-    label: "2. \uc804\ud22c"
+    group: 1S
+    label: "2. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_03
-    group: "1S"
-    label: "3. \uc911\uac04 \ubcf4\uc2a4 (\uad00\ud1b5)"
+    group: 1S
+    label: "3. \uC911\uAC04 \uBCF4\uC2A4 (\uAD00\uD1B5)"
     kind: 3
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: bbcb25745c9f47b0b21fc74b421388de, type: 2}
     defaultOn: 1
   - id: 1s_04
-    group: "1S"
-    label: "4. \uc804\ud22c"
+    group: 1S
+    label: "4. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_05
-    group: "1S"
-    label: "5. \uc804\ud22c"
+    group: 1S
+    label: "5. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_06
-    group: "1S"
-    label: "6. \uc911\uac04 \ubcf4\uc2a4 (\ucc38\uaca9)"
+    group: 1S
+    label: "6. \uC911\uAC04 \uBCF4\uC2A4 (\uCC38\uACA9)"
     kind: 3
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 05e8517e3b04405aa7fd35fe2cd49d03, type: 2}
     defaultOn: 1
   - id: 1s_07
-    group: "1S"
-    label: "7. \uc804\ud22c"
+    group: 1S
+    label: "7. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_08
-    group: "1S"
-    label: "8. \uc804\ud22c"
+    group: 1S
+    label: "8. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_09
-    group: "1S"
-    label: "9. \uc911\uac04 \ubcf4\uc2a4 (\ud0c0\uaca9)"
+    group: 1S
+    label: "9. \uC911\uAC04 \uBCF4\uC2A4 (\uD0C0\uACA9)"
     kind: 3
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: fe82b2507d9d4459a4fea2fd02972600, type: 2}
     defaultOn: 1
   - id: 1s_10
-    group: "1S"
-    label: "10. \uc804\ud22c"
+    group: 1S
+    label: "10. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_11
-    group: "1S"
-    label: "11. \uc0c1\uc810"
+    group: 1S
+    label: "11. \uC0C1\uC810"
     kind: 4
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: fb8957abaadaf7e44a90fb802d04cee9, type: 2}
     defaultOn: 1
   - id: 1s_12
-    group: "1S"
-    label: "12. \ubcf4\uc2a4\ubc29"
+    group: 1S
+    label: "12. \uBCF4\uC2A4\uBC29"
     kind: 5
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: a7a69df3d4a7efe4294e61da39729519, type: 2}
     defaultOn: 1
   - id: 2s_lobby
-    group: "2S"
-    label: "\ub85c\ube44"
+    group: 2S
+    label: "\uB85C\uBE44"
     kind: 1
     room: {fileID: 8548028022454420013, guid: 085831358d7842c585da074824a8821b, type: 3}
     roomData: {fileID: 0}
     defaultOn: 1
   - id: 2s_01
-    group: "2S"
-    label: "1. \uc804\ud22c"
+    group: 2S
+    label: "1. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: dc4f7257bb39bbb4ca7d5f28e35ec294, type: 2}
     defaultOn: 1
   - id: 2s_02
-    group: "2S"
-    label: "2. \uc804\ud22c"
+    group: 2S
+    label: "2. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: dc4f7257bb39bbb4ca7d5f28e35ec294, type: 2}
     defaultOn: 1
   - id: 2s_03
-    group: "2S"
-    label: "3. \uc804\ud22c"
+    group: 2S
+    label: "3. \uC804\uD22C"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: dc4f7257bb39bbb4ca7d5f28e35ec294, type: 2}
     defaultOn: 1
   - id: 2s_04
-    group: "2S"
-    label: "4. \uc0c1\uc810"
+    group: 2S
+    label: "4. \uC0C1\uC810"
     kind: 4
     room: {fileID: 0}
-    roomData: {fileID: 11400000, guid: fb8957abaadaf7e44a90fb802d04cee9, type: 2}
+    roomData: {fileID: 11400000, guid: 9959c89b451539c4d98bf1e4fae80dc0, type: 2}
     defaultOn: 1
   - id: 2s_05
-    group: "2S"
-    label: "5. \ubcf4\uc2a4\ubc29"
+    group: 2S
+    label: "5. \uBCF4\uC2A4\uBC29"
     kind: 5
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 0e3b8aae43da30d47910bc590969469a, type: 2}
     defaultOn: 1
   - id: 2s_end
-    group: "2S"
-    label: "6. \uc5d4\ub529"
+    group: 2S
+    label: "6. \uC5D4\uB529"
     kind: 3
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 5f27167883a4422491777bb19a40314a, type: 2}

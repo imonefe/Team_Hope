@@ -50,6 +50,17 @@ public class Portal : ProximityInteractable
         SetActive(false);
     }
 
+    // [2026-11-24] 방이 잠깐 꺼졌다 켜지면(중간보스 방에 다녀올 때) 애니메이터가 처음 상태(닫힌 문)로 돌아가
+    //  문은 열려 있는데 닫힌 그림으로 보였다 → 열린 상태면 여는 애니메이션을 다시 걸어 열린 그림으로 맞춘다
+    void OnEnable()
+    {
+        if (isActive && animator != null)
+        {
+            animator.enabled = true;
+            animator.SetTrigger(openTrigger);
+        }
+    }
+
     public void SetActive(bool value)
     {
         isActive = value;

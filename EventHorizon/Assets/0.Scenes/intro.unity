@@ -2185,8 +2185,8 @@ MonoBehaviour:
 
     <color=#EDCC85>HORIZON</color>'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: c8dd737fd55cf7348865e59135d16571, type: 2}
-  m_sharedMaterial: {fileID: -3349638658498980409, guid: c8dd737fd55cf7348865e59135d16571, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7e05f22b1a59e194b8ae267349cc9235, type: 2}
+  m_sharedMaterial: {fileID: -4916328497240475513, guid: 7e05f22b1a59e194b8ae267349cc9235, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,6 +47,9 @@ public class AugmentOfferWindow : ShopWindow
         public GameObject[] chips = new GameObject[2];
         public Image[] chipIcons = new Image[2];
         public TMP_Text[] chipLabels = new TMP_Text[2];
+        public Vector2 basePos;          // [2026-11-24] 등장 연출이 돌아올 원래 자리
+        public Tween scaleTween;         // [2026-11-24] 선택 확대 · 축소
+        public int shownSel = -1;        // 마지막으로 적용한 선택 상태 (-1 = 아직 없음, 0 = 아님, 1 = 선택)
     }
 
     class OwnedRow
@@ -82,6 +86,7 @@ public class AugmentOfferWindow : ShopWindow
             var t = Find($"Cards/Card_{i}");
             if (t == null) continue;
             var c = new Card { root = (RectTransform)t };
+            c.basePos = c.root.anchoredPosition;
             c.selectFrame = t.Find("SelectFrame")?.gameObject;
             c.border = t.Find("Border")?.GetComponent<Image>();
             var body = t.Find("Body");
@@ -150,49 +155,120 @@ public class AugmentOfferWindow : ShopWindow
         return true;
     }
 
-    // [2026-11-21 변경] 열릴 때: 배경 · 제목 · 보유 목록은 바로 보이고, 증강 카드 3장만 왼쪽부터 차례로 투명도 페이드인
-    [Header("[2026-11-21] 열릴 때 연출 — 카드 순차 페이드인")]
-    [Tooltip("카드 한 장이 투명 → 불투명이 되는 시간(초)")]
-    public float cardFadeTime = 0.25f;
-    [Tooltip("다음 카드가 페이드를 시작하기까지 간격(초)")]
-    public float cardStagger = 0.12f;
+    // [2026-11-21 변경 · 11-24 두트윈으로 교체] 열릴 때: 배경 · 제목 · 보유 목록은 바로 보이고,
+    // 증강 카드 3장만 왼쪽부터 차례로 위에서 아래로 내려오며 페이드인 (게임이 멈춘 상태라 실제 시간 기준)
+    [Header("[2026-11-24] 열릴 때 연출 — 카드 순차 등장 (두트윈)")]
+    [Tooltip("카드 한 장이 나타나는 시간(초)")]
+    public float cardFadeTime = 0.9f;    // [2026-11-24] 0.35 → 0.9 (더 천천히 나타나게)
+    [Tooltip("다음 카드가 나타나기 시작하기까지 간격(초)")]
+    public float cardStagger = 0.7f;     // [2026-11-24] 0.12 → 0.7 (카드 사이 간격)
+    [Tooltip("카드가 얼마나 위에서 내려오는지 (UI 단위)")]
+    public float cardDropDistance = 40f;
+    [Header("[2026-11-24] 선택 카드 확대 연출 (두트윈)")]
+    [Tooltip("선택한 카드가 커지는 시간(초)")]
+    public float selectScaleTime = 0.18f;
+    [Tooltip("선택이 풀린 카드가 원래 크기로 줄어드는 시간(초)")]
+    public float deselectScaleTime = 0.12f;
     readonly CanvasGroup[] cardGroups = new CanvasGroup[CardCount];
-    float introT = -1f;
-    float IntroTotal => cardStagger * (CardCount - 1) + cardFadeTime;
+    Sequence introSeq;
+    bool introPlaying;
 
     protected override void OnOpened()
     {
-        RefreshAll();
-        for (int i = 0; i < CardCount; i++)
-            if (cardGroups[i] == null && cards[i] != null && cards[i].root != null)
-            {
-                cardGroups[i] = cards[i].root.GetComponent<CanvasGroup>();   // 에디터에서 카드에 붙여 두면 그걸 씀
-                if (cardGroups[i] == null) cardGroups[i] = cards[i].root.gameObject.AddComponent<CanvasGroup>();
-            }
-        introT = 0f;
-        ApplyIntro(0f);
-    }
-
-    void ApplyIntro(float t)
-    {
+        KillTweens();
         for (int i = 0; i < CardCount; i++)
         {
-            if (cardGroups[i] == null) continue;
-            float k = cardFadeTime > 0f ? Mathf.Clamp01((t - cardStagger * i) / cardFadeTime) : 1f;
-            cardGroups[i].alpha = k * k * (3f - 2f * k);   // 부드럽게 시작 · 끝
+            var c = cards[i];
+            if (c == null || c.root == null) continue;
+            c.shownSel = -1;   // 처음 그릴 때는 크기를 바로 맞춤 (연출 없이)
+            if (cardGroups[i] == null)
+            {
+                cardGroups[i] = c.root.GetComponent<CanvasGroup>();   // 에디터에서 카드에 붙여 두면 그걸 씀
+                if (cardGroups[i] == null) cardGroups[i] = c.root.gameObject.AddComponent<CanvasGroup>();
+            }
         }
+        RefreshAll();
+        PlayIntro();
+    }
+
+    void PlayIntro()
+    {
+        introPlaying = true;
+        introSeq = DOTween.Sequence().SetUpdate(true);
+        for (int i = 0; i < CardCount; i++)
+        {
+            var c = cards[i];
+            var g = cardGroups[i];
+            if (c == null || g == null) continue;
+            g.alpha = 0f;
+            g.blocksRaycasts = false;   // 다 나타나기 전에는 마우스로도 고르지 않음 (잘못 누름 방지)
+            c.root.anchoredPosition = c.basePos + new Vector2(0f, cardDropDistance);
+            float at = cardStagger * i;
+            // [2026-11-24 변경] 내려오는 동시에 투명 0 → 1, 제자리에 닿는 순간 100%가 되도록 같은 시간 · 같은 곡선
+            introSeq.Insert(at, g.DOFade(1f, cardFadeTime).SetEase(Ease.OutCubic));
+            introSeq.Insert(at, c.root.DOAnchorPos(c.basePos, cardFadeTime).SetEase(Ease.OutCubic));
+        }
+        introSeq.OnComplete(FinishIntro);
+    }
+
+    // [2026-11-24] 등장 연출을 끝까지 건너뜀 (남은 카드를 제자리 · 완전히 보이게)
+    void SkipIntro()
+    {
+        if (!introPlaying) return;
+        if (introSeq != null) introSeq.Complete();   // OnComplete → FinishIntro
+        if (introPlaying) FinishIntro();
+    }
+
+    void FinishIntro()
+    {
+        introPlaying = false;
+        introSeq = null;
+        for (int i = 0; i < CardCount; i++)
+        {
+            if (cardGroups[i] != null) { cardGroups[i].alpha = 1f; cardGroups[i].blocksRaycasts = true; }
+            if (cards[i] != null && cards[i].root != null) cards[i].root.anchoredPosition = cards[i].basePos;
+        }
+    }
+
+    void KillTweens()
+    {
+        if (introSeq != null) { introSeq.Kill(); introSeq = null; }
+        introPlaying = false;
+        foreach (var c in cards)
+            if (c != null && c.scaleTween != null) { c.scaleTween.Kill(); c.scaleTween = null; }
+    }
+
+    // [2026-11-24] 선택한 카드는 살짝 튀며 커지고, 선택이 풀린 카드는 부드럽게 원래 크기로
+    void ApplySelectScale(Card c, bool sel)
+    {
+        int state = sel ? 1 : 0;
+        if (c.shownSel == state) return;
+        bool instant = c.shownSel < 0;
+        c.shownSel = state;
+        if (c.scaleTween != null) { c.scaleTween.Kill(); c.scaleTween = null; }
+        Vector3 target = Vector3.one * (sel ? selectedScale : 1f);
+        if (instant) { c.root.localScale = target; return; }
+        c.scaleTween = c.root.DOScale(target, sel ? selectScaleTime : deselectScaleTime)
+            .SetEase(sel ? Ease.OutBack : Ease.OutQuad)
+            .SetUpdate(true);
     }
 
     // Esc 로 닫히지 않게 base.Update 를 부르지 않는다
     protected override void Update()
     {
         if (!IsOpen) return;
-        if (introT >= 0f)
+        // [2026-11-24 변경] 카드가 나오는 중에도 ← → 로 고르기는 바로 됨.
+        // 결정 키(Space · Enter · 1 2 3)는 아직 안 보인 카드를 고르는 실수를 막으려고 '남은 카드를 바로 다 보여 주기'로만 씀
+        if (introPlaying)
         {
-            introT += Time.unscaledDeltaTime;
-            ApplyIntro(introT);
-            if (introT >= IntroTotal) introT = -1f;
-            else return;   // 카드가 다 나타나기 전에는 키 입력으로 고르지 않음 (잘못 누름 방지)
+            int prev = selected;
+            if (Input.GetKeyDown(KeyCode.LeftArrow)) selected = Step(-1);
+            if (Input.GetKeyDown(KeyCode.RightArrow)) selected = Step(+1);
+            for (int i = 0; i < CardCount; i++)
+                if ((Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i)) && offers[i] != null) { selected = i; SkipIntro(); }
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) SkipIntro();
+            if (selected != prev) RefreshAll();
+            return;
         }
         int before = selected;
         if (Input.GetKeyDown(KeyCode.LeftArrow)) selected = Step(-1);
@@ -225,6 +301,7 @@ public class AugmentOfferWindow : ShopWindow
         Inventory.Instance?.AddPassive(d);
         RunManager.Instance?.RegisterObtained(d);
         ReleaseAll();
+        KillTweens();
         Close();
         if (p.go != null) ItemPickupEffect.Spawn(p.go.transform.position, d);
         YoungbokChatter.OnItemPicked();
@@ -240,7 +317,7 @@ public class AugmentOfferWindow : ShopWindow
         }
     }
 
-    void OnDestroy() => ReleaseAll();
+    void OnDestroy() { KillTweens(); ReleaseAll(); }
 
     ItemData Pick(HashSet<ItemData> used, float[] odds)
     {
@@ -294,7 +371,7 @@ public class AugmentOfferWindow : ShopWindow
             c.root.gameObject.SetActive(d != null);
             if (d == null) continue;
             bool sel = i == selected;
-            c.root.localScale = Vector3.one * (sel ? selectedScale : 1f);
+            ApplySelectScale(c, sel);
             if (c.selectFrame != null) c.selectFrame.SetActive(sel);
 
             Color tc = ShopColors.Tier(d.tier);
@@ -333,7 +410,7 @@ public class AugmentOfferWindow : ShopWindow
 
         // 선택 표시 화살표
         if (arrow != null && selected >= 0 && selected < CardCount && cards[selected] != null)
-            arrow.anchoredPosition = new Vector2(cards[selected].root.anchoredPosition.x, arrow.anchoredPosition.y);
+            arrow.anchoredPosition = new Vector2(cards[selected].basePos.x, arrow.anchoredPosition.y);
 
         RefreshOwned(counts);
     }

@@ -20,7 +20,7 @@ public class HoloCloneSkill : MonoBehaviour
     [Header("대상")]
     // [Faust 2026-11-09] 대상 수가 아니라 "공격 횟수". 화면 안 적이 이보다 적으면 남은 횟수만큼 적을 랜덤으로 다시 골라 채움
     [UnityEngine.Serialization.FormerlySerializedAs("maxTargets")]
-    public int attackCount = 10;
+    public int attackCount = 5;             // [2026-11-24] 10 → 5
     public float screenMargin = 0.3f;       // 화면 가장자리에서 이만큼 안쪽에 있는 적만 (월드 단위)
     public Camera viewCamera;               // 비우면 적을 그리는 카메라 중 화면이 가장 넓은 것 (이 씬에선 Camera_2D)
 

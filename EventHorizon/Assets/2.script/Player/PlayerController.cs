@@ -1451,6 +1451,7 @@ public class PlayerController : MonoBehaviour
         }
 
         fx.SetActive(true);
+        FitEffectToSwing(anchor.transform, fx);   // [2026-11-24] 조준 고정으로 판정이 커졌으면 그만큼만 이펙트도 늘림
 
         // 삭제 시간
         float life = piece.lifetime;
@@ -1465,6 +1466,49 @@ public class PlayerController : MonoBehaviour
             }
         }
         Destroy(anchor, life);
+    }
+
+    /// <summary>
+    /// [2026-11-24] 증강 '조준 고정': 이번 평타 판정이 커진 만큼만 무기 궤적 이펙트를 늘린다 (통째로 키우지 않음).
+    ///  - 앞쪽: 판정 앞 끝이 앞으로 나간 거리만큼 이펙트 앞 끝도 나감 (뒤 끝은 그대로)
+    ///  - 위아래: 판정 윗변 · 아랫변이 늘어난 만큼
+    ///  이펙트 범위는 메시 · 스프라이트 그림으로 재고, 파티클만 있는 이펙트는 '이펙트 위치 ~ 판정 앞 끝'을 범위로 본다.
+    /// </summary>
+    void FitEffectToSwing(Transform anchor, GameObject fx)
+    {
+        if (!CombatEvents.HasSwingFit || anchor == null || fx == null) return;
+        Rect h0 = CombatEvents.SwingFitFrom, h1 = CombatEvents.SwingFitTo;
+        int face = CombatEvents.SwingFitFacing;
+        float front0 = face > 0 ? h0.xMax : h0.xMin, front1 = face > 0 ? h1.xMax : h1.xMin;
+        float dFront = Mathf.Max(0f, (front1 - front0) * face);
+        float dTop = Mathf.Max(0f, h1.yMax - h0.yMax), dBottom = Mathf.Max(0f, h0.yMin - h1.yMin);
+        if (dFront < 0.001f && dTop < 0.001f && dBottom < 0.001f) return;
+
+        bool any = false; Bounds b = default;
+        foreach (var r in fx.GetComponentsInChildren<Renderer>())
+        {
+            if (r is ParticleSystemRenderer || !r.enabled) continue;
+            if (!any) { b = r.bounds; any = true; } else b.Encapsulate(r.bounds);
+        }
+        Vector3 a = anchor.position;
+        float back, width, bottom, height;
+        if (any && b.size.x > 0.05f && b.size.y > 0.05f)
+        {
+            back = face > 0 ? b.min.x : b.max.x; width = b.size.x; bottom = b.min.y; height = b.size.y;
+        }
+        else
+        {
+            back = a.x; width = Mathf.Max(0.5f, Mathf.Abs(front0 - a.x)); bottom = h0.yMin; height = Mathf.Max(0.5f, h0.height);
+        }
+        float sx = (width + dFront) / width, sy = (height + dTop + dBottom) / height;
+
+        // 뒤 끝(x)을 고정점으로 앞으로만, 아랫변이 dBottom 만큼 내려가도록 위아래로 늘림
+        float newX = back + (a.x - back) * sx;
+        float pivotY = Mathf.Abs(1f - sy) < 0.0001f ? a.y : bottom - dBottom / (1f - sy);
+        float newY = pivotY + (a.y - pivotY) * sy;
+        anchor.position = new Vector3(newX, newY, a.z);
+        Vector3 s = anchor.localScale;
+        anchor.localScale = new Vector3(s.x * sx, s.y * sy, s.z);
     }
 
     /// <summary>

@@ -17,6 +17,13 @@ public enum KeyAction
     WeaponSwap, // [2026-11-16 추가] 무기 교체 (검 → 건틀릿 → 망치 순환)
 }
 
+/// <summary>[2026-11-24 추가] 키 배치 묶음 — 설정 창 버튼 하나로 통째로 바꾼다</summary>
+public enum KeyPreset
+{
+    Skul,     // 기본형 (기본값, 스컬 배치): Z 대시 · X 공격 · C 점프 · D 제로포인트 · F 상호작용 · Space 무기 교체
+    Classic,  // 조정형 (2026-11-24 이전 배치): Space 점프 · D 공격 · Shift 대시 · F 제로포인트 · C 상호작용 · Tab 무기 교체
+}
+
 /// <summary>
 /// [2026-11-11 추가] 조작 키 저장소. 키를 읽는 곳은 전부 KeyBindings.Get(동작) 을 쓴다.
 ///
@@ -30,17 +37,33 @@ public static class KeyBindings
 {
     static readonly Dictionary<KeyAction, KeyCode> Defaults = new Dictionary<KeyAction, KeyCode>
     {
-        { KeyAction.Jump, KeyCode.Space },
-        { KeyAction.Attack, KeyCode.D },   // [2026-11-11] E → R · [2026-11-20] R → D
-        { KeyAction.Dash, KeyCode.LeftShift },
-        // [2026-11-20] 스킬 Q·W·E → A·S (스킬 칸 2개), 퍼즈 D → F, 상호작용 F → C
+        // [2026-11-24] 스컬 기본 배치에 맞춤: Z 대시 · X 공격 · C 점프 · A S 스킬 · D 제로포인트 · F 상호작용 · Space 교체
+        { KeyAction.Jump, KeyCode.C },          // [2026-11-24] Space → C
+        { KeyAction.Attack, KeyCode.X },        // [2026-11-11] E → R · [2026-11-20] R → D · [2026-11-24] D → X
+        { KeyAction.Dash, KeyCode.Z },          // [2026-11-24] LeftShift → Z
+        // [2026-11-20] 스킬 Q·W·E → A·S (스킬 칸 2개)
         { KeyAction.Skill1, KeyCode.A },   // 무기 스킬 (0번 칸)
         { KeyAction.Skill2, KeyCode.S },   // 일반 스킬 (1번 칸)
         { KeyAction.Skill3, KeyCode.None },// [2026-11-20] 칸 없음 — 번호 유지용으로만 남김 (키 없음)
+        { KeyAction.Pause, KeyCode.D },         // [2026-11-24] F → D (스컬의 정수 키 자리)
+        { KeyAction.Interact, KeyCode.F },      // [2026-11-24] C → F
+        { KeyAction.Inventory, KeyCode.I },
+        { KeyAction.WeaponSwap, KeyCode.Space },   // [2026-11-16 추가] [2026-11-24] Tab → Space (스컬의 머리 교체 자리)
+    };
+
+    // [2026-11-24] 스컬식으로 바꾸기 전 배치 (2026-11-20 ~ 11-24 기본값)
+    static readonly Dictionary<KeyAction, KeyCode> ClassicPreset = new Dictionary<KeyAction, KeyCode>
+    {
+        { KeyAction.Jump, KeyCode.Space },
+        { KeyAction.Attack, KeyCode.D },
+        { KeyAction.Dash, KeyCode.LeftShift },
+        { KeyAction.Skill1, KeyCode.A },
+        { KeyAction.Skill2, KeyCode.S },
+        { KeyAction.Skill3, KeyCode.None },
         { KeyAction.Pause, KeyCode.F },
         { KeyAction.Interact, KeyCode.C },
         { KeyAction.Inventory, KeyCode.I },
-        { KeyAction.WeaponSwap, KeyCode.Tab },   // [2026-11-16 추가]
+        { KeyAction.WeaponSwap, KeyCode.Tab },
     };
 
     static readonly Dictionary<KeyAction, KeyCode> current = new Dictionary<KeyAction, KeyCode>();
@@ -54,7 +77,7 @@ public static class KeyBindings
     // [2026-11-20] 기본 키 배치가 바뀔 때마다 1씩 올린다. 저장된 값이 예전 버전이면 한 번 지우고 새 기본값으로 시작
     // (예전 Q·W·E·D·F 저장값이 남아 새 배치와 겹치는 것 방지)
     const string VersionKey = "EH_KeyVer";
-    const int Version = 3;   // [2026-11-20] 3: 공격 R → D
+    const int Version = 4;   // [2026-11-20] 3: 공격 R → D · [2026-11-24] 4: 스컬식 배치
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatics()
@@ -178,6 +201,35 @@ public static class KeyBindings
         }
         PlayerPrefs.Save();
         Changed?.Invoke();
+    }
+
+    /// <summary>[2026-11-24] 키 배치 묶음을 통째로 적용 (저장까지)</summary>
+    public static void ApplyPreset(KeyPreset preset)
+    {
+        EnsureLoaded();
+        var src = preset == KeyPreset.Classic ? ClassicPreset : Defaults;
+        foreach (var pair in src)
+        {
+            current[pair.Key] = pair.Value;
+            if (pair.Value == Defaults[pair.Key]) PlayerPrefs.DeleteKey(Prefix + pair.Key);   // 기본값과 같으면 저장하지 않음
+            else PlayerPrefs.SetInt(Prefix + pair.Key, (int)pair.Value);
+        }
+        PlayerPrefs.Save();
+        Changed?.Invoke();
+    }
+
+    /// <summary>[2026-11-24] 지금 키가 어느 묶음과 똑같은지 (하나씩 바꿔 섞였으면 null)</summary>
+    public static KeyPreset? CurrentPreset()
+    {
+        if (Matches(Defaults)) return KeyPreset.Skul;
+        if (Matches(ClassicPreset)) return KeyPreset.Classic;
+        return null;
+    }
+
+    static bool Matches(Dictionary<KeyAction, KeyCode> set)
+    {
+        foreach (var pair in set) if (Get(pair.Key) != pair.Value) return false;
+        return true;
     }
 
     /// <summary>지금 키가 전부 처음 값인지 (전시 모드 확인용)</summary>

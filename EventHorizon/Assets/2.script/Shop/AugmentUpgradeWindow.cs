@@ -64,7 +64,7 @@ public class AugmentUpgradeWindow : ShopWindow
             v.gradeRing = root.Find("IconSlot/GradeRing");
             v.costRow = root.Find("CostRow")?.gameObject;
             v.costCoin = root.Find("CostRow/CoinIcon")?.GetComponent<Image>();
-            if (v.costCoin != null) v.costCoin.color = shardTint;
+            if (v.costCoin != null) v.costCoin.color = Color.white;   // [2026-11-24] 아이콘을 증강 파편(coin02) 그림으로 바꿔 물들이기 안 함
             v.selectFrame = root.Find("SelectFrame")?.gameObject;
             var list = new List<Image>();
             var pipRoot = root.Find("LevelCol/Pips");
@@ -81,7 +81,7 @@ public class AugmentUpgradeWindow : ShopWindow
         dStats = FindText("Window/DetailStrip/Col_Stats/DetailStats");
 
         var headerCoin = transform.Find("Window/HeaderRow/CoinIcon")?.GetComponent<Image>();
-        if (headerCoin != null) headerCoin.color = shardTint;
+        if (headerCoin != null) headerCoin.color = Color.white;
 
         if (RunManager.Instance != null && !subscribed)
         {

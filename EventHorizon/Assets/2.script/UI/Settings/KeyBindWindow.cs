@@ -32,6 +32,11 @@ public class KeyBindWindow : MonoBehaviour
     public TMP_Text notice;
     [Tooltip("이 창이 열릴 때 숨길 설정 창 본문 (Panel)")]
     public GameObject mainPanel;
+    [Header("[2026-11-24] 키 배치 바꾸기 (기본형 ⇄ 조정형)")]
+    [Tooltip("누를 때마다 키 배치 묶음을 통째로 바꾸는 버튼")]
+    public Button presetButton;
+    [Tooltip("위 버튼 안의 글자 (다음에 바뀔 배치 이름을 보여 줌)")]
+    public TMP_Text presetLabel;
 
     const string HintText = "버튼을 누른 뒤 바꿀 키를 누르세요 · Esc 취소";
     const string WaitText = "키를 누르세요…";
@@ -65,6 +70,7 @@ public class KeyBindWindow : MonoBehaviour
             }
         if (resetButton != null) resetButton.onClick.AddListener(ResetAll);
         if (backButton != null) backButton.onClick.AddListener(Hide);
+        if (presetButton != null) presetButton.onClick.AddListener(TogglePreset);   // [2026-11-24]
     }
 
     public bool IsShown => gameObject.activeSelf;
@@ -167,8 +173,22 @@ public class KeyBindWindow : MonoBehaviour
         SetNotice("모든 키를 처음 값으로 되돌렸습니다");
     }
 
+    // [2026-11-24] 기본형 ⇄ 조정형 (하나씩 바꿔 섞인 상태면 조정형으로)
+    void TogglePreset()
+    {
+        Cancel();
+        var next = KeyBindings.CurrentPreset() == KeyPreset.Classic ? KeyPreset.Skul : KeyPreset.Classic;
+        KeyBindings.ApplyPreset(next);
+        Refresh();
+        SetNotice(next == KeyPreset.Classic
+            ? "조정형으로 바꿨습니다 — Space 점프 · D 공격 · Shift 대시 · F 제로포인트"
+            : "기본형으로 바꿨습니다 — C 점프 · X 공격 · Z 대시 · D 제로포인트");
+    }
+
     void Refresh()
     {
+        if (presetLabel != null)   // [2026-11-24] 버튼에는 '누르면 바뀔 배치'를 보여 줌
+            presetLabel.text = KeyBindings.CurrentPreset() == KeyPreset.Classic ? "기본형으로" : "조정형으로";
         if (rows == null) return;
         foreach (var r in rows)
             if (r.keyText != null) r.keyText.text = KeyBindings.KeyName(r.action);

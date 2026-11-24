@@ -341,12 +341,14 @@ public partial class AugmentRuntime
         var tr = tag.transform;
         int f = tag.facing;
 
-        // 조준 고정: 평타 판정만 키우고, 커진 범위는 판정 테두리에 노란 빛줄로 보여 줌 (무기 궤적 이펙트는 그대로)
+        // 조준 고정: 평타 판정을 키우고, 커지기 전 · 후 범위를 알려 줌 → 무기 궤적 이펙트가 판정이 늘어난 만큼만 같이 늘어남
+        // [2026-11-24] 예전의 노란 ㄷ자 테두리(판정 상자를 그대로 그린 것)는 없앰
         if (AimScale > 1.01f)
         {
+            var box = tag.GetComponent<BoxCollider2D>();
+            Rect before = box != null ? WorldRect(box) : default;
             tr.localScale = Vector3.Scale(tr.localScale, new Vector3(AimScale, AimScale, 1f));
-            var colA = tag.GetComponent<Collider2D>();
-            if (colA != null) StartCoroutine(AimOutline(colA));
+            if (box != null) CombatEvents.SetSwingFit(before, WorldRect(box), f);
         }
 
         // 과충전 망치: 최대 차지 강타 공격력 2배 (체력 50% 이하면 분홍)
@@ -456,6 +458,17 @@ public partial class AugmentRuntime
     {
         yield return new WaitForSeconds(0.12f);
         if (m.ghost != null) m.ghost.SetColor(m.color);
+    }
+
+    /// <summary>상자 판정의 지금 월드 범위 (물리 갱신을 기다리지 않고 크기 · 위치로 바로 계산)</summary>
+    static Rect WorldRect(BoxCollider2D box)
+    {
+        var t = box.transform;
+        Vector2 h = box.size * 0.5f, o = box.offset;
+        Vector3 a = t.TransformPoint(o - h), b = t.TransformPoint(o + h), c = t.TransformPoint(new Vector2(o.x - h.x, o.y + h.y)), d = t.TransformPoint(new Vector2(o.x + h.x, o.y - h.y));
+        float x0 = Mathf.Min(Mathf.Min(a.x, b.x), Mathf.Min(c.x, d.x)), x1 = Mathf.Max(Mathf.Max(a.x, b.x), Mathf.Max(c.x, d.x));
+        float y0 = Mathf.Min(Mathf.Min(a.y, b.y), Mathf.Min(c.y, d.y)), y1 = Mathf.Max(Mathf.Max(a.y, b.y), Mathf.Max(c.y, d.y));
+        return Rect.MinMaxRect(x0, y0, x1, y1);
     }
 
     IEnumerator AimOutline(Collider2D col)

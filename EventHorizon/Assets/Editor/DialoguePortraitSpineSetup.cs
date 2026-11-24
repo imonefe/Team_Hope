@@ -29,7 +29,7 @@ public static class DialoguePortraitSpineSetup
         new Entry { sprite = "Girl",    data = "heroine_idle", w = 3184, h = 5428, ox = 1650, oy = 5400, flip = true },
         new Entry { sprite = "boy",     data = "hero_idle",    w = 1948, h = 2806, ox = 900,  oy = 2730 },
         new Entry { sprite = "npc01",   data = "baek_idle",    w = 3330, h = 5150, ox = 1665, oy = 5050 },
-        new Entry { sprite = "2s_boos", data = "boss_idle",    w = 2870, h = 3811, ox = 1435, oy = 3700 },
+        new Entry { sprite = "1s_boss", data = "boss_idle",    w = 2870, h = 3811, ox = 1435, oy = 3700 },
         new Entry { sprite = "이영복_대화", data = "youngbok_idle", w = 1948, h = 2806, ox = 975, oy = 2535 },   // [2026-11-23] 영복 추가
     };
 

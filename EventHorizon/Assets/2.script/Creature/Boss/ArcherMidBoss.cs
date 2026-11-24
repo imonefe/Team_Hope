@@ -47,7 +47,7 @@ public class ArcherMidBoss : MidBossController
     public LayerMask wallMask;
     public GameObject teleportFx;          // 순간이동할 때 양쪽에 (선택)
     public float teleportHide = 0.22f;
-    public GameObject impactFx;            // 화살이 꽂히는 곳 (Boss2_ArrowImpactFX 등)
+    public GameObject impactFx;            // 화살이 꽂히는 곳 (Boss1_ArrowImpactFX 등)
     public GameObject sparkFx;             // 도탄 불꽃
 
     [Header("[ 패턴 1 — 스코프 사격 ]")]

@@ -2835,6 +2835,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EndingTalkCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 5731621981148664361, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 28.007812
+      objectReference: {fileID: 0}
     - target: {fileID: 8120108029818030662, guid: 5d682f9caa824a5794d4df4210940e1d, type: 3}
       propertyPath: m_Pivot.x
       value: 0

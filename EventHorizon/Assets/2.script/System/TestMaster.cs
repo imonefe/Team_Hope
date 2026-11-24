@@ -27,6 +27,10 @@ public class TestMaster : MonoBehaviour
 
     void Update()
     {
+        // [2026-11-24] Ctrl 을 누른 채로만 작동 — 숫자 1·2·3 은 증강 고르기 키와 겹치고,
+        // 전시장에서 관람객이 숫자를 눌러 게임이 초기화(5)되거나 적이 지워지는(3) 일을 막음
+        if (!(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))) return;
+
         // 1번: 몬스터 스폰
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {

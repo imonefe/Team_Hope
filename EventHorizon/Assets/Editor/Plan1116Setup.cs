@@ -14,8 +14,8 @@ using UnityEngine.UI;
 public static class Plan1116Setup
 {
     const string ShopMapPath = "Assets/3. Data/MapData/1S/ShopMap.asset";
-    const string CombatMapPath = "Assets/3. Data/MapData/1S/CombatMap.asset";
-    const string ShopRoomPath = "Assets/1.Prefab/Room/Shop/ShopRoom_2S.prefab";
+    const string CombatMapPath = "Assets/3. Data/MapData/2S/CombatMap.asset";
+    const string ShopRoomPath = "Assets/1.Prefab/Room/Shop/ShopRoom_1S.prefab";
     const string NodeCanvasPath = "Assets/1.Prefab/UI/MapNode/graduate.prefab";
     const string ShopIconPath = "Assets/4. Art/Textures/UI/MapNode/Shop.png";
     const string SettingsPath = "Assets/1.Prefab/UI/Canvas/설정/Resources/SettingsCanvas.prefab";

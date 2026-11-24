@@ -142,7 +142,9 @@ public static class AugmentRules
         if (d == null) return "";
         if (string.IsNullOrEmpty(d.abilityText)) return d.description;
         var sb = new System.Text.StringBuilder();
-        sb.Append(AbilityHeader(d)).Append('\n').Append(AbilityBody(d, level));
+        string head = AbilityHeader(d);
+        if (head.Length > 0) sb.Append(head).Append('\n');
+        sb.Append(AbilityBody(d, level));
         string lim = LimitLine(d, level);
         if (lim.Length > 0) sb.Append('\n').Append(lim);
         string kw = KeywordsRich(d);
@@ -196,12 +198,14 @@ public static class AugmentRules
         return s;
     }
 
-    /// <summary>고유능력 줄: 이름(주황) + 발동 조건 칩</summary>
+    /// <summary>발동 조건 칩 한 줄 (회색 상자). 없으면 빈 문자열.
+    /// [2026-11-24] 고유능력 이름(예: 정지 잔상)은 모든 증강에서 표시하지 않음 — abilityName 은 코드 안 구분용으로만 씀.
+    ///   상자 안 좌우 여백은 줄바꿈 없는 공백 2칸씩, 아래 문장과의 간격은 작은 빈 줄로 띄움 (TMP 3.0.7 은 mark 여백 지정이 안 됨)</summary>
     public static string AbilityHeader(ItemData d)
     {
-        if (d == null || string.IsNullOrEmpty(d.abilityName)) return "";
-        string trig = string.IsNullOrEmpty(d.triggerText) ? "" : $"  <size=78%><mark=#FFFFFF16><color=#E8E3D9> {d.triggerText} </color></mark></size>";
-        return $"<color=#{AbilityHex}><b>{d.abilityName}</b></color>{trig}";
+        if (d == null || string.IsNullOrEmpty(d.triggerText)) return "";
+        const string pad = "  ";   // [2026-11-24] 줄바꿈 없는 공백은 글꼴에 없어 폭이 0이었음 → 일반 공백
+        return $"<size=80%><mark=#FFFFFF1C><color=#E8E3D9>{pad}{d.triggerText}{pad}</color></mark></size>\n<size=30%> </size>";
     }
 
     /// <summary>고유능력 문장 (단계 값 자리가 없는 옛 글이면 아래에 '강화 10% → 30% → 50%' 줄을 붙임)</summary>

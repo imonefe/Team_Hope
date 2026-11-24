@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// [2026-11-16 추가] 상점 방(ShopRoom_2S)에 상점 기능을 연결하는 에디터 도구.
+/// [2026-11-16 추가] 상점 방(ShopRoom_1S)에 상점 기능을 연결하는 에디터 도구.
 ///
 /// 메뉴: EventHorizon → 상점 방에 상점 기능 연결
 ///   1) 능력치 강화 화면 프리팹(StatUpgradeCanvas)이 없으면 만든다
@@ -20,7 +20,7 @@ using UnityEngine;
 /// </summary>
 public static class ShopRoomFunctionSetup
 {
-    const string RoomPath = "Assets/1.Prefab/Room/Shop/ShopRoom_2S.prefab";
+    const string RoomPath = "Assets/1.Prefab/Room/Shop/ShopRoom_1S.prefab";
     const string CanvasFolder = "Assets/1.Prefab/UI/Canvas/상점";
     const string ItemCanvasPath = CanvasFolder + "/ItemShopCanvas.prefab";
     const string SkillCanvasPath = CanvasFolder + "/SkillShopCanvas.prefab";

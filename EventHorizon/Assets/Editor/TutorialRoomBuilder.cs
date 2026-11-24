@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// [2026-11-16 추가] 튜토리얼 방 기초 배치.
-/// 상점 방(ShopRoom_2S)의 2스테이지 타일·포탈·방 설정을 그대로 가져와 타일만 새로 칠한다.
+/// 상점 방(ShopRoom_1S)의 1스테이지(금서고) 타일·포탈·방 설정을 그대로 가져와 타일만 새로 칠한다.
 /// 구간 11개(기획서 1~12, 패링 제외)를 왼쪽 → 오른쪽으로 놓고, 구간 끝마다 하얀 막이(통과 문)를 세운다.
 /// 다시 실행하면 TutorialRoom.prefab을 새로 덮어쓰므로, 손으로 고친 뒤에는 다시 실행하지 말 것.
 ///
@@ -22,7 +22,7 @@ using UnityEngine.UI;
 /// </summary>
 public static class TutorialRoomBuilder
 {
-    const string SourcePath = "Assets/1.Prefab/Room/Shop/ShopRoom_2S.prefab";
+    const string SourcePath = "Assets/1.Prefab/Room/Shop/ShopRoom_1S.prefab";
     const string OutFolder = "Assets/1.Prefab/Room/Tutorial";
     const string OutPath = OutFolder + "/TutorialRoom.prefab";
     const string WhiteBoxPath = "Assets/4. Art/Textures/Environment/Room/WhiteBox.png";

@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab4668b7b8003a84ea9a71c0a5d5492d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 5366704872317069322, guid: 5d0beaf2dcaba824598a3867a849bb10, type: 3}
+  enemyPrefab: {fileID: 5366704872317069322, guid: 2149c6b1b0977de4ebac671ab3bb69da, type: 3}
   spawnPoint: {fileID: 1361984288244511298}
   spawnEffectPrefab: {fileID: 260016359388483733, guid: 5f94b98c97b40b94eac326b72e5938c9, type: 3}
   snapToGround: 1

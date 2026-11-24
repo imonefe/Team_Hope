@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 16.19, y: 6.6, z: 0}
-  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_LocalScale: {x: 1.44, y: 1.44, z: 1.44}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6248209275996739836}
@@ -115,6 +115,7 @@ MonoBehaviour:
   frostTintAmount: 0.6
   frozenVisualPrefab: {fileID: 0}
   hitboxPrefab: {fileID: 0}
+  spawnScale: 1.2
   hitboxPoint: {fileID: 3224858629989917569}
   projectilePrefab: {fileID: 9208856874751227634, guid: 160c3b0831c88654f8371dd4486859af, type: 3}
   attackEffectPrefab: {fileID: 0}

@@ -668,6 +668,15 @@ public class MapManager : PersistentSingleton<MapManager>
         StagePlan.Entry next = StageFlow.PeekNext();
         if (next == null) { GameClear(); return; }
 
+        // [2026-11-24] 방이 하나도 등록되지 않은 노드 칸(예: 아직 준비 중인 '6. 엔딩')은 건너뜀
+        //  — 예전엔 지도에 노드만 뜨고 들어갈 방이 없어 진행이 막혔다. 건너뛴 뒤 남은 칸이 없으면 게임 클리어
+        if (next.IsNode && (next.roomData == null || next.roomData.roomPrefabs == null || next.roomData.roomPrefabs.Count == 0))
+        {
+            StageFlow.SetCurrent(StageFlow.Current + 1);
+            OpenMapPlanned();
+            return;
+        }
+
         if (!next.IsNode)
         {
             StageFlow.SetCurrent(StageFlow.Current + 1);

@@ -69,6 +69,11 @@ public class ItemInfoPopup : MonoBehaviour
     [Tooltip("효과 칸 아래 글상자. 증강이면 키워드 진행과 설정 한 줄, 키워드 설명이면 1·3·5개 단계")]
     public TextMeshProUGUI footerText;
 
+    [Header("발동 조건 칩 (2026-11-24)")]
+    [Tooltip("설명 위 한 줄. 안의 TriggerChip 이 가로 정렬(여백 12·4)로 글자를 가운데에 담는다. 발동 조건이 없으면 줄째 숨김")]
+    public GameObject triggerRow;
+    public TextMeshProUGUI triggerText;
+
     [Header("효과 칸")]
     [Tooltip("효과 줄들이 쌓이는 곳 (세로 배치)")]
     public RectTransform effectsRoot;
@@ -218,7 +223,8 @@ public class ItemInfoPopup : MonoBehaviour
         string footer = "";
         if (!string.IsNullOrEmpty(item.abilityText))
         {
-            desc = AugmentRules.AbilityHeader(item) + "\n" + AugmentRules.AbilityBody(item, lv);
+            // [2026-11-24] 발동 조건은 글 속 표시 대신 프리팹의 칩(TriggerRow)으로 — 아래 SetTrigger
+            desc = AugmentRules.AbilityBody(item, lv);
             string lim = AugmentRules.LimitLine(item, lv);
             if (lim.Length > 0) desc += "\n" + lim;
             var owned = Inventory.Instance != null ? Inventory.Instance.passives : null;
@@ -231,6 +237,7 @@ public class ItemInfoPopup : MonoBehaviour
         }
         else desc = item.description;
         SetHeader(item.icon, item.itemName, desc, $"{GetTierName(tier)}  <color=#FFB547>{AugmentRules.Stars(lv)}</color>", GetTierColor(tier));
+        SetTrigger(string.IsNullOrEmpty(item.abilityText) ? null : item.triggerText);
         SetFooter(footer);
 
         // 효과 — 칸으로 정리. 효과가 없으면 칸 영역 자체를 숨김
@@ -253,6 +260,13 @@ public class ItemInfoPopup : MonoBehaviour
             SetFooter(AugmentRules.KeywordPopupSteps(k, count, owned));
             LayoutEffects(new List<EffectEntry>());
         });
+    }
+
+    void SetTrigger(string text)
+    {
+        bool has = !string.IsNullOrEmpty(text);
+        if (triggerRow != null) triggerRow.SetActive(has);
+        if (has && triggerText != null) triggerText.text = text;
     }
 
     void SetFooter(string text)
@@ -285,6 +299,7 @@ public class ItemInfoPopup : MonoBehaviour
     {
         if (iconImage != null) iconImage.sprite = icon;
         if (nameText != null) nameText.text = title;
+        SetTrigger(null);   // 발동 조건 칩은 증강일 때만 FillItem 이 다시 켬
 
         // 설명 — 비어 있으면 줄 자체를 숨김
         if (descText != null)

@@ -81,7 +81,7 @@ MonoBehaviour:
   returnTime: 0.6
   finalHitDelay: 0.1
   endTime: 0.5
-  attackCount: 10
+  attackCount: 5
   screenMargin: 0.3
   viewCamera: {fileID: 0}
   hitDamage: 30

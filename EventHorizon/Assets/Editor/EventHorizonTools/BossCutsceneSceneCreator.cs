@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 namespace EventHorizonTools
 {
     /// <summary>
-    /// 2스테이지 보스 처치 연출(boss_disposaleffect) 확인용 씬을 자동으로 만들어주는 도구.
+    /// 1스테이지(금서고) 보스 처치 연출(boss_disposaleffect) 확인용 씬을 자동으로 만들어주는 도구.
     /// 메뉴 실행 시: 새 씬 생성 -> 연출 프리팹을 원점에 배치 -> Assets/0.Scenes/에 저장.
     /// </summary>
     public static class BossCutsceneSceneCreator
@@ -14,7 +14,7 @@ namespace EventHorizonTools
         private const string PrefabPath = "Assets/1.Prefab/Effect/Enemy/boss_disposaleffect.prefab";
         private const string OutputScenePath = "Assets/0.Scenes/boss2_cutscene.unity";
 
-        [MenuItem("Tools/Event Horizon/보스 연출컷 씬 생성 (2스테이지)")]
+        [MenuItem("Tools/Event Horizon/보스 연출컷 씬 생성 (1스테이지(금서고))")]
         public static void CreateBossCutsceneScene()
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);

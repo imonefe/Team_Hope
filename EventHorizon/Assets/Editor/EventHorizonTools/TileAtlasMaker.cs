@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 
 /// <summary>
-/// [2026-10-28 추가] 2스테이지 타일 그림을 스프라이트 아틀라스로 묶어 "타일 사이 틈(옆 타일이 1프레임씩 비치는 선)" 을 없앤다.
+/// [2026-10-28 추가] 1스테이지(금서고) 타일 그림을 스프라이트 아틀라스로 묶어 "타일 사이 틈(옆 타일이 1프레임씩 비치는 선)" 을 없앤다.
 ///
 /// 왜 생기나: 타일 묶음 그림은 타일끼리 틈 없이 붙어 있다. 카메라가 픽셀 단위가 아닌 위치(부드럽게 따라가는 중)에 있으면
 ///   가끔 타일 가장자리에서 바로 옆 타일의 픽셀을 한 줄 집어 오고, 그게 한 프레임씩 선으로 보인다.
@@ -13,18 +13,18 @@ using UnityEngine.U2D;
 ///   가장자리 바로 바깥을 집어도 같은 타일의 색이라 선이 생기지 않는다. 타일맵·프리팹은 바꿀 것이 없다(유니티가 알아서 아틀라스를 씀).
 ///
 /// - 유니티가 켜지거나 스크립트가 다시 불러와질 때 아틀라스가 없으면 자동으로 한 번 만든다.
-///   메뉴 Tools > Event Horizon > 2스테이지 타일 아틀라스 만들기 로 다시 만들 수 있다.
-/// - 만들어지는 파일: Assets/4. Art/Environment/Stage2/Stage2Tiles.spriteatlasv2
+///   메뉴 Tools > Event Horizon > 1스테이지(금서고) 타일 아틀라스 만들기 로 다시 만들 수 있다.
+/// - 만들어지는 파일: Assets/4. Art/Environment/Stage1/Stage1Tiles.spriteatlasv2
 /// - 원본 그림 설정(점 방식)은 그대로 쓴다.
 /// </summary>
 [InitializeOnLoad]
 public static class TileAtlasMaker
 {
-    const string AtlasPath = "Assets/4. Art/Environment/Stage2/Stage2Tiles.spriteatlasv2";
+    const string AtlasPath = "Assets/4. Art/Environment/Stage1/Stage1Tiles.spriteatlasv2";
     static readonly string[] Sheets =
     {
-        "Assets/4. Art/Textures/Environment/Stage2/test02 1.png",
-        "Assets/4. Art/Textures/Environment/Stage2/tile.png",
+        "Assets/4. Art/Textures/Environment/Stage1/test02 1.png",
+        "Assets/4. Art/Textures/Environment/Stage1/tile.png",
     };
 
     static TileAtlasMaker()
@@ -32,7 +32,7 @@ public static class TileAtlasMaker
         EditorApplication.delayCall += () => Make(false);
     }
 
-    [MenuItem("Tools/Event Horizon/2스테이지 타일 아틀라스 만들기")]
+    [MenuItem("Tools/Event Horizon/1스테이지(금서고) 타일 아틀라스 만들기")]
     static void Menu() => Make(true);
 
     static void Make(bool force)

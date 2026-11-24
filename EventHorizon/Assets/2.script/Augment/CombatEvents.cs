@@ -62,6 +62,17 @@ public static class CombatEvents
     /// <summary>평타 판정 · 무기 궤적 크기 배율 (조준 고정)</summary>
     public static float SwingScale = 1f;
 
+    // [2026-11-24] 조준 고정: 이번 평타 판정이 커지기 전 · 후의 월드 범위. 같은 프레임에 나오는 무기 궤적 이펙트가
+    //  이 차이만큼만(앞으로 늘어난 길이 · 위아래로 늘어난 높이) 늘어나도록 PlayerController 가 읽어 감
+    public static int SwingFitFrame = -1;
+    public static Rect SwingFitFrom, SwingFitTo;
+    public static int SwingFitFacing = 1;
+    public static bool HasSwingFit => SwingFitFrame == Time.frameCount;
+    public static void SetSwingFit(Rect from, Rect to, int facing)
+    {
+        SwingFitFrame = Time.frameCount; SwingFitFrom = from; SwingFitTo = to; SwingFitFacing = facing >= 0 ? 1 : -1;
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatics()
     {
@@ -79,6 +90,7 @@ public static class CombatEvents
     {
         PauseGaugeMultiplier = 1f; PauseDurationBonus = 0f; PauseCritBonus = 0f;
         AttackSpeedMultiplier = 1f; PlayerProjectileScale = 1f; DashExtraInvuln = 0f; ShardDropMultiplier = 1f; SwingScale = 1f;
+        SwingFitFrame = -1;
     }
 
     // ── 부르는 쪽 도우미 ──

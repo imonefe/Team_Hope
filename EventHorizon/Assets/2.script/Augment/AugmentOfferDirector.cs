@@ -133,6 +133,7 @@ public class AugmentOfferDirector : MonoBehaviour
     static bool Free()
     {
         if (GamePause.IsPaused) return false;
+        if (BossSlowMotion.IsPlaying) return false;   // [2026-11-24] 보스 처치 슬로우가 원래 속도로 돌아온 뒤에 연다
         if (CutsceneSequencer.IsAnyPlaying) return false;
         if (NPC.AnyTalking) return false;
         if (ShopWindow.BlocksEscape) return false;
