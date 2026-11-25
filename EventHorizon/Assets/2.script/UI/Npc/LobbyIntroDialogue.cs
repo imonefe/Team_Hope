@@ -57,6 +57,8 @@ public class LobbyIntroDialogue : MonoBehaviour
         for (float w = 0f; !NPC.AnyTalking && w < 1f; w += Time.unscaledDeltaTime) yield return null;
         while (NPC.AnyTalking) yield return null;
         yield return null;   // 대화를 끝낸 키 입력이 지나가도록 한 프레임 쉼
+        yield return GeeksPerkWindow.GrantAndShow();   // [2026-11-25] GEEKS 2026 특전 (설정에서 끄면 건너뜀 · 한 판에 한 번) → 닫히면 조작법 창
+        yield return null;
         ControlsGuidePopup.ShowNow();
     }
 }

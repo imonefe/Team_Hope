@@ -18,3 +18,4 @@ MonoBehaviour:
   description: 
   roomPrefabs:
   - {fileID: 3673251831834426535, guid: 832e1d0e666962e47983b2577ebdf16d, type: 3}
+  allowRepeat: 1

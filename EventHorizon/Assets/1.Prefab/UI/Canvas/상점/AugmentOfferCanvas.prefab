@@ -206,7 +206,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: f6d405e7d99e5f63c6885d8f659cc991, type: 3}
   - {fileID: 21300000, guid: a1330df85278d1ed7688f5f1a3324b28, type: 3}
   - {fileID: 21300000, guid: 25d82d51b6441a855f477968d106319d, type: 3}
-  title: "\uC99D\uAC15 \uC120\uD0DD"
+  title: "\uC0AC\uC774\uBC84\uC6E8\uC5B4 \uC120\uD0DD"
   roomSubtitle: "\uC804\uD22C\uBC29 \uC9C4\uC785 \uBCF4\uC0C1 \xB7 \uD558\uB098\uB97C
     \uACE0\uB974\uC138\uC694"
   bossSubtitle: "\uBCF4\uC2A4 \uCC98\uCE58 \uBCF4\uC0C1 \xB7 \uD558\uB098\uB97C \uACE0\uB974\uC138\uC694"
@@ -356,7 +356,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC99D\uAC15 \uC120\uD0DD"
+  m_text: "\uC0AC\uC774\uBC84\uC6E8\uC5B4 \uC120\uD0DD"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
   m_sharedMaterial: {fileID: 3690161315226194230, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
@@ -1453,7 +1453,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC99D\uAC15 \uC774\uB984"
+  m_text: "\uC0AC\uC774\uBC84\uC6E8\uC5B4 \uC774\uB984"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
   m_sharedMaterial: {fileID: 3690161315226194230, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
@@ -3657,7 +3657,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC99D\uAC15 \uC774\uB984"
+  m_text: "\uC0AC\uC774\uBC84\uC6E8\uC5B4 \uC774\uB984"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
   m_sharedMaterial: {fileID: 3690161315226194230, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
@@ -5861,7 +5861,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC99D\uAC15 \uC774\uB984"
+  m_text: "\uC0AC\uC774\uBC84\uC6E8\uC5B4 \uC774\uB984"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
   m_sharedMaterial: {fileID: 3690161315226194230, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
@@ -7694,8 +7694,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2190 \u2192 \uC120\uD0DD   Space \uACB0\uC815   1 2 3 \uBC14\uB85C \uACB0\uC815  
-    \uB9C8\uC6B0\uC2A4\uB85C\uB3C4 \uACE0\uB97C \uC218 \uC788\uC74C"
+  m_text: "\u2190 \u2192 \uC120\uD0DD   Space \uACB0\uC815   1 2 3 \uBC14\uB85C \uACB0\uC815"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   m_sharedMaterial: {fileID: 7224087456951919524, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}

@@ -2159,7 +2159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09251262f65d460fb5fc77cecd3ea83c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgm: {fileID: 8300000, guid: 4f08d905181f41a681ab7342c9c92cdd, type: 3}
+  bgm: {fileID: 8300000, guid: ebc3a594b33c4122834daccdf93c2593, type: 3}
   stopIfEmpty: 0
 --- !u!114 &3529772923
 MonoBehaviour:

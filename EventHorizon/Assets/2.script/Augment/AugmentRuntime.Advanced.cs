@@ -671,13 +671,11 @@ public partial class AugmentRuntime
     {
         bool paused = Paused;
         Vector3 c = EC(h);
-        // 번제: 과열된 적 처치 → 체력 회복 + 3초 불길
+        // 번제: 과열된 적 처치 → 그 자리에 {3/4/5}초 불길
+        // [2026-11-24] 체력 회복 제거 (회복은 과부하 키워드 전용) — 대신 단계마다 불길이 오래 남음
         int lvAltar = L("번제");
-        if (lvAltar > 0 && overheated && pstats != null)
-        {
-            HealPlayer(Mathf.Max(1, Mathf.RoundToInt(pstats.maxHp * ByLevel(lvAltar, 0.02f, 0.03f, 0.04f))), OverheatColor);
-            StartCoroutine(FireFloor(EFeet(h), 3f));
-        }
+        if (lvAltar > 0 && overheated)
+            StartCoroutine(FireFloor(EFeet(h), ByLevel(lvAltar, 3f, 4f, 5f)));
         // 수집가의 불꽃: 과열 5스택 이상인 적이 쓰러지면 데이터 1개 (불꽃 속에서 결정)
         if (Has("수집가의 불꽃") && hot) CollectorData(c);
         // 빼앗은 기술: 처치한 적의 기술을 빼앗음 (근접 = 초록, 원거리 = 청록 결정이 날아옴)
@@ -688,15 +686,6 @@ public partial class AugmentRuntime
             if (ranged) rangedSlash = true; else meleeBoost = true;
             if (releasing) { rangedSlash = true; meleeBoost = true; }   // [2026-11-23] 방출 중 처치하면 두 기술 모두
             AugmentFx.Fly(c, pc.transform, ranged ? new Color(0.3f, 0.95f, 0.95f) : CPlunder, 1, 0.4f, null, 0.26f);
-        }
-        // 느린 정리: 퍼즈 중 처치 → 퍼즈 시간 증가
-        int lvSlow = L("느린 정리");
-        if (paused && lvSlow > 0 && slowAdded < 1.5f)
-        {
-            float add = Mathf.Min(ByLevel(lvSlow, 0.3f, 0.45f, 0.6f), 1.5f - slowAdded);
-            slowAdded += add;
-            PauseManager.Instance?.ExtendPause(add);
-            if (pc != null) AugmentFx.Fly(c, pc.transform, CStasis, 4, 0.4f, null, 0.16f, false);
         }
         // 특이점 조항: 퍼즈 중 처치 → 데이터 2개 + 퍼즈 게이지 (풀린 뒤 들어감)
         int lvPatent = L("특이점 조항");
@@ -1054,12 +1043,6 @@ public partial class AugmentRuntime
             if (bladePulse <= 0f) { bladePulse = 0.35f; AugmentFx.BodyFlash(pc, new Color(1f, 0.85f, 0.25f), 0.5f, 0.3f); }
         }
 
-        // 전투 시야: 연격 비례 눈가 노란 글린트
-        if (Has("전투 시야") && combo > 0)
-        {
-            glintTimer -= Time.deltaTime;
-            if (glintTimer <= 0f) { glintTimer = Mathf.Lerp(0.6f, 0.15f, combo / 10f); var b = PBody; AugmentFx.Sparks(new Vector3(b.center.x + PFacing * 0.2f, Mathf.Lerp(b.center.y, b.max.y, 0.7f), -0.5f), CCombo, 1, 0.6f, 0.3f, 0f, 0.08f + combo * 0.012f); }
-        }
         // 히어로 착지: 연격 조건을 넘으면 무기에 불꽃
         int lvHero = L("히어로 착지");
         if (lvHero > 0 && combo >= (int)ByLevel(lvHero, 5, 4, 3))

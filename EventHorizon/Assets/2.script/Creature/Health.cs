@@ -210,6 +210,7 @@ public class Health : MonoBehaviour
                 RunManager.Instance?.RegisterEnemyKilled();
                 RunManager.Instance?.DropRandomCurrency(transform.position, minCurrencyDrop, maxCurrencyDrop);
                 RunManager.Instance?.DropShards(transform.position, Mathf.Clamp01((elite ? eliteShardDropChance : shardDropChance) * CombatEvents.ShardDropMultiplier), minShardDrop, maxShardDrop);   // [2026-11-21] 보급 우선권
+                HealOrb.TryDrop(transform.position, transform.root != transform ? transform.root : null);   // [2026-11-25] 회복 구 (확률 · 회복량은 Etc/Resources/HealOrb 프리팹)
             }
         }
 

@@ -1967,9 +1967,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 1500
-  currentHp: 1500
-  Atk: 15
+  maxHp: 3000
+  currentHp: 3000
+  Atk: 22
   Def: 5
   spd: 5
   itemSpeedBonusRatio: 0.5

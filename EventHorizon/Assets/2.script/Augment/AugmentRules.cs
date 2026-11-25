@@ -108,7 +108,8 @@ public static class AugmentRules
     public static string Stars(int level)
     {
         level = Mathf.Clamp(level, 0, MaxLevel);
-        return new string('★', level) + new string('☆', MaxLevel - level);
+        // [2026-11-25] 빈 칸도 ★ 로 쓰고 어두운 색으로 (☆ 은 글꼴에서 ★ 와 구분이 안 됐음)
+        return new string('★', level) + (level < MaxLevel ? "<color=#4A4540>" + new string('★', MaxLevel - level) + "</color>" : "");
     }
 
     /// <summary>단계 값 하나 (Lv1~3). 없으면 빈 글자</summary>
@@ -262,7 +263,7 @@ public static class AugmentRules
         "대시 사용 시 분신이 생기며 적에게 직접 영향을 준다.",
         "적을 공격했을 경우 1개 획득.\n2초 동안 공격하지 않으면 연격 값은 사라진다.",
         "일정 체력 이하인 적을 처형 대상으로 지정한다.",
-        "적 처치 시 + 1. 강탈을 모두 얻었을 경우 '방출' 상태로 전환된다.\n해당 경우에 탈취 데이터를 소모하는 증강이 발동한다.",
+        "적 처치 시 + 1. 강탈을 모두 얻었을 경우 '방출' 상태로 전환된다.\n해당 경우에 탈취 데이터를 소모하는 사이버웨어가 발동한다.",
         "제로포인트 게이지를 채우거나, 사용됐을 경우에 발동한다.",
         "체력이 낮을 경우에 발동한다.",
     };

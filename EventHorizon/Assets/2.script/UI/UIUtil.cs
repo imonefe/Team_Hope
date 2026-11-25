@@ -8,6 +8,15 @@ using UnityEngine.UI;
 public static class UIUtil
 {
     /// <summary>스프라이트를 넣고, null이면 이미지를 자동으로 비활성화(sprite=null, enabled=false)</summary>
+    /// <summary>[2026-11-25] 마우스가 이 UI 칸 위에 있는지 (꺼져 있으면 false). 캔버스가 카메라 방식이면 그 카메라 기준</summary>
+    public static bool MouseOver(RectTransform rt)
+    {
+        if (rt == null || !rt.gameObject.activeInHierarchy) return false;
+        Canvas canvas = rt.GetComponentInParent<Canvas>();
+        Camera cam = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+        return RectTransformUtility.RectangleContainsScreenPoint(rt, Input.mousePosition, cam);
+    }
+
     public static void SetIcon(Image img, Sprite sprite)
     {
         if (img == null) return;

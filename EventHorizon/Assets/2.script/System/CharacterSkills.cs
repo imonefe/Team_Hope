@@ -110,6 +110,14 @@ public class CharacterSkills : MonoBehaviour
         return remain > 0f ? remain : 0f;
     }
 
+    /// <summary>[2026-11-25] 지금 쓸 수 있는 대상이 있는지 (재사용 대기는 따로) — 홀로 분신처럼 화면에 적이 있어야 하는 스킬은 적이 없으면 false. 스킬 칸 UI 가 어둡게 표시하는 데 씀</summary>
+    public bool HasTargetFor(int slot)
+    {
+        if (slot < 0 || slot >= skillSlots.Length || skillSlots[slot] == null) return false;
+        HoloCloneSkill holo = skillSlots[slot].GetComponent<HoloCloneSkill>();
+        return holo == null || holo.HasEnemyOnScreen(caster != null ? caster : transform);
+    }
+
     /// <summary>슬롯에 스킬 직접 세팅 (슬롯 번호를 정확히 알 때 사용). 프리팹 참조 저장.</summary>
     public void SetSkill(int slot, Skill prefab)
     {

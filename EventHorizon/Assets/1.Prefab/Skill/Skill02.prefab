@@ -52,6 +52,8 @@ MonoBehaviour:
   tier: 2
   description: "\uD130\uB81B\uC744 \uC124\uCE58\uD558\uC5EC \uC790\uB3D9 \uC810\uC0AC
     \uACA9\uBC1C \uC2DC\uD0B5\uB2C8\uB2E4."
+  attackStyle: "\ud130\ub81b \uc124\uce58. \ubc14\ub77c\ubcf4\ub294 \ubc29\ud5a5\uc73c\ub85c 6\ubc1c \uc810\uc0ac."
+  powerText: "{+15*6}"
   cooldown: 20
   spawnOffset: {x: 1.5, y: 1.01}
   lifetime: 6

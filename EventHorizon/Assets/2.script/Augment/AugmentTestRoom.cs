@@ -69,7 +69,7 @@ public class AugmentTestRoom : MonoBehaviour
             killPos = kp.position; killScale = kp.localScale;
             killDummy = kp.gameObject; MakeKillable(killDummy);
         }
-        ScreenNotice.Show("증강 시험 방 — 1 다음 증강 · Shift+1 강화 · Shift+2 이전 · 2 몬스터 3마리 · 3 체력 40%/가득 · 4 방 정리 · Shift+4 방 입장");
+        ScreenNotice.Show("사이버웨어 시험 방 — 1 다음 사이버웨어 · Shift+1 강화 · Shift+2 이전 · 2 몬스터 3마리 · 3 체력 40%/가득 · 4 방 정리 · Shift+4 방 입장");
     }
 
     void MakeKillable(GameObject go)

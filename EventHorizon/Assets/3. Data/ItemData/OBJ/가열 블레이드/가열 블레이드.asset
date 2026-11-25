@@ -19,9 +19,8 @@ MonoBehaviour:
   tier: 2
   effects:
   - {fileID: 11400000, guid: 6b2e7296d63f42c3bc1d6847ed5e37bd, type: 2}
-  - {fileID: 11400000, guid: bc089e6316554c2697f2e42183fe2427, type: 2}
   keywords:
-  - 3
+  - 0
   abilityName: "\uAC80\uBB34"
   abilityText: "\uac80 3\ud0c0 \ub9c8\ubb34\ub9ac\ub85c \uc801\uc744 \uacf5\uaca9\ud588\uc744 \uacbd\uc6b0, [\uacfc\uc5f4]\uc774 \uc801\uc5d0\uac8c {1/2/3}\uac1c \ubd80\uc5ec\ub41c\ub2e4."
   levelValues:

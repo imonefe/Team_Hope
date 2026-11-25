@@ -68,6 +68,18 @@ public class TestMaster : MonoBehaviour
         // [2026-10-21] 5번: 게임 초기화 (판 데이터·맵 진행·퍼즈 게이지 초기화 후 인트로 화면으로 — 3분 무입력 초기화와 같음)
         if (Input.GetKeyDown(KeyCode.Alpha5))
             RunManager.ReturnToIntro();
+
+        // [2026-11-25] 6번: 재화 · 증강 파편 각각 9000개 (상점 · 강화 시험용)
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            if (RunManager.Instance != null)
+            {
+                RunManager.Instance.AddCurrency(9000);
+                RunManager.Instance.AddShards(9000);
+                ScreenNotice.Show("테스트: 재화 · 사이버웨어 파편 각각 9000개");
+            }
+            else Debug.LogError("RunManager 없음");
+        }
     }
 
     void DestroyAllEnemies()

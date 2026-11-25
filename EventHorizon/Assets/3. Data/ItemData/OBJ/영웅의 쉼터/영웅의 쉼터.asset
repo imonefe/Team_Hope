@@ -17,8 +17,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: c74cebd882cd4c81ab3432ad42ec0c03, type: 3}
   itemType: 0
   tier: 3
-  effects:
-  - {fileID: 11400000, guid: 920ccf6956a24ad28b368eb494a12a7a, type: 2}
+  effects: []
   keywords:
   - 6
   - 7

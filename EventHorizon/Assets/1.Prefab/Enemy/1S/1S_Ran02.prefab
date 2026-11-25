@@ -145,7 +145,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 250
   currentHp: 250
-  Atk: 18
+  Atk: 13.5
   Def: 0
   spd: 1
   itemSpeedBonusRatio: 0.5

@@ -1225,7 +1225,7 @@ MonoBehaviour:
   augmentCellTemplate: {fileID: 847721787736817}
   cellMax: 112
   cellMin: 56
-  noAugmentText: "\uC5BB\uC740 \uC99D\uAC15\uC774 \uC5C6\uB2E4."
+  noAugmentText: "\uC5BB\uC740 \uC0AC\uC774\uBC84\uC6E8\uC5B4\uAC00 \uC5C6\uB2E4."
 --- !u!1 &630445857520841
 GameObject:
   m_ObjectHideFlags: 0

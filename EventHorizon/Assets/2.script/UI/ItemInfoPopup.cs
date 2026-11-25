@@ -262,6 +262,20 @@ public class ItemInfoPopup : MonoBehaviour
         });
     }
 
+    /// <summary>[2026-11-25] 글자 설명만 — 마우스를 따라다니는 모드 (재화 칸 등 아이템이 아닌 것의 설명)</summary>
+    public void ShowInfo(Sprite icon, string title, string body, string label, Color labelColor)
+    {
+        if (popupRoot == null) return;
+        followMode = FollowMode.Mouse;
+        worldTarget = null;
+        Open(() =>
+        {
+            SetHeader(icon, title, body, label, labelColor);
+            SetFooter("");
+            LayoutEffects(new List<EffectEntry>());
+        });
+    }
+
     void SetTrigger(string text)
     {
         bool has = !string.IsNullOrEmpty(text);
@@ -283,10 +297,16 @@ public class ItemInfoPopup : MonoBehaviour
         int type = (int)skill.skillType;
         string typeName = (skillTypeNames != null && type >= 0 && type < skillTypeNames.Length) ? skillTypeNames[type] : skill.skillType.ToString();
         Color typeColor = (skillTypeColors != null && type >= 0 && type < skillTypeColors.Length) ? skillTypeColors[type] : Color.white;
-        SetHeader(skill.icon, skill.skillName, skill.description, typeName, typeColor);
-        SetFooter("");
+        // [2026-11-25] 본문 = 공격 방식, 원래 설명(설정 글)은 아래에 흐리게
+        bool hasStyle = !string.IsNullOrEmpty(skill.attackStyle);
+        SetHeader(skill.icon, skill.skillName, hasStyle ? skill.attackStyle : skill.description, typeName, typeColor);
+        SetFooter(hasStyle && !string.IsNullOrEmpty(skill.description) ? $"<size=85%><color=#7D786F>{skill.description}</color></size>" : "");
 
         var entries = new List<EffectEntry>();
+        Stats caster = CharacterManager.Instance != null ? CharacterManager.Instance.CurrentStats : null;
+        string power = skill.PowerLine(caster);
+        if (power.Length > 0)
+            entries.Add(new EffectEntry { label = "최대 피해량", value = power, isShort = false });
         if (skill.cooldown > 0f)
             entries.Add(new EffectEntry { label = "쿨타임", value = EffectText.Num(skill.cooldown) + "초", isShort = true });
         if (skillSlotLabels != null && type >= 0 && type < skillSlotLabels.Length && !string.IsNullOrEmpty(skillSlotLabels[type]))

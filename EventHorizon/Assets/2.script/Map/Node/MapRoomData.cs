@@ -54,6 +54,9 @@ public class MapRoomData : ScriptableObject
     /// 예전처럼 처음부터 다시 뽑지 않고, 더 보여줄 맵이 없다는 뜻으로 null을 반환한다.
     /// roomPrefabs가 부족해서 자주 null이 나온다면, 이 MapRoomData에 룸을 더 추가해야 한다는 신호다.
     /// </summary>
+    [Tooltip("[2026-11-25] 켜면 이번 스테이지에서 이미 나온 방이어도 다시 나올 수 있음 (상점 방 — 한 스테이지에 상점 칸이 둘일 때)")]
+    public bool allowRepeat = false;
+
     public GameObject GetRoom(HashSet<GameObject> usedPrefabs)
     {
         if (roomPrefabs == null || roomPrefabs.Count == 0)
@@ -63,6 +66,10 @@ public class MapRoomData : ScriptableObject
         }
 
         List<GameObject> available = roomPrefabs.FindAll(p => p != null && !usedPrefabs.Contains(p));
+
+        // [2026-11-25] 상점처럼 같은 방이 한 스테이지에 여러 번 나와도 되는 칸
+        if (available.Count == 0 && allowRepeat)
+            available = roomPrefabs.FindAll(p => p != null);
 
         if (available.Count == 0)
         {

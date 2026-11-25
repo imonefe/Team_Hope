@@ -56,13 +56,18 @@ public class AudioManager : PersistentSingleton<AudioManager>
     }
 
     // ── BGM ──────────────────────────────────────────────
-    public static void PlayBGM(AudioClip clip)
+    public static void PlayBGM(AudioClip clip) => PlayBGM(clip, false);
+
+    /// <summary>[2026-11-24] restart = true 면 같은 곡이 나오고 있어도 처음부터 다시 (새 게임 · 씬 시작용)</summary>
+    public static void PlayBGM(AudioClip clip, bool restart)
     {
         if (Instance == null || clip == null) return;
 
-        if (Instance.bgmSource.clip == clip && Instance.bgmSource.isPlaying) return;
+        if (!restart && Instance.bgmSource.clip == clip && Instance.bgmSource.isPlaying) return;
 
+        Instance.bgmSource.Stop();
         Instance.bgmSource.clip = clip;
+        Instance.bgmSource.time = 0f;
         Instance.bgmSource.volume = Instance.bgmVolume;
         Instance.bgmSource.loop = true;
         Instance.bgmSource.Play();

@@ -40,6 +40,8 @@ public static class GameSettings
     public static bool ShowKeyHints { get; private set; } = true;
     /// <summary>적을 때릴 때 뜨는 데미지 숫자 표시</summary>
     public static bool ShowDamageNumbers { get; private set; } = true;
+    /// <summary>[2026-11-25] 로비 프롤로그가 끝나면 GEEKS 2026 특전(사이버웨어 5개)을 줄지</summary>
+    public static bool GeeksPerk { get; private set; } = true;
 
     /// <summary>설정 값이 하나라도 바뀌면 호출됨</summary>
     public static event Action Changed;
@@ -54,6 +56,7 @@ public static class GameSettings
     const string K_Weapon = "EH_ShowWeaponInfo";
     const string K_Keys = "EH_ShowKeyHints";
     const string K_Damage = "EH_ShowDamageNumbers";
+    const string K_Geeks = "EH_GeeksPerk";   // [2026-11-25]
 
     // 게임 시작 시 자동 실행 (첫 씬을 불러오기 전)
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -80,6 +83,7 @@ public static class GameSettings
         ShowWeaponInfo = PlayerPrefs.GetInt(K_Weapon, 1) == 1;
         ShowKeyHints = PlayerPrefs.GetInt(K_Keys, 1) == 1;
         ShowDamageNumbers = PlayerPrefs.GetInt(K_Damage, 1) == 1;
+        GeeksPerk = PlayerPrefs.GetInt(K_Geeks, 1) == 1;
     }
 
     static void Save()
@@ -94,6 +98,7 @@ public static class GameSettings
         PlayerPrefs.SetInt(K_Weapon, ShowWeaponInfo ? 1 : 0);
         PlayerPrefs.SetInt(K_Keys, ShowKeyHints ? 1 : 0);
         PlayerPrefs.SetInt(K_Damage, ShowDamageNumbers ? 1 : 0);
+        PlayerPrefs.SetInt(K_Geeks, GeeksPerk ? 1 : 0);
         PlayerPrefs.Save();
     }
 
@@ -192,6 +197,7 @@ public static class GameSettings
     public static void SetShowWeaponInfo(bool on) { ShowWeaponInfo = on; Commit(); }
     public static void SetShowKeyHints(bool on) { ShowKeyHints = on; Commit(); }
     public static void SetShowDamageNumbers(bool on) { ShowDamageNumbers = on; Commit(); }
+    public static void SetGeeksPerk(bool on) { GeeksPerk = on; Commit(); }   // [2026-11-25]
 
     /// <summary>모든 설정을 처음 값으로 되돌린다 (해상도는 모니터 기본 해상도, 전체 화면 켬)</summary>
     public static void ResetToDefaults()
@@ -207,6 +213,7 @@ public static class GameSettings
         ShowWeaponInfo = true;
         ShowKeyHints = true;
         ShowDamageNumbers = true;
+        GeeksPerk = true;
         ApplyAudio();
         ApplyScreen();
         Commit();

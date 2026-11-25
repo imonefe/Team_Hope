@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -55,6 +56,8 @@ public class TutorialController : MonoBehaviour
         [TextArea(2, 3)] public string guideAugment;
         [Tooltip("[2026-11-21] CombatBasics: 증강을 고른 뒤 인벤토리 안내")]
         [TextArea(2, 3)] public string guideInventory;
+        [Tooltip("[2026-11-25] CombatBasics: 인벤토리를 연 뒤 키워드 설명 (인벤토리를 닫으면 구간 끝)")]
+        [TextArea(2, 4)] public string guideKeyword;
         public Condition condition;
         [Tooltip("이 구간을 통과하면 꺼지는 막이")]
         public GameObject gate;
@@ -128,7 +131,9 @@ public class TutorialController : MonoBehaviour
     bool boxOpened, inventoryAfterBox;
     bool skillUsed;   // [2026-11-18] SkillAndPause 용 (스킬을 썼는지)
     bool attackDone;  // [2026-11-21] AttackSkillPause 용 (허수아비를 다 때렸는지)
-    int phase;        // [2026-11-21] CombatBasics 진행 단계 0 공격 · 1 스킬 · 2 무기 교체 · 3 퍼즈 켜기 · 4 퍼즈 중 · 5 증강 고르기 · 6 인벤토리
+    int phase;        // [2026-11-21] CombatBasics 진행 단계 0 공격 · 1 스킬 · 2 무기 교체 · 3 퍼즈 켜기 · 4 퍼즈 중 · 5 증강 고르기 · 6 인벤토리 열기 · 7 인벤토리 안 키워드 설명 [2026-11-25]
+    Tween keywordPulse;   // [2026-11-25] 7단계: 인벤토리 키워드 줄 깜빡임
+    Transform pulseTarget; Vector3 pulseBaseScale;
     Stats watchedDummy;
     PlayerController player;
     bool waitingStart;   // [2026-11-18] 시작 영역에 들어오기 전 (안내 숨김 · 조건 검사 안 함)
@@ -143,9 +148,11 @@ public class TutorialController : MonoBehaviour
     void OnDestroy()
     {
         KeyBindings.Changed -= RefreshText;
-        AugmentSandbox.End();   // [2026-11-21] 다른 길로 방을 떠나도 연습용 증강은 남기지 않음
+        AugmentSandbox.Keep();   // [2026-11-25] 튜토리얼에서 고른 증강은 가져감 (예전: End 로 되돌림)
+        YoungbokChatter.GuideOverPause = false;
         YoungbokChatter.HideGuide();   // [2026-11-18] 방이 바뀌면 안내 창도 내림
         if (watchedDummy != null) watchedDummy.OnHpChanged -= OnDummyHp;
+        StopKeywordPulse();   // [2026-11-25]
     }
 
     public Step Current => index >= 0 && index < steps.Count ? steps[index] : null;
@@ -248,7 +255,8 @@ public class TutorialController : MonoBehaviour
             case 3: return Pick(s.guide3, s.guide);
             case 4: return Pick(s.guidePaused, s.guide3);
             case 5: return Pick(s.guideAugment, s.guide);
-            default: return Pick(s.guideInventory, s.guide);
+            case 6: return Pick(s.guideInventory, s.guide);
+            default: return Pick(s.guideKeyword, s.guideInventory);
         }
     }
 
@@ -256,6 +264,27 @@ public class TutorialController : MonoBehaviour
     {
         phase = p;
         RefreshText();
+        // [2026-11-25] 7단계(인벤토리 안 키워드 설명) 동안 키워드 아이콘 줄이 은은하게 커졌다 작아짐 — 어디를 보라는지
+        StopKeywordPulse();
+        YoungbokChatter.GuideOverPause = p == 7;   // [2026-11-25] 인벤토리 안에서도 안내가 보이게
+        if (p == 7)
+        {
+            var col = FindObjectOfType<InventoryKeywordColumn>();
+            if (col != null)
+            {
+                pulseTarget = col.transform; pulseBaseScale = pulseTarget.localScale;
+                keywordPulse = pulseTarget.DOScale(pulseBaseScale * 1.08f, 0.45f)
+                    .SetEase(Ease.InOutSine).SetLoops(4, LoopType.Yoyo).SetUpdate(true)   // [2026-11-25] 두 번만 커졌다 작아짐
+                    .OnComplete(StopKeywordPulse);
+            }
+        }
+    }
+
+    // [2026-11-25] 깜빡임을 멈추고 원래 크기로
+    void StopKeywordPulse()
+    {
+        if (keywordPulse != null) { keywordPulse.Kill(); keywordPulse = null; }
+        if (pulseTarget != null) { pulseTarget.localScale = pulseBaseScale; pulseTarget = null; }
     }
 
     bool SkillPressed() =>
@@ -302,6 +331,8 @@ public class TutorialController : MonoBehaviour
 
         if (Done(s))
         {
+            StopKeywordPulse();   // [2026-11-25]
+            YoungbokChatter.GuideOverPause = false;
             // [2026-11-18 수정] 막이는 노이즈와 함께 사라짐 · "통과!" 글자 제거
             if (s.gate != null) StartCoroutine(GlitchOut(s.gate));
             if (s.moreGates != null)
@@ -393,7 +424,7 @@ public class TutorialController : MonoBehaviour
         // [2026-11-21] 스테이지 구성으로 진행 중이면 켜 둔 다음 칸으로 (로비를 꺼 두었으면 그다음, 남은 칸이 없으면 클리어)
         System.Action move = () =>
         {
-            AugmentSandbox.End();
+            AugmentSandbox.Keep();   // [2026-11-25] 고른 증강은 가져감
             if (MapManager.Instance != null && MapManager.Instance.PlanActive) MapManager.Instance.GoNext();
             else RoomManager.Instance.LoadRoom(room);
         };
@@ -483,7 +514,8 @@ public class TutorialController : MonoBehaviour
                         }
                         return false;
                     case 5: if (AugmentSandbox.GainedCount > 0) SetPhase(6); return false;   // 하나 고르면 → 인벤토리 안내
-                    default: return !paused && KeyBindings.Down(KeyAction.Inventory);
+                    case 6: if (GamePause.Has(GamePause.Inventory)) SetPhase(7); return false;   // [2026-11-25] 인벤토리가 열리면 → 안에서 키워드 설명
+                    default: return !GamePause.Has(GamePause.Inventory);   // [2026-11-25] 인벤토리를 닫으면 구간 끝 (예전: 여는 순간 끝 → 안에서 안내가 없었음)
                 }
             }
             case Condition.AugmentAndInventory:

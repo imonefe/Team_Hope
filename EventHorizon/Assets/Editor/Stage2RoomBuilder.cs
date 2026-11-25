@@ -17,8 +17,9 @@ using UnityEngine.Tilemaps;
 ///
 /// 만드는 것 (1.Prefab/Room/2S/)
 ///   Room2S_01 폐갱도 입구  — 가로로 긴 방. 계단·기둥을 넘으며 로봇 5종을 처음 만남 (적 7, 3번에 나눠 등장)
-///   Room2S_02 수직 갱도    — 위로 올라가는 방. 발판을 지그재그로 오르며 위에서 쏘는 원거리 로봇을 상대 (적 9)
+///   Room2S_02 쌍둥이 웅덩이 — 웅덩이 두 개 사이를 가운데 능선이 가르는 한 층 방. 웅덩이마다 근접 + 발판 위 원거리 (적 11, 2026-11-25 새 구조)
 ///   Room2S_03 파쇄장 광장  — 가운데 단상과 좌우 높은 발판이 있는 넓은 방. 돌진형이 몰려오는 물량전 (적 11)
+///   Room2S_04 붕괴 계단 · Room2S_05 기둥 숲 · Room2S_06 고철 산 — 2026-11-25 새로 설계 (메뉴 "2스테이지 새 전투방 만들기 (04~06)")
 ///   Room2S_Boss 붕괴 광장  — 좌우·가운데 발판이 있는 보스 방. 로봇 보스(2boss)
 ///   ShopRoom_2S            — 금서고 상점 방과 같은 구조·기능, 바닥만 2스테이지 타일
 ///   그리고 CombatMap · BossMap · ShopMap_2S(새로 만듦) · StagePlan(2s_04 상점) 연결.
@@ -85,15 +86,23 @@ public static class Stage2RoomBuilder
         return L;
     }
 
-    // 2. 이층 갱도 — 가운데 바닥판이 방을 위·아래 두 길로 나눔. 아래는 좁고 빠른 길, 위는 넓지만 원거리 로봇이 지킴. 구멍으로 오르내림
+    // 2. 쌍둥이 웅덩이 (2026-11-25 새 구조) — 입구 언덕에서 내려가 웅덩이 1 → 가운데 능선을 계단으로 넘어 → 웅덩이 2 → 출구 언덕.
+    //    예전 '이층 갱도'는 가운데 바닥판이 방을 위·아래로 나눠 적과 마주치지 않고, 적이 앞쪽 절반에만 있어 뒤 절반이 빈 길이었음.
+    //    지금은 한 층에서 계속 마주침: 웅덩이마다 근접 로봇 + 발판 위 원거리, 능선 위에서 다음 웅덩이가 내려다보임. 적 11 (3번에 나눠)
     static Layout Room02()
     {
         var L = new Layout { name = "Room2S_02", w = RW, h = RH };
-        Add(L, (10, 8, 20, 2), (35, 8, 25, 2), (65, 8, 21, 2));        // 가운데 바닥판 (구멍: 30~34, 60~64)
-        Plat(L, (4, 4, 5), (30, 4, 5), (30, 9, 5), (60, 4, 5), (60, 9, 5), (44, 15, 8), (72, 15, 6));   // 구멍마다 발판 2단 (아래 → 위)
-        L.marks.AddRange(new[] { ('P', 2, 0), ('s', 20, 0), ('R', 25, 10), ('a', 40, 10), ('a', 45, 0), ('B', 48, 0), ('r', 50, 10),
-                                 ('s', 75, 10), ('H', 80, 10), ('d', 70, 0), ('d', 90, 0), ('D', 93, 0) });
-        Waves(L, (8, 0, 28, 24), (36, 0, 28, 24), (64, 0, 32, 24));
+        Add(L, (0, 0, 16, 4),                                            // 입구 언덕
+               (34, 0, 4, 2), (38, 0, 4, 4), (42, 0, 12, 7), (54, 0, 4, 4), (58, 0, 4, 2),   // 가운데 능선 (계단으로 오르내림)
+               (76, 0, 4, 2), (80, 0, 16, 5),                            // 출구 언덕
+               (22, 19, 12, 5), (64, 19, 12, 5));                        // 천장에서 내려온 바위 (웅덩이 위)
+        Plat(L, (22, 5, 8), (66, 5, 8), (44, 12, 8));                    // 웅덩이 위 발판 · 능선 위 높은 발판
+        L.marks.AddRange(new[] { ('P', 3, 4),
+                                 ('s', 20, 0), ('a', 28, 0), ('R', 25, 6), ('d', 35, 2),       // 웅덩이 1
+                                 ('a', 45, 7), ('d', 51, 7), ('r', 47, 13),                    // 능선
+                                 ('s', 66, 0), ('a', 72, 0), ('R', 69, 6), ('d', 88, 5),       // 웅덩이 2 · 출구 언덕
+                                 ('D', 93, 5) });   // [2026-11-25] 보상 상자 · 회복 오브젝트는 넣지 않음 (상자 → 사이버웨어 보상으로 대체, 회복은 개선 예정)
+        Waves(L, (8, 0, 30, 24), (38, 0, 24, 24), (62, 0, 34, 24));
         return L;
     }
 
@@ -109,31 +118,52 @@ public static class Stage2RoomBuilder
         return L;
     }
 
-    // 4. 붕괴 계단 — 큰 계단을 올라 꼭대기(천장이 내려앉아 좁음)를 지나 골짜기로 내려갔다가, 높은 출구 턱으로 다시 오름
+    // [2026-11-25] 04~06 새로 설계 (예전 04·05 는 타일이 잘못 깔려 지워짐). 규칙: 한 층으로 이어지고 빈 길 없이 적이 고르게, 얇은 턱은 발판(한 방향)으로, 상자 · 회복 없음.
+    // 4. 붕괴 계단 — 계단을 올라 꼭대기(천장이 내려앉아 좁음)를 지나 골짜기로 내려갔다가, 출구 턱으로 다시 오름
     static Layout Room04()
     {
         var L = new Layout { name = "Room2S_04", w = RW, h = RH };
-        Add(L, (14, 0, 10, 3), (24, 0, 10, 6), (34, 0, 10, 9), (44, 0, 10, 12),   // 오르막
-               (54, 0, 10, 6), (64, 0, 8, 3),                                    // 내리막 → 골짜기(72~79)
-               (80, 0, 16, 10),                                                  // 출구 턱
-               (40, 19, 20, 5));                                                 // 꼭대기 위 내려앉은 천장
-        Plat(L, (73, 4, 5), (75, 8, 5));
-        L.marks.AddRange(new[] { ('P', 3, 0), ('s', 10, 0), ('a', 18, 3), ('R', 30, 6), ('d', 38, 9), ('a', 48, 12), ('B', 51, 12),
-                                 ('r', 58, 6), ('s', 68, 3), ('s', 76, 0), ('H', 77, 9), ('R', 85, 10), ('a', 89, 10), ('D', 93, 10) });
+        Add(L, (14, 0, 8, 3), (22, 0, 8, 6), (30, 0, 8, 9), (38, 0, 14, 9),   // 오르막 → 꼭대기
+               (52, 0, 8, 6), (60, 0, 6, 3),                                 // 내리막 → 골짜기(66~79)
+               (80, 0, 16, 6),                                               // 출구 턱
+               (40, 18, 12, 6));                                             // 꼭대기 위 내려앉은 천장
+        Plat(L, (70, 4, 6), (40, 14, 8));
+        L.marks.AddRange(new[] { ('P', 3, 0),
+                                 ('s', 10, 0), ('a', 18, 3), ('R', 26, 6), ('d', 34, 9),              // 오르막
+                                 ('a', 42, 9), ('r', 44, 15), ('s', 48, 9), ('R', 56, 6),             // 꼭대기 · 내리막
+                                 ('s', 70, 0), ('a', 75, 0), ('d', 86, 6), ('R', 91, 6), ('D', 93, 6) });   // 골짜기 · 출구
         Waves(L, (8, 0, 26, 24), (34, 0, 30, 24), (64, 0, 32, 24));
         return L;
     }
 
-    // 5. 기둥 숲 — 높이가 다른 기둥 사이를 발판으로 건너는 방. 기둥 위 원거리 · 바닥 돌진형으로 위아래를 동시에 압박
+    // 5. 기둥 숲 — 높이가 다른 기둥을 다리(발판)로 이어 건너는 방. 기둥 위 원거리 · 바닥 돌진형으로 위아래를 동시에 압박
     static Layout Room05()
     {
         var L = new Layout { name = "Room2S_05", w = RW, h = RH };
-        Add(L, (14, 0, 3, 5), (24, 0, 3, 9), (34, 0, 3, 6), (46, 0, 3, 11), (58, 0, 3, 7), (68, 0, 3, 10), (80, 0, 3, 6));
-        Plat(L, (17, 7, 6), (27, 11, 6), (37, 9, 8), (49, 13, 8), (61, 10, 6), (71, 12, 8),
-             (51, 4, 4), (63, 5, 4), (75, 4, 4));   // 바닥에서 높은 기둥으로 오르는 낮은 발판
-        L.marks.AddRange(new[] { ('P', 3, 0), ('s', 20, 0), ('r', 25, 9), ('a', 30, 0), ('H', 38, 10), ('d', 41, 0), ('R', 47, 11),
-                                 ('B', 50, 14), ('s', 53, 0), ('r', 59, 7), ('s', 64, 0), ('R', 69, 10), ('a', 76, 0), ('d', 86, 0), ('D', 93, 0) });
-        Waves(L, (8, 0, 28, 24), (36, 0, 28, 24), (64, 0, 32, 24));
+        Add(L, (14, 0, 3, 4), (26, 0, 3, 7), (40, 0, 4, 9), (54, 0, 3, 6), (68, 0, 3, 8), (82, 0, 3, 4));   // 기둥 (높이 4 · 7 · 9 · 6 · 8 · 4)
+        Plat(L, (17, 5, 9), (29, 7, 11), (44, 7, 10), (57, 6, 11), (71, 5, 11),                           // 기둥 사이 다리
+             (19, 1, 5), (32, 3, 5), (47, 3, 5), (60, 2, 5), (74, 1, 5));                                // 바닥에서 다리로 돌아오는 디딤 발판 (한 번에 4칸 이하)
+        L.marks.AddRange(new[] { ('P', 3, 0),
+                                 ('s', 10, 0), ('a', 22, 0), ('r', 27, 7), ('d', 35, 0),
+                                 ('R', 41, 9), ('s', 51, 0), ('a', 50, 8), ('r', 55, 6),
+                                 ('s', 64, 0), ('R', 69, 8), ('a', 79, 0), ('d', 88, 0), ('D', 93, 0) });
+        Waves(L, (8, 0, 28, 24), (36, 0, 24, 24), (60, 0, 36, 24));
+        return L;
+    }
+
+    // 6. 고철 산 — 가운데 계단식 고철 더미(꼭대기 11칸)를 넘는 방. 양쪽 낮은 땅엔 돌진 · 공격형, 높은 발판과 꼭대기엔 원거리
+    static Layout Room06()
+    {
+        var L = new Layout { name = "Room2S_06", w = RW, h = RH };
+        Add(L, (30, 0, 36, 3), (36, 3, 24, 3), (42, 6, 12, 3), (46, 9, 4, 2),   // 고철 더미 (3 · 6 · 9 · 11칸)
+               (86, 0, 10, 4),                                                // 출구 턱
+               (10, 20, 8, 4), (78, 20, 8, 4));                               // 천장 고드름 바위
+        Plat(L, (14, 5, 8), (74, 5, 8), (26, 10, 8), (62, 10, 8), (44, 15, 8));
+        L.marks.AddRange(new[] { ('P', 3, 0),
+                                 ('s', 16, 0), ('a', 22, 0), ('R', 17, 6), ('d', 32, 3),
+                                 ('a', 39, 6), ('r', 47, 11), ('r', 29, 11), ('R', 65, 11),
+                                 ('d', 62, 3), ('s', 72, 0), ('a', 80, 0), ('d', 90, 4), ('D', 93, 4) });
+        Waves(L, (8, 0, 26, 24), (34, 0, 28, 24), (62, 0, 34, 24));
         return L;
     }
 
@@ -153,11 +183,138 @@ public static class Stage2RoomBuilder
         EditorApplication.delayCall += () =>
         {
             if (EditorPrefs.GetBool(AutoKey, false)) return;
-            if (AssetDatabase.LoadAssetAtPath<GameObject>(Out + "Room2S_05.prefab") != null) { EditorPrefs.SetBool(AutoKey, true); return; }
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(Out + "Room2S_01.prefab") != null) { EditorPrefs.SetBool(AutoKey, true); return; }   // [2026-11-25] 방이 하나라도 있으면 전체 다시 만들기는 자동으로 하지 않음 (손으로 고친 방 보호)
             if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling) return;
             EditorPrefs.SetBool(AutoKey, true);
             BuildCombatRooms();   // v2: 전투방만 다시 (보스방 · 상점은 이미 있고, 보스방엔 문이 달려 있으므로 건드리지 않음)
         };
+    }
+
+    // [2026-11-25] Room2S_02 만 새 구조로 다시 만듦 (다른 방은 건드리지 않음). 유니티가 켜질 때 한 번 자동, 메뉴로도.
+    const string Room02Key = "EH_Stage2Room02_v4";   // v4: 상자 · 회복 뺌
+    [InitializeOnLoadMethod]
+    static void AutoRoom02()
+    {
+        EditorApplication.delayCall += () =>
+        {
+            if (EditorPrefs.GetBool(Room02Key, false)) return;
+            if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling) return;
+            EditorPrefs.SetBool(Room02Key, true);
+            RebuildRoom02();
+        };
+    }
+
+    [MenuItem("EventHorizon/2스테이지 Room2S_02만 다시 만들기")]
+    public static void RebuildRoom02()
+    {
+        if (!LoadTiles()) return;
+        string path = Out + "Room2S_02.prefab";
+
+        // 지금 방의 조명 설정(RoomLighting)과 CombatMap 속 자리를 기억해 둠 → 새 방에 그대로 옮김
+        string lightJson = null, lightPath = "";
+        var old = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        if (old != null)
+        {
+            var rl = old.GetComponentInChildren<RoomLighting>(true);
+            if (rl != null) { lightJson = EditorJsonUtility.ToJson(rl); lightPath = AnimationUtility.CalculateTransformPath(rl.transform, old.transform); }
+        }
+        var map = AssetDatabase.LoadAssetAtPath<ScriptableObject>(CombatMap);
+        int slot = -1;
+        if (map != null && old != null)
+        {
+            var arr = new SerializedObject(map).FindProperty("roomPrefabs");
+            for (int i = 0; i < arr.arraySize; i++) if (arr.GetArrayElementAtIndex(i).objectReferenceValue == old) slot = i;
+        }
+
+        var made = BuildCombat(Room02());
+        if (made == null) return;
+
+        if (lightJson != null)
+        {
+            var root = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                var t = string.IsNullOrEmpty(lightPath) ? root.transform : root.transform.Find(lightPath);
+                if (t == null) t = root.transform;
+                var rl = t.GetComponent<RoomLighting>();
+                if (rl == null) rl = t.gameObject.AddComponent<RoomLighting>();
+                EditorJsonUtility.FromJsonOverwrite(lightJson, rl);
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(root); }
+            made = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        }
+
+        if (map != null)
+        {
+            var so = new SerializedObject(map);
+            var arr = so.FindProperty("roomPrefabs");
+            if (slot < 0) { slot = arr.arraySize; arr.arraySize++; }
+            arr.GetArrayElementAtIndex(slot).objectReferenceValue = made;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(map);
+        }
+        AssetDatabase.SaveAssets();
+        DoorStageFix.Run();   // 금서고 방을 복사해 만든 문 → 철문
+        Debug.Log("[2스테이지 방] Room2S_02 를 새 구조(쌍둥이 웅덩이)로 다시 만들었습니다. 조명 설정 " + (lightJson != null ? "옮김" : "없음") + ", CombatMap " + (slot + 1) + "번째 칸.");
+    }
+
+    // [2026-11-25] 새 전투방 04 · 05 · 06 만 만들고 CombatMap 을 01~06 으로 맞춤 (01~03 은 손으로 고친 그대로 둠)
+    const string New3Key = "EH_Stage2New3_v1";
+    [InitializeOnLoadMethod]
+    static void AutoNew3()
+    {
+        EditorApplication.delayCall += () =>
+        {
+            if (EditorPrefs.GetBool(New3Key, false)) return;
+            if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling) return;
+            EditorPrefs.SetBool(New3Key, true);
+            BuildNewRooms();
+        };
+    }
+
+    [MenuItem("EventHorizon/2스테이지 새 전투방 만들기 (04~06)")]
+    public static void BuildNewRooms()
+    {
+        if (!LoadTiles()) return;
+        var list = new List<GameObject>();
+        foreach (var n in new[] { "Room2S_01", "Room2S_02", "Room2S_03" })
+        {
+            var g = AssetDatabase.LoadAssetAtPath<GameObject>(Out + n + ".prefab");
+            if (g != null) list.Add(g);
+        }
+        // 조명 설정은 손으로 맞춘 Room2S_01 의 것을 새 방에도 씀
+        RoomLighting refLight = null;
+        var r1 = AssetDatabase.LoadAssetAtPath<GameObject>(Out + "Room2S_01.prefab");
+        if (r1 != null) refLight = r1.GetComponentInChildren<RoomLighting>(true);
+        string lightJson = refLight != null ? EditorJsonUtility.ToJson(refLight) : null;
+        string lightPath = refLight != null ? AnimationUtility.CalculateTransformPath(refLight.transform, r1.transform) : "";
+
+        foreach (var L in new[] { Room04(), Room05(), Room06() })
+        {
+            var made = BuildCombat(L);
+            if (made == null) continue;
+            string path = Out + L.name + ".prefab";
+            if (lightJson != null)
+            {
+                var root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    var t = string.IsNullOrEmpty(lightPath) ? root.transform : root.transform.Find(lightPath);
+                    if (t == null) t = root.transform;
+                    var rl = t.GetComponent<RoomLighting>();
+                    if (rl == null) rl = t.gameObject.AddComponent<RoomLighting>();
+                    EditorJsonUtility.FromJsonOverwrite(lightJson, rl);
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally { PrefabUtility.UnloadPrefabContents(root); }
+            }
+            list.Add(AssetDatabase.LoadAssetAtPath<GameObject>(path));
+        }
+        SetRooms(CombatMap, list.ToArray());
+        AssetDatabase.SaveAssets();
+        DoorStageFix.Run();
+        Debug.Log("[2스테이지 방] 새 전투방 04 · 05 · 06 을 만들고 CombatMap 을 " + list.Count + "개(01~06)로 맞췄습니다.");
     }
 
     [MenuItem("EventHorizon/2스테이지 전투방 다시 만들기 (5개)")]
@@ -171,7 +328,7 @@ public static class Stage2RoomBuilder
     {
         if (!LoadTiles()) return;
         var made = new List<GameObject>();
-        foreach (var L in new[] { Room01(), Room02(), Room03(), Room04(), Room05() }) { var g = BuildCombat(L); if (g != null) made.Add(g); }
+        foreach (var L in new[] { Room01(), Room02(), Room03(), Room04(), Room05(), Room06() }) { var g = BuildCombat(L); if (g != null) made.Add(g); }
         SetRooms(CombatMap, made.ToArray());
         AssetDatabase.SaveAssets();
         DoorStageFix.Run();   // [2026-11-24] 금서고 방을 복사해 만든 문을 철문으로
@@ -182,7 +339,7 @@ public static class Stage2RoomBuilder
     {
         if (!LoadTiles()) return;
         var made = new List<GameObject>();
-        foreach (var L in new[] { Room01(), Room02(), Room03(), Room04(), Room05() }) { var g = BuildCombat(L); if (g != null) made.Add(g); }
+        foreach (var L in new[] { Room01(), Room02(), Room03(), Room04(), Room05(), Room06() }) { var g = BuildCombat(L); if (g != null) made.Add(g); }
         var boss = BuildBoss(BossRoom());
         var shop = BuildShop();
 
@@ -245,13 +402,13 @@ public static class Stage2RoomBuilder
             var platform = Find(room.transform, "Tilemap_Platform")?.GetComponent<Tilemap>();
             var trap = Find(room.transform, "Tilemap_trap")?.GetComponent<Tilemap>();
             ground.ClearAllTiles(); if (platform != null) platform.ClearAllTiles(); if (trap != null) trap.ClearAllTiles();
-            var back = MakeBack(ground);
+            // [2026-11-25] 전투방은 뒷벽 타일(Tilemap_Back)을 깔지 않음 — 손으로 정리한 Room2S_01·03 처럼
+            var oldBack = ground.transform.parent.Find("Tilemap_Back"); if (oldBack != null) Object.DestroyImmediate(oldBack.gameObject);
 
             var solid = SolidMask(L);
             PaintSolid(ground, solid, L.w, L.h);
             foreach (var p in L.plats) PaintPlatform(platform != null ? platform : ground, p.x, p.y, p.z);
-            PaintBack(back, solid, L.w, L.h);
-            ground.CompressBounds(); back.CompressBounds(); if (platform != null) platform.CompressBounds();
+            ground.CompressBounds(); if (platform != null) platform.CompressBounds();
 
             // 스폰 트리거 (견본 복제) — 영역마다 하나
             var triggers = new List<BoxCollider2D>();
@@ -425,8 +582,9 @@ public static class Stage2RoomBuilder
             if (PrefabUtility.IsPartOfPrefabInstance(t.gameObject) && !PrefabUtility.IsOutermostPrefabInstanceRoot(t.gameObject)) continue;
             string n = t.name;
             bool kill = n.StartsWith("SpawnTrigger") || n.StartsWith("1sSp_") || n.StartsWith("2sSp_") || n.StartsWith("box_sponer") || n.StartsWith("hillobj")
-                        || n.StartsWith("Bookshelf") || n.StartsWith("DistantPillar") || n.StartsWith("Bridge") || n.StartsWith("wwer");
-            // 조명(VolumetricTest)·저체력 볼륨은 남기고, 그 밖의 3D 메시(금서고 기둥·책장)는 지움
+                        || n.StartsWith("Bookshelf") || n.StartsWith("DistantPillar") || n.StartsWith("Bridge") || n.StartsWith("wwer")
+                        || n == "VolumetricTest";   // [2026-11-24] 금서고 조명(빛줄기·어두운 환경광)은 2스테이지에 쓰지 않음
+            // 저체력 볼륨은 남기고, 그 밖의 3D 메시(금서고 기둥·책장)는 지움
             if (!kill && t.GetComponent<MeshRenderer>() != null && t.GetComponentInParent<Light>() == null && !InParentNamed(t, "VolumetricTest")) kill = true;
             if (kill && t != null) Object.DestroyImmediate(t.gameObject);
         }
@@ -445,7 +603,7 @@ public static class Stage2RoomBuilder
     {
         A.Clear(); B.Clear();
         for (int i = 0; i <= 13; i++) { var t = AssetDatabase.LoadAssetAtPath<TileBase>(TileA + i + ".asset"); if (t == null) { Debug.LogError("[2스테이지 방] 타일 없음: " + TileA + i); return false; } A[i] = t; }
-        foreach (int i in new[] { 2, 4, 7, 10, 12, 14, 15, 16, 17, 18, 19 }) { var t = AssetDatabase.LoadAssetAtPath<TileBase>(TileB + i + ".asset"); if (t != null) B[i] = t; }
+        foreach (int i in new[] { 1, 2, 3, 4, 7, 10, 12, 14, 15, 16, 17, 18, 19 }) { var t = AssetDatabase.LoadAssetAtPath<TileBase>(TileB + i + ".asset"); if (t != null) B[i] = t; }
         return true;
     }
 
@@ -462,10 +620,11 @@ public static class Stage2RoomBuilder
         if (d && r) return A[3];
         if (u)
         {
+            // [2026-11-25] 손으로 정리한 방 기준: 윗면은 대부분 돌 윗면(B2), 가끔 깔끔한 윗면(A5), 돌무더기 장식은 드물게
             int h = Hash(x, y);
-            if (h < 18 && B.ContainsKey(15 + h % 3)) return B[15 + h % 3];   // 돌무더기 윗면 가끔
-            if (h < 26 && B.ContainsKey(19)) return B[19];
-            if (h < 60 && B.ContainsKey(2)) return B[2];
+            if (h < 4 && B.ContainsKey(17)) return B[17];
+            if (h < 7 && B.ContainsKey(19)) return B[19];
+            if (h < 75 && B.ContainsKey(2)) return B[2];
             return A[5];
         }
         if (d) return A[6];
@@ -514,10 +673,19 @@ public static class Stage2RoomBuilder
                 if (Solid(m, w, h, x, y)) tm.SetTile(new Vector3Int(x, y, 0), SolidTile(x, y, (a, b) => Solid(m, w, h, a, b)));
     }
 
+    // [2026-11-25] 발판: 왼쪽 끝 2S_tile_1 · 오른쪽 끝 2S_tile_3 · 가운데는 깔끔한 윗면(A5)과 돌 윗면(B2)을 섞음 (손으로 정리한 Room2S_01·03 기준)
+    static TileBase PlatTile(int x, int y, int i, int len)
+    {
+        if (len == 1) return A[12];
+        if (i == 0) return B.ContainsKey(1) ? B[1] : A[0];
+        if (i == len - 1) return B.ContainsKey(3) ? B[3] : A[1];
+        return Hash(x, y) < 45 && B.ContainsKey(2) ? B[2] : A[5];
+    }
+
     static void PaintPlatform(Tilemap tm, int x0, int y, int len)
     {
         for (int i = 0; i < len; i++)
-            tm.SetTile(new Vector3Int(x0 + i, y, 0), len == 1 ? A[12] : i == 0 ? A[0] : i == len - 1 ? A[1] : A[5]);
+            tm.SetTile(new Vector3Int(x0 + i, y, 0), PlatTile(x0 + i, y, i, len));
     }
 
     static void PaintBack(Tilemap tm, bool[,] m, int w, int h)

@@ -90,6 +90,52 @@ public class CutsceneOverlay : MonoBehaviour
 
     float barHeight = 0f;
 
+    // ── [2026-11-25] 연출 장면 띠 (자동) ──
+    // 컷신 · NPC 대화 중이면 화면 위아래에 검은 띠가 천천히 나타나고(페이드 인), 끝나면 사라진다(페이드 아웃).
+    // 대화창(정렬 20) 아래 · 전투 HUD 위(정렬 15)에 그려서 대사는 가리지 않는다. 컷신 스텝의 Letterbox(밀려 들어오는 띠)와는 따로 동작.
+    const int CinematicSorting = 15;
+    const float CinematicHeight = 0.1f;    // 화면 높이 비율
+    const float CinematicFadeIn = 0.6f;
+    const float CinematicFadeOut = 0.5f;
+    CanvasGroup cinematicGroup;
+    bool cinematicOn;
+
+    /// <summary>연출 장면 띠를 켜거나 끈다. 매 프레임 불러도 됨 (상태가 바뀔 때만 페이드)</summary>
+    public static void SetCinematic(bool on)
+    {
+        if (instance == null && !on) return;
+        var o = Get();
+        if (o.cinematicOn == on) return;
+        o.cinematicOn = on;
+        o.EnsureCinematic();
+        DOTween.Kill(o.cinematicGroup);
+        o.cinematicGroup.DOFade(on ? 1f : 0f, on ? CinematicFadeIn : CinematicFadeOut).SetEase(Ease.InOutSine).SetUpdate(true).SetTarget(o.cinematicGroup);
+    }
+
+    void EnsureCinematic()
+    {
+        if (cinematicGroup != null) return;
+        var go = new GameObject("CinematicBars", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup));
+        go.transform.SetParent(transform, false);
+        Stretch((RectTransform)go.transform);
+        var c = go.GetComponent<Canvas>();
+        c.overrideSorting = true;
+        c.sortingOrder = CinematicSorting;
+        cinematicGroup = go.GetComponent<CanvasGroup>();
+        cinematicGroup.alpha = 0f;
+        cinematicGroup.interactable = false;
+        cinematicGroup.blocksRaycasts = false;
+        foreach (bool top in new[] { true, false })
+        {
+            var b = new GameObject(top ? "Top" : "Bottom", typeof(RectTransform), typeof(Image));
+            b.transform.SetParent(go.transform, false);
+            var img = b.GetComponent<Image>();
+            img.color = Color.black;
+            img.raycastTarget = false;
+            SetBar((RectTransform)b.transform, top, CinematicHeight);
+        }
+    }
+
     /// <summary>위아래 검은 띠를 보이거나 숨긴다</summary>
     public void Letterbox(bool show, float heightRatio, float duration)
     {

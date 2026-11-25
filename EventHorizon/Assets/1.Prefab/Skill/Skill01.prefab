@@ -49,6 +49,8 @@ MonoBehaviour:
   skillName: "\uD654\uCC28"
   tier: 1
   description: "\uBD88\uAF43\uC73C\uB85C \uD615\uC131\uB41C \uAE30\uB465\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4."
+  attackStyle: "\uc804\ubc29\uc5d0 \ubd88\uae30\ub465 \uc0dd\uc131. 3\ucd08\uac04 \ub9e4\ucd08 \ud53c\ud574."
+  powerText: "{+27*3}"
   cooldown: 14
   spawnOffset: {x: 1, y: 0.8}
   lifetime: 3

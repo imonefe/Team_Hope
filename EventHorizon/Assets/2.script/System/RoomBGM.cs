@@ -25,6 +25,20 @@ public class RoomBGM : MonoBehaviour
     [Tooltip("[2026-11-19] 중간 보스 방 (비우면 보스 곡)")]
     public AudioClip midBossBgm;
 
+    // [2026-11-24] 2스테이지(폐철장) 전용 곡. 로비 방은 두 스테이지가 같은 프리팹이라,
+    // 지금 진행 중인 스테이지 구성 칸의 묶음 이름(StagePlan 의 group = "2S")으로 구분한다. 비운 칸은 위 1스테이지 곡을 그대로 씀
+    [Header("[2026-11-24] 2스테이지 (폐철장) — 비우면 위 곡")]
+    [Tooltip("2스테이지 로비 · 상점")]
+    public AudioClip stage2LobbyBgm;
+    [Tooltip("2스테이지 전투방")]
+    public AudioClip stage2BattleBgm;
+    [Tooltip("2스테이지 보스방")]
+    public AudioClip stage2BossBgm;
+    [Tooltip("2스테이지 중간 보스 방 (비우면 2스테이지 보스 곡)")]
+    public AudioClip stage2MidBossBgm;
+    [Tooltip("이 묶음 이름의 칸을 진행 중이면 2스테이지 곡")]
+    public string stage2Group = "2S";
+
     [Header("바뀔 때 (초)")]
     [Tooltip("앞 곡이 작아지며 사라지는 시간")]
     public float fadeOutTime = 0.6f;
@@ -32,6 +46,8 @@ public class RoomBGM : MonoBehaviour
     public float fadeInTime = 0.8f;
 
     Coroutine fading;
+    // [2026-11-24] 이 씬에서 처음 여는 방(새 게임 · 다시 하기)이면 같은 곡이어도 처음부터. 그 뒤로는 같은 곡이면 끊지 않고 이어서 반복
+    bool firstRoom = true;
 
     void OnEnable() { RoomManager.OnRoomLoaded += OnRoomLoaded; }
     void OnDisable()
@@ -55,30 +71,50 @@ public class RoomBGM : MonoBehaviour
         //  보스 코어(BossCore)가 있는 방 = 최종 보스방 → 보스 곡
         //  isBossRoom 이거나 보스가 있는 그 밖의 방 = 중간 보스방 → 중간 보스 곡
         //  나머지 → 전투 곡
+        bool s2 = IsStage2(room);
+        AudioClip lobby = Pick(s2, stage2LobbyBgm, lobbyBgm);
+        AudioClip boss = Pick(s2, stage2BossBgm, bossBgm);
+        AudioClip mid = s2 ? (stage2MidBossBgm != null ? stage2MidBossBgm : boss) : (midBossBgm != null ? midBossBgm : bossBgm);
         AudioClip clip;
         if (room.GetComponentInChildren<TutorialController>(true) != null) clip = tutorialBgm != null ? tutorialBgm : lobbyBgm;
-        else if (isStartRoom || room.name.Contains("Lobby") || room.name.Contains("Shop")) clip = lobbyBgm;
-        else if (room.GetComponentInChildren<BossCore>(true) != null) clip = bossBgm;
-        else if (room.isBossRoom || room.GetComponentInChildren<BossController>(true) != null) clip = midBossBgm != null ? midBossBgm : bossBgm;
-        else clip = battleBgm;
+        else if (isStartRoom || room.name.Contains("Lobby") || room.name.Contains("Shop")) clip = lobby;
+        else if (room.GetComponentInChildren<BossCore>(true) != null) clip = boss;
+        else if (room.isBossRoom || room.GetComponentInChildren<BossController>(true) != null) clip = mid;
+        else clip = Pick(s2, stage2BattleBgm, battleBgm);
 
-        Play(clip);
+        Play(clip, firstRoom);
+        firstRoom = false;
+    }
+
+    static AudioClip Pick(bool stage2, AudioClip s2Clip, AudioClip normal) => stage2 && s2Clip != null ? s2Clip : normal;
+
+    // [2026-11-24] 2스테이지인지: 스테이지 구성대로 진행 중이면 지금 칸의 묶음 이름, 아니면(테스트로 방을 바로 연 경우) 방 이름에 2S
+    bool IsStage2(Room room)
+    {
+        if (StageFlow.Active)
+        {
+            var e = StageFlow.CurrentEntry;
+            if (e != null) return e.group == stage2Group;
+        }
+        return room.name.Contains("2S");
     }
 
     /// <summary>곡을 바꾼다 (같은 곡이 이미 나오고 있으면 그대로 둠)</summary>
-    public void Play(AudioClip clip)
+    public void Play(AudioClip clip) => Play(clip, false);
+
+    public void Play(AudioClip clip, bool restart)
     {
         if (clip == null) return;
         AudioManager am = AudioManager.GetOrCreate();
         if (am == null || am.bgmSource == null) return;
         AudioSource src = am.bgmSource;
-        if (src.clip == clip && src.isPlaying) return;
+        if (!restart && src.clip == clip && src.isPlaying) return;
 
         if (fading != null) StopCoroutine(fading);
-        fading = StartCoroutine(Switch(am, src, clip));
+        fading = StartCoroutine(Switch(am, src, clip, restart));
     }
 
-    IEnumerator Switch(AudioManager am, AudioSource src, AudioClip clip)
+    IEnumerator Switch(AudioManager am, AudioSource src, AudioClip clip, bool restart)
     {
         am.bgmFading = true;   // [2026-10-19] 연출하는 동안 AudioManager 가 크기를 되돌리지 않게
 
@@ -94,7 +130,7 @@ public class RoomBGM : MonoBehaviour
         }
 
         // 새 곡 시작 후 키우기 (목표 볼륨은 매 프레임 다시 읽어서, 그사이 설정을 바꿔도 맞춰짐)
-        AudioManager.PlayBGM(clip);
+        AudioManager.PlayBGM(clip, restart);
         if (fadeInTime > 0f)
         {
             for (float t = 0f; t < fadeInTime; t += Time.unscaledDeltaTime)

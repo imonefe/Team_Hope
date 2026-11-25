@@ -15,6 +15,8 @@ public class SceneBGM : MonoBehaviour
 
     [Tooltip("체크하면 bgm 이 비어 있을 때 이전 씬에서 나오던 BGM 을 끈다 (조용한 씬용)")]
     public bool stopIfEmpty = false;
+    [Tooltip("[2026-11-24] 씬이 열릴 때 같은 곡이 나오고 있어도 처음부터 다시 틀기")]
+    public bool restartOnStart = true;
 
     void Start()
     {
@@ -25,6 +27,6 @@ public class SceneBGM : MonoBehaviour
         }
 
         AudioManager.GetOrCreate();
-        AudioManager.PlayBGM(bgm);
+        AudioManager.PlayBGM(bgm, restartOnStart);
     }
 }

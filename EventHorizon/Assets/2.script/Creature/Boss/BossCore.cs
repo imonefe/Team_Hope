@@ -21,6 +21,10 @@ public class BossCore : MonoBehaviour
     [Header("연결")]
     public Health hitBody;
     public SpriteRenderer body;
+    [Tooltip("[2026-11-24] 코어 겉모습 (안개 구 FX_FogSphere_Left). 부서지면 꺼짐")]
+    public GameObject visual;
+    [Tooltip("[2026-11-24] 부서질 때 그 자리에 생기는 연출 (FX_CoreBreak_*). 처음부터 부서진 채 시작할 때는 안 나옴")]
+    public GameObject breakFx;
 
     [Header("색")]
     public Color activeColor = Color.white;
@@ -53,6 +57,9 @@ public class BossCore : MonoBehaviour
     {
         broken = true;
         if (body != null) body.color = brokenColor;
+        if (!silent && breakFx != null)   // [2026-11-24] 부서짐 연출 (파편 · 글자 · 상징이 흩어짐)
+            Instantiate(breakFx, visual != null ? visual.transform.position : transform.position, Quaternion.identity);
+        if (visual != null) visual.SetActive(false);   // [2026-11-24] 안개 구 코어는 부서지면 사라짐
         if (hitBody != null) Destroy(hitBody.gameObject);
         if (!silent) FloatingTextSpawner.SpawnText(transform.position + Vector3.up, "코어 파괴", Color.yellow);
     }

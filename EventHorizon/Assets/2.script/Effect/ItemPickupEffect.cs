@@ -80,6 +80,23 @@ public class ItemPickupEffect : MonoBehaviour
         fx.Play(data);
     }
 
+    /// <summary>[2026-11-25] 사이버웨어(증강) 획득용 — 빛 · 고리 · 알갱이를 키우고, 고리 하나 더 · 화면 흔들림 · 키워드 표시</summary>
+    public static void SpawnAugment(Vector3 pos, ItemData data, string keywordLine = null)
+    {
+        ItemPickupEffect template = Resources.Load<ItemPickupEffect>("ItemPickupEffect");
+        ItemPickupEffect fx = template != null
+            ? Instantiate(template, pos, Quaternion.identity)
+            : new GameObject("ItemPickupEffect").AddComponent<ItemPickupEffect>();
+        pos.z -= fx.towardCamera;
+        fx.transform.position = pos;
+        // [2026-11-25] 크게 터지던 연출(배율 · 고리 추가 · 화면 흔들림 · 화면 번쩍임) 제거 — 일반 아이템과 같은 크기
+        fx.Play(data);
+        if (!string.IsNullOrEmpty(keywordLine))
+            FloatingTextSpawner.SpawnText(fx.transform.position + fx.nameOffset + new Vector3(0f, 0.6f, 0f), keywordLine, new Color(0.89f, 0.76f, 0.49f, 1f));
+    }
+
+    bool extraRing;
+
     void Play(ItemData data)
     {
         Color c = data != null ? TierColor(data.tier) : commonColor;
@@ -87,13 +104,14 @@ public class ItemPickupEffect : MonoBehaviour
 
         StartCoroutine(Flash(c));
         StartCoroutine(Ring(c));
+        if (extraRing) StartCoroutine(Ring(c, 0.14f));   // [2026-11-25] 사이버웨어: 고리 한 번 더
         Sparks(c);
         if (showIcon && data != null && data.icon != null) StartCoroutine(Icon(data.icon));
         if (showName && data != null && !string.IsNullOrEmpty(data.itemName))
             FloatingTextSpawner.SpawnText(transform.position + nameOffset, data.itemName, c);
         if (sfx != null) AudioSource.PlayClipAtPoint(sfx, transform.position, sfxVolume * GameSettings.SfxVolume);   // [2026-10-18] 설정 창의 효과음 크기 적용
 
-        float life = Mathf.Max(flashDuration, ringDuration, sparkLifetime, showIcon ? iconDuration : 0f) + 0.2f;
+        float life = Mathf.Max(flashDuration, ringDuration + (extraRing ? 0.14f : 0f), sparkLifetime, showIcon ? iconDuration : 0f) + 0.2f;
         Destroy(gameObject, life);
     }
 
@@ -126,8 +144,9 @@ public class ItemPickupEffect : MonoBehaviour
         sr.enabled = false;
     }
 
-    IEnumerator Ring(Color c)
+    IEnumerator Ring(Color c, float delay = 0f)
     {
+        if (delay > 0f) yield return new WaitForSeconds(delay);
         SpriteRenderer sr = MakeRenderer("Ring", ringSprite, unlitMat, sortingOrder + 1);
         float t = 0f;
         while (t < ringDuration)

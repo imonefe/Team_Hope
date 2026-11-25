@@ -35,8 +35,8 @@ public class YoungbokChatter : MonoBehaviour
 
     // ── 대사 목록 ─────────── [2026-10-31] 말투 손봄 · [2026-11-02] 일부 교체 (\n = 줄바꿈)
     const string LineHammer = "망치는 한 방이야. {0} 꾹 눌러 힘을 모으고... 바닥째 날려 버려!";
-    const string LineGauntlet = "건틀릿은 멈추면 지는 거야.\n주먹을 휘두를수록 손이 빨라지거든!";
-    const string LineSword = "검술은 알아? 데이터 보낼게,\n세 번째 합이 장난 아닐 거야! 무조건 크리티컬이지!";
+    const string LineGauntlet = "멈추면 지는 거야. 주먹을 휘두를수록 손이 빨라지거든!";   // [2026-11-25] 대사 기획서
+    const string LineSword = "세 번째 합이 장난 아닐 거야! 무조건 크리티컬이거든!";   // [2026-11-25] 대사 기획서
     const string LineFirstBattle = "맞기 직전에 대시! 타이밍만 맞으면 다 피해.";
     const string LineGaugeFull = "게이지 꽉 찼다! {0} 누르면 세상이 멈춰. 그동안은 너만의 시간이야.";
     const string LineFirstBox = "그거 내가 몰래 넣어 둔 거야. 아끼지 말고 막 써.";
@@ -48,10 +48,10 @@ public class YoungbokChatter : MonoBehaviour
     const string LineMap = "길은 네가 골라. 어느 길이든 끝엔 주인이 기다려.";
     const string LineBossRoom = "여기서부턴 주인의 서가야. …꼭 돌아와, 헤네시.";
     static readonly string[] LinesLegendary = { "저 빛 봤어? 이번 건 진짜다!", "이건... 전설급인데? 내가 넣어 둔 것 중에 이런 게 있었어?" };
-    static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 샜다고.", "꽝이어도 괜찮아. 상자는 또 있어.", "포장이 엉망이긴 해도, 내용물은 내가 정성껏 담았지!" };
+    static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 새웠다고.", "꽝이어도 괜찮아. 상자는 또 있어.", "포장이 엉망이긴 해도, 내용물은 내가 정성껏 담았지!" };
     static readonly string[] LinesCrit = { "방금 거 제대로 꽂혔다!", "약점 정확히 찔렀어. 소름 돋네.", "우왁! 방금 그 한 방, 여기까지 흔들었어!" };
-    const string LineFirstItem = "뭐 주웠어? [{0}] 누르면 인벤토리에서 확인할 수 있어.";   // [2026-11-09] {0} = 인벤토리 키
-    static readonly string[] LinesHurt = { "아야! 거기 어제 내가 고친 데라고!", "살살 맞아. 부품 귀하단 말이야.", "맞으면서 배운다지만… 이제 그만 배워도 돼." };
+    const string LineFirstItem = "사이버웨어는 [{0}] 누르면 인벤토리에서 확인할 수 있어.";   // [2026-11-25] 대사 기획서   // [2026-11-09] {0} = 인벤토리 키
+    static readonly string[] LinesHurt = { "야! 거기 어제 내가 고친 데라고!", "여기서 부품 구하기가 얼마나 어려운지 알아!?", "살살 맞아! 또 내가 고쳐야 되잖아!!" };   // [2026-11-25] 대사 기획서
 
     // ── 확률·시간 ───────────────────────────────────────────
     const float BoxChance = 0.05f, CritChance = 0.10f, HurtChance = 0.10f;   // [2026-10-28] 치명타·피격 10%로 상향
@@ -393,8 +393,11 @@ public class YoungbokChatter : MonoBehaviour
         string line = w == Weapontype.Hammer ? string.Format(LineHammer, KeyBindings.KeyName(KeyAction.Attack))   // [2026-11-11] 설정의 키 이름
                     : w == Weapontype.Glove ? LineGauntlet
                     : w == Weapontype.Sword ? LineSword : null;
-        if (line != null) Say(line, true);
+        if (line != null && Random.value < WeaponLineChance) Say(line, true);   // [2026-11-25] 바꿀 때마다가 아니라 30% 확률
     }
+
+    /// <summary>[2026-11-25] 무기를 바꿀 때 무기 대사가 나올 확률 (대사 기획서: 30%)</summary>
+    const float WeaponLineChance = 0.3f;
 
     void Update()
     {
@@ -412,7 +415,8 @@ public class YoungbokChatter : MonoBehaviour
         // [2026-11-18] 튜토리얼 안내는 잠깐 숨겼다가, 풀리면 다시 띄운다
         if (guideMode)
         {
-            bool blocked = IsBlocked(false);
+            // [2026-11-25] GuideOverPause 가 켜져 있으면 인벤토리 등으로 시간이 멈춰도 튜토리얼 안내는 보임
+            bool blocked = GuideOverPause && Time.timeScale == 0f ? IsBlockedIgnoringPause() : IsBlocked(false);
             if (blocked && playing == null && group.alpha > 0f) group.alpha = 0f;
             else if (!blocked && playing == null && (!showing || group.alpha <= 0f)) playing = StartCoroutine(GuideIn());
         }
@@ -485,6 +489,18 @@ public class YoungbokChatter : MonoBehaviour
     }
 
     // ════════════════ 말하기 ════════════════
+
+    /// <summary>[2026-11-25] 켜 두면 시간이 멈춘 동안(인벤토리 등)에도 튜토리얼 안내가 보임 — 튜토리얼 인벤토리 안 설명용</summary>
+    public static bool GuideOverPause;
+
+    static bool IsBlockedIgnoringPause()
+    {
+        if (CutsceneSequencer.IsAnyPlaying) return true;
+        if (NPC.AnyTalking) return true;
+        if (ControlsGuidePopup.IsShowing) return true;
+        if (GamePause.Has(GamePause.Menu) || GamePause.Has(GamePause.GameOver)) return true;   // ESC 메뉴 · 게임오버는 여전히 가림
+        return MapManager.Instance != null && MapManager.Instance.IsMapOpen;
+    }
 
     static bool IsBlocked(bool allowOverMap)
     {

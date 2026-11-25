@@ -35,6 +35,7 @@ public static class CombatEvents
     public static event Action<SwingTag> SwingStarted;          // 평타 판정이 막 생김 (크기를 바꿀 수 있음)
     public static event Action<Vector3> PlayerLanded;           // 착지
     public static event Action<Enemy> EnemyAttackStarted;       // 일반 적이 공격을 시작
+    public static event Action<float> HealOrbTaken;             // [2026-11-25] 회복 구 획득 (먹기 전 체력 비율 0~1)
 
     /// <summary>지금 증강 능력이 피해를 내는 중인지 (그 피해로 다시 능력이 터지는 연쇄를 막음)</summary>
     public static bool AbilityDamageInProgress;
@@ -59,6 +60,8 @@ public static class CombatEvents
     public static float DashExtraInvuln = 0f;
     /// <summary>증강 파편 드롭 확률 배율 (보급 우선권)</summary>
     public static float ShardDropMultiplier = 1f;
+    /// <summary>[2026-11-25] 회복 구 회복량 배율 (과부하 사이버웨어가 올림, 기본 1)</summary>
+    public static float HealOrbMultiplier = 1f;
     /// <summary>평타 판정 · 무기 궤적 크기 배율 (조준 고정)</summary>
     public static float SwingScale = 1f;
 
@@ -76,7 +79,7 @@ public static class CombatEvents
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatics()
     {
-        PlayerHit = null; EnemyKilled = null; DashStarted = null; DashEnded = null;
+        PlayerHit = null; EnemyKilled = null; DashStarted = null; DashEnded = null; HealOrbTaken = null;
         PauseStarted = null; PauseEnded = null; RoomCleared = null; PlayerDamaged = null;
         SwingStarted = null; PlayerLanded = null; EnemyAttackStarted = null;
         ModifyOutgoing = null; ModifyIncoming = null; ModifyEnemyIncoming = null; CritBonus = null; ConsumeForcedCrit = null;
@@ -89,7 +92,7 @@ public static class CombatEvents
     public static void ResetModifiers()
     {
         PauseGaugeMultiplier = 1f; PauseDurationBonus = 0f; PauseCritBonus = 0f;
-        AttackSpeedMultiplier = 1f; PlayerProjectileScale = 1f; DashExtraInvuln = 0f; ShardDropMultiplier = 1f; SwingScale = 1f;
+        AttackSpeedMultiplier = 1f; PlayerProjectileScale = 1f; DashExtraInvuln = 0f; ShardDropMultiplier = 1f; HealOrbMultiplier = 1f; SwingScale = 1f;
         SwingFitFrame = -1;
     }
 
@@ -130,6 +133,7 @@ public static class CombatEvents
     }
 
     public static void RaiseKilled(Health h, Vector3 pos) { if (EnemyKilled != null) Safe(() => EnemyKilled(h, pos)); }
+    public static void RaiseHealOrbTaken(float hpRatioBefore) { if (HealOrbTaken != null) Safe(() => HealOrbTaken(hpRatioBefore)); }
     public static void RaiseDashStart(Vector3 pos, float dir) { if (DashStarted != null) Safe(() => DashStarted(pos, dir)); }
     public static void RaiseDashEnd(Vector3 pos) { if (DashEnded != null) Safe(() => DashEnded(pos)); }
     public static void RaisePauseStart() { if (PauseStarted != null) Safe(() => PauseStarted()); }

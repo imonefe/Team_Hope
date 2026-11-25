@@ -5,6 +5,10 @@ public class Enemy : MonoBehaviour
 {
     public float Enemyeye = 10f;
     public float attackRange = 2f;
+    /// <summary>[2026-11-24] 실제 공격 시작 거리 — 몸을 키운 배율(spawnScale)만큼 같이 늘어남 (몸만 커지고 거리는 그대로면 몸에 막혀 공격을 못 함)</summary>
+    public float AttackRange => attackRange * spawnScale;
+    [Tooltip("[2026-11-24] 직선 사격형(직선 투사체 + 플레이어 조준 끔)일 때: 총구 높이가 플레이어 몸 위아래 범위에서 이만큼 벗어나도 쏨 (그 밖이면 쏘지 않음)")]
+    public float lineAttackMargin = 0.2f;
 
     [Header("추격 잠시 멈춤")]
     [Tooltip("플레이어와 좌우(x) 거리가 공격 범위보다 가까운데 공격은 안 닿을 때(바로 위 발판 등) 이 시간(초)만큼 제자리에서 기다림.\n" +
@@ -368,7 +372,9 @@ public class Enemy : MonoBehaviour
 
         // 공격 범위 안 + 앞에 있으면 공격 (시야가 막혀있으면 공격 불가)
         // [2026-10-20] 돌진형은 높이가 비슷하고 앞이 벽으로 막혀 있지 않을 때만 (아니면 아래에서 계속 따라감)
-        if (canSeePlayer && distance <= attackRange && IsPlayerInFront() && CanStartDash())
+        // [2026-11-24] 직선 사격형은 원(거리)이 아니라 가로 선으로 판정 — 플레이어가 아래·위에 있으면 헛방을 쏘지 않음
+        bool inAttackRange = IsLineShooter ? PlayerOnFiringLine() : distance <= AttackRange;
+        if (canSeePlayer && inAttackRange && IsPlayerInFront() && CanStartDash())
         {
             rigid.velocity = new Vector2(0, rigid.velocity.y);
             anim.SetBool("isMove", false);
@@ -388,9 +394,9 @@ public class Enemy : MonoBehaviour
             // [2026-10-18 수정] 예전엔 '가로 거리 < 공격 범위'만 보고 멈춰서, 높이 차가 조금만 있어도
             // (가로는 범위 안, 직선거리는 범위 밖) 다가가지도 공격하지도 않고 서 있었다 → 돌진형 적의 돌진이 막힘.
             // 이제 세로 차이가 공격 범위보다 커서 다가가도 절대 닿지 않을 때, 또는 플레이어가 거의 바로 위/아래일 때만 멈춘다.
-            bool unreachableVertically = Mathf.Abs(dy) > attackRange;
+            bool unreachableVertically = Mathf.Abs(dy) > AttackRange;
             bool almostAbove = Mathf.Abs(dx) < 0.3f;
-            if (chaseHoldTime > 0f && Mathf.Abs(dx) < attackRange && (unreachableVertically || almostAbove))
+            if (chaseHoldTime > 0f && Mathf.Abs(dx) < AttackRange && (unreachableVertically || almostAbove))
                 chaseHoldTimer = chaseHoldTime;
 
             if (chaseHoldTimer > 0f)
@@ -543,6 +549,31 @@ public class Enemy : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x = Mathf.Abs(scale.x) * (NextMove == -1 ? -1 : 1);
         transform.localScale = scale;
+    }
+
+    // [2026-11-24] 직선 사격형: 직선 투사체를 쏘고 플레이어 조준을 끈 적 (수평으로만 쏨)
+    int lineShooter = -1;   // -1 = 아직 모름
+    bool IsLineShooter
+    {
+        get
+        {
+            if (lineShooter < 0)
+                lineShooter = (!aimAtPlayer && projectilePrefab != null && projectilePrefab.GetComponent<ProjectileStraight>() != null) ? 1 : 0;
+            return lineShooter == 1;
+        }
+    }
+
+    Collider2D playerBody;
+    // 가로 거리가 공격 범위 안이고, 총구 높이가 플레이어 몸(콜라이더) 위아래 범위 안(+여유)일 때만 true
+    bool PlayerOnFiringLine()
+    {
+        if (player == null) return false;
+        if (Mathf.Abs(player.position.x - transform.position.x) > AttackRange) return false;
+        float muzzleY = hitboxPoint != null ? hitboxPoint.position.y : transform.position.y;
+        if (playerBody == null || playerBody.transform != player) playerBody = player.GetComponent<Collider2D>();
+        if (playerBody == null) return Mathf.Abs(player.position.y - muzzleY) <= 0.5f + lineAttackMargin;
+        Bounds b = playerBody.bounds;
+        return muzzleY >= b.min.y - lineAttackMargin && muzzleY <= b.max.y + lineAttackMargin;
     }
 
     bool IsPlayerInFront()
@@ -923,6 +954,6 @@ public class Enemy : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, Enemyeye);
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.DrawWireSphere(transform.position, AttackRange);
     }
 }

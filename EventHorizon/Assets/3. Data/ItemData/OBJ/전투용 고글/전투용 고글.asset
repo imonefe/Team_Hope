@@ -21,13 +21,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7640bba010dd4689800b0eb7691e13e0, type: 2}
   keywords:
   - 3
-  abilityName: "\uC804\uD22C \uC2DC\uC57C"
-  abilityText: "[\uc5f0\uaca9] 1\uac1c\ub2f9 \uce58\uba85\ud0c0 \ud655\ub960 + {1/1.5/2}%."
+  abilityName: "\uC870\uC900 \uD130\uB81B"
+  abilityText: "[\uC5F0\uACA9]\uC774 10\uAC1C\uAC00 \uB420 \uACBD\uC6B0, \uC870\uC900 \uD130\uB81B\uC774 1\uAC1C \uC804\uAC1C\uB41C\uB2E4. \uD130\uB81B\uC740 \uACF5\uACA9\uB825\uC758 {40/60/80}% \uD53C\uD574\uB85C 6\uBC1C\uC744 \uC3DC\uB2E4."
   levelValues:
-  - "+1"
-  - "+1.5"
-  - "+2%p"
-  triggerText: "\uc0c1\uc2dc"
-  limitText: ""
+  - "40%"
+  - "60%"
+  - "80%"
+  triggerText: "\uC5F0\uACA9"
+  limitText: "[\uC5F0\uACA9]\uC774 \uB04A\uAE30\uAE30 \uC804\uAE4C\uC9C0 \uD55C \uBC88"
   roles:
   - "?\uc5f0\uaca9"

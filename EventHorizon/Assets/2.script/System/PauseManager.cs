@@ -17,6 +17,8 @@ public class PauseManager : PersistentSingleton<PauseManager>
     // [2026-11-17 수정] 상한 12초 → 7초. 퍼즈 아이템을 전부 모아도 한 번 사용은 7초를 넘지 않는다 (기본 5초 + 아이템 최대 2초)
     [Tooltip("아이템으로 제로포인트 지속시간이 쌓여도 넘지 않는 최대 시간 (초)")]
     public float maxPauseTime = 7f;
+    [Tooltip("[2026-11-25] 제로포인트를 켠 뒤 이 시간(초, 실제 시간) 동안은 키를 다시 눌러도 꺼지지 않음 — 연타로 바로 꺼지는 실수 방지")]
+    public float toggleLockSeconds = 1f;
 
     [Tooltip("Spd 1당 이동 가능 거리")]
     public float distPerSpd = 2.0f;
@@ -92,8 +94,20 @@ public class PauseManager : PersistentSingleton<PauseManager>
         playerTransform = p.transform;
     }
 
+    /// <summary>[2026-11-25] 연출 장면(컷신 · NPC 대화) 중인지 — 이 동안 제로포인트를 쓸 수 없고, 화면 위아래에 검은 띠가 깔림</summary>
+    public static bool InCinematic => CutsceneSequencer.IsAnyPlaying || NPC.AnyTalking;
+
     void Update()
     {
+        // [2026-11-25] 연출 장면: 검은 띠 페이드 · 제로포인트 정지 (창이 시간을 멈춘 동안에도 띠는 갱신)
+        bool cinematic = InCinematic;
+        CutsceneOverlay.SetCinematic(cinematic);
+        if (cinematic)
+        {
+            if (IsPaused) DeactivatePause();   // 켜진 채로 연출이 시작되면 끔 (보스 등장 연출이 멈춰 버리지 않게)
+            return;
+        }
+
         // [2026-10-10 추가] 창(ESC 메뉴·인벤토리·노드맵·게임오버)이 시간을 멈춘 동안에는 Q 입력도 받지 않고
         // 퍼즈 남은 시간도 줄지 않는다 (예전엔 실제 시간 기준이라 메뉴를 띄워둔 동안 퍼즈가 다 소모됐음)
         if (Time.timeScale == 0f) return;
@@ -114,8 +128,13 @@ public class PauseManager : PersistentSingleton<PauseManager>
         if (KeyBindings.Down(KeyAction.Pause))
         {
             if (!IsPaused && GaugeValue >= 100f && !locked)
+            {
                 ActivatePause();
-            else if (IsPaused)
+                // [2026-11-25] 끄는 방법 안내는 튜토리얼에서만 (본 게임에서는 매번 뜨지 않게)
+                if (IsPaused && FindObjectOfType<TutorialController>() != null)
+                    ScreenNotice.Show($"[{KeyBindings.KeyName(KeyAction.Pause)}] 다시 누르면 제로포인트 종료");
+            }
+            else if (IsPaused && elapsedRealTime >= toggleLockSeconds)   // [2026-11-25] 켠 직후 잠깐은 다시 눌러도 안 꺼짐
                 DeactivatePause();
         }
 

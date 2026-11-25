@@ -913,8 +913,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.data[0].lines.Array.data[6]
-      value: "\uC2E0\uC6D0 \uBBF8\uD655\uC778\u2026 \uC88B\uC2B5\uB2C8\uB2E4, \uC784\uC2DC
-        \uCD9C\uC785\uC744 \uD5C8\uAC00\uD558\uC8E0. \uC804 \uBC31\uC774\uC5F0\uC785\uB2C8\uB2E4."
+      value: "\uC2E0\uC6D0 \uBBF8\uD655\uC778\u2026 \uC6D0\uB798\uB294 \uC548 \uB418\uC9C0\uB9CC,
+        \uBCF4\uC99D\uC778\uC774 \uC788\uC73C\uB2C8 \uC784\uC2DC \uCD9C\uC785\uC744
+        \uD5C8\uAC00\uD558\uC8E0. \uC804 \uBC31\uC774\uC5F0\uC785\uB2C8\uB2E4."
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.data[0].lines.Array.data[7]

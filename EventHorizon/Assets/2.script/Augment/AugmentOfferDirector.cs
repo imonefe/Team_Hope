@@ -20,6 +20,8 @@ public class AugmentOfferDirector : MonoBehaviour
     [Header("증강 능력 표시 (AugmentRuntime 이 가져다 씀)")]
     [Tooltip("적·헤네시 머리 위 숫자 글꼴")]
     public TMPro.TMP_FontAsset statusFont;
+    [Tooltip("[2026-11-25] 증강 터렛 (조준 터렛 · 정리 터렛)이 소환하는 스킬 프리팹 — Skill02 (점사형 자동 터렛)")]
+    public Skill turretSkill;
     [Tooltip("폭발 이펙트 (과열 폭발 · 멈춘 칼자국 · 설득 충돌). 재질 색을 바꿔 씀")]
     public GameObject explosionFx;
     [Tooltip("연기 이펙트 (가스 구름). 입자 색을 바꿔 씀")]
@@ -37,7 +39,7 @@ public class AugmentOfferDirector : MonoBehaviour
     public AugmentFxOffsets fxOffsets = new AugmentFxOffsets();
     [Tooltip("방에 들어선 뒤 창을 열기까지 (화면 전환이 끝나도록, 실제 시간 초)")]
     public float roomOfferDelay = 0.8f;
-    [Tooltip("보스를 쓰러뜨린 뒤 창을 열기까지 (사망 연출, 실제 시간 초)")]
+    [Tooltip("[2026-11-25] 보스 처치 슬로우모션이 끝난 뒤 창을 열기까지 (실제 시간 초)")]
     public float bossOfferDelay = 1.0f;
     [Tooltip("끄면 전투방 입장 때 주지 않음 (보스 보상만)")]
     public bool offerOnCombatRoom = true;
@@ -120,7 +122,14 @@ public class AugmentOfferDirector : MonoBehaviour
         while (pending.Count > 0)
         {
             bool boss = pending.Dequeue();
-            yield return new WaitForSecondsRealtime(boss ? bossOfferDelay : roomOfferDelay);
+            if (boss)
+            {
+                // [2026-11-25] 슬로우모션이 다 끝난 다음부터 bossOfferDelay 초 뒤에 연다 (예전: 처치 순간부터 셌음 → 슬로우 끝나자마자 열림)
+                yield return null;   // 같은 프레임에 슬로우가 시작될 수 있으니 한 프레임 기다림
+                while (BossSlowMotion.IsPlaying) yield return null;
+                yield return new WaitForSecondsRealtime(bossOfferDelay);
+            }
+            else yield return new WaitForSecondsRealtime(roomOfferDelay);
             while (!Free()) yield return null;
             if (window == null) break;
             waitingWindow = window.Offer(boss);

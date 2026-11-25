@@ -110,6 +110,7 @@ public partial class AugmentRuntime : MonoBehaviour
     {
         CombatEvents.PlayerHit += OnHit;
         CombatEvents.EnemyKilled += OnKill;
+        CombatEvents.HealOrbTaken += OnHealOrbTaken;   // [2026-11-25]
         CombatEvents.DashStarted += OnDashStart;
         CombatEvents.DashEnded += OnDashEnd;
         CombatEvents.PauseStarted += OnPauseStart;
@@ -135,6 +136,7 @@ public partial class AugmentRuntime : MonoBehaviour
     {
         CombatEvents.PlayerHit -= OnHit;
         CombatEvents.EnemyKilled -= OnKill;
+        CombatEvents.HealOrbTaken -= OnHealOrbTaken;
         CombatEvents.DashStarted -= OnDashStart;
         CombatEvents.DashEnded -= OnDashEnd;
         CombatEvents.PauseStarted -= OnPauseStart;
@@ -152,7 +154,7 @@ public partial class AugmentRuntime : MonoBehaviour
     {
         combo = 0; comboTimer = 0; comboSinceForced = 0; forcedCrit = false; fragments = 0; fragKinds.Clear(); fragTimes.Clear(); nextAttackBonus = 0;
         releasing = false; releaseDrain = 0f;
-        pierceUntil = 0; lostThisRoom = 0; emergencyUsed = false; pauseMarks.Clear(); afterimagesAlive = 0;
+        pierceUntil = 0; lostThisRoom = 0; emergencyUsed = false; organRegenRunning = false; pauseMarks.Clear(); afterimagesAlive = 0;
         pc = null; psprite = null;
         ResetAdvancedState();
         DestroyHead();
@@ -610,6 +612,7 @@ public partial class AugmentRuntime : MonoBehaviour
     {
         int before = combo;
         // 스택 백업: 끊기기 직전 스택 저장
+        comboTurretUsed = false;   // [2026-11-25] 조준 터렛: 연격이 끊기면 다시 소환 가능
         if (TryBackupCombo(before)) { combo = 0; comboTimer = ComboWindow; return; }
         combo = Kw(AugmentKeyword.Combo) >= 3 ? combo / 2 : 0;
         comboTimer = ComboWindow;
@@ -624,7 +627,30 @@ public partial class AugmentRuntime : MonoBehaviour
         int before = combo;
         combo = Mathf.Min(10, combo + n);
         comboTimer = ComboWindow;
-        if (combo >= 10 && before < 10) OnComboFull();
+        if (combo >= 10 && before < 10)
+        {
+            OnComboFull();
+            // [2026-11-25] 조준 터렛 (전투용 고글): 연격 10 → 터렛 1개. 연격이 끊기기 전까지 한 번
+            int lvT = L("조준 터렛");
+            if (lvT > 0 && !comboTurretUsed)
+            {
+                comboTurretUsed = true;
+                SpawnTurret(ByLevel(lvT, 0.40f, 0.60f, 0.80f), CCombo);
+            }
+        }
+    }
+
+    bool comboTurretUsed;
+
+    /// <summary>[2026-11-25] 증강 터렛 소환 — 터렛 스킬 프리팹을 쿨타임 · 스킬 칸과 무관하게 발동. 탄 1발 피해 = 공격력 × ratio</summary>
+    void SpawnTurret(float ratio, Color c)
+    {
+        var dir = AugmentOfferDirector.Instance;
+        if (dir == null || dir.turretSkill == null || pc == null || PStats == null) return;
+        Skill s = Instantiate(dir.turretSkill);
+        s.fixedDamage = Mathf.Max(1, Mathf.RoundToInt(PStats.Atk * ratio));
+        s.Launch(pc.transform, PFacing);
+        AugmentFx.Burst(s.transform.position, c, 0.6f);
     }
 
     void AddFragment(int n, Vector3 from, int kind = 0)
@@ -738,8 +764,6 @@ public partial class AugmentRuntime : MonoBehaviour
         float b = 0f;
         int lv = L("흐린 조준");
         if (lv > 0 && IsExecuteTarget(target)) b += ByLevel(lv, 0.10f, 0.15f, 0.20f);
-        int lvG = L("전투 시야");
-        if (lvG > 0) b += combo * ByLevel(lvG, 0.01f, 0.015f, 0.02f);
         return b;
     }
 
@@ -1051,6 +1075,9 @@ public partial class AugmentRuntime : MonoBehaviour
         foreach (var m in pauseMarkFx) if (m != null) Destroy(m);
         pauseMarkFx.Clear();
         AdvancedOnPauseStart();
+        // [2026-11-25] 정리 터렛 (고장난 무동력 연산체): 제로포인트 시작 → 터렛 1개 (플레이어 탄은 제로포인트 중에도 날아감)
+        int lvT = L("정리 터렛");
+        if (lvT > 0) SpawnTurret(ByLevel(lvT, 0.40f, 0.60f, 0.80f), CStasis);
     }
 
     void OnPauseEnd()
@@ -1114,15 +1141,38 @@ public partial class AugmentRuntime : MonoBehaviour
         lostThisRoom += dmg;
         RefreshPlayer();
         int lvOrgan = L("비상 이식");
-        if (lvOrgan > 0 && !emergencyUsed && pstats != null && pstats.currentHp > 0 && pstats.currentHp < pstats.maxHp * 0.3f)
+        if (lvOrgan > 0 && !emergencyUsed && !organRegenRunning && pstats != null && pstats.currentHp > 0 && pstats.currentHp < pstats.maxHp * 0.3f)
         {
             emergencyUsed = true;
-            StartCoroutine(Regen(5f, ByLevel(lvOrgan, 0.02f, 0.03f, 0.04f)));
-            BuffIcon("비상 이식", 5f);
-            AugmentFx.ScreenPulse(0.25f, 0.2f);
-            if (pc != null) AugmentFx.Ring(PCenter, COverload, 2f, 0.4f, 0.1f, 2);
+            StartOrganRegen(lvOrgan);
         }
         AdvancedOnPlayerDamaged(dmg);
+    }
+
+    // [2026-11-25] 급조된 장기: 체력 30% 이하일 때 회복 구를 얻었을 경우 즉시 발동 (방마다 한 번 제한과 따로, 지속 회복 중이면 겹치지 않음)
+    void OnHealOrbTaken(float hpRatioBefore)
+    {
+        int lvOrgan = L("비상 이식");
+        if (lvOrgan <= 0 || hpRatioBefore > 0.3f || organRegenRunning) return;
+        RefreshPlayer();
+        if (pstats == null || pstats.currentHp <= 0) return;
+        StartOrganRegen(lvOrgan);
+    }
+
+    bool organRegenRunning;
+    void StartOrganRegen(int lvOrgan)
+    {
+        StartCoroutine(OrganRegen(ByLevel(lvOrgan, 0.02f, 0.03f, 0.04f)));
+        BuffIcon("비상 이식", 5f);
+        AugmentFx.ScreenPulse(0.25f, 0.2f);
+        if (pc != null) AugmentFx.Ring(PCenter, COverload, 2f, 0.4f, 0.1f, 2);
+    }
+
+    IEnumerator OrganRegen(float perSecond)
+    {
+        organRegenRunning = true;
+        yield return Regen(5f, perSecond);
+        organRegenRunning = false;
     }
 
     IEnumerator Regen(float seconds, float perSecond)

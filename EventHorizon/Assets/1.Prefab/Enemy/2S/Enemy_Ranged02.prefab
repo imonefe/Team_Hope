@@ -103,27 +103,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2348aa65e9a0cf4bbc441f4d6693bfc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Enemyeye: 10.13
-  attackRange: 8.32
+  Enemyeye: 9.83
+  attackRange: 7.21
+  chaseHoldTime: 0.5
   knockbackForce: 4
   knockbackDuration: 0.5
+  stayOnPlatform: 1
   hitFlashTime: 0.1
   flashMaterial: {fileID: 2100000, guid: 27766ac43c36d4f487e09e491baf06fb, type: 2}
   playHitAnimation: 1
-  iceShardPrefab: {fileID: 5244563724159452596, guid: d0d75d2c8c8188443bd5e37e879fcb65, type: 3}
-  frostTintColor: {r: 0.4, g: 0.7, b: 1, a: 1}
-  frostTintAmount: 0.6
-  frozenVisualPrefab: {fileID: 0}
+  hitArmor: 0
+  hitArmorOnlyWhileAttacking: 0
   hitboxPrefab: {fileID: 0}
-  spawnScale: 1.2
   hitboxPoint: {fileID: 3224858629989917569}
   projectilePrefab: {fileID: 9208856874751227634, guid: 160c3b0831c88654f8371dd4486859af, type: 3}
+  spawnScale: 1.2
   attackEffectPrefab: {fileID: 0}
   attackEffectPoint: {fileID: 0}
   effectFlipByFacing: 1
   attackDash: 0
   attackDashSpeed: 6
   attackDashDistance: 1.5
+  attackDashDelay: 0
+  hitboxFollowAttacker: 0
+  attackDashDecelTime: 0.2
+  dashSfx: {fileID: 0}
+  dashMaxHeightDiff: 1.2
+  dashStopAtLedge: 1
   attackVariations: 1
   isGrounded: 0
   spawnIdleTime: 0.5
@@ -134,6 +140,10 @@ MonoBehaviour:
   aimHoldAfterAttack: 1
   attackCooldown: 3
   attackDuration: 1.1
+  attackEndTimeout: 2
+  aimAtPlayer: 0
+  maxAimAngle: 45
+  attackExitTime: 0.8125
 --- !u!114 &6316832045232067665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146,15 +156,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 65
-  currentHp: 65
-  Atk: 15
+  maxHp: 210
+  currentHp: 210
+  Atk: 13.5
   Def: 3
   spd: 1.5
   itemSpeedBonusRatio: 0
-  Focus: 0
+  PauseDuration: 0
   critChance: 0
   critMultiplier: 2
+  maxCritChance: 0.6
   advantage: 3
   healEffectPrefab: {fileID: 0}
 --- !u!114 &9063125299284122226
@@ -169,11 +180,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 790d5f4938a10fd418fb38b1cac664ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lastHitDir: 0
   hitParticlePrefab: {fileID: 7003526924982483664, guid: 3488b4805fc720c468db1550b5bea590, type: 3}
   randomOffset: 0.8
   enemyDeathEffectPrefab: {fileID: 3904326371425299336, guid: 33c6ca78d2a0379439dbb91839997618, type: 3}
   minCurrencyDrop: 8
   maxCurrencyDrop: 16
+  shardDropChance: 0.08
+  elite: 0
+  eliteShardDropChance: 0.3
+  minShardDrop: 1
+  maxShardDrop: 1
   invincibleTime: 0
 --- !u!50 &7689002136509595055
 Rigidbody2D:

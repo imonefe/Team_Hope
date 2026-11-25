@@ -139,7 +139,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 80
   currentHp: 80
-  Atk: 10
+  Atk: 9
   Def: 3
   spd: 1.5
   Focus: 0

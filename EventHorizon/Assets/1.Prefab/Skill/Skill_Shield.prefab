@@ -49,6 +49,8 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 6fca96fa7cef4bd29b80e71e2e295691, type: 3}
   skillName: "\uBCF4\uD638\uB9C9"
   description: 
+  attackStyle: "12\ucd08\uac04 \ubcf4\ud638\ub9c9 50 \ubd80\uc5ec."
+  powerText: ""
   cooldown: 12
   spawnOffset: {x: 0, y: 0}
   lifetime: 0

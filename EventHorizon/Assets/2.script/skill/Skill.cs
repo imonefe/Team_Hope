@@ -84,6 +84,22 @@ public class Skill : MonoBehaviour
     public ItemTier tier = ItemTier.Common;
     [Tooltip("스킬 설명·효과 (인벤토리 UI 표시용)")]
     [TextArea] public string description;
+    [Tooltip("[2026-11-25] 어떤 방식으로 공격하는지 (설명창 본문)")]
+    [TextArea] public string attackStyle;
+    [Tooltip("[2026-11-25] 설명창 '최대 피해량' 칸. {+숫자} = 숫자 + 내 공격력, {+숫자*횟수} = (숫자 + 공격력) × 횟수. 예: {+15*6}")]
+    [TextArea] public string powerText;
+
+    /// <summary>[2026-11-25] powerText 의 {+N} 을 (N + 공격력)으로 바꿔 돌려줌. 공격력을 모르면 "N+공격력"</summary>
+    public string PowerLine(Stats caster)
+    {
+        if (string.IsNullOrEmpty(powerText)) return "";
+        return System.Text.RegularExpressions.Regex.Replace(powerText, @"\{\+(\d+)(?:\*(\d+))?\}", m =>
+        {
+            int n = int.Parse(m.Groups[1].Value);
+            int times = m.Groups[2].Success ? int.Parse(m.Groups[2].Value) : 1;
+            return caster != null ? Mathf.RoundToInt((n + caster.Atk) * times).ToString() : $"({n}+공격력)×{times}";
+        });
+    }
 
     [Header("발동")]
     [Tooltip("쿨타임(초) — 스킬마다 다름")]
@@ -124,6 +140,8 @@ public class Skill : MonoBehaviour
     int facing = 1; // 시전 방향 저장 (애니메이션 이벤트 소환 시 사용)
     /// <summary>[2026-11-21] 증강: 이 시전의 피해 배율 (혈류 대체 회로 · 열람)</summary>
     [System.NonSerialized] public float damageScale = 1f;
+    /// <summary>[2026-11-25] 0 이상이면 소환물 피해를 이 값으로 고정 (공격력 가산 · 배율 무시). 증강 터렛(조준 터렛 · 정리 터렛)용</summary>
+    [System.NonSerialized] public int fixedDamage = -1;
 
     Transform casterRef; // 시전자 저장 (소환물에 attackerStats 전달용 — 치명타/속성상성 계산에 필요)
 
@@ -335,6 +353,7 @@ public class Skill : MonoBehaviour
         {
             hb.direction = facing;
             hb.attackerStats = casterStats;
+            if (fixedDamage >= 0) { hb.damage = fixedDamage; continue; }   // [2026-11-25] 증강 터렛
             if (casterStats != null)
                 hb.damage += Mathf.RoundToInt(casterStats.Atk);
             if (!Mathf.Approximately(damageScale, 1f)) hb.damage = Mathf.RoundToInt(hb.damage * damageScale);   // [2026-11-21] 증강
@@ -346,6 +365,7 @@ public class Skill : MonoBehaviour
         foreach (var pb in allProjectiles)
         {
             pb.attackerStats = casterStats;
+            if (fixedDamage >= 0) { pb.damage = fixedDamage; continue; }   // [2026-11-25] 증강 터렛
             if (casterStats != null)
                 pb.damage += Mathf.RoundToInt(casterStats.Atk);
             if (!Mathf.Approximately(damageScale, 1f)) pb.damage = Mathf.RoundToInt(pb.damage * damageScale);   // [2026-11-21] 증강

@@ -62,51 +62,58 @@ MonoBehaviour:
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
+  - id: 1s_shop_early
+    group: 1S
+    label: "6. \uc0c1\uc810"
+    kind: 4
+    room: {fileID: 0}
+    roomData: {fileID: 11400000, guid: fb8957abaadaf7e44a90fb802d04cee9, type: 2}
+    defaultOn: 1
   - id: 1s_06
     group: 1S
-    label: "6. \uC911\uAC04 \uBCF4\uC2A4 (\uCC38\uACA9)"
+    label: "7. \uc911\uac04 \ubcf4\uc2a4 (\ucc38\uaca9)"
     kind: 3
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 05e8517e3b04405aa7fd35fe2cd49d03, type: 2}
     defaultOn: 1
   - id: 1s_07
     group: 1S
-    label: "7. \uC804\uD22C"
+    label: "8. \uc804\ud22c"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_08
     group: 1S
-    label: "8. \uC804\uD22C"
+    label: "9. \uc804\ud22c"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_09
     group: 1S
-    label: "9. \uC911\uAC04 \uBCF4\uC2A4 (\uD0C0\uACA9)"
+    label: "10. \uc911\uac04 \ubcf4\uc2a4 (\ud0c0\uaca9)"
     kind: 3
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: fe82b2507d9d4459a4fea2fd02972600, type: 2}
     defaultOn: 1
   - id: 1s_10
     group: 1S
-    label: "10. \uC804\uD22C"
+    label: "11. \uc804\ud22c"
     kind: 2
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: 43cc5f3968294b9499694168dcfb22e2, type: 2}
     defaultOn: 1
   - id: 1s_11
     group: 1S
-    label: "11. \uC0C1\uC810"
+    label: "12. \uc0c1\uc810"
     kind: 4
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: fb8957abaadaf7e44a90fb802d04cee9, type: 2}
     defaultOn: 1
   - id: 1s_12
     group: 1S
-    label: "12. \uBCF4\uC2A4\uBC29"
+    label: "13. \ubcf4\uc2a4\ubc29"
     kind: 5
     room: {fileID: 0}
     roomData: {fileID: 11400000, guid: a7a69df3d4a7efe4294e61da39729519, type: 2}

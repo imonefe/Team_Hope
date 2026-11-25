@@ -19,8 +19,7 @@ MonoBehaviour:
   tier: 1
   element: 4
   power: 2
-  effects:
-  - {fileID: 11400000, guid: 2da09b78873c410c9aacdb6944b069ff, type: 2}
+  effects: []
   keywords:
   - 5
   abilityName: "\uBD88\uBA85\uC758 \uB370\uC774\uD130"

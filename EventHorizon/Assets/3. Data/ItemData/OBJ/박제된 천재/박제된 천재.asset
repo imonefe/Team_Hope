@@ -19,7 +19,6 @@ MonoBehaviour:
   tier: 3
   effects:
   - {fileID: 11400000, guid: ec90b6027fd0416e99bc3dd5b92f876d, type: 2}
-  - {fileID: 11400000, guid: a3d1e986b2474f7ab4ef22469a2ff1b2, type: 2}
   keywords:
   - 6
   - 2

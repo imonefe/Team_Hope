@@ -688,6 +688,7 @@ GameObject:
   m_Component:
   - component: {fileID: 90374582}
   - component: {fileID: 90374581}
+  - component: {fileID: 7342918846102398811}
   m_Layer: 0
   m_Name: BGM
   m_TagString: Untagged
@@ -712,6 +713,11 @@ MonoBehaviour:
   bossBgm: {fileID: 8300000, guid: 7c437950abbf4d97bbd7ac30781b8e53, type: 3}
   tutorialBgm: {fileID: 8300000, guid: 1db1fb7dda1c40fb96f943b5d7d72ab4, type: 3}
   midBossBgm: {fileID: 8300000, guid: 75bdea1235224cd9ade7ac3d8435c477, type: 3}
+  stage2LobbyBgm: {fileID: 0}
+  stage2BattleBgm: {fileID: 0}
+  stage2BossBgm: {fileID: 0}
+  stage2MidBossBgm: {fileID: 0}
+  stage2Group: 2S
   fadeOutTime: 0.6
   fadeInTime: 0.8
 --- !u!4 &90374582
@@ -3191,7 +3197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5c7df923ad210d47b5e3c93b8c87a7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startRoomPrefab: {fileID: 8274060166707066929, guid: 12479a49aa394754fa4bbe788bd0d635, type: 3}
+  startRoomPrefab: {fileID: 8263149556029731764, guid: 73b82e8f562ce8d44986007d0af26c4e, type: 3}
   subRoomReturnDelay: 2.5
 --- !u!1 &944859783
 GameObject:
@@ -5745,7 +5751,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: -36, y: 24}
-  m_SizeDelta: {x: 504, y: 96}
+  m_SizeDelta: {x: 576, y: 96}
   m_Pivot: {x: 1, y: 0}
 --- !u!224 &1489711367
 RectTransform:
@@ -6422,7 +6428,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1720232377}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 017030f8f5327ad4c9cb531953224eaf, type: 3}
   m_Name: 
@@ -7009,6 +7015,7 @@ MonoBehaviour:
   - {fileID: 900692759}
   - {fileID: 944859784}
   skillKeys: 710000007700000072000000
+  unusableTint: {r: 0.38, g: 0.38, b: 0.38, a: 1}
 --- !u!1 &1880825205
 GameObject:
   m_ObjectHideFlags: 0
@@ -8929,7 +8936,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 366, y: -21}
+  m_AnchoredPosition: {x: 434, y: -21}
   m_SizeDelta: {x: 34, y: 34}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!1 &2627175854
@@ -8990,7 +8997,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 408, y: -21}
+  m_AnchoredPosition: {x: 476, y: -21}
   m_SizeDelta: {x: 80, y: 40}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &2736366947
@@ -9024,7 +9031,7 @@ GameObject:
   - component: {fileID: 3938279909}
   - component: {fileID: 6845495151}
   m_Layer: 5
-  m_Name: "Label_\uC0C1\uD638\uC791\uC6A9"
+  m_Name: "Label_\uBB34\uAE30\uAD50\uCCB4"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10195,7 +10202,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!222 &3757062733
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11425,7 +11432,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: F
+  m_text: Space
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
   m_sharedMaterial: {fileID: 3690161315226194230, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
@@ -11548,8 +11555,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 224, y: -21}
-  m_SizeDelta: {x: 34, y: 34}
+  m_AnchoredPosition: {x: 270, y: -21}
+  m_SizeDelta: {x: 64, y: 34}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!225 &5597568114
 CanvasGroup:
@@ -12194,7 +12201,7 @@ GameObject:
   - component: {fileID: 3201721667}
   - component: {fileID: 7049650280}
   m_Layer: 5
-  m_Name: Key_F
+  m_Name: Key_WeaponSwap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13019,7 +13026,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC0C1\uD638\uC791\uC6A9"
+  m_text: "\uBB34\uAE30 \uAD50\uCCB4"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   m_sharedMaterial: {fileID: 7224087456951919524, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
@@ -13314,8 +13321,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 266, y: -21}
-  m_SizeDelta: {x: 80, y: 40}
+  m_AnchoredPosition: {x: 342, y: -21}
+  m_SizeDelta: {x: 84, y: 40}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &7037596081
 RectTransform:
@@ -13429,7 +13436,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 162, y: -21}
-  m_SizeDelta: {x: 42, y: 40}
+  m_SizeDelta: {x: 100, y: 40}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &7219325426
 MonoBehaviour:
@@ -14543,7 +14550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 041400fca6a54138b7749d7b7499fc88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  action: 7
+  action: 9
   format: '{0}'
   fitBox: 1
 --- !u!222 &8155396865
@@ -24830,6 +24837,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &7342918846102398811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 90374580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dc8b74d59334ad8bd3143150c244d92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stage2Group: 2S
+  fadeTime: 1
+  changeTint: 1
+  tint: {r: 0.21226417, g: 0.2504411, b: 0.2830189, a: 0.5}
+  changeFog: 1
+  fogColor: {r: 0.47058824, g: 0.5054847, b: 0.5176471, a: 0.5}
+  changeTopFog: 1
+  topFogColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 0.50980395}
+  changeMie: 1
+  mieTint: {r: 0.23869704, g: 0.29546767, b: 0.33962262, a: 0.5}
+  exposureScale: 1
 --- !u!1 &7350112233445566001
 GameObject:
   m_ObjectHideFlags: 0
@@ -24877,6 +24907,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   window: {fileID: 50327847828630316}
   statusFont: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
+  turretSkill: {fileID: 8658551481514815345, guid: 4a0f8b93874c33342a06ebcf0f0017f6, type: 3}
   explosionFx: {fileID: 6604183357208890112, guid: acbe7c2b946c49c3a316e026064631fd, type: 3}
   smokeFx: {fileID: 5467047913867359964, guid: c299112eebd912c4a9c2a6cc497dad6b, type: 3}
   markFx: {fileID: 5987982068033836512, guid: b12e8e731f3b4cf4be7d40ab39b7abf3, type: 3}

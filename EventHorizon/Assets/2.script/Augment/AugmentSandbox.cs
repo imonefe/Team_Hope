@@ -36,6 +36,14 @@ public static class AugmentSandbox
         cc = st.critChance; cm = st.critMultiplier; maxHp = st.maxHp; hp = st.currentHp;
     }
 
+    /// <summary>[2026-11-25] 연습 끝 — 얻은 증강을 되돌리지 않고 그대로 가져감 (튜토리얼 증강은 본 게임으로 가져가기로 결정)</summary>
+    public static void Keep()
+    {
+        active = false;
+        comps.Clear();
+        pc = null;
+    }
+
     public static void End()
     {
         if (!active) return;

@@ -17,8 +17,7 @@ MonoBehaviour:
   icon: {fileID: 909412137, guid: 650fb88925584ad1ae8f3f6673a62410, type: 3}
   itemType: 0
   tier: 0
-  effects:
-  - {fileID: 11400000, guid: 9b24e205232d4583be0ae59a960415f7, type: 2}
+  effects: []
   keywords:
   - 0
   abilityName: "\uB0A8\uC740 \uBD88\uC528"

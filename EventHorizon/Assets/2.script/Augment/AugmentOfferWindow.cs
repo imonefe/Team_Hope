@@ -27,12 +27,14 @@ public class AugmentOfferWindow : ShopWindow
     [Header("등급 확률 % (일반 / 희귀 / 영웅 / 전설)")]
     public float[] roomOdds = { 60, 30, 9, 1 };
     public float[] bossOdds = { 0, 40, 45, 15 };
+    [Tooltip("[2026-11-25] 가진 키워드와 겹치는 후보의 가중치 (겹치는 키워드 하나당 +이 값, 기본 1). 1.5 → 키워드 하나 겹치면 2.5배 잘 나옴")]
+    public float keywordWeight = 1.5f;
 
     [Header("키워드 아이콘 (과열 · 균열 · 잔상 · 연격 · 처형 · 강탈 · 정지 · 과부하 순서)")]
     public Sprite[] keywordIcons = new Sprite[8];
 
     [Header("글자")]
-    public string title = "증강 선택";
+    public string title = "사이버웨어 선택";
     public string roomSubtitle = "전투방 진입 보상 · 하나를 고르세요";
     public string bossSubtitle = "보스 처치 보상 · 하나를 고르세요";
     [Tooltip("선택한 카드 크기 배율")]
@@ -257,6 +259,7 @@ public class AugmentOfferWindow : ShopWindow
     protected override void Update()
     {
         if (!IsOpen) return;
+        UpdateShardHover();
         // [2026-11-24 변경] 카드가 나오는 중에도 ← → 로 고르기는 바로 됨.
         // 결정 키(Space · Enter · 1 2 3)는 아직 안 보인 카드를 고르는 실수를 막으려고 '남은 카드를 바로 다 보여 주기'로만 씀
         if (introPlaying)
@@ -303,9 +306,53 @@ public class AugmentOfferWindow : ShopWindow
         ReleaseAll();
         KillTweens();
         Close();
-        if (p.go != null) ItemPickupEffect.Spawn(p.go.transform.position, d);
+        if (p.go != null) ItemPickupEffect.SpawnAugment(p.go.transform.position, d, KeywordGainLine(d));   // [2026-11-25] 일반 아이템보다 크게
         YoungbokChatter.OnItemPicked();
+        HideShardHover();
         OnFinished?.Invoke();
+    }
+
+    // [2026-11-25] 왼쪽 아래 증강 파편 칸에 마우스를 올리면 무엇인지 설명
+    bool shardHover;
+    void UpdateShardHover()
+    {
+        var box = shardCount != null ? shardCount.transform.parent as RectTransform : null;
+        bool over = UIUtil.MouseOver(box);
+        if (over == shardHover) return;
+        shardHover = over;
+        if (!over) { ItemInfoPopup.Instance?.Hide(); return; }
+        var iconImg = box.Find("Icon")?.GetComponent<Image>() ?? box.GetComponentInChildren<Image>();
+        ItemInfoPopup.Instance?.ShowInfo(iconImg != null ? iconImg.sprite : null, "사이버웨어 파편",
+            "전투에서 얻는 재화입니다.\n상점의 강화 담당에게 가져가면 가진 사이버웨어를 강화할 수 있습니다 (★ 단계가 올라가고 효과가 강해짐).\n사이버웨어를 팔면 일부를 돌려받습니다.",
+            $"재화 · 보유 {(RunManager.Instance != null ? RunManager.Instance.Shards : 0)}개", ShopColors.Hex("E3C27E"));
+    }
+
+    void HideShardHover()
+    {
+        if (!shardHover) return;
+        shardHover = false;
+        ItemInfoPopup.Instance?.Hide();
+    }
+
+    /// <summary>[2026-11-25] GEEKS 2026 특전: 고르기 창 없이 무작위 사이버웨어 count 개를 바로 준다 (전투방 등급 확률 · 가진 키워드 가중치 그대로). 준 목록을 돌려줌</summary>
+    public List<ItemData> GrantRandom(int count)
+    {
+        var got = new List<ItemData>();
+        var used = new HashSet<ItemData>();
+        var p = Player();
+        for (int i = 0; i < count; i++)
+        {
+            var d = Pick(used, roomOdds);
+            if (d == null) break;
+            used.Add(d);
+            if (p.stats != null && d.effects != null)
+                foreach (var e in d.effects)
+                    if (e != null) e.Apply(p.stats, p.go.GetComponent<MonoBehaviour>());
+            Inventory.Instance?.AddPassive(d);
+            RunManager.Instance?.RegisterObtained(d);
+            got.Add(d);
+        }
+        return got;
     }
 
     void ReleaseAll()
@@ -333,7 +380,7 @@ public class AugmentOfferWindow : ShopWindow
         for (int t = 0; t < 4; t++) if (byTier[t].Count > 0) total += Odd(odds, t);
         if (total <= 0)
         {
-            for (int t = 0; t < 4; t++) if (byTier[t].Count > 0) return byTier[t][Random.Range(0, byTier[t].Count)];
+            for (int t = 0; t < 4; t++) if (byTier[t].Count > 0) return PickWeighted(byTier[t]);
             return null;
         }
         float r = Random.value * total;
@@ -341,10 +388,41 @@ public class AugmentOfferWindow : ShopWindow
         {
             if (byTier[t].Count == 0) continue;
             r -= Odd(odds, t);
-            if (r <= 0) return byTier[t][Random.Range(0, byTier[t].Count)];
+            if (r <= 0) return PickWeighted(byTier[t]);
         }
-        for (int t = 3; t >= 0; t--) if (byTier[t].Count > 0 && Odd(odds, t) > 0) return byTier[t][Random.Range(0, byTier[t].Count)];
+        for (int t = 3; t >= 0; t--) if (byTier[t].Count > 0 && Odd(odds, t) > 0) return PickWeighted(byTier[t]);
         return null;
+    }
+
+    // [2026-11-25] 방금 얻은 사이버웨어의 키워드와 지금 개수 ("과열 2 · 잔상 1")
+    static string KeywordGainLine(ItemData d)
+    {
+        if (d == null || d.keywords == null || d.keywords.Length == 0 || Inventory.Instance == null) return null;
+        int[] n = AugmentRules.CountKeywords(Inventory.Instance.passives);
+        var parts = new List<string>();
+        foreach (var k in d.keywords) parts.Add($"{AugmentRules.KeywordName(k)} {n[(int)k]}");
+        return string.Join(" · ", parts);
+    }
+
+    // [2026-11-25] 가진 키워드와 겹치는 후보일수록 잘 나옴 — 겹치는 키워드 하나당 가중치 + keywordWeight
+    float OfferWeight(ItemData it, int[] owned)
+    {
+        float w = 1f;
+        if (owned == null || it.keywords == null) return w;
+        foreach (var k in it.keywords)
+            if ((int)k < owned.Length && owned[(int)k] > 0) w += keywordWeight;
+        return w;
+    }
+
+    ItemData PickWeighted(List<ItemData> list)
+    {
+        if (list.Count == 0) return null;
+        int[] owned = Inventory.Instance != null ? AugmentRules.CountKeywords(Inventory.Instance.passives) : null;
+        float total = 0f;
+        foreach (var it in list) total += OfferWeight(it, owned);
+        float r = Random.value * total;
+        foreach (var it in list) { r -= OfferWeight(it, owned); if (r <= 0f) return it; }
+        return list[list.Count - 1];
     }
 
     static float Odd(float[] odds, int t) => odds != null && t < odds.Length ? Mathf.Max(0, odds[t]) : 0;
@@ -379,7 +457,7 @@ public class AugmentOfferWindow : ShopWindow
             if (c.header != null) c.header.color = tc;
             SetText(c.headerText, $"{Spaced(AugmentRules.TierName(d.tier))}   Lv1 {AugmentRules.Stars(1)}");   // [2026-11-21] 등급 오른쪽에 단계·별
             if (c.icon != null) { c.icon.sprite = d.icon; c.icon.enabled = d.icon != null; }
-            SetText(c.name, $"{i + 1}. {d.itemName}");
+            SetText(c.name, d.itemName);   // [2026-11-25] 이름 앞 번호 삭제 (숫자키 1 2 3 선택은 그대로)
 
             // 키워드 배지 (1개면 가운데, 2개면 양옆)
             int kc = d.keywords != null ? Mathf.Min(2, d.keywords.Length) : 0;
@@ -436,6 +514,16 @@ public class AugmentOfferWindow : ShopWindow
         var sel = selected >= 0 && selected < CardCount ? offers[selected] : null;
         var gain = new int[8];
         if (sel != null && sel.keywords != null) foreach (var k in sel.keywords) gain[(int)k]++;
+
+        // [2026-11-25] 아직 키워드가 하나도 없으면(첫 증강) '보유 키워드' 칸을 띄우지 않음 — 설명 없이 나와 헷갈렸음
+        bool anyOwned = false;
+        for (int k = 0; k < 8; k++) if (counts[k] > 0) { anyOwned = true; break; }
+        if (!anyOwned)
+        {
+            for (int r = 0; r < rows.Length; r++) if (rows[r] != null) rows[r].go.SetActive(false);
+            if (ownedPanel != null) ownedPanel.gameObject.SetActive(false);
+            return;
+        }
 
         int shown = 0;
         for (int k = 0; k < 8 && shown < rows.Length; k++)

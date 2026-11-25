@@ -59,6 +59,7 @@ public class StatusPanelUI : MonoBehaviour
     void OnDisable()
     {
         Unsubscribe();
+        if (hoverSkill >= 0) { hoverSkill = -1; ItemInfoPopup.Instance?.Hide(); }
     }
 
     void OnDestroy()
@@ -71,6 +72,7 @@ public class StatusPanelUI : MonoBehaviour
     // 인벤토리 창이 열리면 게임이 멈춰 있을 수 있으므로 실제 시간 기준
     void Update()
     {
+        UpdateSkillHover();   // [2026-11-25]
         timer += Time.unscaledDeltaTime;
         if (timer < refreshInterval) return;
         timer = 0f;
@@ -136,6 +138,26 @@ public class StatusPanelUI : MonoBehaviour
         }
         row.bonus.text = diff > 0f ? "(+" + diff.ToString(bonusFormat) + ")" : "(-" + (-diff).ToString(bonusFormat) + ")";
         row.bonus.color = diff > 0f ? upColor : downColor;
+    }
+
+    // [2026-11-25] 스킬 칸에 마우스를 올리면 스킬 설명 (전투 화면 스킬 칸과 같은 창)
+    int hoverSkill = -1;
+    void UpdateSkillHover()
+    {
+        if (skillIcons == null) return;
+        var skills = CharacterManager.Instance != null ? CharacterManager.Instance.CurrentSkills : null;
+        int over = -1;
+        for (int i = 0; i < skillIcons.Length; i++)
+        {
+            if (skillIcons[i] == null || skills == null || skills.GetSkill(i) == null) continue;
+            var parent = skillIcons[i].transform.parent as RectTransform;
+            var area = parent != null && parent.name.StartsWith("Skill_") ? parent : skillIcons[i].rectTransform;   // 칸 전체
+            if (UIUtil.MouseOver(area)) { over = i; break; }
+        }
+        if (over == hoverSkill) return;
+        hoverSkill = over;
+        if (over >= 0) ItemInfoPopup.Instance?.ShowSkill(skills.GetSkill(over));
+        else ItemInfoPopup.Instance?.Hide();
     }
 
     void RefreshSkills()

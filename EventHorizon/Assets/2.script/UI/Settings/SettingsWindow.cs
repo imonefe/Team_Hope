@@ -36,6 +36,8 @@ public class SettingsWindow : MonoBehaviour
     public SettingToggle weaponInfo;
     public SettingToggle keyHints;
     public SettingToggle damageNumbers;
+    [Tooltip("[2026-11-25] GEEKS 2026 특전 (로비 프롤로그 뒤 사이버웨어 5개)")]
+    public SettingToggle geeksPerk;
 
     [Header("버튼")]
     public Button resetButton;
@@ -111,6 +113,7 @@ public class SettingsWindow : MonoBehaviour
         Bind(weaponInfo, GameSettings.SetShowWeaponInfo);
         Bind(keyHints, GameSettings.SetShowKeyHints);
         Bind(damageNumbers, GameSettings.SetShowDamageNumbers);
+        Bind(geeksPerk, GameSettings.SetGeeksPerk);
 
         if (resolution != null)
             resolution.OnChanged = i =>
@@ -200,6 +203,7 @@ public class SettingsWindow : MonoBehaviour
         if (weaponInfo != null) weaponInfo.SetValue(GameSettings.ShowWeaponInfo, false);
         if (keyHints != null) keyHints.SetValue(GameSettings.ShowKeyHints, false);
         if (damageNumbers != null) damageNumbers.SetValue(GameSettings.ShowDamageNumbers, false);
+        if (geeksPerk != null) geeksPerk.SetValue(GameSettings.GeeksPerk, false);
 
         if (resolution != null)
         {

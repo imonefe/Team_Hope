@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 /// <summary>
 /// battle Canvas 한쪽에 붙어서 현재 보유 재화를 표시하는 간단한 UI.
@@ -21,7 +22,15 @@ public class CurrencyUI : MonoBehaviour
     [Tooltip("숫자 앞에 붙일 텍스트 (필요 없으면 비워둠)")]
     public string prefix = "";
 
+    [Header("[2026-11-25] 마우스를 올리면 이름 · 짧은 설명 (인벤토리)")]
+    public bool hoverInfo = true;
+    public string currencyTitle = "재화";
+    [TextArea] public string currencyDesc = "적과 상자에서 얻습니다. 상점에서 물건을 살 때 씁니다.";
+    public string shardTitle = "사이버웨어 파편";
+    [TextArea] public string shardDesc = "보스 · 정예 적에게서 얻습니다. 상점에서 가진 사이버웨어를 강화할 때 씁니다.";
+
     bool subscribed = false;
+    bool hovering;
 
     void OnEnable()
     {
@@ -46,12 +55,30 @@ public class CurrencyUI : MonoBehaviour
 
     void OnDisable()
     {
+        if (hovering) { hovering = false; ItemInfoPopup.Instance?.Hide(); }
         if (subscribed && RunManager.Instance != null)
         {
             RunManager.Instance.OnCurrencyChanged -= Refresh;
             RunManager.Instance.OnShardsChanged -= Refresh;
         }
         subscribed = false;
+    }
+
+    // 숫자 칸 또는 옆 아이콘(CurrencyIcon / ShardIcon)에 마우스가 있으면 설명창
+    void Update()
+    {
+        if (!hoverInfo) return;
+        var rt = transform as RectTransform;
+        var icon = transform.parent != null ? transform.parent.Find(kind == Kind.Shards ? "ShardIcon" : "CurrencyIcon") as RectTransform : null;
+        bool over = UIUtil.MouseOver(rt) || (icon != null && UIUtil.MouseOver(icon));
+        if (over == hovering) return;
+        hovering = over;
+        if (!over) { ItemInfoPopup.Instance?.Hide(); return; }
+        Image img = icon != null ? icon.GetComponent<Image>() : null;
+        bool shard = kind == Kind.Shards;
+        int have = RunManager.Instance == null ? 0 : (shard ? RunManager.Instance.Shards : RunManager.Instance.Amount);
+        ItemInfoPopup.Instance?.ShowInfo(img != null ? img.sprite : null, shard ? shardTitle : currencyTitle, shard ? shardDesc : currencyDesc,
+            $"보유 {have:#,0}", ShopColors.Hex("E3C27E"));
     }
 
     void Refresh(int amount)

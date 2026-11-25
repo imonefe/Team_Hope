@@ -30,6 +30,6 @@ MonoBehaviour:
   - "200%"
   - "250%"
   triggerText: "\uc81c\ub85c\ud3ec\uc778\ud2b8"
-  limitText: ""
+  limitText: "\uc81c\ub85c\ud3ec\uc778\ud2b8 \uc9c0\uc18d\uc2dc\uac04 -60%"
   roles:
   - "?\uc815\uc9c0"

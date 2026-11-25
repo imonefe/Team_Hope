@@ -27,6 +27,16 @@ public class SkillBarUI : MonoBehaviour
 
     CharacterSkills current;
 
+    // [2026-11-25] 스킬이 바뀌면 아이콘 다시 그림 (예전엔 시작 · 캐릭터 교체 때만 그려서 상점에서 산 스킬 아이콘이 안 바뀌었음)
+    readonly Skill[] shownSkill = new Skill[3];
+    // [2026-11-25] 지금 못 쓰는 스킬(대상 없음)은 아이콘을 어둡게
+    [Header("[2026-11-25] 못 쓸 때 아이콘 색")]
+    public Color unusableTint = new Color(0.38f, 0.38f, 0.38f, 1f);
+    readonly bool[] usable = { true, true, true };
+    float usableTimer;
+    // [2026-11-25] 마우스를 올린 스킬 칸 (정보 팝업)
+    int hoverSlot = -1;
+
     void OnEnable()
     {
         if (CharacterManager.Instance != null)
@@ -55,7 +65,10 @@ public class SkillBarUI : MonoBehaviour
 
     void Update()
     {
-        if (current == null) return;
+        if (current == null) { HideHover(); return; }
+        RefreshIfChanged();
+        UpdateUsable();
+        UpdateHover();
 
         // 스킬 발동
         int n = Mathf.Min(CharacterSkills.SlotCount, current.skillSlots != null ? current.skillSlots.Length : 0);   // [2026-11-20] 2칸
@@ -88,10 +101,51 @@ public class SkillBarUI : MonoBehaviour
     {
         for (int i = 0; i < slotIcons.Length; i++)
         {
-            if (slotIcons[i] == null) continue;
-
             Skill s = current != null ? current.GetSkill(i) : null;
+            if (i < shownSkill.Length) shownSkill[i] = s;
+            if (slotIcons[i] == null) continue;
             UIUtil.SetIcon(slotIcons[i], s != null ? s.icon : null);
         }
+        usableTimer = 0f;
+    }
+
+    // [2026-11-25] 칸의 스킬이 바뀌었으면 (상점 구매 · 획득) 아이콘 다시 그림
+    void RefreshIfChanged()
+    {
+        for (int i = 0; i < slotIcons.Length && i < shownSkill.Length; i++)
+            if (current.GetSkill(i) != shownSkill[i]) { RefreshIcons(); return; }
+    }
+
+    // [2026-11-25] 0.2초마다 '지금 쓸 수 있는지' 확인 → 못 쓰면 아이콘을 어둡게 (재사용 대기 중은 기존 덮개가 표시)
+    void UpdateUsable()
+    {
+        usableTimer -= Time.unscaledDeltaTime;
+        if (usableTimer > 0f) return;
+        usableTimer = 0.2f;
+        for (int i = 0; i < slotIcons.Length && i < usable.Length; i++)
+        {
+            if (slotIcons[i] == null) continue;
+            usable[i] = current.GetSkill(i) == null || current.HasTargetFor(i);
+            slotIcons[i].color = usable[i] ? Color.white : unusableTint;
+        }
+    }
+
+    // [2026-11-25] 스킬 칸에 마우스를 올리면 이름 · 설명 팝업
+    void UpdateHover()
+    {
+        int over = -1;
+        for (int i = 0; i < slotIcons.Length; i++)
+            if (slotIcons[i] != null && current.GetSkill(i) != null && UIUtil.MouseOver(slotIcons[i].rectTransform)) { over = i; break; }
+        if (over == hoverSlot) return;
+        hoverSlot = over;
+        if (over >= 0) ItemInfoPopup.Instance?.ShowSkill(current.GetSkill(over));
+        else ItemInfoPopup.Instance?.Hide();
+    }
+
+    void HideHover()
+    {
+        if (hoverSlot < 0) return;
+        hoverSlot = -1;
+        ItemInfoPopup.Instance?.Hide();
     }
 }
