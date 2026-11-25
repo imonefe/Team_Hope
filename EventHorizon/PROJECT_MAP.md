@@ -71,6 +71,8 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - 버튼 클릭 소리: `5. Sound/SFX/UI/UI_Click.ogg` — `Etc/Resources/UISoundSettings` 의 네 칸 모두 (상점 키보드 조작은 ShopWindow.Update 에서)
 - 공용 효과음 `Etc/Resources/GameSfx.asset` (`GameSfx.cs`): 플레이어 피격 · 몬스터 스폰 · 몬스터 파괴 · 사이버웨어 선택 · 창 열림(UI_Button.mp3). 아이템 획득 소리는 `Etc/Resources/ItemPickupEffect` 의 sfx 칸 (Item_Pickup.ogg)
 - 원거리 발사 소리: `5. Sound/SFX/전투/원거리 발사/` — Shot_1S_Orb(1S_Ran01·02) · Shot_2S_Line(Enemy_Ranged02 · Skill02 터렛) · Shot_2S_Cannon(Enemy_Ranged01, 포격 1발만 자름). 적은 Enemy.shootSfx, 터렛은 Skill 소환 칸 spawnSfx
+- 바닥 스냅 스킬(Skill02 터렛 등): `Skill.snapToGround` → `FindGroundSpot`이 막힌 자리(벽 속 · 바닥 위 타일)를 피해 옆으로 최대 `maxSideShift`(3)까지 빈 바닥을 찾음. 필요 공간 `groundClearance`(0.8×1.8)
+- 키워드 5개 특수 보상: `AugmentRuntime.Keyword5.cs` (잔상 → PlayerController.bonusJumps/bonusDashes, 몸 커짐 → LateBody 그림만, 3타 마무리 → Keyword5OnSwing). 연출 프리팹 = `Etc/Resources/KeywordFx/KW_*` (Editor/KeywordFxBuilder.cs, 메뉴 Tools/Event Horizon/키워드 연출 프리팹 다시 만들기, 없으면 자동 생성)
 - 무기 교체 소리: `5. Sound/SFX/무기 교체/` Swap_Sword · Swap_Gauntlet(절반 자름) · Swap_Hammer — 각 WeaponData 의 swapSfx 칸
 - 회복 소리 `SFX/전투/Player_Heal.ogg` (Stats.healSfx, HealWithEffect 에서) · 착지 소리 `SFX/이동/Player_Land.ogg` (PlayerController.landSfx, 0.3초 이상 떠 있었을 때만) — 둘 다 SampleScene 플레이어에 연결
   - 인트로 `Suno_Intro_Loop`, 튜토리얼 `Suno_Tutorial_Loop`, 1S `Suno_Lobby/Battle/Boss/MidBoss_Loop`, 2S `Suno_2S_Lobby/Battle/Boss_Loop`

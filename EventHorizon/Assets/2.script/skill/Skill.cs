@@ -141,6 +141,12 @@ public class Skill : MonoBehaviour
     public bool snapToGround = false;
     [Tooltip("바닥 감지 최대 거리(시전자 위치 기준 아래로). 이 거리 안에 ground/platform 레이어가 없으면 스냅하지 않고 기존 방식(캐스터 기준 오프셋)으로 스폰")]
     public float groundCheckDistance = 20f;
+    [Tooltip("[2026-11-25] 바닥 스냅 시 필요한 빈 공간 크기(가로 × 세로). 바닥 위에 이 크기만큼 타일이 없어야 그 자리에 생성")]
+    public Vector2 groundClearance = new Vector2(0.8f, 1.8f);
+    [Tooltip("[2026-11-25] 자리가 막혀 있으면 옆으로 옮겨 볼 최대 거리 (플레이어 쪽부터 번갈아 찾음)")]
+    public float maxSideShift = 3f;
+    [Tooltip("[2026-11-25] 옆으로 옮겨 볼 간격")]
+    public float sideShiftStep = 0.25f;
     [Tooltip("true면 애니메이션 이벤트 없이 Launch() 시점에 spawnEntries를 즉시 전부 소환한다(SpawnAll()과 동일). " +
              "Animator/애니메이션 이벤트를 아직 안 만든 스킬이나, 프레임 타이밍이 필요 없는 간단한 스킬용")]
     public bool spawnOnLaunch = false;
@@ -191,11 +197,9 @@ public class Skill : MonoBehaviour
         {
             // 스폰될 X 좌표(좌우 반전 반영된 offset.x 포함) 기준으로 그 아래 바닥을 찾는다 —
             // 캐스터 바로 아래가 아니라 실제로 스킬이 놓일 자리 아래를 봐야 절벽 등에서도 정확함.
-            Vector2 rayOrigin = new Vector2(spawnPos.x, caster.position.y);
-            RaycastHit2D groundHit = Physics2D.Raycast(rayOrigin, Vector2.down,
-                groundCheckDistance, LayerMask.GetMask("ground", "platform"));
-            if (groundHit.collider != null)
-                spawnPos.y = groundHit.point.y + off.y;
+            // [2026-11-25] 자리가 타일에 막혀 있으면(벽 속 · 바닥 위에 타일이 쌓인 곳) 옆으로 옮겨 빈 바닥을 찾는다
+            if (FindGroundSpot(spawnPos.x, caster, out Vector2 spot))
+                spawnPos = new Vector3(spot.x, spot.y + off.y, spawnPos.z);
         }
 
         transform.position = spawnPos;
@@ -223,6 +227,46 @@ public class Skill : MonoBehaviour
         // 애니메이션 이벤트가 없는 스킬용 — 즉시 전부 소환
         if (spawnOnLaunch)
             SpawnAll();
+    }
+
+    /// <summary>[2026-11-25] 바닥 스냅 자리 찾기 — 원래 x부터 플레이어 쪽 · 반대쪽을 번갈아 sideShiftStep 간격으로 maxSideShift까지.
+    /// 조건: 광선 시작점이 타일 밖, 맞은 면이 위를 봄(바닥), 바닥 위 groundClearance 상자 안에 타일 없음.
+    /// 전부 실패하면 시전자 발밑 바닥, 그것도 없으면 false</summary>
+    bool FindGroundSpot(float x0, Transform caster, out Vector2 spot)
+    {
+        int mask = LayerMask.GetMask("ground", "platform");
+        float y0 = caster.position.y;
+        float step = Mathf.Max(0.05f, sideShiftStep);
+        int n = Mathf.CeilToInt(Mathf.Max(0f, maxSideShift) / step);
+        float toCaster = Mathf.Sign(caster.position.x - x0);
+        if (toCaster == 0f) toCaster = -facing;
+
+        for (int i = 0; i <= n; i++)
+        {
+            for (int side = 0; side < (i == 0 ? 1 : 2); side++)
+            {
+                float x = x0 + (side == 0 ? toCaster : -toCaster) * step * i;
+                if (TryGroundAt(x, y0, mask, out spot)) return true;
+            }
+        }
+        // 마지막: 시전자 발밑 (공간 검사 없이)
+        RaycastHit2D h = Physics2D.Raycast(new Vector2(caster.position.x, y0), Vector2.down, groundCheckDistance, mask);
+        spot = h.collider != null ? h.point : Vector2.zero;
+        return h.collider != null;
+    }
+
+    bool TryGroundAt(float x, float y0, int mask, out Vector2 spot)
+    {
+        spot = Vector2.zero;
+        Vector2 origin = new Vector2(x, y0);
+        if (Physics2D.OverlapPoint(origin, mask) != null) return false;            // 시작점이 벽 · 타일 속
+        RaycastHit2D h = Physics2D.Raycast(origin, Vector2.down, groundCheckDistance, mask);
+        if (h.collider == null || h.normal.y < 0.7f) return false;                 // 바닥 없음 · 옆면
+        Vector2 size = new Vector2(Mathf.Max(0.1f, groundClearance.x), Mathf.Max(0.1f, groundClearance.y));
+        Vector2 center = new Vector2(x, h.point.y + 0.05f + size.y * 0.5f);
+        if (Physics2D.OverlapBox(center, size, 0f, mask) != null) return false;     // 바닥 위에 타일이 쌓여 있음
+        spot = h.point;
+        return true;
     }
 
     // ── 애니메이션 이벤트: 모든 소환물 동시 소환 ──

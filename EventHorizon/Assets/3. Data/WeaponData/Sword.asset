@@ -28,7 +28,7 @@ MonoBehaviour:
     hpPercent: 0
   hitboxPrefab: {fileID: 2797169193547637144, guid: b811f38b0309ce7428cc0f68d79a4483, type: 3}
   damageMultiplier: 1.3
-  attackSpeed: 1.1
+  attackSpeed: 1.32
   swapSfx: {fileID: 8300000, guid: 7e87e3a894d141bfba13ad05884b154b, type: 3}
   swapSfxVolume: 0.4
   pauseGaugePerHit: 3.75

@@ -20,6 +20,7 @@ Shader "EventHorizon/PauseAfterimage"
         _EdgeColor ("깨질 때 테두리 색", Color) = (0.75, 0.95, 1, 1)
         [HideInInspector] _Dissolve ("깨짐 진행 (스크립트가 조절)", Range(0, 1)) = 0
         [HideInInspector] _Seed ("무작위 씨앗 (스크립트가 조절)", Float) = 0
+        [HideInInspector] _CutY ("[2026-11-25] 이 월드 높이보다 위는 안 그림 (강탈 홀로그램이 머리부터 사라질 때)", Float) = 100000
     }
 
     SubShader
@@ -64,6 +65,7 @@ Shader "EventHorizon/PauseAfterimage"
                 float4 _EdgeColor;
                 float _Dissolve;
                 float _Seed;
+                float _CutY;
             CBUFFER_END
 
             struct Attributes
@@ -104,6 +106,7 @@ Shader "EventHorizon/PauseAfterimage"
                 float4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 float alpha = tex.a * input.color.a;
                 clip(alpha - 0.002);
+                clip(_CutY - input.positionWS.y);   // [2026-11-25] 머리부터 사라지기 (기본값이 아주 커서 평소에는 영향 없음)
 
                 // ── 1) 윤곽선: 주변 4방향 중 하나라도 비어 있으면 가장자리 ──
                 float2 o = _MainTex_TexelSize.xy * _RimWidth;

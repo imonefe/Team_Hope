@@ -20,8 +20,8 @@ public static class TilemapCompositeFix
         EditorApplication.delayCall += () =>
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            EditorPrefs.SetBool(AutoKey, true);   // [2026-11-26] 오류가 나도 에디터를 열 때마다 다시 돌지 않게 먼저 표시
             Run();
-            EditorPrefs.SetBool(AutoKey, true);
         };
     }
 
@@ -40,9 +40,12 @@ public static class TilemapCompositeFix
                 if (tc.gameObject.layer != ground) continue;
                 if (tc.usedByComposite && tc.GetComponent<CompositeCollider2D>() != null) continue;
                 if (PrefabUtility.IsPartOfPrefabInstance(tc)) continue;   // 다른 프리팹 안의 것은 그 프리팹에서
-                var rb = tc.GetComponent<Rigidbody2D>() ?? tc.gameObject.AddComponent<Rigidbody2D>();
+                // [2026-11-26] 유니티 컴포넌트는 ?? 가 안 먹음 (없을 때 가짜 null) → 직접 확인
+                var rb = tc.GetComponent<Rigidbody2D>();
+                if (rb == null) rb = tc.gameObject.AddComponent<Rigidbody2D>();
                 rb.bodyType = RigidbodyType2D.Static;
-                var cc = tc.GetComponent<CompositeCollider2D>() ?? tc.gameObject.AddComponent<CompositeCollider2D>();
+                var cc = tc.GetComponent<CompositeCollider2D>();
+                if (cc == null) cc = tc.gameObject.AddComponent<CompositeCollider2D>();
                 cc.geometryType = CompositeCollider2D.GeometryType.Polygons;
                 tc.usedByComposite = true;
                 n++;

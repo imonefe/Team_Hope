@@ -106,6 +106,34 @@ public class PlayerController : MonoBehaviour
     // ── 대쉬 ──────────────────────────────────────────────
     [Header("대쉬")]
     public int MaxDashCount = 2;
+    /// <summary>[2026-11-25] 키워드 잔상 5개: 점프 · 대시 연속 사용 횟수 추가 (AugmentRuntime 이 매 프레임 넣음)</summary>
+    [System.NonSerialized] public int bonusJumps, bonusDashes;
+    /// <summary>[2026-11-25] 키워드 과부하 5 · 오염된 외골격: 헤네시 크기 (1 = 보통). 그림 · 자식(판정 위치 등)은 커지고, 몸 충돌체는 월드 크기가 그대로 (지형에 끼지 않게)</summary>
+    [System.NonSerialized] public float visualScale = 1f;
+    BoxCollider2D vsBox; Vector2 vsSize, vsOff; float vsEdge, vsApplied = 1f; bool vsInit;
+
+    /// <summary>[2026-11-25] visualScale 적용 — 좌우 방향(부호)은 그대로, 충돌체는 1/k 로 줄여 월드 크기 유지 · 발밑 높이는 그림과 같이 맞춤</summary>
+    void ApplyVisualScale()
+    {
+        float k = Mathf.Clamp(visualScale, 0.5f, 2f);
+        if (Mathf.Approximately(k, vsApplied) && Mathf.Abs(Mathf.Abs(transform.localScale.y) - k) < 1e-4f) return;
+        if (!vsInit)
+        {
+            vsInit = true;
+            vsBox = bodyCollider as BoxCollider2D;
+            if (vsBox == null) vsBox = GetComponent<BoxCollider2D>();
+            if (vsBox != null) { vsSize = vsBox.size; vsOff = vsBox.offset; vsEdge = vsBox.edgeRadius; }
+        }
+        float sx = transform.localScale.x >= 0f ? 1f : -1f;
+        transform.localScale = new Vector3(sx * k, k, 1f);
+        if (vsBox != null)
+        {
+            vsBox.size = vsSize / k;
+            vsBox.edgeRadius = vsEdge / k;
+            vsBox.offset = new Vector2(vsOff.x / k, vsOff.y - vsSize.y * 0.5f + vsSize.y / (2f * k));
+        }
+        vsApplied = k;
+    }
     public float DashPower = 10f;
     public float DashDuration = 0.2f;
     public float DashCooldown = 1f;
@@ -534,6 +562,7 @@ public class PlayerController : MonoBehaviour
     // 콤보 이펙트를 여기서 소환하면 "이동 후 이펙트"가 보장된다.
     void LateUpdate()
     {
+        ApplyVisualScale();   // [2026-11-25] 과부하 몸 커짐 (Flip 이 크기를 1로 되돌려도 매 프레임 다시 맞춤)
         if (comboEffectPending)
         {
             SpawnComboEffect(pendingComboEffectIndex);
@@ -636,8 +665,9 @@ public class PlayerController : MonoBehaviour
 
     void Flip(float h)
     {
-        if (h > 0) transform.localScale = Vector3.one;
-        else if (h < 0) transform.localScale = new Vector3(-1, 1, 1);
+        // [2026-11-25] 과부하로 커진 크기(vsApplied)는 유지하고 방향만 바꿈
+        if (h > 0) transform.localScale = new Vector3(vsApplied, vsApplied, 1f);
+        else if (h < 0) transform.localScale = new Vector3(-vsApplied, vsApplied, 1f);
     }
 
     // ── 플랫폼 드롭 ───────────────────────────────────────
@@ -697,7 +727,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (JumpCount < 2 && !isAttacking && !isDashing && !isCharging)
+        if (JumpCount < 2 + bonusJumps && !isAttacking && !isDashing && !isCharging)
         {
             rigid.velocity = new Vector2(rigid.velocity.x, 0);
             rigid.AddForce(Vector2.up * JumpPower, ForceMode2D.Impulse);
@@ -846,7 +876,7 @@ public class PlayerController : MonoBehaviour
         // Z 키: 바라보는 방향으로 대시
         if (DashPressed())
         {
-            TriggerDash(transform.localScale.x);
+            TriggerDash(Mathf.Sign(transform.localScale.x));   // [2026-11-25] 몸이 커져도 방향만
             return;
         }
 
@@ -883,7 +913,7 @@ public class PlayerController : MonoBehaviour
 
     void TriggerDash(float dir)
     {
-        if (isDashing || DeshCount >= MaxDashCount) return;
+        if (isDashing || DeshCount >= MaxDashCount + bonusDashes) return;
         if (chargeArmed) return; // 무장된 차징은 대시로도 취소 불가 — 반드시 강타로 이어짐
         if (isAttacking) ForceEndAttack();
         CancelHammerCharge();
@@ -1678,7 +1708,7 @@ public class PlayerController : MonoBehaviour
 
         // 점프 캔슬 — 공격을 끝내 두면 바로 아래 Jump()가 그대로 점프시킨다 (아래+점프 = 발판 내리기는 제외)
         bool downKey = Input.GetAxisRaw("Vertical") < -0.5f;
-        if (KeyBindings.Down(KeyAction.Jump) && !downKey && JumpCount < 2)
+        if (KeyBindings.Down(KeyAction.Jump) && !downKey && JumpCount < 2 + bonusJumps)
         {
             EndAttack();
             animator.CrossFade("Jump_Rise", 0.05f, 0); // 3타처럼 끝까지 재생해야 빠져나오는 동작도 바로 점프 동작으로

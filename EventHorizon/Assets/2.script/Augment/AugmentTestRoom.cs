@@ -8,8 +8,11 @@ using UnityEngine;
 ///
 ///  - 1 : 기획서 순서(일반 20 → 희귀 22 → 영웅 11 → 전설 6)대로 증강 하나를 준다.
 ///        다시 누르면 지금 시험하던 증강을 빼고(능력치·붙은 효과까지 되돌림) 다음 것을 준다.
-///  - Shift + 1 : 지금 증강 강화 단계 올리기 (Lv1 → 2 → 3)
-///  - Shift + 2 : 앞의 증강으로 돌아가기
+///  - [2026-11-25] Shift + 1~8 : 키워드별로 사이버웨어 모으기 (누를 때마다 그 키워드를 가진 사이버웨어 1개 추가)
+///        1 과열 · 2 균열 · 3 잔상 · 4 연격 · 5 처형 · 6 강탈 · 7 정지 · 8 과부하,  Shift + 0 : 모은 것 모두 빼기
+///  - 5 : 지금 증강 강화 단계 올리기 (Lv1 → 2 → 3)   (예전 Shift + 1)
+///  - 6 : 앞의 증강으로 돌아가기                       (예전 Shift + 2)
+///  - 7 : 방에 들어온 것처럼                           (예전 Shift + 4)
 ///  - 허수아비: Dummy_Kill (죽음 판정 있음, 쓰러지면 잠시 뒤 다시 생김) · 그 양옆 Dummy_Side (범위 효과 확인용, 안 죽음)
 ///              · Dummy_Hit (안 죽음, 오래 때려 보는 용)
 ///  - 방을 나가면 시험 중이던 증강은 빠진다
@@ -69,7 +72,7 @@ public class AugmentTestRoom : MonoBehaviour
             killPos = kp.position; killScale = kp.localScale;
             killDummy = kp.gameObject; MakeKillable(killDummy);
         }
-        ScreenNotice.Show("사이버웨어 시험 방 — 1 다음 사이버웨어 · Shift+1 강화 · Shift+2 이전 · 2 몬스터 3마리 · 3 체력 40%/가득 · 4 방 정리 · Shift+4 방 입장");
+        ScreenNotice.Show("사이버웨어 시험 방 — 1 다음 · 5 강화 · 6 이전 · 2 몬스터 · 3 체력 40%/가득 · 4 방 정리 · 7 방 입장 · Shift+1~8 키워드별 모으기 · Shift+0 모은 것 빼기");
     }
 
     void MakeKillable(GameObject go)
@@ -85,22 +88,73 @@ public class AugmentTestRoom : MonoBehaviour
         if (killDummy == null && !respawning && hasKillPoint) StartCoroutine(Respawn());
         if (GamePause.IsPaused) return;
         bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        // [2026-11-25] Shift + 1~8: 키워드별 모으기, Shift + 0: 모은 것 빼기
+        if (shift)
         {
-            if (shift) LevelUp();
-            else Step(+1);
+            for (int k = 0; k < 8; k++)
+                if (Input.GetKeyDown(KeyCode.Alpha1 + k) || Input.GetKeyDown(KeyCode.Keypad1 + k)) Collect((AugmentKeyword)k);
+            if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) ClearCollected(true);
+            return;
         }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            if (shift) Step(-1);
-            else SpawnMonsters();
-        }
+        if (Input.GetKeyDown(KeyCode.Alpha1)) Step(+1);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) SpawnMonsters();
         if (Input.GetKeyDown(KeyCode.Alpha3)) ToggleHp();
-        if (Input.GetKeyDown(KeyCode.Alpha4))
+        if (Input.GetKeyDown(KeyCode.Alpha4)) AugmentRuntime.Instance?.TestRoomCleared();   // 방을 정리한 것처럼 (떠올림 · 비상식량 등)
+        if (Input.GetKeyDown(KeyCode.Alpha5)) LevelUp();
+        if (Input.GetKeyDown(KeyCode.Alpha6)) Step(-1);
+        if (Input.GetKeyDown(KeyCode.Alpha7)) AugmentRuntime.Instance?.TestRoomEntered();   // 방에 들어온 것처럼 (약점 스캔 등)
+    }
+
+    // ══════════ [2026-11-25] 키워드별 모으기 (Shift + 1~8) ══════════
+    readonly List<ItemData> collected = new List<ItemData>();
+    readonly List<Component> collectedComps = new List<Component>();
+    Snapshot collectSnap;
+
+    /// <summary>그 키워드를 가진 사이버웨어 중 아직 없는 것 하나를 기획서 순서대로 추가 (능력치 효과도 적용)</summary>
+    void Collect(AugmentKeyword k)
+    {
+        if (PC == null || Inventory.Instance == null) return;
+        var inv = Inventory.Instance.passives;
+        ItemData pick = augments.Find(a => a != null && a.keywords != null && System.Array.IndexOf(a.keywords, k) >= 0 && !inv.Contains(a));
+        int have = AugmentRules.CountKeywords(inv)[(int)k];
+        string kn = AugmentRules.KeywordName(k);
+        if (pick == null) { ScreenNotice.Show($"{kn} 사이버웨어를 모두 가졌음 ({kn} {have}개)"); return; }
+
+        var st = PC.GetComponent<Stats>();
+        if (collected.Count == 0 && st != null)
+            collectSnap = new Snapshot
+            {
+                valid = true, atk = st.Atk, def = st.Def, spd = st.spd, itemSpd = st.itemSpdBonus, pause = st.PauseDuration,
+                cc = st.critChance, cm = st.critMultiplier, maxHp = st.maxHp, hp = st.currentHp
+            };
+        var before = new HashSet<Component>(PC.GetComponents<Component>());
+        if (pick.effects != null) foreach (var e in pick.effects) if (e != null) e.Apply(st, PC);
+        RunManager.Instance?.RegisterObtained(pick);
+        RunManager.Instance?.SetAugmentLevel(pick, 1);
+        Inventory.Instance.AddPassive(pick);
+        collected.Add(pick);
+        foreach (var c in PC.GetComponents<Component>()) if (!before.Contains(c)) collectedComps.Add(c);
+        AugmentRuntime.Instance?.Refresh();
+        ScreenNotice.Show($"{kn} {AugmentRules.CountKeywords(Inventory.Instance.passives)[(int)k]}개 · {pick.itemName} 추가 (Shift+0 모두 빼기)");
+    }
+
+    /// <summary>모은 사이버웨어를 모두 빼고 모으기 전 능력치로 되돌림</summary>
+    void ClearCollected(bool notice)
+    {
+        if (collected.Count == 0) { if (notice) ScreenNotice.Show("모은 사이버웨어 없음"); return; }
+        foreach (var d in collected) { Inventory.Instance?.RemovePassiveAt(-1, d); RunManager.Instance?.ForgetObtained(d); }
+        foreach (var c in collectedComps) if (c != null) Destroy(c);
+        int n = collected.Count;
+        collected.Clear(); collectedComps.Clear();
+        if (collectSnap.valid && PC != null)
         {
-            if (shift) AugmentRuntime.Instance?.TestRoomEntered();   // 방에 들어온 것처럼 (약점 스캔 등)
-            else AugmentRuntime.Instance?.TestRoomCleared();         // 방을 정리한 것처럼 (떠올림 · 비상식량 등)
+            var st = PC.GetComponent<Stats>();
+            st.Atk = collectSnap.atk; st.Def = collectSnap.def; st.spd = collectSnap.spd; st.itemSpdBonus = collectSnap.itemSpd; st.PauseDuration = collectSnap.pause;
+            st.critChance = collectSnap.cc; st.critMultiplier = collectSnap.cm; st.maxHp = collectSnap.maxHp; st.currentHp = Mathf.Min(collectSnap.hp, collectSnap.maxHp);
         }
+        collectSnap.valid = false;
+        AugmentRuntime.Instance?.Refresh();
+        if (notice) ScreenNotice.Show($"모은 사이버웨어 {n}개를 뺐음");
     }
 
     IEnumerator Respawn()
@@ -228,5 +282,5 @@ public class AugmentTestRoom : MonoBehaviour
         AugmentRuntime.Instance?.Refresh();
     }
 
-    void OnDestroy() => Remove();
+    void OnDestroy() { Remove(); ClearCollected(false); }   // [2026-11-25] 방을 나가면 모은 것도 빠짐
 }

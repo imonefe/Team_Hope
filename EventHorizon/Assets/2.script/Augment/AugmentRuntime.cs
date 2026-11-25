@@ -157,6 +157,7 @@ public partial class AugmentRuntime : MonoBehaviour
         pierceUntil = 0; lostThisRoom = 0; emergencyUsed = false; organRegenRunning = false; pauseMarks.Clear(); afterimagesAlive = 0;
         pc = null; psprite = null;
         ResetAdvancedState();
+        ResetKeyword5State();
         DestroyHead();
     }
 
@@ -519,6 +520,7 @@ public partial class AugmentRuntime : MonoBehaviour
         }
         // 연격 카운터 · 연격 5개 · 조준 고정
         float spd = 1f + (L("연격 카운터") > 0 ? combo * ByLevel(L("연격 카운터"), 0.02f, 0.03f, 0.04f) : 0f);
+        if (Kw(AugmentKeyword.Combo) >= 5) spd += 0.25f;                   // [2026-11-25] 연격 5: 공격 속도 + 25% (상시)
         if (Kw(AugmentKeyword.Combo) >= 5 && combo >= 10) spd += 0.30f;
         CombatEvents.AttackSpeedMultiplier = spd;
         // [2026-11-21 수정] 조준 고정: 연격 5 · 10 에서 평타 판정 · 무기 궤적 · 투사체가 단계적으로 커짐 (눈에 보이게)
@@ -603,6 +605,7 @@ public partial class AugmentRuntime : MonoBehaviour
         }
 
         UpdateAdvanced(paused);
+        UpdateKeyword5(paused);   // [2026-11-25] 키워드 5개 특수 보상
     }
 
     float tauntPulse, aimShown = 1f;
@@ -837,10 +840,11 @@ public partial class AugmentRuntime : MonoBehaviour
             if (paused && L("멈춘 칼자국") > 0 && pauseMarks.Count < 6)
             {
                 pauseMarks.Add(hi.position);
-                pauseMarkFx.Add(AugmentFx.SlashMark(hi.position, new Color(0.35f, 0.6f, 1f), 0.35f, Random.Range(-35f, 35f) + (PFacing < 0 ? 180f : 0f)));   // 작은 푸른 참격이 멈춰 남음
+                pauseMarkFx.Add(SheathMark(hi.position, Random.Range(-35f, 35f) + (PFacing < 0 ? 180f : 0f)));   // [2026-11-25] 공격용 참격 → 푸른 피격 참격(sword_hit 색 바꿈)이 멈춰 남음
             }
 
             AdvancedOnHit(hi, st, paused);
+            Keyword5OnHit(hi);   // [2026-11-25] 처형 5 · 균열 5
         }
         else AdvancedOnAbilityHit(hi, st);
     }
@@ -938,6 +942,7 @@ public partial class AugmentRuntime : MonoBehaviour
         if (got > 0) AddFragment(got, EC(h), 0);
 
         AdvancedOnKill(h, pos, st, overheated, maxHeat, executed);
+        Keyword5OnKill(h, pos);   // [2026-11-25] 강탈 5: 처치한 적의 공격을 홀로그램으로
     }
 
     /// <summary>이동 속도 버프 — 그동안 헤네시 몸이 색으로 맥동</summary>
@@ -1005,6 +1010,7 @@ public partial class AugmentRuntime : MonoBehaviour
         }
 
         AdvancedOnDashStart(pos, dir);
+        Keyword5OnDashStart(pos);   // [2026-11-25] 과열 5
     }
 
     static readonly Color CTeal = new Color(0.2f, 0.95f, 0.85f, 1f);
@@ -1016,6 +1022,7 @@ public partial class AugmentRuntime : MonoBehaviour
         int lvGas = L("가스 분사");
         if (lvGas > 0) StartCoroutine(GasCloud(pos, ByLevel(lvGas, 2f, 3f, 4f)));
         AdvancedOnDashEnd(pos);
+        Keyword5OnDashEnd(pos);   // [2026-11-25] 과열 5: 대시한 길에 불길
     }
 
     // 가스: 어두운 붉은색, 가로로 넓게 (판정도 가로 4.2m × 세로 1.8m)
@@ -1097,6 +1104,7 @@ public partial class AugmentRuntime : MonoBehaviour
 
     void OnPauseEnd()
     {
+        Keyword5OnPauseEnd();   // [2026-11-25] 정지 5: 시간 충격파 (맨 앞 — 뒤의 처리에서 오류가 나도 빠지지 않게)
         // 멈춘 칼자국: 풀리는 순간 한꺼번에 터짐
         int lvSheath = L("멈춘 칼자국");
         if (lvSheath > 0 && pauseMarks.Count > 0)
@@ -1169,12 +1177,15 @@ public partial class AugmentRuntime : MonoBehaviour
     {
         int lvOrgan = L("비상 이식");
         if (lvOrgan <= 0 || hpRatioBefore > 0.3f || organRegenRunning) return;
+        if (Time.time < organOrbReady) return;   // [2026-11-26] 회복 구로 발동은 10초에 한 번 (예전엔 구마다 → 회복이 피해보다 많아짐)
         RefreshPlayer();
         if (pstats == null || pstats.currentHp <= 0) return;
+        organOrbReady = Time.time + 10f;
         StartOrganRegen(lvOrgan);
     }
 
     bool organRegenRunning;
+    float organOrbReady;
     void StartOrganRegen(int lvOrgan)
     {
         StartCoroutine(OrganRegen(ByLevel(lvOrgan, 0.01f, 0.015f, 0.02f)));   // [2026-11-25] 회복 축소

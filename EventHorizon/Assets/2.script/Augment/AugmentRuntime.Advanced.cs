@@ -234,11 +234,14 @@ public partial class AugmentRuntime
     }
 
     // 나노 봉합: 잃은 체력의 일부가 3초 뒤 돌아옴
+    float nanoReady;
     void QueueNano(int lost)
     {
         int lv = L("나노 봉합");
         if (lv <= 0 || lost <= 0) return;
-        StartCoroutine(Nano(Mathf.Max(1, Mathf.RoundToInt(lost * ByLevel(lv, 0.20f, 0.30f, 0.40f)))));
+        if (Time.time < nanoReady) return;   // [2026-11-26] 재사용 대기 4초 (예전엔 맞을 때마다 → 상시 피해 감소처럼 됨)
+        nanoReady = Time.time + 4f;
+        StartCoroutine(Nano(Mathf.Max(1, Mathf.RoundToInt(lost * ByLevel(lv, 0.15f, 0.20f, 0.25f)))));   // [2026-11-26] 20/30/40% → 15/20/25%
         BuffIcon("나노 봉합", 3f);
     }
 
@@ -408,6 +411,8 @@ public partial class AugmentRuntime
                 Capture(p);
             }
         }
+
+        Keyword5OnSwing(tag);   // [2026-11-25] 연격 5 · 가열 블레이드: 3타 마무리 특수 평타
     }
 
     /// <summary>평타 판정을 복사 (피해 배율 · 방향). active=false 면 꺼 둔 원본으로 보관</summary>
@@ -554,13 +559,7 @@ public partial class AugmentRuntime
         int lvHero = L("히어로 착지");
         if (lvHero > 0 && combo >= (int)ByLevel(lvHero, 5, 4, 3)) st.AddOverheat(1);
 
-        // 검무: 검 3타 마무리가 맞으면 과열 (연격 추가는 뺌)
-        int lvDance = L("검무");
-        if (lvDance > 0 && hi.swing != null && hi.swing.weapon == Weapontype.Sword && hi.swing.combo == 3)
-        {
-            st.AddOverheat((int)ByLevel(lvDance, 1, 2, 3));
-            AugmentFx.Sparks(hi.position, OverheatColor, 8, 4f, 0.3f, 0f, 0.14f);
-        }
+        // 검무: [2026-11-25] 검 3타에 불타는 검기가 날아가 과열을 부여 → AugmentRuntime.Keyword5.cs (근접 타격 자체의 과열은 뺌)
 
         // 쐐기 각인: 균열이 최대인 적을 치명타로 → 균열을 모두 쓰고 추가 피해
         int lvWedge = L("쐐기 각인");
