@@ -70,6 +70,7 @@ public class MainMenuController : MonoBehaviour
     {
         if (creditPanel == null) return;
         creditPanel.SetActive(true);
+        GameSfx.WindowOpen();   // [2026-11-25] 창 열림 소리
         // 뒤의 메뉴 버튼이 키보드 선택 상태로 남아 있지 않게
         if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
     }

@@ -149,6 +149,7 @@ public class SettingsWindow : MonoBehaviour
     void Show()
     {
         gameObject.SetActive(true);
+        GameSfx.WindowOpen();   // [2026-11-25] 창 열림 소리
         if (keyWindow != null && keyWindow.IsShown) keyWindow.Hide();   // [2026-11-11] 항상 본문부터
         RefreshAll();
 

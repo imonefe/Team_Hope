@@ -27,6 +27,17 @@ public class PauseManager : PersistentSingleton<PauseManager>
     [Tooltip("제로포인트 중 플레이어 공격의 치명타 확률 (0.2 = 20%). 원래 확률이 더 높으면 원래 값 유지")]
     [Range(0f, 1f)] public float pauseCritChance = 0.2f;
 
+    [Header("[2026-11-25] 소리 (볼륨 × 설정 창 효과음 크기)")]
+    [Tooltip("제로포인트 발동 순간")]
+    public AudioClip startClip;
+    [Range(0f, 1f)] public float startVolume = 0.6f;
+    [Tooltip("제로포인트 중 반복 재생 (시계 초침)")]
+    public AudioClip loopClip;
+    [Range(0f, 1f)] public float loopVolume = 0.7f;
+    [Tooltip("제로포인트 풀릴 때")]
+    public AudioClip endClip;
+    [Range(0f, 1f)] public float endVolume = 0.3f;
+
     [Header("게이지 설정")]
     [Tooltip("데미지를 줄 때마다 충전되는 양")]
     public float gaugePerHit = 20f;
@@ -53,6 +64,37 @@ public class PauseManager : PersistentSingleton<PauseManager>
         InitSingleton();
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
         RoomManager.OnRoomLoaded += OnRoomLoaded;   // [2026-10-20] 다음 방으로 넘어가면 퍼즈 강제 해제
+    }
+
+    // [2026-11-25] 제로포인트 소리 — 반복용 · 한 번용 소리 출력기 (2D, 시간 배율 영향 없음)
+    AudioSource loopSource, oneShotSource;
+
+    AudioSource MakeSource(bool loop)
+    {
+        var s = gameObject.AddComponent<AudioSource>();
+        s.playOnAwake = false; s.loop = loop; s.spatialBlend = 0f;
+        return s;
+    }
+
+    void PlayOneShot(AudioClip clip, float volume)
+    {
+        if (clip == null) return;
+        if (oneShotSource == null) oneShotSource = MakeSource(false);
+        oneShotSource.PlayOneShot(clip, volume * GameSettings.SfxVolume);
+        SfxBus.Duck(0.5f);   // [2026-11-25] 1등급 — 나머지 효과음을 잠깐 낮춤
+    }
+
+    // 제로포인트 중에만 반복 소리 (어떤 경로로 풀려도 여기서 멈춤)
+    void SyncLoopSound()
+    {
+        bool want = IsPaused && loopClip != null && Time.timeScale > 0f;   // 창(ESC 메뉴 등)이 시간을 멈추면 초침도 멈춤
+        if (want)
+        {
+            if (loopSource == null) loopSource = MakeSource(true);
+            loopSource.volume = loopVolume * GameSettings.SfxVolume;
+            if (!loopSource.isPlaying) { loopSource.clip = loopClip; loopSource.Play(); }
+        }
+        else if (loopSource != null && loopSource.isPlaying) loopSource.Stop();
     }
 
     void OnDestroy()
@@ -110,7 +152,7 @@ public class PauseManager : PersistentSingleton<PauseManager>
 
         // [2026-10-10 추가] 창(ESC 메뉴·인벤토리·노드맵·게임오버)이 시간을 멈춘 동안에는 Q 입력도 받지 않고
         // 퍼즈 남은 시간도 줄지 않는다 (예전엔 실제 시간 기준이라 메뉴를 띄워둔 동안 퍼즈가 다 소모됐음)
-        if (Time.timeScale == 0f) return;
+        if (Time.timeScale == 0f) { SyncLoopSound(); return; }   // [2026-11-25] 창이 떠 있는 동안 초침 소리도 멈춤
 
         // 테스트용 Shift+Q → 게이지 즉시 충전 (Q키 처리보다 먼저 해야 같은 프레임에 바로 발동된다)
         // [2026-11-11] 대시(Shift)+평타(Q)와 겹쳐서 실수로 충전되므로 에디터에서만, Ctrl+D 로 변경
@@ -138,6 +180,7 @@ public class PauseManager : PersistentSingleton<PauseManager>
                 DeactivatePause();
         }
 
+        SyncLoopSound();   // [2026-11-25]
         if (!IsPaused) return;
 
         // 실제 시간 기준으로 경과 체크
@@ -165,6 +208,8 @@ public class PauseManager : PersistentSingleton<PauseManager>
         IsPaused = true;
         GaugeValue = 0f;
         CombatEvents.RaisePauseStart();   // [2026-11-21] 증강
+        PlayOneShot(startClip, startVolume);   // [2026-11-25]
+        SyncLoopSound();
 
         maxTime = Mathf.Clamp(playerStats.PauseDuration + CombatEvents.PauseDurationBonus, 0f, maxPauseTime + CombatEvents.PauseDurationBonus);   // [2026-11-21] 증강 (정지)
         maxDist = playerStats.spd * distPerSpd;
@@ -185,6 +230,8 @@ public class PauseManager : PersistentSingleton<PauseManager>
         bool was = IsPaused;
         IsPaused = false;
         if (was) CombatEvents.RaisePauseEnd();   // [2026-11-21] 증강
+        if (was) PlayOneShot(endClip, endVolume);   // [2026-11-25]
+        SyncLoopSound();
 
         Debug.Log("[Pause] 해제");
     }

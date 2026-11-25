@@ -89,6 +89,7 @@ public class ItemPickupEffect : MonoBehaviour
             : new GameObject("ItemPickupEffect").AddComponent<ItemPickupEffect>();
         pos.z -= fx.towardCamera;
         fx.transform.position = pos;
+        fx.sfx = null;   // [2026-11-25] 사이버웨어는 아이템 획득 소리 대신 고를 때 소리 (GameSfx.AugmentSelect)
         // [2026-11-25] 크게 터지던 연출(배율 · 고리 추가 · 화면 흔들림 · 화면 번쩍임) 제거 — 일반 아이템과 같은 크기
         fx.Play(data);
         if (!string.IsNullOrEmpty(keywordLine))
@@ -109,7 +110,7 @@ public class ItemPickupEffect : MonoBehaviour
         if (showIcon && data != null && data.icon != null) StartCoroutine(Icon(data.icon));
         if (showName && data != null && !string.IsNullOrEmpty(data.itemName))
             FloatingTextSpawner.SpawnText(transform.position + nameOffset, data.itemName, c);
-        if (sfx != null) AudioSource.PlayClipAtPoint(sfx, transform.position, sfxVolume * GameSettings.SfxVolume);   // [2026-10-18] 설정 창의 효과음 크기 적용
+        if (sfx != null) SkillSfx.Play(sfx, sfxVolume);   // [2026-11-25] 화면 기준(2D) 재생 — 위치 재생은 카메라와 멀어 작게 들림 · 설정 창 효과음 크기 적용
 
         float life = Mathf.Max(flashDuration, ringDuration + (extraRing ? 0.14f : 0f), sparkLifetime, showIcon ? iconDuration : 0f) + 0.2f;
         Destroy(gameObject, life);

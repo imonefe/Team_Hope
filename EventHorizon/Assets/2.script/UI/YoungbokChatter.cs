@@ -43,12 +43,12 @@ public class YoungbokChatter : MonoBehaviour
     const string LineLeft3 = "셋 남았어. 슬슬 정리하자.";
     const string LineLeft2 = "둘! 거의 다 왔어.";
     const string LineLeft1 = "마지막 하나. 깔끔하게 끝내.";
-    const string LineLowHp = "너 지금 나사 다 빠지게 생겼어! 문 옆 회복 장치부터 찾아.";
+    const string LineLowHp = "너 지금 나사 다 빠지게 생겼어! 적 잡고 초록 구부터 주워.";   // [2026-11-25] 회복 오브젝트 삭제 → 회복 구
     static readonly string[] LinesRoomClear = { "문 열렸다. 숨 좀 돌려.", "문 열렸어! 다음으로 가자!" };   // [2026-11-02] 둘 중 무작위
     const string LineMap = "길은 네가 골라. 어느 길이든 끝엔 주인이 기다려.";
     const string LineBossRoom = "여기서부턴 주인의 서가야. …꼭 돌아와, 헤네시.";
     static readonly string[] LinesLegendary = { "저 빛 봤어? 이번 건 진짜다!", "이건... 전설급인데? 내가 넣어 둔 것 중에 이런 게 있었어?" };
-    static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 새웠다고.", "꽝이어도 괜찮아. 상자는 또 있어.", "포장이 엉망이긴 해도, 내용물은 내가 정성껏 담았지!" };
+    static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 새웠다고.", "꽝이어도 괜찮아. 다음엔 더 좋은 게 나올 거야.", "포장이 엉망이긴 해도, 내용물은 내가 정성껏 담았지!" };
     static readonly string[] LinesCrit = { "방금 거 제대로 꽂혔다!", "약점 정확히 찔렀어. 소름 돋네.", "우왁! 방금 그 한 방, 여기까지 흔들었어!" };
     const string LineFirstItem = "사이버웨어는 [{0}] 누르면 인벤토리에서 확인할 수 있어.";   // [2026-11-25] 대사 기획서   // [2026-11-09] {0} = 인벤토리 키
     static readonly string[] LinesHurt = { "야! 거기 어제 내가 고친 데라고!", "여기서 부품 구하기가 얼마나 어려운지 알아!?", "살살 맞아! 또 내가 고쳐야 되잖아!!" };   // [2026-11-25] 대사 기획서

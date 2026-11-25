@@ -154,12 +154,7 @@ public class PlayerController : MonoBehaviour
         // [2026-10-10 추가] 진행 중이던 공격·발판 내려가기도 정리 — 안 그러면 잠겨 있는 동안
         // 공격 상태가 풀리지 않아 대화 내내 공격 모션이 반복되거나, 레이어가 dropping으로 남아 발판을 계속 통과함
         if (isAttacking) EndAttack();
-        if (isDropping)
-        {
-            gameObject.layer = originalLayer;
-            isDropping = false;
-            dropTimer = 0f;
-        }
+        if (isDropping) EndDrop();
         if (isPassingUp) EndPassUp();   // [2026-10-20] 아래서 발판 통과 중이었으면 충돌 복구
     }
 
@@ -205,6 +200,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] RandomSfx doubleJumpSfx = new RandomSfx();
     [Tooltip("대쉬 시작할 때 재생. 여러 개 넣으면 랜덤 (비워두면 소리 없음)")]
     [SerializeField] RandomSfx dashSfx = new RandomSfx();
+    [Tooltip("[2026-11-25] 공중에서 착지할 때 재생 (잠깐 뜬 정도로는 안 남 — landSfxMinAirTime 초 이상 떠 있었을 때만)")]
+    [SerializeField] RandomSfx landSfx = new RandomSfx();
+    [SerializeField, Range(0f, 1f)] float landSfxVolume = 0.6f;
+    [SerializeField] float landSfxMinAirTime = 0.3f;
+    float leftGroundTime;
 
     // ── 그라운드 체크 ─────────────────────────────────────
     [Header("그라운드 체크")]
@@ -266,6 +266,63 @@ public class PlayerController : MonoBehaviour
         baseAnimMaxTime = animPlayingMaxTime;
     }
 
+    // [2026-11-25] 작은 턱 넘기 — 땅 위를 걸을 때 발 앞에 이 높이 이하의 턱이 있으면 살짝 올려 그대로 걸어가게 (타일 사이 작은 단차에 막히던 문제)
+    [Header("[2026-11-25] 작은 턱 넘기")]
+    [Tooltip("넘을 수 있는 턱 높이 (월드 단위, 0 = 끔)")]
+    public float stepHeight = 0.3f;
+    float nextNudge;
+
+    void StepUp()
+    {
+        if (stepHeight <= 0f || bodyCollider == null || stats == null) return;
+        if (controlLocked || Time.timeScale == 0f) return;   // [2026-11-25] 스킬 · 대화 등으로 조작이 잠긴 동안엔 하지 않음 (스킬 중 앞으로 밀려 나가던 문제)
+        if (isDashing || isDropping || isPassingUp || !lastGrounded || hitStunTimer > 0f || animPlaying || isAttacking || isCharging) return;
+        if (rigid.velocity.y < -0.1f) return;   // 떨어지는 중(착지 직전)에는 하지 않음
+        float h = Input.GetAxisRaw("Horizontal");
+        if (Mathf.Abs(h) < 0.1f) return;
+
+        float dir = Mathf.Sign(h);
+        int mask = LayerMask.GetMask("ground");
+        Bounds b = bodyCollider.bounds;
+        float feet = b.min.y, front = dir > 0f ? b.max.x : b.min.x;
+        const float reach = 0.12f;
+        Vector2 fwd = new Vector2(dir, 0f);
+
+        // [2026-11-25] 막힘 보정: 걷는데 가로 속도가 거의 0 이고 위쪽이 벽이 아니면 살짝 들어 올림 (감지 못 할 만큼 낮은 오차 · 이음매)
+        float want = Mathf.Abs(h) * stats.GetEffectiveSpd();
+        bool stalled = want > 0.5f && Mathf.Abs(rigid.velocity.x) < want * 0.2f;
+        bool wallAbove = Physics2D.Raycast(new Vector2(front - dir * 0.01f, feet + stepHeight + 0.02f), fwd, reach + 0.05f, mask).collider != null;
+        if (stalled && !wallAbove && Time.time >= nextNudge)
+        {
+            nextNudge = Time.time + 0.08f;
+            Vector2 nsize = new Vector2(b.size.x * 0.9f, b.size.y * 0.95f);
+            if (Physics2D.OverlapBox(new Vector2(b.center.x + dir * 0.03f, b.center.y + 0.07f), nsize, 0f, mask) == null)
+            {
+                rigid.position += new Vector2(dir * 0.03f, 0.06f);
+                rigid.velocity = new Vector2(h * stats.GetEffectiveSpd(), Mathf.Max(0f, rigid.velocity.y));
+                return;
+            }
+        }
+
+        // 발 바로 위 높이에서 앞이 막혔는지 ([2026-11-25] 0.04 → 0.015: 아주 낮은 턱도 감지)
+        RaycastHit2D low = Physics2D.Raycast(new Vector2(front - dir * 0.01f, feet + 0.015f), fwd, reach, mask);
+        if (low.collider == null) return;
+        // 턱 높이 위쪽은 비어 있어야 (벽이면 넘지 않음)
+        if (wallAbove) return;
+        // 턱 꼭대기 높이
+        RaycastHit2D top = Physics2D.Raycast(new Vector2(low.point.x + dir * 0.04f, feet + stepHeight + 0.02f), Vector2.down, stepHeight + 0.02f, mask);
+        if (top.collider == null) return;
+        float rise = top.point.y - feet;
+        if (rise <= 0.005f || rise > stepHeight) return;
+        // 올라선 자리에 몸이 들어갈 공간이 있어야
+        Vector2 size = new Vector2(b.size.x * 0.9f, b.size.y * 0.95f);
+        Vector2 center = new Vector2(b.center.x + dir * 0.05f, b.center.y + rise + 0.02f);
+        if (Physics2D.OverlapBox(center, size, 0f, mask) != null) return;
+
+        rigid.position += new Vector2(dir * 0.04f, rise + 0.01f);
+        rigid.velocity = new Vector2(h * stats.GetEffectiveSpd(), Mathf.Max(0f, rigid.velocity.y));
+    }
+
     // [2026-10-10 추가] 캐릭터 교체로 다시 켜진 쪽이 Instance가 되도록 (Awake는 처음 한 번만 불림)
     void OnEnable()
     {
@@ -306,6 +363,7 @@ public class PlayerController : MonoBehaviour
         if (EquippedWeapon != null && stats != null) EquippedWeapon.RemoveStats(stats);
         if (stats != null) next.ApplyStats(stats);
         SwitchWeapon(next);
+        SkillSfx.Play(next.swapSfx, next.swapSfxVolume, 0f, SfxTier.Action, "weaponSwap");   // 연타하면 이전 교체 소리를 끊음   // [2026-11-25] 무기 교체 소리 (키로 바꿀 때만)
     }
 
     // ── 무기 전환 ─────────────────────────────────────────
@@ -427,6 +485,7 @@ public class PlayerController : MonoBehaviour
 
         UpdatePassUp();
         GroundedCheck();
+        StepUp();   // [2026-11-25] 작은 턱 넘기
         animator.SetFloat(ParamVerticalVel, rigid.velocity.y);
     }
 
@@ -592,12 +651,34 @@ public class PlayerController : MonoBehaviour
     {
         if (!isDropping) return;
         dropTimer += Time.deltaTime;
-        if (dropTimer >= dropDuration)
+        if (dropTimer >= dropDuration) EndDrop();
+    }
+
+    // [2026-11-25] 발판 내려가기 — 예전엔 몸의 층을 dropping 으로 바꿨는데, 그 층이 적 · 보스와 부딪혀
+    // 발밑 적에 걸려 느려지거나 옆으로 밀렸다. 이제 층은 그대로 두고 발밑 발판 콜라이더와의 충돌만 dropDuration 동안 끈다.
+    readonly List<Collider2D> dropIgnored = new List<Collider2D>();
+
+    void StartDrop()
+    {
+        if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+        if (bodyCollider == null) return;
+        Bounds b = bodyCollider.bounds;
+        Collider2D[] under = Physics2D.OverlapBoxAll(new Vector2(b.center.x, b.min.y - 0.15f), new Vector2(b.size.x, 0.5f), 0f, LayerMask.GetMask("platform"));
+        foreach (Collider2D c in under)
         {
-            gameObject.layer = originalLayer;
-            isDropping = false;
-            dropTimer = 0f;
+            if (c == null || c.isTrigger || dropIgnored.Contains(c)) continue;
+            Physics2D.IgnoreCollision(bodyCollider, c, true);
+            dropIgnored.Add(c);
         }
+    }
+
+    void EndDrop()
+    {
+        foreach (Collider2D c in dropIgnored)
+            if (c != null && bodyCollider != null) Physics2D.IgnoreCollision(bodyCollider, c, false);
+        dropIgnored.Clear();
+        isDropping = false;
+        dropTimer = 0f;
     }
 
     // ── 점프 ──────────────────────────────────────────────
@@ -611,8 +692,7 @@ public class PlayerController : MonoBehaviour
         {
             isDropping = true;
             dropTimer = 0f;
-            originalLayer = gameObject.layer;
-            gameObject.layer = LayerMask.NameToLayer("dropping");
+            StartDrop();   // [2026-11-25] 층(dropping)을 바꾸지 않고, 발밑 발판과 내 몸의 충돌만 잠깐 끔
             rigid.velocity = new Vector2(rigid.velocity.x, -10f);
             return;
         }
@@ -691,8 +771,13 @@ public class PlayerController : MonoBehaviour
         // [2026-11-23] 점프 횟수 리셋도 여기서만 한다 (착지 애니메이션이 나올 때만 2단 점프가 다시 채워짐).
         //   예전에는 바닥에 닿아 있는 '동안' 매 프레임 0으로 되돌려서, 공중에서 벽 모서리·발판 끝을 스치기만 해도
         //   점프가 다시 채워지는 문제가 있었다.
+        if (wasGrounded && !grounded) leftGroundTime = Time.time;   // [2026-11-25] 착지 소리용
         if (!wasGrounded && grounded && rigid.velocity.y <= 0)
+        {
+            if (Time.time - leftGroundTime >= landSfxMinAirTime)
+                SkillSfx.Play(landSfx.Pick(), landSfxVolume, 0.05f, SfxTier.Ambient);   // [2026-11-25] 착지 소리
             Land();
+        }
         // 착지 순간을 놓친 경우 (낮은 천장 밑에서 뛰어 바닥을 못 떠난 경우 등): 바닥에 0.25초 가만히 붙어 있으면 착지로 처리
         if (grounded && JumpCount > 0 && !justJumped && Mathf.Abs(rigid.velocity.y) < 0.05f)
         {

@@ -67,6 +67,6 @@ MonoBehaviour:
   iconDuration: 0.8
   showName: 1
   nameOffset: {x: 0, y: 1.6, z: 0}
-  sfx: {fileID: 0}
+  sfx: {fileID: 8300000, guid: f3bcf004ef9e4bacba9f2e2771b4c753, type: 3}
   sfxVolume: 0.8
   sortingOrder: 5100

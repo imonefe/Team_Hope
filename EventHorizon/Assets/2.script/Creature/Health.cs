@@ -117,6 +117,7 @@ public class Health : MonoBehaviour
         else damage = CombatEvents.EnemyIncoming(this, damage);   // [2026-11-21] 증강 (사건의 지평선: 퍼즈 중 저장)
         if (damage > 0) stats.TakeDamage(damage);
         if (isPlayer) CombatEvents.RaisePlayerDamaged(damage);
+        if (isPlayer && damage > 0) GameSfx.PlayerHurt();   // [2026-11-25] 피격 소리
 
         // 플레이어 피격 시 퍼즈 게이지 3% 충전
         if (gameObject.CompareTag("Player"))
@@ -201,6 +202,7 @@ public class Health : MonoBehaviour
             // 적 사망 — 디스폰 이펙트 (갑자기 사라진 느낌 방지)
             if (enemyDeathEffectPrefab != null)
                 Instantiate(enemyDeathEffectPrefab, transform.position, Quaternion.identity);
+            if (GetComponent<Enemy>() != null) GameSfx.EnemyDeath();   // [2026-11-25] 몬스터 파괴 소리
 
             // 일반 적(Enemy 컴포넌트가 붙은 대상)만 처치 수 집계 + 재화 드랍.
             // 보스는 Health.Die()를 거치지 않고 BossController.OnTrueDeath()에서 따로 처리한다.

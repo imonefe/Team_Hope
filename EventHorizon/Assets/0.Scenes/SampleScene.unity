@@ -713,10 +713,10 @@ MonoBehaviour:
   bossBgm: {fileID: 8300000, guid: 7c437950abbf4d97bbd7ac30781b8e53, type: 3}
   tutorialBgm: {fileID: 8300000, guid: 1db1fb7dda1c40fb96f943b5d7d72ab4, type: 3}
   midBossBgm: {fileID: 8300000, guid: 75bdea1235224cd9ade7ac3d8435c477, type: 3}
-  stage2LobbyBgm: {fileID: 0}
-  stage2BattleBgm: {fileID: 0}
-  stage2BossBgm: {fileID: 0}
-  stage2MidBossBgm: {fileID: 0}
+  stage2LobbyBgm: {fileID: 8300000, guid: c5e6922857cf4a9eb1e3ba34d193ccc4, type: 3}
+  stage2BattleBgm: {fileID: 8300000, guid: 94eaf39065b34d19a9c5c76c8afc24ed, type: 3}
+  stage2BossBgm: {fileID: 8300000, guid: 9276c0d49f854d4c9427d1f59fe321e0, type: 3}
+  stage2MidBossBgm: {fileID: 8300000, guid: 9276c0d49f854d4c9427d1f59fe321e0, type: 3}
   stage2Group: 2S
   fadeOutTime: 0.6
   fadeInTime: 0.8
@@ -6217,6 +6217,12 @@ MonoBehaviour:
   maxPauseTime: 7
   distPerSpd: 2
   pauseCritChance: 0.2
+  startClip: {fileID: 8300000, guid: 25278e2c036248429cb644333ec5a5a5, type: 3}
+  startVolume: 0.6
+  loopClip: {fileID: 8300000, guid: 8f7edf91f567481cb9f0fe914686a597, type: 3}
+  loopVolume: 0.7
+  endClip: {fileID: 8300000, guid: 3feaada815d844c1a5bc156317ca0b2d, type: 3}
+  endVolume: 0.3
   gaugePerHit: 20
 --- !u!4 &1650191082
 Transform:
@@ -9349,7 +9355,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uBB38 \xB7 \uC0C1\uC790 \xB7 \uB300\uD654"
+  m_text: "\uBB38 \xB7 \uB300\uD654"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   m_sharedMaterial: {fileID: 7224087456951919524, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
@@ -17612,6 +17618,11 @@ MonoBehaviour:
     - {fileID: 8300000, guid: c2718a9c46844be8b84189147e1d7015, type: 3}
     - {fileID: 8300000, guid: a2461f5906994030986e3b44d2a50866, type: 3}
     - {fileID: 8300000, guid: 322ca042ff944711bd937d00b5faeb32, type: 3}
+  landSfx:
+    clips:
+    - {fileID: 8300000, guid: 7ed19917ba5d40c0bbae220c45a96d5b, type: 3}
+  landSfxVolume: 0.6
+  landSfxMinAirTime: 0.3
   GroundCheckDistance: 1.5
   GroundCheckWidth: 0.4
   edgeStillTime: 0.06
@@ -19605,6 +19616,8 @@ MonoBehaviour:
   maxCritChance: 0.6
   advantage: 0
   healEffectPrefab: {fileID: 8497468283477465436, guid: b932a2559bcf3114980c391e32148932, type: 3}
+  healSfx: {fileID: 8300000, guid: 2c0920aa9116440ca2b8963e036dbdf1, type: 3}
+  healSfxVolume: 0.6
 --- !u!222 &2448242367512111433
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -25732,8 +25745,8 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.74, y: 1.57}
-  m_EdgeRadius: 0
+  m_Size: {x: 0.58, y: 1.41}
+  m_EdgeRadius: 0.08
 --- !u!82 &7869488184532643333
 AudioSource:
   m_ObjectHideFlags: 0

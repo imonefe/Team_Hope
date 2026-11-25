@@ -101,6 +101,7 @@ public class StageSettingsWindow : MonoBehaviour
     void Show()
     {
         gameObject.SetActive(true);
+        GameSfx.WindowOpen();   // [2026-11-25] 창 열림 소리
         Build();
         Refresh();
         focus = Mathf.Clamp(focus, 0, Mathf.Max(0, rows.Count - 1));

@@ -128,6 +128,8 @@ MonoBehaviour:
   hitboxFollowAttacker: 0
   attackDashDecelTime: 0.2
   dashSfx: {fileID: 0}
+  shootSfx: {fileID: 8300000, guid: f60ffc024a9f42cc986e1fe933d82653, type: 3}
+  shootSfxVolume: 0.5
   dashMaxHeightDiff: 1.2
   dashStopAtLedge: 1
   attackVariations: 1

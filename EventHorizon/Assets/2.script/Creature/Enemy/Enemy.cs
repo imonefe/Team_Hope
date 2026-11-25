@@ -60,6 +60,9 @@ public class Enemy : MonoBehaviour
     public float attackDashDecelTime = 0.2f;
     [Tooltip("[2026-11-01] 돌진을 시작할 때 재생할 효과음 (비워 두면 소리 없음)")]
     public AudioClip dashSfx;
+    [Tooltip("[2026-11-25] 투사체를 쏠 때 재생할 효과음 (비워 두면 소리 없음)")]
+    public AudioClip shootSfx;
+    [Range(0f, 1f)] public float shootSfxVolume = 0.5f;
     [Tooltip("[2026-10-20] 플레이어와 높이 차이가 이보다 크면 돌진을 시작하지 않고 계속 따라가기만 함 (위 발판 밑에서 헛돌진 방지)")]
     public float dashMaxHeightDiff = 1.2f;
     [Tooltip("[2026-10-20] 돌진 중 바로 앞이 낭떠러지면 그 자리에서 멈춤")]
@@ -709,6 +712,7 @@ public class Enemy : MonoBehaviour
         {
             Vector3 spawnPos = hitboxPoint != null ? hitboxPoint.position : transform.position;
             GameObject proj = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
+            SkillSfx.Play(shootSfx, shootSfxVolume, 0.05f, SfxTier.Ambient);   // [2026-11-25] 발사 소리
             if (spawnScale != 1f) proj.transform.localScale *= spawnScale;
 
             ProjectileStraight ps = proj.GetComponent<ProjectileStraight>();

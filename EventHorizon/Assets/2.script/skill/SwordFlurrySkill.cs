@@ -8,7 +8,7 @@ using UnityEngine.Playables;
 // Skill 프리팹(Skill 컴포넌트와 같은 오브젝트)에 붙여서 사용.
 // CharacterSkills.Activate → Skill.Launch(시전자 위치·방향 세팅) 직후 이 컴포넌트가 스킬 전체를 진행한다.
 [RequireComponent(typeof(Skill))]
-public class SwordFlurrySkill : MonoBehaviour
+public class SwordFlurrySkill : MonoBehaviour, ISkillMaxDamage
 {
     [Header("전체 시간 (초) — 끝나면 조작 복귀")]
     public float totalDuration = 3.3f;
@@ -17,7 +17,7 @@ public class SwordFlurrySkill : MonoBehaviour
     public float startDelay = 0.1f;              // 키 누르고 첫 타까지
     public float flurryDuration = 2.4f;          // 다단히트 지속
     public float tickInterval = 0.1f;            // 타격 간격
-    public int tickDamage = 5;                   // 1타 기본 데미지 (공격력·방어·치명타 계산은 기존 방식 그대로)
+    public int tickDamage = 5;                   // 1타 데미지 — 공격력 20 기준, 실제는 × (현재 공격력 / 20) [2026-11-25]
     public Vector2 flurryBoxOffset = new Vector2(2.5f, 0.6f); // 플레이어 기준 (x = 바라보는 방향)
     public Vector2 flurryBoxSize = new Vector2(7f, 4f);
     public float tickKnockbackX = 0f;            // 0이면 적이 밀려나지 않아 박스 안에 계속 맞음
@@ -27,7 +27,7 @@ public class SwordFlurrySkill : MonoBehaviour
     public float dashWindup = 0.1f;              // 다단히트 끝나고 돌진 전 잠깐 멈춤
     public float dashDistance = 7f;
     public float dashDuration = 0.2f;
-    public int dashDamage = 40;
+    public int dashDamage = 40;                  // 공격력 20 기준 [2026-11-25]
     public float dashHitHeight = 2.5f;           // 돌진 경로 판정 높이
     public float dashHitYOffset = 0.2f;          // 판정 중심 높이 (플레이어 기준)
     public float dashHitPadding = 0.6f;          // 시작·끝 지점 앞뒤로 더 넓힐 거리
@@ -84,6 +84,17 @@ public class SwordFlurrySkill : MonoBehaviour
     Collider2D body;
     int facing = 1;
     float savedGravity;
+    /// <summary>[2026-11-25] 설명 창 최대 피해량 = 다단히트 타수 × 1타 + 마무리 돌진</summary>
+    public int MaxDamage(Stats caster) => Mathf.Max(1, Mathf.CeilToInt(flurryDuration / Mathf.Max(0.01f, tickInterval) - 0.001f)) * Skill.ScaleByAtk(tickDamage, caster) + Skill.ScaleByAtk(dashDamage, caster);
+
+    // [2026-11-25] 실제로 넣는 피해 = 공격력 비례 × 사이버웨어 스킬 피해 배율 (예전엔 무기 스킬에 스킬 피해 배율이 안 붙었음)
+    int Dmg(int baseDamage)
+    {
+        Skill sk = GetComponent<Skill>();
+        float scale = sk != null ? sk.damageScale : 1f;
+        return Mathf.Max(1, Mathf.RoundToInt(Skill.ScaleByAtk(baseDamage, stats) * scale));
+    }
+
     bool locked, gravitySaved, collisionChanged;
     readonly List<Vector2Int> ignoredPairs = new List<Vector2Int>();
     readonly List<GameObject> flurryFx = new List<GameObject>();
@@ -160,7 +171,7 @@ public class SwordFlurrySkill : MonoBehaviour
                 SkillSfx.Play(SkillSfx.Pick(flurrySwingSfx), swingVolume, pitchJitter);   // [2026-11-09]
             tick++;
             Vector2 c = (Vector2)pc.transform.position + new Vector2(flurryBoxOffset.x * facing, flurryBoxOffset.y);
-            HitBox(c, flurryBoxSize, tickDamage, tickKnockbackX, tickKnockbackY, null, false);
+            HitBox(c, flurryBoxSize, Dmg(tickDamage), tickKnockbackX, tickKnockbackY, null, false);
             if (drawDebugBoxes) DrawBox(c, flurryBoxSize, Color.cyan, tickInterval);
             yield return WaitHolding(tickInterval);
         }
@@ -219,7 +230,7 @@ public class SwordFlurrySkill : MonoBehaviour
                 float minX = Mathf.Min(start.x, p.x) - dashHitPadding, maxX = Mathf.Max(start.x, p.x) + dashHitPadding;
                 Vector2 c = new Vector2((minX + maxX) * 0.5f, start.y + dashHitYOffset);
                 Vector2 size = new Vector2(maxX - minX, dashHitHeight);
-                HitBox(c, size, dashDamage, dashKnockbackX, dashKnockbackY, dashHit, true);
+                HitBox(c, size, Dmg(dashDamage), dashKnockbackX, dashKnockbackY, dashHit, true);
                 if (drawDebugBoxes) DrawBox(c, size, Color.magenta, 0.5f);
             }
             if (passThroughEnemies) SetEnemyCollision(true);

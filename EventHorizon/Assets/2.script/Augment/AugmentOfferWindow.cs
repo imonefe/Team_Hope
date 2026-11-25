@@ -27,6 +27,23 @@ public class AugmentOfferWindow : ShopWindow
     [Header("등급 확률 % (일반 / 희귀 / 영웅 / 전설)")]
     public float[] roomOdds = { 60, 30, 9, 1 };
     public float[] bossOdds = { 0, 40, 45, 15 };
+    [Header("[2026-11-25] 첫 상점에 도착하기 전 확률 (전설을 크게 낮춤)")]
+    public float[] earlyRoomOdds = { 62, 30, 7.9f, 0.1f };
+    public float[] earlyBossOdds = { 0, 45, 53, 2 };
+    [Header("[2026-11-25] GEEKS 2026 특전 확률 (전설 없음)")]
+    public float[] geeksOdds = { 45, 40, 15, 0 };
+
+    // [2026-11-25] 이번 진행에서 상점 방에 들어간 적이 있는지 (씬을 다시 열면 = 새 진행이면 처음으로)
+    static bool reachedShop;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void InitShopFlag()
+    {
+        reachedShop = false;
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => reachedShop = false;
+        RoomManager.OnRoomLoaded += (room, isStart) => { if (room != null && room.name.Contains("Shop")) reachedShop = true; };
+    }
+    float[] RoomOddsNow => reachedShop ? roomOdds : earlyRoomOdds;
+    float[] BossOddsNow => reachedShop ? bossOdds : earlyBossOdds;
     [Tooltip("[2026-11-25] 가진 키워드와 겹치는 후보의 가중치 (겹치는 키워드 하나당 +이 값, 기본 1). 1.5 → 키워드 하나 겹치면 2.5배 잘 나옴")]
     public float keywordWeight = 1.5f;
 
@@ -130,12 +147,26 @@ public class AugmentOfferWindow : ShopWindow
 
     static TMP_Text Txt(Transform root, string path) => root.Find(path)?.GetComponent<TMP_Text>();
 
+    // [2026-11-25] 등장 연출이 끝나 카드가 제자리로 올 때 가만히 있던 커서 아래 카드가 '올라감'으로 선택되던 문제
+    //  (첫 엔터 = 연출 건너뛰기 → 선택이 오른쪽 카드로 넘어감) → 마우스를 실제로 움직이기 전에는 올라감을 무시
+    bool hoverArmed;
+    Vector3 hoverMouseRef;
+    void DisarmHover() { hoverArmed = false; hoverMouseRef = Input.mousePosition; }
+
+    void UpdateHoverArm()
+    {
+        if (hoverArmed || (Input.mousePosition - hoverMouseRef).sqrMagnitude < 16f) return;
+        hoverArmed = true;
+        for (int i = 0; i < CardCount; i++)
+            if (offers[i] != null && cards[i] != null && UIUtil.MouseOver(cards[i].root) && selected != i) { selected = i; RefreshAll(); break; }
+    }
+
     // 마우스를 올리면 그 카드를 선택 (누르면 결정)
     void AddHover(GameObject go, int idx)
     {
         var trig = go.GetComponent<UnityEngine.EventSystems.EventTrigger>() ?? go.AddComponent<UnityEngine.EventSystems.EventTrigger>();
         var e = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter };
-        e.callback.AddListener(_ => { if (offers[idx] != null && selected != idx) { selected = idx; RefreshAll(); } });
+        e.callback.AddListener(_ => { if (hoverArmed && offers[idx] != null && selected != idx) { selected = idx; RefreshAll(); } });   // [2026-11-25] 마우스를 실제로 움직인 뒤에만
         trig.triggers.Add(e);
     }
 
@@ -147,12 +178,13 @@ public class AugmentOfferWindow : ShopWindow
         int n = 0;
         for (int i = 0; i < CardCount; i++)
         {
-            offers[i] = Pick(used, boss ? bossOdds : roomOdds);
+            offers[i] = Pick(used, boss ? BossOddsNow : RoomOddsNow);
             if (offers[i] != null) { used.Add(offers[i]); n++; RunManager.Instance?.HoldItem(offers[i], this); }
         }
         if (n == 0) return false;
         selected = 0;
         while (selected < CardCount - 1 && offers[selected] == null) selected++;
+        DisarmHover();
         Open();
         return true;
     }
@@ -225,6 +257,7 @@ public class AugmentOfferWindow : ShopWindow
     {
         introPlaying = false;
         introSeq = null;
+        DisarmHover();
         for (int i = 0; i < CardCount; i++)
         {
             if (cardGroups[i] != null) { cardGroups[i].alpha = 1f; cardGroups[i].blocksRaycasts = true; }
@@ -259,6 +292,7 @@ public class AugmentOfferWindow : ShopWindow
     protected override void Update()
     {
         if (!IsOpen) return;
+        UpdateHoverArm();
         UpdateShardHover();
         // [2026-11-24 변경] 카드가 나오는 중에도 ← → 로 고르기는 바로 됨.
         // 결정 키(Space · Enter · 1 2 3)는 아직 안 보인 카드를 고르는 실수를 막으려고 '남은 카드를 바로 다 보여 주기'로만 씀
@@ -270,13 +304,13 @@ public class AugmentOfferWindow : ShopWindow
             for (int i = 0; i < CardCount; i++)
                 if ((Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i)) && offers[i] != null) { selected = i; SkipIntro(); }
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) SkipIntro();
-            if (selected != prev) RefreshAll();
+            if (selected != prev) { RefreshAll(); UIClickSound.PlayClick(); }
             return;
         }
         int before = selected;
         if (Input.GetKeyDown(KeyCode.LeftArrow)) selected = Step(-1);
         if (Input.GetKeyDown(KeyCode.RightArrow)) selected = Step(+1);
-        if (selected != before) RefreshAll();
+        if (selected != before) { RefreshAll(); UIClickSound.PlayClick(); }   // [2026-11-25] 키보드로 고르기 소리
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) { Choose(selected); return; }
         for (int i = 0; i < CardCount; i++)
             if (Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i)) { Choose(i); return; }
@@ -297,6 +331,7 @@ public class AugmentOfferWindow : ShopWindow
     {
         if (!IsOpen || i < 0 || i >= CardCount || offers[i] == null) return;
         var d = offers[i];
+        GameSfx.AugmentSelect();   // [2026-11-25] 사이버웨어 선택 소리
         var p = Player();
         if (p.stats != null && d.effects != null)
             foreach (var e in d.effects)
@@ -334,7 +369,7 @@ public class AugmentOfferWindow : ShopWindow
         ItemInfoPopup.Instance?.Hide();
     }
 
-    /// <summary>[2026-11-25] GEEKS 2026 특전: 고르기 창 없이 무작위 사이버웨어 count 개를 바로 준다 (전투방 등급 확률 · 가진 키워드 가중치 그대로). 준 목록을 돌려줌</summary>
+    /// <summary>[2026-11-25] GEEKS 2026 특전: 고르기 창 없이 무작위 사이버웨어 count 개를 바로 준다 (geeksOdds 등급 확률 — 전설 없음 · 가진 키워드 가중치 그대로). 준 목록을 돌려줌</summary>
     public List<ItemData> GrantRandom(int count)
     {
         var got = new List<ItemData>();
@@ -342,7 +377,7 @@ public class AugmentOfferWindow : ShopWindow
         var p = Player();
         for (int i = 0; i < count; i++)
         {
-            var d = Pick(used, roomOdds);
+            var d = Pick(used, geeksOdds);
             if (d == null) break;
             used.Add(d);
             if (p.stats != null && d.effects != null)

@@ -82,6 +82,7 @@ public class RoomBGM : MonoBehaviour
         else if (room.isBossRoom || room.GetComponentInChildren<BossController>(true) != null) clip = mid;
         else clip = Pick(s2, stage2BattleBgm, battleBgm);
 
+        Debug.Log($"[RoomBGM] {room.name} → {(clip != null ? clip.name : "없음")} (2스테이지: {s2})");   // [2026-11-25] 확인용 (출시 빌드에서는 안 찍힘)
         Play(clip, firstRoom);
         firstRoom = false;
     }
@@ -91,12 +92,15 @@ public class RoomBGM : MonoBehaviour
     // [2026-11-24] 2스테이지인지: 스테이지 구성대로 진행 중이면 지금 칸의 묶음 이름, 아니면(테스트로 방을 바로 연 경우) 방 이름에 2S
     bool IsStage2(Room room)
     {
+        // [2026-11-25] 방 이름에 2S 가 있으면 무조건 2스테이지 (테스트로 방을 바로 열어 진행 칸이 1스테이지에 머물러 있어도 2스테이지 곡)
+        if (room.name.Contains("2S")) return true;
+        // 두 스테이지가 같이 쓰는 방(로비 등)은 진행 중인 칸의 묶음 이름으로
         if (StageFlow.Active)
         {
             var e = StageFlow.CurrentEntry;
             if (e != null) return e.group == stage2Group;
         }
-        return room.name.Contains("2S");
+        return false;
     }
 
     /// <summary>곡을 바꾼다 (같은 곡이 이미 나오고 있으면 그대로 둠)</summary>

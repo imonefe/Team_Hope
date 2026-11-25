@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dropChance: 0.25
-  healPercent: 0.15
+  healPercent: 0.1
   textColor: {r: 0.45, g: 1, b: 0.5, a: 1}
   popSpeed: 5
   sideSpeed: 1.5

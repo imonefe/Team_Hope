@@ -105,6 +105,10 @@ public class WeaponData : ScriptableObject
     [Header("제로포인트 게이지")]
     public float pauseGaugePerHit = 2.5f; // 기본 2.5% (40타 = 100%) [2026-10-20 방당 약 1번 기준으로 다시 낮춤]
 
+    [Header("[2026-11-25] 이 무기로 바꿀 때 소리")]
+    public AudioClip swapSfx;
+    [Range(0f, 1f)] public float swapSfxVolume = 0.35f;
+
     [Header("사운드 (여러 개 넣으면 그중 하나가 랜덤 재생)")]
     public RandomSfx swingSfx = new RandomSfx();
     public RandomSfx hitSfx = new RandomSfx();

@@ -67,6 +67,12 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 ## 6. 소리 (`5. Sound/`)
 
 - BGM 실제 사용 파일: `5. Sound/BGM/Suno/*_Loop.ogg` (원본 mp3 는 같은 폴더). 시작 2초 페이드인 · 끝 3초 페이드아웃
+- 제로포인트 소리: `5. Sound/SFX/퍼즈/` (발동 Pause_Start_Slowdown · 반복 Pause_ClockLoop.ogg(7초로 잘라 이음매 없게) · 해제 Pause_End_Rewind). PauseManager(SampleScene) 칸에 연결, 볼륨도 거기서
+- 버튼 클릭 소리: `5. Sound/SFX/UI/UI_Click.ogg` — `Etc/Resources/UISoundSettings` 의 네 칸 모두 (상점 키보드 조작은 ShopWindow.Update 에서)
+- 공용 효과음 `Etc/Resources/GameSfx.asset` (`GameSfx.cs`): 플레이어 피격 · 몬스터 스폰 · 몬스터 파괴 · 사이버웨어 선택 · 창 열림(UI_Button.mp3). 아이템 획득 소리는 `Etc/Resources/ItemPickupEffect` 의 sfx 칸 (Item_Pickup.ogg)
+- 원거리 발사 소리: `5. Sound/SFX/전투/원거리 발사/` — Shot_1S_Orb(1S_Ran01·02) · Shot_2S_Line(Enemy_Ranged02 · Skill02 터렛) · Shot_2S_Cannon(Enemy_Ranged01, 포격 1발만 자름). 적은 Enemy.shootSfx, 터렛은 Skill 소환 칸 spawnSfx
+- 무기 교체 소리: `5. Sound/SFX/무기 교체/` Swap_Sword · Swap_Gauntlet(절반 자름) · Swap_Hammer — 각 WeaponData 의 swapSfx 칸
+- 회복 소리 `SFX/전투/Player_Heal.ogg` (Stats.healSfx, HealWithEffect 에서) · 착지 소리 `SFX/이동/Player_Land.ogg` (PlayerController.landSfx, 0.3초 이상 떠 있었을 때만) — 둘 다 SampleScene 플레이어에 연결
   - 인트로 `Suno_Intro_Loop`, 튜토리얼 `Suno_Tutorial_Loop`, 1S `Suno_Lobby/Battle/Boss/MidBoss_Loop`, 2S `Suno_2S_Lobby/Battle/Boss_Loop`
 - 곡 고르기: `RoomBGM` (방 종류 + StageFlow 묶음 "2S" 이면 2S 곡). 씬이 열린 첫 방은 처음부터, 같은 곡이면 이어서 반복
 - mp3 → ogg 변환 시 **앨범 표지(영상 트랙)를 반드시 빼야 함** (`-map 0:a:0 -vn`). 빼지 않으면 유니티가 무음으로 읽음
@@ -112,7 +118,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `EnemyStatus` — 적에게 붙는 증강 상태 — 과열 · 균열 스택, 처형 표시, 머리 위 상태 띠.
 
 **2.script/BG/**
-- `InfiniteBackground` — 가로: 카메라 X에 고정한 채 텍스처만 흘러 무한 스크롤 원근을 낸다(여백 없음).
+- `InfiniteBackground` — 가로: 카메라 X에 고정한 채 텍스처만 흘러 무한 스크롤 원근을 낸다(여백 없음). **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 
 **2.script/Camera/**
 - `AspectRatioEnforcer` — 화면 비율을 목표 비율(기본 16:9)로 고정한다.
@@ -127,11 +133,11 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `ProjectileStraight` — 직선 투사체
 
 **2.script/Creature/**
-- `FogHpColorizer` — HP 비율 구간마다 지정한 색으로 씬 전체 Fog(RenderSettings.fogColor)를 서서히 바꾼다.
+- `FogHpColorizer` — HP 비율 구간마다 지정한 색으로 씬 전체 Fog(RenderSettings.fogColor)를 서서히 바꾼다. **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `Health` — 맞기 · 무적 · 사망 처리 (Stats 의 체력을 깎음)
-- `HealthDangerEffect` — HP가 낮아질수록 화면에 붉은 비네트 + 색 보정을 씌워 긴박한 분위기를 연출한다.
+- `HealthDangerEffect` — HP가 낮아질수록 화면에 붉은 비네트 + 색 보정을 씌워 긴박한 분위기를 연출한다. **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `LightHpColorizer` — HP 비율 구간마다 지정한 색으로 이 오브젝트의 Light 색을 서서히 바꾼다.
-- `SkyboxHpColorizer` — HP 비율 구간마다 지정한 색으로 스카이박스 머티리얼의 Tint Colour를 서서히 바꾼다.
+- `SkyboxHpColorizer` — HP 비율 구간마다 지정한 색으로 스카이박스 머티리얼의 Tint Colour를 서서히 바꾼다. **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `Stats` — 체력 · 공격력 · 방어력 · 이동속도 · 치명타 · 퍼즈 시간. 피해 공식 CalculateEffectiveDamage (공격 − 방어, 최소 1)
 
 **2.script/Creature/Boss/**
@@ -153,7 +159,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `AutoPlayEffect` — 이펙트 프리팹에 붙이는 공용 스크립트.
 - `BossSlowMotion` — 보스급(중간 보스 · 보스) 처치 연출 — 게임 속도를 15%로 떨어뜨렸다가 1.2초(실제 시간)에 걸쳐 원래대로.
 - `CurrencyShardFX` — 재화 획득 연출 — "+N" 숫자 대신 노란 작은 파편이 튀어 올랐다가 바닥에 떨어져 잠깐 구르고 사라진다.
-- `DeathDebris` — 적 사망 이펙트 프리팹 안에 "잔해 조각"(머리, 무기 등)으로 넣는 오브젝트에 붙이는 스크립트.
+- `DeathDebris` — 적 사망 이펙트 프리팹 안에 "잔해 조각"(머리, 무기 등)으로 넣는 오브젝트에 붙이는 스크립트. **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `EffectTimeUtil` — 이펙트 오브젝트 자동 파괴 시간 계산 공용 유틸.
 - `FloatingText` — 데미지 숫자 / 재화 획득 등, 월드 공간에 잠깐 떴다가 위로 떠오르며 사라지는 텍스트.
 - `FloatingTextSpawner` — FloatingText를 어디서든 한 줄로 띄울 수 있게 해주는 헬퍼.
@@ -174,7 +180,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `PauseCameraZoom` — 퍼즈(Q키)가 발동되어 있는 동안 카메라를 넓게 잡는다 (줌 아웃). 퍼즈가 끝나면 원래 크기로 돌아온다.
 - `PauseGlitchEffect` — 퍼즈(Q키)가 발동되어 있는 동안 화면을 푸르게 물들이고, 가장자리에 약한 노이즈 + 움직이는 번개를 씌우는 효과.
 - `PauseGlitchSettings` — 퍼즈 발동 효과(푸른 화면 + 테두리 노이즈 + 번개) 설정 (프로젝트 전체 공용 1개).
-- `PlayOnP` — (테스트) P키로 재생
+- `PlayOnP` — (테스트) P키로 재생 **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `RandomSpawner` — (설명 없음)
 - `ScreenDistortFeature` — 이펙트용 "부분 화면 왜곡" 렌더러 기능 (URP Renderer Feature). Renderer3D_LightingTest 에 등록.
 - `ScreenDistortSource` — "이 오브젝트는 화면 왜곡용"이라고 표시하는 컴포넌트.
@@ -184,7 +190,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `ShieldPulse` — (설명 없음)
 - `SpawnEffectTrigger` — 몬스터 소환 이펙트 프리팹들에 붙이는 스크립트.
 - `SpineMaterialOverride` — 스파인(SkeletonAnimation/SkeletonRenderer) 머티리얼 바꿔치기.
-- `SpriteAnimEffect` — 소환되면 애니메이션이 재생되고, 끝나면 정해진 시간후에 사라지는 스프라이트 이펙트용.
+- `SpriteAnimEffect` — 소환되면 애니메이션이 재생되고, 끝나면 정해진 시간후에 사라지는 스프라이트 이펙트용. **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `SpriteFrameSequence` — 스프라이트 여러 장을 프레임마다 정한 시간대로 한 번(또는 반복) 재생한다.
 - `WarningZone` — (설명 없음)
 
@@ -200,24 +206,24 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 
 **2.script/Item/Effect/**
 - `EffectText` — 아이템 효과를 아이템 정보 팝업에 보여줄 "글자"로 바꿔주는 공용 도우미.
-- `FadeEffect` — 시간이 지나면서 점차 효과가 줄어드는 효과
+- `FadeEffect` — 시간이 지나면서 점차 효과가 줄어드는 효과 **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `HpInverseAtkEffect` — 잃은 체력에 비례해 공격력 증가 (세 시간의 말미)
 - `HpInverseAtkRunner` — HpInverseAtkEffect 가 플레이어에 붙이는 부품.
-- `HpRegenEffect` — 최대체력의 N% 이하로 떨어지면 interval 초마다 HP 회복
+- `HpRegenEffect` — 최대체력의 N% 이하로 떨어지면 interval 초마다 HP 회복 **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `ItemEffect` — 모든 아이템 효과의 기본 틀
-- `RandomStatBoostEffect` — 후보 스탯 중 하나를 무작위로 골라, 지정한 크기만큼 영구 적용한다.
+- `RandomStatBoostEffect` — 후보 스탯 중 하나를 무작위로 골라, 지정한 크기만큼 영구 적용한다. **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `RepeatingStatEffect` — "일정 시간 효과 적용 후 원복, repeat면 cooldown 후 반복" 하는 스탯 이펙트 공통 베이스.
-- `RestHealEffect` — 일정 시간 움직이지 않으면 주기적으로 체력 회복 (영웅의 쉼터)
+- `RestHealEffect` — 일정 시간 움직이지 않으면 주기적으로 체력 회복 (영웅의 쉼터) **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `RestHealRunner` — RestHealEffect 가 플레이어에 붙이는 부품.
 - `StackEffect` — 스택 쌓일수록 강해지는 효과
 - `StatBoostEffect` — 영구 스탯 변화
 - `StatModifier` — 스탯 변화 구조체
-- `TimedEffect` — N초 동안 스탯 변화 후 원복
+- `TimedEffect` — N초 동안 스탯 변화 후 원복 **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 
 **2.script/Lighting/**
 - `DarknessScreenFeature` — 화면을 어둡게 하고, 빛줄기(LightBeam)가 닿는 곳만 원래 색으로 되살리는 렌더러 기능 (URP Renderer Feature).
 - `DarknessSystem` — 화면 어둠(어둠 + 빛줄기) 상태를 한곳에서 관리하는 정적 클래스.
-- `LightBeam3D` — 입체 원뿔 빛줄기. 3D 배경용. (2D 화면용 납작한 빛줄기는 LightBeam)
+- `LightBeam3D` — 입체 원뿔 빛줄기. 3D 배경용. (2D 화면용 납작한 빛줄기는 LightBeam) **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `RoomDarkness` — 이 컴포넌트가 붙은 방에 들어가면 화면이 어두워지고, LightBeam(빛줄기)이 닿는 곳만 밝게 보인다.
 - `RoomLighting` — 이 컴포넌트가 붙은 방에 들어가면 씬의 "환경광·하늘·안개"만 어둡게 만든다. 빛 연출은 방 안에 둔 빛으로 따로 한다.
 - `SpotLightDust` — 스포트라이트(또는 점광원)에 붙이면, 실행할 때 그 빛 안에 "빛받는 먼지" 파티클을 자동으로 만든다.
@@ -241,14 +247,14 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `StagePlan` — 튜토리얼부터 마지막 스테이지까지의 순서표 (3. Data/MapData/StagePlan.asset).
 
 **2.script/Map/Room/**
-- `EnemyCleanupTrigger` — 플레이어가 닿으면 씬의 모든 Enemy 레이어 오브젝트 삭제
+- `EnemyCleanupTrigger` — 플레이어가 닿으면 씬의 모든 Enemy 레이어 오브젝트 삭제 **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `MidBossGate` — 일반 방에 놓이는 중간 보스 입장 코어.
 - `MidBossRoomRoster` — 중간 보스 공용 방(01_mid_boss)에서, 들어온 코어 종류에 맞는 보스만 남기는 목록.
 - `MonsterSpawner` — 몬스터 스포너
 - `PlayerSpawner` — 방의 플레이어 시작 위치
 - `Portal` — 방의 문 — 열림/닫힘 애니메이션, 들어가면 다음 노드
 - `Room` — 방 한 칸 — 생성기 관리 · 방 정리 판정 · 보스방 카메라 고정
-- `RoomCleanupTrigger` — 플레이어가 닿으면 미활성 스포너 제거 후
+- `RoomCleanupTrigger` — 플레이어가 닿으면 미활성 스포너 제거 후 **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `RoomManager` — 방 불러오기 · 플레이어 배치 · OnRoomLoaded 알림 · 중간 보스 방 다녀오기
 
 **2.script/Map/Tutorial/**
@@ -265,7 +271,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `ShopNpcTrigger` — 상점 방의 NPC. 가까이 가면 머리 위에 "[F] 상점" 안내, F를 누르면 연결된 상점 화면을 연다.
 - `ShopWindow` — 상점 화면 공통 (아이템 상점 · 스킬 상점 · 능력치 강화).
 - `SkillShopWindow` — 스킬 상점 화면 (SkillShopCanvas 맨 위 오브젝트에 붙음).
-- `StatUpgradeWindow` — 능력치 강화 화면 (StatUpgradeCanvas 맨 위 오브젝트에 붙음).
+- `StatUpgradeWindow` — 능력치 강화 화면 (StatUpgradeCanvas 맨 위 오브젝트에 붙음). **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 
 **2.script/System/**
 - `AudioManager` — BGM / SFX 통합 관리
@@ -288,14 +294,14 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 **2.script/UI/**
 - `ButtonHighlightDeco` — 버튼이 하이라이트 상태(마우스를 올리거나 키보드로 선택)가 되면
 - `ButtonTextColorSync` — 버튼 옆에 붙이면, Button 컴포넌트에 이미 설정된 ColorBlock(Normal/Highlighted/Pressed/
-- `CharacterPanelUI` — 우측(캐릭터 이미지) + 중앙(스킬 3칸 / 스탯 5줄) UI.
+- `CharacterPanelUI` — 우측(캐릭터 이미지) + 중앙(스킬 3칸 / 스탯 5줄) UI. **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `CombatUIGate` — 전투 UI(배틀 캔버스 등)를 잠시 꺼야 하는 상황(인벤토리, 대화 등)이 여러 곳에서 동시에
 - `CombatUIVisibility` — 인벤토리/대화 등으로 CombatUIGate가 잠기면 전투 UI(예: battle Canvas)를 끄고,
 - `ControlsGuidePopup` — 프롤로그(로비 첫 대화)가 끝나면 화면 가운데에 조작법 창을 띄우고, 아무 키나 누르면 닫는다.
 - `CurrencyUI` — battle Canvas 한쪽에 붙어서 현재 보유 재화를 표시하는 간단한 UI.
 - `CutsceneDialogueBox` — 시간 기반 컷신(CutsceneSequencer)에서 쓰는 대사창.
 - `CutsceneOverlay` — 컷신용 화면 덮개 — 위아래 검은 띠, 섬광, 암전, 대사창.
-- `EnemyCountUI` — 남은 적 수 표시
+- `EnemyCountUI` — 남은 적 수 표시 **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
 - `GameMenuController` — ESC 게임 메뉴
 - `GeeksPerkWindow` — GEEKS 2026 특전 창. 로비 프롤로그가 끝나면 무작위 사이버웨어 5개를 주고 알림 (설정 창 '이벤트' 스위치로 끔 · 한 판에 한 번). 창 프리팹 `1.Prefab/UI/Canvas/특전/Resources/GeeksPerkCanvas`
 - `GameOverAugmentCell` — 게임오버 · 엔딩 화면의 '획득한 증강' 칸 하나.
@@ -344,6 +350,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `npcTrigger` — NPC 대화 시작 트리거
 
 **2.script/UI/Settings/**
+- `GameSfx` — [2026-11-25] 공용 효과음 모음 (Resources/GameSfx). 피격 · 스폰 · 파괴 · 사이버웨어 선택 · 창 열림. 같은 소리 동시 여러 번은 한 번만
 - `GameSettings` — 게임 설정 값을 한곳에서 저장·불러오기·적용한다. (정적 클래스 — 씬에 놓을 필요 없음)
 - `HudSettingVisibility` — 설정 창의 켬/끔에 따라 HUD 묶음을 보이거나 숨긴다.
 - `KeyBindWindow` — 설정 창 안의 '조작 키' 창. (SettingsCanvas 프리팹의 KeyPanel 에 붙어 있음)
@@ -384,6 +391,9 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `SkillFxLibraryBuilder` — (설명 없음)
 - `SlashTestSceneBuilder` — 참격 이펙트(SwordSlashFX · ScreenSlashEffect) 테스트 씬을 자동으로 만드는 에디터 도구.
 - `SpineTestSceneBuilder` — (설명 없음)
+- `TilemapCompositeFix` — [2026-11-25] 방 프리팹의 바닥(ground) 타일맵 충돌체에 합치기 장치(CompositeCollider2D)가 없으면 붙임 (한 번 자동 실행, 메뉴 "방 바닥 타일맵 충돌체 합치기") (에디터 전용).
+- `RestorePhysics2DMatrix` — [2026-11-25] 실행 중 코드로 바뀐 2D 물리 충돌표(dropping 층)를 원래대로 되돌림 (한 번 자동 실행, 메뉴 "2D 물리 충돌표 되돌리기") (에디터 전용).
+- `RemoveBoxHealObjects` — [2026-11-25] 1스테이지 방 · 로비 · 중간 보스 방에서 보상 상자 생성기(box_sponer) · 회복 오브젝트(hillobj_1) 삭제 (한 번 자동 실행, 메뉴 "방에서 보상 상자 · 회복 오브젝트 지우기") (에디터 전용).
 - `Stage2RoomBuilder` — 2스테이지(금서고가 아닌 돌 갱도 · 로봇 스테이지) 방 생성기 (에디터 전용).
 - `TutorialBackgroundSetup` — 튜토리얼 방에 회로 배경 판을 놓는다 (셰이더 EventHorizon/TutorialCircuitBG).
 - `TutorialBackgroundVariants` — 튜토리얼 회로 배경 시안 4종 (셰이더는 같고 재질 값만 다름).
@@ -407,3 +417,9 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `StaticFontToDynamic` — 한글 2,488자를 4096 글자판에 미리 구워 둔 "고정(Static)" 글꼴 에셋을 "동적(Dynamic)" 으로 바꾼다.
 - `TileAtlasMaker` — 1스테이지(금서고) 타일 그림을 스프라이트 아틀라스로 묶어 "타일 사이 틈(옆 타일이 1프레임씩 비치는 선)" 을 없앤다.
 - `UIGradientSpriteCreator` — 왼쪽은 투명, 오른쪽으로 갈수록 진해지는 그라데이션 이미지를 만들어 프로젝트에 저장한다.
+
+## 안 쓰는 파일 (`Assets/unused/`, 2026-11-25)
+
+- 씬 · 프리팹 · 데이터 · 코드 어디에서도 참조되지 않는 프리팹 79개 · 스크립트 18개를 원래 폴더 구조 그대로 옮겨 둠 (.meta 같이 이동 → 되돌려도 연결 유지)
+- 목록과 원래 위치: `Assets/unused/README.txt`
+- 월드 아이템 줍기 프리팹(1.Prefab/item/*.prefab)은 전부 여기로 — 사이버웨어는 데이터(3. Data/ItemData)로만 동작

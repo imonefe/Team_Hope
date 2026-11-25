@@ -7,7 +7,7 @@ using UnityEngine;
 //    (이동할 때마다 이전 위치→다음 위치 사이에 선이 남음) → 3) 시전 좌표로 돌아와 연출 → 4) 화면 가르기 + 화면 안 모든 적에게 데미지
 // 플레이어는 스킬 동안 자유롭게 움직일 수 있음. Skill 프리팹(Skill 컴포넌트와 같은 오브젝트)에 붙여서 사용.
 [RequireComponent(typeof(Skill))]
-public class HoloCloneSkill : MonoBehaviour
+public class HoloCloneSkill : MonoBehaviour, ISkillMaxDamage
 {
     [Header("타이밍 (초)")]
     public float drawTime = 0.6f;           // 시전 좌표에서 발도 준비 (첫 순간이동까지)
@@ -24,7 +24,7 @@ public class HoloCloneSkill : MonoBehaviour
     public float screenMargin = 0.3f;       // 화면 가장자리에서 이만큼 안쪽에 있는 적만 (월드 단위)
     public Camera viewCamera;               // 비우면 적을 그리는 카메라 중 화면이 가장 넓은 것 (이 씬에선 Camera_2D)
 
-    [Header("데미지 (공격력·방어·치명타 계산은 기존 방식 그대로)")]
+    [Header("데미지 — 공격력 20 기준 값, 실제는 × (현재 공격력 / 20) [2026-11-25]")]
     public int hitDamage = 30;              // 순간이동 참격 1회
     public float hitKnockbackX = 2f, hitKnockbackY = 1f;
     public int finalDamage = 60;            // 화면 가르기
@@ -60,8 +60,19 @@ public class HoloCloneSkill : MonoBehaviour
     [Header("디버그")]
     public bool drawDebug = true;                 // Scene 뷰에 화면 범위·이동 경로 표시
 
+    /// <summary>[2026-11-25] 설명 창 최대 피해량 = 참격 횟수 × 1회 + 화면 가르기</summary>
+    public int MaxDamage(Stats caster) => attackCount * Skill.ScaleByAtk(hitDamage, caster) + Skill.ScaleByAtk(finalDamage, caster);
+
     PlayerController pc;
     Stats stats;
+    // [2026-11-25] 실제로 넣는 피해 = 공격력 비례 × 사이버웨어 스킬 피해 배율 (예전엔 무기 스킬에 스킬 피해 배율이 안 붙었음)
+    int Dmg(int baseDamage)
+    {
+        Skill sk = GetComponent<Skill>();
+        float scale = sk != null ? sk.damageScale : 1f;
+        return Mathf.Max(1, Mathf.RoundToInt(Skill.ScaleByAtk(baseDamage, stats) * scale));
+    }
+
     int enemyMask;
 
     void Awake()
@@ -184,7 +195,7 @@ public class HoloCloneSkill : MonoBehaviour
 
             if (hitDelay > 0f) yield return new WaitForSeconds(hitDelay);
             if (h != null && h.gameObject.activeInHierarchy)
-                Hitbox.DealDirectHit(h, hitDamage, stats, dir, hitKnockbackX, hitKnockbackY, tp, hitSfx, criticalSfx, "HoloClone", true);
+                Hitbox.DealDirectHit(h, Dmg(hitDamage), stats, dir, hitKnockbackX, hitKnockbackY, tp, hitSfx, criticalSfx, "HoloClone", true);
             float rest = perTargetTime - hitDelay;
             if (rest > 0f) yield return new WaitForSeconds(rest);
             prev = clonePos;
@@ -210,7 +221,7 @@ public class HoloCloneSkill : MonoBehaviour
         {
             if (h == null) continue;
             int dir = h.transform.position.x >= origin.x ? 1 : -1;
-            if (Hitbox.DealDirectHit(h, finalDamage, stats, dir, finalKnockbackX, finalKnockbackY, h.transform.position,
+            if (Hitbox.DealDirectHit(h, Dmg(finalDamage), stats, dir, finalKnockbackX, finalKnockbackY, h.transform.position,
                                      firstFinal ? hitSfx : null, firstFinal ? criticalSfx : null, "HoloCloneFinal", true))
                 firstFinal = false;
         }

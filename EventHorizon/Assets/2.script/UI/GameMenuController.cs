@@ -139,6 +139,7 @@ public class GameMenuController : MonoBehaviour
 
     public void OpenPause()
     {
+        GameSfx.WindowOpen();   // [2026-11-25] 창 열림 소리
         if (pausePanel != null) pausePanel.SetActive(true);
         if (creditsPanel != null) creditsPanel.SetActive(false);
         GamePause.Push(GamePause.Menu);
@@ -206,6 +207,7 @@ public class GameMenuController : MonoBehaviour
 
     public void ShowCredits()
     {
+        GameSfx.WindowOpen();   // [2026-11-25]
         UIUtil.HidePanel(pausePanel, () =>
         {
             if (creditsPanel != null) creditsPanel.SetActive(true);

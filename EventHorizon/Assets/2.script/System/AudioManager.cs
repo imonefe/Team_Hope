@@ -40,9 +40,29 @@ public class AudioManager : PersistentSingleton<AudioManager>
     // 곡을 틀 때 한 번만 넣으면, 그 뒤에 다른 곳이 크기를 덮어썼을 때 설정 창 값이 안 먹었기 때문.
     void LateUpdate()
     {
-        if (bgmFading || bgmSource == null) return;
-        if (!Mathf.Approximately(bgmSource.volume, bgmVolume)) bgmSource.volume = bgmVolume;
+        // [2026-11-25] 제로포인트 중에는 배경음을 작게 + 느리게(음높이 낮춤 = 느린 화면 느낌). 서서히 바뀌고 풀리면 서서히 돌아옴 (실제 시간 기준)
+        bool zeroPoint = PauseManager.Instance != null && PauseManager.Instance.IsPaused;
+        float speed = 1f / Mathf.Max(0.01f, zeroPoint ? pauseBlendIn : pauseBlendOut);
+        pauseBlend = Mathf.MoveTowards(pauseBlend, zeroPoint ? 1f : 0f, speed * Time.unscaledDeltaTime);
+
+        if (bgmSource == null) return;
+        float pitch = Mathf.Lerp(1f, pauseBgmPitch, pauseBlend);
+        if (!Mathf.Approximately(bgmSource.pitch, pitch)) bgmSource.pitch = pitch;
+
+        if (bgmFading) return;
+        float vol = bgmVolume * Mathf.Lerp(1f, pauseBgmVolume, pauseBlend);
+        if (!Mathf.Approximately(bgmSource.volume, vol)) bgmSource.volume = vol;
     }
+
+    [Header("[2026-11-25] 제로포인트 중 배경음")]
+    [Tooltip("평소 크기에 곱하는 값 (0.3 = 30%)")]
+    [Range(0f, 1f)] public float pauseBgmVolume = 0.3f;
+    [Tooltip("재생 속도 · 음높이 (0.7 = 느리고 낮게)")]
+    [Range(0.3f, 1f)] public float pauseBgmPitch = 0.7f;
+    [Tooltip("바뀌는 데 걸리는 시간 (초) — 켤 때 / 풀릴 때")]
+    public float pauseBlendIn = 0.5f;
+    public float pauseBlendOut = 0.8f;
+    float pauseBlend;
 
     /// <summary>
     /// AudioManager가 있으면 그대로, 없으면 새로 만들어서 반환.
@@ -92,8 +112,9 @@ public class AudioManager : PersistentSingleton<AudioManager>
     public static void PlaySFX(AudioClip clip, Vector3? position = null)
     {
         if (Instance == null || clip == null) return;
-        Vector3 pos = position ?? Camera.main.transform.position;
-        AudioSource.PlayClipAtPoint(clip, pos, Instance.sfxVolume);
+        // [2026-11-25] 효과음 관리자(SfxBus)로 — 같은 소리 동시 최대 2개 · 1등급 소리가 나면 잠깐 작아짐. 위치 재생(3D)은 그대로
+        Vector3? pos = position ?? (Camera.main != null ? Camera.main.transform.position : (Vector3?)null);
+        SfxBus.Play(clip, GameSettings.SfxVolume > 0f ? Instance.sfxVolume / GameSettings.SfxVolume : 0f, 0f, SfxTier.Action, null, pos);
     }
 
     public static void SetSFXVolume(float vol)

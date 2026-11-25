@@ -636,7 +636,37 @@ public static class AugmentFx
         return fx;
     }
 
-    /// <summary>상자 모양 바닥 범위 (FX_WarningZone 색 바꿈). duration 0 = Hide 부를 때까지</summary>
+    /// <summary>[2026-11-25] 바닥 불빛 — 플레이어 쪽 장판(번제 불길 등). 위험 박스(FX_WarningZone)는 적 공격 예고에만 쓴다.
+    /// feet = 바닥 높이, width = 가로 폭. 가로로 납작한 빛이 일렁이다가 사라짐</summary>
+    public static GameObject FloorGlow(Vector3 feet, float width, Color c, float duration)
+    {
+        var r = NewSprite("FxFloorGlow", Dot, feet + Vector3.up * 0.15f, A(c, 0f), 1f, SortFront - 20);
+        r.transform.localScale = new Vector3(width * 1.6f, 0.9f, 1f);
+        var core = NewSprite("Core", Dot, feet + Vector3.up * 0.08f, A(c * 1.4f, 0f), 1f, SortFront - 19);
+        core.transform.localScale = new Vector3(width * 1.0f, 0.35f, 1f);
+        core.transform.SetParent(r.transform, true);
+        Run(FloorGlowRun(r, core, duration));
+        return r.gameObject;
+    }
+
+    static IEnumerator FloorGlowRun(SpriteRenderer r, SpriteRenderer core, float duration)
+    {
+        const float fadeIn = 0.15f, fadeOut = 0.3f, glowA = 0.45f, coreA = 0.6f;
+        float t = 0f, seed = UnityEngine.Random.value * 10f;
+        while (t < duration && r != null)
+        {
+            float k = Mathf.Clamp01(t / fadeIn) * (t > duration - fadeOut ? Mathf.Clamp01((duration - t) / fadeOut) : 1f);
+            float flick = 0.8f + 0.2f * Mathf.PerlinNoise(seed, t * 6f);   // 불처럼 일렁임
+            var c = r.color; c.a = glowA * k * flick; r.color = c;
+            if (core != null) { var cc = core.color; cc.a = coreA * k * flick; core.color = cc; }
+            t += Time.deltaTime;
+            yield return null;
+        }
+        if (r != null) UnityEngine.Object.Destroy(r.gameObject);
+    }
+
+    /// <summary>상자 모양 바닥 범위 (FX_WarningZone 색 바꿈). duration 0 = Hide 부를 때까지
+    /// [2026-11-25] 위험 박스는 적 공격 예고용 — 사이버웨어 연출에는 쓰지 않음 (지금 부르는 곳 없음)</summary>
     public static WarningZone Zone(Vector3 center, Vector2 size, Color c, float duration)
     {
         if (ZonePrefab == null) { Disc(center, Mathf.Max(size.x, size.y) * 0.5f, c, duration > 0 ? duration : 1f); return null; }

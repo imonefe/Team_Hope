@@ -91,6 +91,7 @@ public class MonsterSpawner : MonoBehaviour
         // 바닥 위치를 먼저 확정 (이펙트와 몬스터가 같은 자리에 나오도록)
         resolvedSpawnPos = GetGroundedPosition(spawnPoint.position);
         ResolveGround(spawnPoint.position);
+        GameSfx.EnemySpawn();   // [2026-11-25] 몬스터 스폰 소리 (스폰 연출 시작과 함께)
 
         // 스폰 이펙트가 있으면 먼저 재생하고,
         // 이펙트의 애니메이션 이벤트(SpawnNow) 타이밍에 몬스터를 생성한다.

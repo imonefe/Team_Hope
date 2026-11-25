@@ -50,7 +50,7 @@ MonoBehaviour:
   skillName: "\uD640\uB85C \uBD84\uC2E0"
   description: 
   attackStyle: "\ud654\uba74 \uc548\uc758 \uc801 \ucd5c\ub300 5\uba85\uc5d0\uac8c \uc21c\uac04\uc774\ub3d9 \ucc38\uaca9. \ubcf5\uadc0 \ud6c4 \ud654\uba74 \uac00\ub974\uae30."
-  powerText: "210"
+  powerText: "{max}"
   cooldown: 1
   spawnOffset: {x: 0, y: 0}
   lifetime: 0

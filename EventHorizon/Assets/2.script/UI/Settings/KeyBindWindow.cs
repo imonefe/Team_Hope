@@ -78,6 +78,7 @@ public class KeyBindWindow : MonoBehaviour
     public void Show()
     {
         gameObject.SetActive(true);
+        GameSfx.WindowOpen();   // [2026-11-25] 창 열림 소리
         if (mainPanel != null) mainPanel.SetActive(false);
         Refresh();
         SetNotice(HintText);

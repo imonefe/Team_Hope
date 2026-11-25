@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebc2526f623340a8b4faca6b7564f740, type: 3}
+  m_Name: GameSfx
+  m_EditorClassIdentifier: 
+  playerHurt: {fileID: 8300000, guid: 5b24f9d32593498ea7d010da0122deed, type: 3}
+  playerHurtVolume: 0.7
+  enemySpawn: {fileID: 8300000, guid: 675610fe12e04d3db9f478ce1c8c9571, type: 3}
+  enemySpawnVolume: 0.45
+  enemyDeath: {fileID: 8300000, guid: 6b9212439c574682b19eb9fcb867739a, type: 3}
+  enemyDeathVolume: 0.55
+  augmentSelect: {fileID: 8300000, guid: 3324f45b88d24d03863825eb28cb7e2d, type: 3}
+  augmentSelectVolume: 0.7
+  windowOpen: {fileID: 8300000, guid: ab4c61e870f94d36b76c2e68eebab264, type: 3}
+  windowOpenVolume: 0.6
+  sameSoundGap: 0.08

@@ -29,7 +29,7 @@ public partial class AugmentRuntime
     float secretaryReady;                        // 고장난 비서
     Mimic secretary;
     bool observeArmed;                           // 원거리 관측
-    float predictUntil; readonly HashSet<Enemy> predicted = new HashSet<Enemy>(); readonly List<WarningZone> predictZones = new List<WarningZone>();
+    float predictUntil; readonly HashSet<Enemy> predicted = new HashSet<Enemy>();
     readonly HashSet<Enemy> countered = new HashSet<Enemy>();
     readonly List<GameObject> stasisOrbs = new List<GameObject>();   // 정지 잔상
     readonly List<CapturedShot> captured = new List<CapturedShot>(); // 역류 탄도
@@ -238,7 +238,7 @@ public partial class AugmentRuntime
     {
         int lv = L("나노 봉합");
         if (lv <= 0 || lost <= 0) return;
-        StartCoroutine(Nano(Mathf.Max(1, Mathf.RoundToInt(lost * ByLevel(lv, 0.30f, 0.45f, 0.60f)))));
+        StartCoroutine(Nano(Mathf.Max(1, Mathf.RoundToInt(lost * ByLevel(lv, 0.20f, 0.30f, 0.40f)))));
         BuffIcon("나노 봉합", 3f);
     }
 
@@ -708,7 +708,7 @@ public partial class AugmentRuntime
     {
         Vector3 c = feet + Vector3.up * 0.4f;
         Vector2 size = new Vector2(2.6f, 1.2f);
-        AugmentFx.Zone(c, size, OverheatColor, seconds);
+        AugmentFx.FloorGlow(feet, size.x, OverheatColor, seconds);   // [2026-11-25] 위험 박스(적 공격 예고용) 대신 바닥 불빛
         float end = Time.time + seconds, tick = 0f;
         while (Time.time < end)
         {
@@ -1095,7 +1095,7 @@ public partial class AugmentRuntime
                     }
                     else if (pstats != null && pstats.currentHp < pstats.maxHp)
                     {
-                        HealPlayer(Mathf.Max(1, Mathf.RoundToInt(pstats.maxHp * 0.01f)), HealGreen);
+                        HealPlayer(Mathf.Max(1, Mathf.RoundToInt(pstats.maxHp * 0.005f)), HealGreen);   // [2026-11-25] 1% → 0.5%
                     }
                 }
             }
@@ -1130,7 +1130,7 @@ public partial class AugmentRuntime
             if (restStill >= 1f && pstats != null)
             {
                 restStill = 0f;
-                HealPlayer(Mathf.Max(1, Mathf.RoundToInt(pstats.maxHp * ByLevel(lvRest, 0.02f, 0.03f, 0.04f))), HealGreen);
+                HealPlayer(Mathf.Max(1, Mathf.RoundToInt(pstats.maxHp * ByLevel(lvRest, 0.01f, 0.015f, 0.02f))), HealGreen);
                 AugmentFx.Ring(PFeet, HealGreen, 1.3f, 0.3f, 0.08f, 1, 0.35f);
             }
         }

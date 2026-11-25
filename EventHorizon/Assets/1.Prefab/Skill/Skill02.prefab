@@ -73,6 +73,8 @@ MonoBehaviour:
     flipByFacing: 1
     parentToSkill: 1
     lifetime: 2.5
+    spawnSfx: {fileID: 8300000, guid: f60ffc024a9f42cc986e1fe933d82653, type: 3}
+    spawnSfxVolume: 0.35
   isAttackBuff: 0
   buffDuration: 5
   buffDamageMultiplier: 1.5

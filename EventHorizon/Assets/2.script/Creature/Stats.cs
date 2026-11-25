@@ -72,6 +72,10 @@ public class Stats : MonoBehaviour
 
     [Header("힐 이펙트 (선택 — 캐릭터를 따라다님)")]
     public GameObject healEffectPrefab;
+    [Tooltip("[2026-11-25] 즉시 회복(회복 구 · 회복 오브젝트 등)할 때 소리")]
+    public AudioClip healSfx;
+    [Range(0f, 1f)] public float healSfxVolume = 0.6f;
+    static float lastHealSfxTime = -10f;
 
     public event Action<int, int> OnHpChanged;
 
@@ -123,6 +127,12 @@ public class Stats : MonoBehaviour
     public void HealWithEffect(int amount)
     {
         Heal(amount);
+        // [2026-11-25] 회복 소리 (짧은 시간에 여러 번 회복해도 한 번만)
+        if (healSfx != null && Time.unscaledTime - lastHealSfxTime > 0.3f)
+        {
+            lastHealSfxTime = Time.unscaledTime;
+            SkillSfx.Play(healSfx, healSfxVolume);
+        }
 
         // 힐 이펙트 (캐릭터 자식으로 붙여서 따라다니게)
         if (healEffectPrefab != null)

@@ -24,6 +24,12 @@ using System.Collections;
 /// (Fixed / RandomCircle / Fan / Line / Spiral). 새 연출이 필요하면 대부분 프리팹 값 조정으로 해결되고,
 /// 패턴 종류 자체가 새로 필요할 때만 코드 수정이 필요하다.
 /// </summary>
+/// <summary>[2026-11-25] 최대 피해량을 직접 계산하는 스킬 (설명 창의 "최대 피해량" 표시용)</summary>
+public interface ISkillMaxDamage
+{
+    int MaxDamage(Stats caster);
+}
+
 public class Skill : MonoBehaviour
 {
     // 값(0/1)은 기존 프리팹 데이터(Weapon=1)와 호환되도록 고정.
@@ -73,6 +79,9 @@ public class Skill : MonoBehaviour
         public bool parentToSkill = false;
         [Tooltip("소환물 자동 소멸까지 시간(초). 0 이하면 자동 소멸 안 함")]
         public float lifetime = 0f;
+        [Tooltip("[2026-11-25] 소환할 때 재생할 효과음 (터렛 발사 등, 비워 두면 소리 없음)")]
+        public AudioClip spawnSfx;
+        [Range(0f, 1f)] public float spawnSfxVolume = 0.4f;
     }
 
     [Header("분류")]
@@ -93,12 +102,29 @@ public class Skill : MonoBehaviour
     public string PowerLine(Stats caster)
     {
         if (string.IsNullOrEmpty(powerText)) return "";
+        // [2026-11-25] {max} = 스킬이 직접 계산한 최대 피해량 (무기 스킬 — 공격력 비례)
+        if (powerText.Contains("{max}"))
+        {
+            var calc = GetComponent<ISkillMaxDamage>();
+            string v = calc != null && caster != null ? calc.MaxDamage(caster).ToString() : "공격력 비례";
+            return powerText.Replace("{max}", v);
+        }
         return System.Text.RegularExpressions.Regex.Replace(powerText, @"\{\+(\d+)(?:\*(\d+))?\}", m =>
         {
             int n = int.Parse(m.Groups[1].Value);
             int times = m.Groups[2].Success ? int.Parse(m.Groups[2].Value) : 1;
             return caster != null ? Mathf.RoundToInt((n + caster.Atk) * times).ToString() : $"({n}+공격력)×{times}";
         });
+    }
+
+    /// <summary>[2026-11-25] 무기 스킬 피해 기준 공격력 — 스킬 프리팹의 피해 값은 이 공격력일 때 기준 (캐릭터 기본 공격력 20)</summary>
+    public const float WeaponRefAtk = 20f;
+
+    /// <summary>[2026-11-25] 기준 피해 × (현재 공격력 / 20)</summary>
+    public static int ScaleByAtk(int baseDamage, Stats caster)
+    {
+        if (caster == null) return baseDamage;
+        return Mathf.Max(1, Mathf.RoundToInt(baseDamage * caster.Atk / WeaponRefAtk));
     }
 
     [Header("발동")]
@@ -221,6 +247,7 @@ public class Skill : MonoBehaviour
     void SpawnOne(SpawnEntry e)
     {
         if (e == null || e.prefab == null) return;
+        SkillSfx.Play(e.spawnSfx, e.spawnSfxVolume, 0.05f);   // [2026-11-25]
 
         int n = Mathf.Max(1, e.count);
 

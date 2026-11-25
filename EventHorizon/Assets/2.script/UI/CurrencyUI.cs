@@ -25,7 +25,7 @@ public class CurrencyUI : MonoBehaviour
     [Header("[2026-11-25] 마우스를 올리면 이름 · 짧은 설명 (인벤토리)")]
     public bool hoverInfo = true;
     public string currencyTitle = "재화";
-    [TextArea] public string currencyDesc = "적과 상자에서 얻습니다. 상점에서 물건을 살 때 씁니다.";
+    [TextArea] public string currencyDesc = "적을 처치하면 얻습니다. 상점에서 물건을 살 때 씁니다.";
     public string shardTitle = "사이버웨어 파편";
     [TextArea] public string shardDesc = "보스 · 정예 적에게서 얻습니다. 상점에서 가진 사이버웨어를 강화할 때 씁니다.";
 

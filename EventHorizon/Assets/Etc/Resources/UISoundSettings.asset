@@ -15,10 +15,10 @@ MonoBehaviour:
   playClickSound: 1
   volume: 0.8
   pitchVariation: 0
-  clickClip: {fileID: 8300000, guid: f2b97e2025404705ac5c8ac47290f2a1, type: 3}
-  confirmClip: {fileID: 8300000, guid: 14e113404bb64b98908e724e3274136c, type: 3}
-  cancelClip: {fileID: 8300000, guid: 8587058e0dd24c509ba423ccc6a11868, type: 3}
-  mapNodeClip: {fileID: 8300000, guid: 1731ff1b22f146b981dce219652e8815, type: 3}
+  clickClip: {fileID: 8300000, guid: 59d8fb7aa7144d3f90f95709724b7a1e, type: 3}
+  confirmClip: {fileID: 8300000, guid: 59d8fb7aa7144d3f90f95709724b7a1e, type: 3}
+  cancelClip: {fileID: 8300000, guid: 59d8fb7aa7144d3f90f95709724b7a1e, type: 3}
+  mapNodeClip: {fileID: 8300000, guid: 59d8fb7aa7144d3f90f95709724b7a1e, type: 3}
   confirmKeywords:
   - "start"
   - "restart"

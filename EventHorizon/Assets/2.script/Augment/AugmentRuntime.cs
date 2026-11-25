@@ -845,6 +845,8 @@ public partial class AugmentRuntime : MonoBehaviour
         else AdvancedOnAbilityHit(hi, st);
     }
 
+    static readonly Color PersuadeGray = new Color(0.62f, 0.63f, 0.66f, 1f);   // [2026-11-25] 설득으로 날아가는 적의 잔상 · 파편 색
+
     IEnumerator Persuade(Health target, float ratio)
     {
         if (target == null) yield break;
@@ -856,13 +858,26 @@ public partial class AugmentRuntime : MonoBehaviour
         else if (rb != null) rb.velocity = new Vector2(dir * 16f, 5f);
         AugmentFx.BodyFlash(target, CPlunder, 0.8f, 0.6f);
         float end = Time.time + 0.6f;
-        Vector3 last = target.transform.position;
+        // [2026-11-25] 날아가는 연출: 초록 빛줄 → 방출 상태 플레이어 연출(잔상 + 등 뒤 세모 파편)과 같은 방식, 색만 회색
+        var esprite = target.GetComponentInChildren<SpriteRenderer>();
+        float ghostT = 0f, shardT = 0f;
         while (Time.time < end && target != null && !target.IsDead)
         {
-            // 날아가는 궤적: 초록 빛줄
-            Vector3 now = target.transform.position;
-            AugmentFx.Line(last + (EC(target) - now), EC(target), CPlunder, 0.25f, 0.12f);
-            last = now;
+            ghostT -= Time.deltaTime; shardT -= Time.deltaTime;
+            if (ghostT <= 0f && esprite != null) { ghostT = 0.08f; AugmentFx.Ghost(esprite, PersuadeGray, 0.35f, 0.5f); }
+            if (shardT <= 0f)
+            {
+                shardT = 0.05f;
+                var col = target.GetComponent<Collider2D>();
+                Bounds b = col != null ? col.bounds : new Bounds(EC(target), Vector3.one);
+                float back = -dir;
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector3 p = new Vector3(b.center.x + back * b.extents.x * Random.Range(0.3f, 0.9f), Random.Range(b.min.y + b.size.y * 0.2f, b.max.y), target.transform.position.z);
+                    Vector2 v = new Vector2(back * Random.Range(2.5f, 5f), Random.Range(-0.4f, 1.4f));
+                    AugmentFx.Shard(p, v, Color.Lerp(PersuadeGray, Color.white, Random.Range(0f, 0.35f)), Random.Range(0.45f, 0.8f), Random.Range(0.16f, 0.3f), esprite);
+                }
+            }
             foreach (var other in EnemiesIn(target.transform.position, 1.1f))
             {
                 if (other == target) continue;
@@ -1128,9 +1143,9 @@ public partial class AugmentRuntime : MonoBehaviour
         if (lvCan > 0)
         {
             bool low = pstats.currentHp <= pstats.maxHp * 0.5f;
-            heal += Mathf.RoundToInt(pstats.maxHp * (low ? ByLevel(lvCan, 0.15f, 0.22f, 0.30f) : 0.05f));
+            heal += Mathf.RoundToInt(pstats.maxHp * (low ? ByLevel(lvCan, 0.08f, 0.11f, 0.15f) : 0.03f));   // [2026-11-25] 회복 축소 (회복 구가 계속 필요하게)
         }
-        if (Kw(AugmentKeyword.Overload) >= 3) heal += Mathf.RoundToInt(lostThisRoom * 0.2f);
+        if (Kw(AugmentKeyword.Overload) >= 3) heal += Mathf.RoundToInt(lostThisRoom * 0.1f);   // [2026-11-25] 20% → 10%
         if (heal > 0) HealPlayer(heal, HealGreen);
         lostThisRoom = 0;
         AdvancedOnRoomCleared(room);
@@ -1162,7 +1177,7 @@ public partial class AugmentRuntime : MonoBehaviour
     bool organRegenRunning;
     void StartOrganRegen(int lvOrgan)
     {
-        StartCoroutine(OrganRegen(ByLevel(lvOrgan, 0.02f, 0.03f, 0.04f)));
+        StartCoroutine(OrganRegen(ByLevel(lvOrgan, 0.01f, 0.015f, 0.02f)));   // [2026-11-25] 회복 축소
         BuffIcon("비상 이식", 5f);
         AugmentFx.ScreenPulse(0.25f, 0.2f);
         if (pc != null) AugmentFx.Ring(PCenter, COverload, 2f, 0.4f, 0.1f, 2);

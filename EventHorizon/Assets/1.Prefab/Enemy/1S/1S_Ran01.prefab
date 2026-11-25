@@ -117,6 +117,8 @@ MonoBehaviour:
   hitboxPrefab: {fileID: 0}
   hitboxPoint: {fileID: 3224858629989917569}
   projectilePrefab: {fileID: 7600000000000001, guid: 1f907dd932f33d809befbf1afb4fdcb1, type: 3}
+  shootSfx: {fileID: 8300000, guid: 99c3ab83e28a4e9eb860269792dd8970, type: 3}
+  shootSfxVolume: 0.5
   attackEffectPrefab: {fileID: 0}
   attackEffectPoint: {fileID: 0}
   effectFlipByFacing: 1

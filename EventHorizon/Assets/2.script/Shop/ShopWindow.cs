@@ -72,6 +72,7 @@ public abstract class ShopWindow : MonoBehaviour
         }
         Greet();
         OnOpened();
+        if (UsesShopFrame) GameSfx.WindowOpen();   // [2026-11-25] 상점 창 열림 소리 (사이버웨어 보상 창은 제외)
     }
 
     public void Close() => CloseInternal(true);
@@ -99,6 +100,11 @@ public abstract class ShopWindow : MonoBehaviour
     protected virtual void Update()
     {
         if (!IsOpen) return;
+        // [2026-11-25] 상점 키보드 조작(고르기 · 사기 · 새로고침 · 탭 · 닫기)에도 버튼 클릭 소리
+        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)
+            || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)
+            || Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape))
+            UIClickSound.PlayClick();
         if (Input.GetKeyDown(KeyCode.Escape)) Close();
     }
 
