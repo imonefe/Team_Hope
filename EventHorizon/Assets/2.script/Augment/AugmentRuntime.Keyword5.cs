@@ -10,7 +10,7 @@ using UnityEngine.Playables;
 ///   잔상 5  : 점프 · 대시 연속 사용 횟수 +1
 ///   과부하 5: 체력 50% 이하 → 몸 · 공격 범위 1.3배 (오염된 외골격: 1.15/1.2/1.25배, 합쳐서 최대 1.4배)
 ///   연격 5  : 공격 속도 증가 (AugmentRuntime.Update 의 공격 속도 계산)
-///   가열 블레이드: 검 3타 → 불타는 검기 (피해 + 과열)
+///   가열 블레이드: 검 3타 → 불타는 검기 (피해 + 과열) — 연출 KW2_Heat_Wave (불꽃 혀 · 불티 · 연기)
 ///   과열 5  : 과열 전염 — 과열 5개 이상인 적을 때리면 주변 3m 적에게 과열 2개
 ///   정지 5  : 제로포인트가 풀리는 순간 시간 충격파 (화면 안 적 피해 + 밀어냄)
 ///   강탈 5  : 일반 적을 처치하면 그 적의 홀로그램이 나와 그 적의 공격(돌진 포함)을 한 번 하고 사라짐
@@ -23,13 +23,13 @@ public partial class AugmentRuntime
 
     static readonly Dictionary<string, GameObject> kfxCache = new Dictionary<string, GameObject>();
 
-    static GameObject KFx(string name, Vector3 pos, float scale, float life, float angleZ = 0f)
+    static GameObject KFx(string name, Vector3 pos, float scale, float life, float angleZ = 0f, bool warn = true)
     {
         if (!kfxCache.TryGetValue(name, out var prefab) || prefab == null)
         {
             prefab = Resources.Load<GameObject>("KeywordFx/" + name);
             kfxCache[name] = prefab;
-            if (prefab == null) Debug.LogWarning($"[키워드 연출] Resources/KeywordFx/{name} 가 없음 — 메뉴 Tools/Event Horizon/키워드 연출 프리팹 다시 만들기");
+            if (prefab == null && warn) Debug.LogWarning($"[키워드 연출] Resources/KeywordFx/{name} 가 없음 — 메뉴 Tools/Event Horizon/키워드 연출 프리팹 다시 만들기");
         }
         if (prefab == null) return null;
         if (AugmentFx.Quiet) scale *= AugmentFx.QuietSize;   // [2026-11-26] 조용한 연출
@@ -99,14 +99,18 @@ public partial class AugmentRuntime
         int lvDance = L("검무");
         if (lvDance <= 0 || Time.time - lastFinisher < 0.25f) return;   // 판정이 여러 개 생겨도 한 번만
         lastFinisher = Time.time;
-        StartCoroutine(SwordWave(PCenter, tag.facing, 6f, ByLevel(lvDance, 0.5f, 0.75f, 1.0f), (int)ByLevel(lvDance, 1, 2, 3), "KW_Dance_SwordWave", OverheatColor));
+        // [2026-11-27] 불처럼 보이게: 불꽃 혀 · 불티 · 연기가 뒤로 남는 새 검기 (메뉴 EventHorizon/이펙트 v2 만들기). 없으면 예전 메쉬 검기
+        string waveFx = Resources.Load<GameObject>("KeywordFx/KW2_Heat_Wave") != null ? "KW2_Heat_Wave" : "KW_Dance_SwordWave";
+        StartCoroutine(SwordWave(PCenter, tag.facing, 6f, ByLevel(lvDance, 0.5f, 0.75f, 1.0f), (int)ByLevel(lvDance, 1, 2, 3), waveFx, OverheatColor));
     }
 
     IEnumerator SwordWave(Vector3 from, int dir, float length, float ratio, int heat, string fx, Color sparkColor)
     {
         const float speed = 22f;
         Vector3 to = from + new Vector3(dir * length, 0f, 0f);
-        var go = KFx(fx, from, 1.1f, length / speed + 0.15f, dir > 0 ? 0f : 180f);
+        // [2026-11-27] v2 검기(KW2_)는 남은 불꽃 · 연기가 스스로 꺼지도록 1초 남김 (예전 것은 그대로 0.15초)
+        bool v2 = fx.StartsWith("KW2_");
+        var go = KFx(fx, from, 1.1f, length / speed + (v2 ? 1.0f : 0.15f), dir > 0 ? 0f : 180f);
         var hit = new HashSet<Health>();
         float t = 0f, time = length / speed;
         while (t <= time)
@@ -123,6 +127,8 @@ public partial class AugmentRuntime
             t += Time.deltaTime;
             yield return null;
         }
+        // 다 날아가면 새 불꽃만 멈춤 (이미 나온 불꽃 · 불티 · 연기는 제 수명대로 꺼짐)
+        if (v2 && go != null) foreach (var ps in go.GetComponentsInChildren<ParticleSystem>()) ps.Stop(false, ParticleSystemStopBehavior.StopEmitting);
     }
 
     // ══════════════ 과열 5: 과열 전염 ══════════════
@@ -613,7 +619,7 @@ public partial class AugmentRuntime
         for (int i = 1; i <= 5; i++)
         {
             Vector3 p = feet + new Vector3(dir * 0.9f * i, 0.25f, 0f);
-            KFx("KW_Fracture_Crack", p, 0.6f, 1f);
+            if (KFx("KW2_Fracture_Node", p, 1f, 1.3f, warn: false) == null) KFx("KW_Fracture_Crack", p, 0.6f, 1f);   // [v2] 금이 지나는 자리마다 빛 기둥 · 파편 · 불티
             foreach (var e in EnemiesInBox(p + Vector3.up * 0.4f, new Vector2(1.0f, 1.4f)))
                 if (hit.Add(e)) { AbilityHit(e, ratio, feet, 1f, 0.5f); StatusOf(e).AddFracture(1); }
             yield return new WaitForSeconds(0.04f);
@@ -625,7 +631,7 @@ public partial class AugmentRuntime
     /// <summary>제로포인트 중 맞힌 자리에 푸른 피격 참격(sword_hit 색 바꿈)을 남기고 잠깐 뒤 멈춰 둠 — 풀릴 때 OnPauseEnd 가 지움</summary>
     GameObject SheathMark(Vector3 pos, float angle)
     {
-        var go = KFx("KW_Sheath_Hit", pos, 0.8f, 0f, angle);
+        var go = KFx("KW2_Sheath_Hit", pos, 1f, 0f, angle, warn: false) ?? KFx("KW_Sheath_Hit", pos, 0.8f, 0f, angle);   // [v2] 짧고 날카로운 칼자국 + 피격
         if (go != null) AugmentFx.Run(FreezeAfter(go, 0.07f));
         return go;
     }

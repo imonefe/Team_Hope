@@ -49,8 +49,9 @@ public static class StatCardOffer
                 icon = c.icon,
                 name = c.cardName,
                 body = c.BodyText(),
-                footerLeft = c.IsTradeoff ? StatCardData.TradeoffMark : "",
-                footerRight = "칸을 쓰지 않음"
+                // [2026-11-27] 아래 줄 설명(대가 표시 · '칸을 쓰지 않음') 뺌 — 스탯 줄만 남김
+                footerLeft = "",
+                footerRight = ""
             });
         return window.OfferCustom(Title, Subtitle, views, i =>
         {

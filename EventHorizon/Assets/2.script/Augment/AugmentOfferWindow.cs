@@ -354,6 +354,9 @@ public class AugmentOfferWindow : ShopWindow
     {
         if (!IsOpen) return;
         if (ItemSwapWindow.BlocksInput) return;   // [2026-11-26] 교체 창이 위에 떠 있음
+        // [22:00] 사이버웨어 고르기 창: Esc = 이번 보상 건너뛰기 (교체 창 Esc 로 돌아온 뒤 나갈 길).
+        //  문 고르기 · 스탯 카드(Custom)는 반드시 골라야 하므로 제외
+        if (!Custom && Input.GetKeyDown(KeyCode.Escape)) { UIClickSound.PlayClick(); Skip(); return; }
         UpdateHoverArm();
         UpdateShardHover();
         // [2026-11-24 변경] 카드가 나오는 중에도 ← → 로 고르기는 바로 됨.
@@ -378,6 +381,17 @@ public class AugmentOfferWindow : ShopWindow
         return selected;
     }
 
+    // [22:00] 아무것도 고르지 않고 닫기 (보상 없음). 같은 Esc 로 ESC 메뉴가 열리지 않는 건 ShopWindow.BlocksEscape 가 막음
+    void Skip()
+    {
+        if (!IsOpen || Custom) return;
+        ReleaseAll();
+        KillTweens();
+        Close();
+        HideShardHover();
+        OnFinished?.Invoke();
+    }
+
     void Choose(int i)
     {
         if (!IsOpen || !Has(i)) return;
@@ -399,9 +413,11 @@ public class AugmentOfferWindow : ShopWindow
         GameSfx.AugmentSelect();   // [2026-11-25] 사이버웨어 선택 소리
         var p = Player();
         string gainLine = KeywordGainLine(d);   // 얻기 전 기준으로 미리 (얻은 뒤엔 키워드 수가 바뀜)
-        // [2026-11-26] 8칸 제한 — 가득 차 있으면 교체 창. 포기하면 이번 보상 없음 (이 창엔 건너뛰기가 없어 되돌아가면 갇힘)
+        // [2026-11-26] 8칸 제한 — 가득 차 있으면 교체 창.
+        // [21:58] 교체 창에서 Esc = 이 창으로 돌아와 다시 고르기 (예전: 포기 = 보상 없음)
         ItemObtain.Request(d, p.go, r =>
         {
+            if (r == ItemObtain.Result.Declined && IsOpen) { RefreshAll(); return; }   // 창은 그대로 — 다른 카드를 고를 수 있음
             ReleaseAll();
             KillTweens();
             Close();
@@ -412,7 +428,7 @@ public class AugmentOfferWindow : ShopWindow
             }
             HideShardHover();
             OnFinished?.Invoke();
-        });
+        }, cancelReturns: true);
     }
 
     // [2026-11-25] 왼쪽 아래 증강 파편 칸에 마우스를 올리면 무엇인지 설명

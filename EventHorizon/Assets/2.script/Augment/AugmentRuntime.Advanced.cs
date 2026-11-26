@@ -377,7 +377,10 @@ public partial class AugmentRuntime
         if (bladeCharged && Has("박자 칼날"))
         {
             bladeCharged = false;
-            StartCoroutine(PierceSlash(PCenter, f, 4f, ByLevel(L("박자 칼날"), 0.75f, 1.12f, 1.5f), new Color(1f, 0.85f, 0.25f), 1.2f));
+            // [2026-11-27] 막대 빛줄기(돌진용 '선' 이펙트) 대신 창처럼 찌르는 원뿔 에너지 — 연격 노랑 (프리팹: 메뉴 EventHorizon/이펙트 v2 만들기)
+            float beatRatio = ByLevel(L("박자 칼날"), 0.75f, 1.12f, 1.5f);
+            if (Resources.Load<GameObject>("KeywordFx/KW2_Beat_Cone") != null) StartCoroutine(BeatCone(PCenter, f, 4f, beatRatio, new Color(1f, 0.85f, 0.25f)));
+            else StartCoroutine(PierceSlash(PCenter, f, 4f, beatRatio, new Color(1f, 0.85f, 0.25f), 1.2f));
             combo = 5; comboTimer = ComboWindow;
         }
 
@@ -510,6 +513,25 @@ public partial class AugmentRuntime
         {
             Vector3 head = Vector3.Lerp(from, to, Mathf.Clamp01(t / time));
             foreach (var e in EnemiesInBox(head, new Vector2(1.4f, height)))
+                if (hit.Add(e)) { AbilityHit(e, ratio, from, 3f, 1f); AugmentFx.Sparks(EC(e), c, 8, 4f, 0.3f, 0f, 0.14f); }
+            t += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    /// <summary>[2026-11-27] 박자 칼날: 손에서 창처럼 원뿔 에너지를 찌름. 판정은 뻗는 동안(0.14초) 앞으로 훑으며, 창끝으로 갈수록 위아래로 좁음</summary>
+    IEnumerator BeatCone(Vector3 from, int dir, float length, float ratio, Color c)
+    {
+        KFx("KW2_Beat_Cone", from, 1f, 0.7f, dir > 0 ? 0f : 180f);
+        var hit = new HashSet<Health>();
+        Vector3 to = from + new Vector3(dir * length, 0f, 0f);
+        const float time = 0.14f;
+        float t = 0f;
+        while (t <= time)
+        {
+            float k = Mathf.Clamp01(t / time);
+            Vector3 head = Vector3.Lerp(from, to, k);
+            foreach (var e in EnemiesInBox(head, new Vector2(1.2f, Mathf.Lerp(1.4f, 0.9f, k))))
                 if (hit.Add(e)) { AbilityHit(e, ratio, from, 3f, 1f); AugmentFx.Sparks(EC(e), c, 8, 4f, 0.3f, 0f, 0.14f); }
             t += Time.deltaTime;
             yield return null;
@@ -697,6 +719,13 @@ public partial class AugmentRuntime
         if (weakTarget != null && weakTarget.Health == h) { if (weakMark != null) Destroy(weakMark); weakTarget = null; }
     }
 
+    /// <summary>[2026-11-27] p 바로 아래 바닥(ground · platform) 면. 발 위 0.5 에서 아래로 20m, 못 찾으면 p 그대로</summary>
+    static Vector3 GroundBelow(Vector3 p)
+    {
+        var hit = Physics2D.Raycast(new Vector2(p.x, p.y + 0.5f), Vector2.down, 20f, LayerMask.GetMask("ground", "platform"));
+        return hit.collider != null ? new Vector3(p.x, hit.point.y, p.z) : p;
+    }
+
     void CollectorData(Vector3 pos)
     {
         AugmentFx.Sparks(pos, OverheatColor, 8, 3.5f, 0.4f, -1f);
@@ -705,6 +734,7 @@ public partial class AugmentRuntime
 
     IEnumerator FireFloor(Vector3 feet, float seconds)
     {
+        feet = GroundBelow(feet);   // [2026-11-27] 공중에서 죽은 적이면 장판이 떠 있던 것 → 아래 바닥 면에 붙임
         Vector3 c = feet + Vector3.up * 0.4f;
         Vector2 size = new Vector2(2.6f, 1.2f);
         AugmentFx.FloorGlow(feet, size.x, OverheatColor, seconds);   // [2026-11-25] 위험 박스(적 공격 예고용) 대신 바닥 불빛

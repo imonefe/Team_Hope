@@ -98,7 +98,7 @@ public class ItemSwapWindow : MonoBehaviour
     /// <summary>떠 있거나 방금 닫힌 프레임 — 같은 키(Esc · Enter)로 뒤의 창이 같이 반응하지 않게</summary>
     public static bool BlocksInput => IsOpen || Time.frameCount == closedFrame;
 
-    struct Request { public ItemData item; public Action<int> onSwap; public Action onCancel; }
+    struct Request { public ItemData item; public Action<int> onSwap; public Action onCancel; public bool back; }
     readonly Queue<Request> queue = new Queue<Request>();
     Request cur;
     bool open;
@@ -109,7 +109,8 @@ public class ItemSwapWindow : MonoBehaviour
     bool savedOverride;
 
     /// <summary>교체를 묻는다. 이미 떠 있으면 줄을 세워 차례로 묻는다</summary>
-    public static void Ask(ItemData incoming, Action<int> onSwap, Action onCancel)
+    /// <param name="cancelReturns">[21:58] Esc = 이전 화면으로 돌아가기 (안내 글자만 다름, 처리는 onCancel 그대로)</param>
+    public static void Ask(ItemData incoming, Action<int> onSwap, Action onCancel, bool cancelReturns = false)
     {
         if (inst == null && Inventory.Instance != null && Inventory.Instance.swapWindow != null)
             inst = Inventory.Instance.swapWindow;   // 씬의 인벤토리 안 (꺼져 있어도 참조는 살아 있음)
@@ -125,7 +126,7 @@ public class ItemSwapWindow : MonoBehaviour
             inst = Instantiate(prefab);
             inst.name = ResourcePath;
         }
-        inst.queue.Enqueue(new Request { item = incoming, onSwap = onSwap, onCancel = onCancel });
+        inst.queue.Enqueue(new Request { item = incoming, onSwap = onSwap, onCancel = onCancel, back = cancelReturns });
         if (!inst.open) inst.ShowNext();
     }
 
@@ -214,7 +215,6 @@ public class ItemSwapWindow : MonoBehaviour
         if (showWhileSwapping != null) foreach (var g in showWhileSwapping) if (g != null) g.SetActive(true);
         ApplySwapLayout(true);
         ItemSlotUI.SetNamesHidden(true);
-        if (swapHint != null) swapHint.text = $"방향키 고르기     {KeyBindings.KeyName(KeyAction.Interact)} 결정     Esc 포기";
         inv.Open();
     }
 
@@ -328,6 +328,8 @@ public class ItemSwapWindow : MonoBehaviour
 
     void Fill()
     {
+        // [21:58] 요청마다 Esc 안내 (증강 고르기에서 왔으면 돌아가기)
+        if (swapHint != null) swapHint.text = $"방향키 고르기     {KeyBindings.KeyName(KeyAction.Interact)} 결정     Esc {(cur.back ? "돌아가기" : "포기")}";
         var owned = Inventory.Instance != null ? Inventory.Instance.passives : null;
         if (newSlot != null) newSlot.SetItem(cur.item, null);
         if (newName != null) newName.text = cur.item != null ? cur.item.itemName : "";

@@ -16,7 +16,8 @@ public static class ItemObtain
 
     /// <param name="player">효과를 받을 캐릭터 (비우면 지금 캐릭터)</param>
     /// <param name="done">끝났을 때 결과 — 교체 창을 거치면 창이 닫힌 뒤에 불림</param>
-    public static void Request(ItemData d, GameObject player, Action<Result> done)
+    /// <param name="cancelReturns">[21:58] 교체 창에서 Esc 가 '포기'가 아니라 '이전 화면으로 돌아가기' (증강 고르기 창). 결과는 똑같이 Declined — 부른 쪽이 창을 다시 보여 줌</param>
+    public static void Request(ItemData d, GameObject player, Action<Result> done, bool cancelReturns = false)
     {
         if (d == null) { done?.Invoke(Result.Declined); return; }
         if (Owns(d)) { LevelUp(d, player); done?.Invoke(Result.LeveledUp); return; }
@@ -30,7 +31,8 @@ public static class ItemObtain
                 Grant(d, player);
                 done?.Invoke(Result.Granted);
             },
-            () => done?.Invoke(Result.Declined));
+            () => done?.Invoke(Result.Declined),
+            cancelReturns);
     }
 
     /// <summary>칸 검사 없이 얻는다 (효과 적용 → 인벤토리 → 획득 기록). 예전 각 경로의 처리와 같음</summary>

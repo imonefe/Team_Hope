@@ -40,6 +40,15 @@ public static class AugmentFx
 
     public const int SortFront = 5140;
 
+    // ══════════════ [2026-11-26] 이펙트 v2 (기준서 방식 프리팹 — Resources/AugmentFxV2, 메뉴 EventHorizon/이펙트 v2 만들기) ══════════════
+    // 있으면 코드로 그리던 것 대신 쓴다: 불티 · 터짐 · 방패 깨짐 · 관통 선 · 표식 · 불타는 바닥
+    static readonly Dictionary<string, GameObject> v2Cache = new Dictionary<string, GameObject>();
+    public static GameObject V2(string name)
+    {
+        if (!v2Cache.TryGetValue(name, out var p)) { p = Resources.Load<GameObject>("AugmentFxV2/" + name); v2Cache[name] = p; }
+        return p;
+    }
+
     // ══════════════ [2026-11-26] 조용한 연출 (일반 등급 고유 능력) ══════════════
     // 일반 등급 능력은 숫자 효과 위주라 화려한 연출이 붙으면 '한 번에 여러 능력을 쓰는 캐릭터'처럼 보인다 (기획 B-3).
     // AugmentRuntime 이 일반 등급 능력 처리 구간을 using (QuietIf("능력")) 로 감싸면 그 안에서 부른 부품은:
@@ -291,6 +300,7 @@ public static class AugmentFx
     /// <summary>빛줄기(궁수 횡·종 일격 이펙트를 색 바꿈)가 a → b 로 달림</summary>
     public static void StreakFx(Vector3 a, Vector3 b, Color c, float speed = 40f, float scale = 1f)
     {
+        if (PierceV2(a, b, c, scale)) return;   // [v2]
         if (StreakPrefab == null) { Streak(a, b, c, Vector3.Distance(a, b) / Mathf.Max(1f, speed), 0.3f); return; }
         Run(StreakFxRoutine(a, b, c, speed, scale));
     }
@@ -405,6 +415,8 @@ public static class AugmentFx
     /// <summary>터짐: FX_RicoImpact 를 키워드 색 재질 복제본으로</summary>
     public static GameObject Burst(Vector3 pos, Color c, float scale = 1f, float life = 1.5f)
     {
+        var v2 = V2("FX2_Burst");   // [v2] 빨려듦 → 섬광 · 빛줄기 → 고리 + 바닥 고리 → 불티 · 어두운 연기
+        if (v2 != null) return FxTint.Spawn(v2, pos, Quaternion.identity, QC(c), QS(scale), QA);
         if (ExplosionPrefab == null) { Sparks(pos, c, 10, 4f * scale, 0.4f); Ring(pos, c, 1.2f * scale); return null; }
         scale = QS(scale); c = QH(c);   // [2026-11-26] 조용한 연출
         var fx = UnityEngine.Object.Instantiate(ExplosionPrefab, pos, Quaternion.identity);
@@ -455,6 +467,8 @@ public static class AugmentFx
     /// <summary>깨짐 (방패 · 막힌 투사체)</summary>
     public static void Shatter(Vector3 pos, Color c, float scale = 0.6f)
     {
+        var v2 = V2("FX2_Shatter");   // [v2] 테두리 빛 → 방패 파편(어두운 층 + 밝은 층) · 섬광 · 불티 · 고리
+        if (v2 != null) { FxTint.Spawn(v2, pos, Quaternion.identity, QC(c), QS(scale / 0.6f), QA); return; }
         if (ShatterPrefab == null) { Sparks(pos, c, 12, 5f, 0.35f); return; }
         var fx = UnityEngine.Object.Instantiate(ShatterPrefab, pos, Quaternion.identity);
         fx.transform.localScale *= scale;
@@ -479,6 +493,9 @@ public static class AugmentFx
     public static void Sparks(Vector3 pos, Color c, int count, float speed, float life, float gravity = 6f, float size = 0.16f)
     {
         if (QuietSkip) return;   // [2026-11-26] 꾸밈
+        // [v2] 튀었다 떨어지는 불티는 FX2_HitSparks (위로 떠오르는 것은 아직 예전 그림)
+        var v2 = gravity >= 0f ? V2("FX2_HitSparks") : null;
+        if (v2 != null) { FxTint.Spawn(v2, pos, Quaternion.identity, QC(c), QS(Mathf.Clamp(speed / 7f, 0.5f, 1.4f)), QA); return; }
         for (int i = 0; i < count; i++)
         {
             Vector2 v = UnityEngine.Random.insideUnitCircle.normalized * speed * UnityEngine.Random.Range(0.4f, 1f);
@@ -605,7 +622,21 @@ public static class AugmentFx
     /// <summary>빛줄: 머리(밝은 점)가 a → b 로 달리고 꼬리가 남았다 사라짐 (돌진 · 관통 · 참격)</summary>
     public static void Streak(Vector3 a, Vector3 b, Color c, float time = 0.18f, float width = 0.18f)
     {
+        if (PierceV2(a, b, c, width / 0.18f)) return;
         Run(StreakRoutine(a, b, c, time, width));
+    }
+
+    /// <summary>[v2] 관통 선: 앞끝을 날카롭게 깎은 참격 띠 + 하얀 심 + 지나가는 선 (Body 를 길이만큼 늘리고 tip 을 끝점에)</summary>
+    static bool PierceV2(Vector3 a, Vector3 b, Color c, float thick)
+    {
+        var p = V2("FX2_Pierce");
+        if (p == null) return false;
+        Vector3 d = b - a; d.z = 0f; float len = d.magnitude;
+        if (len < 0.05f) return true;
+        var fx = FxTint.Spawn(p, a, Quaternion.Euler(0f, 0f, Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg), QC(c), 1f, QA);
+        var body = fx.transform.Find("Body"); if (body != null) body.localScale = new Vector3(len, QS(Mathf.Clamp(thick, 0.6f, 1.6f)), 1f);
+        var tip = fx.transform.Find("tip"); if (tip != null) tip.localPosition = new Vector3(len, 0f, 0f);
+        return true;
     }
 
     static IEnumerator StreakRoutine(Vector3 a, Vector3 b, Color c, float time, float width)
@@ -657,7 +688,12 @@ public static class AugmentFx
         if (target == null) return null;
         float qa = QA; scale = QS(scale); c = QC(c);   // [2026-11-26] 조용한 연출
         GameObject fx;
-        if (MarkPrefab != null)
+        var v2 = V2("FX2_Mark");   // [v2] 크게 나타나 조여 듦 · 고리 2겹 + 눈금 + 별빛 · 맥박 (FxMarkMotion)
+        if (v2 != null)
+        {
+            fx = FxTint.Spawn(v2, target.position + Vector3.up * yOffset, Quaternion.identity, c, scale, qa);
+        }
+        else if (MarkPrefab != null)
         {
             fx = UnityEngine.Object.Instantiate(MarkPrefab, target.position + Vector3.up * yOffset, Quaternion.identity);
             fx.transform.localScale *= scale;
@@ -690,6 +726,14 @@ public static class AugmentFx
     /// feet = 바닥 높이, width = 가로 폭. 가로로 납작한 빛이 일렁이다가 사라짐</summary>
     public static GameObject FloorGlow(Vector3 feet, float width, Color c, float duration)
     {
+        var v2 = V2("FX2_FireFloor");   // [v2] 불길은 바닥 틈의 얇은 빛 · 불씨가 흔들리며 올라옴 · 가끔 불티 · 열기 일렁임
+        if (v2 != null)
+        {
+            var fx = FxTint.Spawn(v2, feet, Quaternion.identity, QC(c), 1f, QA);
+            fx.transform.localScale = new Vector3(v2.transform.localScale.x * width / 3.2f, v2.transform.localScale.y, 1f);
+            Run(StopThenDestroy(fx, duration, 2.5f));
+            return fx;
+        }
         var r = NewSprite("FxFloorGlow", Dot, feet + Vector3.up * 0.15f, A(c, 0f), 1f, SortFront - 20);
         r.transform.localScale = new Vector3(width * 1.6f, 0.9f, 1f);
         var core = NewSprite("Core", Dot, feet + Vector3.up * 0.08f, A(c * 1.4f, 0f), 1f, SortFront - 19);
@@ -697,6 +741,15 @@ public static class AugmentFx
         core.transform.SetParent(r.transform, true);
         Run(FloorGlowRun(r, core, duration));
         return r.gameObject;
+    }
+
+    // [v2] duration 뒤 새 입자만 멈추고(남은 불씨는 자연스럽게 사라짐) 잠시 뒤 지움
+    static IEnumerator StopThenDestroy(GameObject fx, float duration, float tail)
+    {
+        yield return new WaitForSeconds(duration);
+        if (fx == null) yield break;
+        foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true)) ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        UnityEngine.Object.Destroy(fx, tail);
     }
 
     static IEnumerator FloorGlowRun(SpriteRenderer r, SpriteRenderer core, float duration)

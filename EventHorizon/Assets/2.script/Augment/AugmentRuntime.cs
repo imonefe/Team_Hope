@@ -981,7 +981,7 @@ public partial class AugmentRuntime : MonoBehaviour
         bool serum = Has("붕괴 탄두");
         Vector3 mid = pos + Vector3.up * 0.6f;   // pos = 발밑
         AugmentFx.Burst(mid, OverheatColor, radius * 0.6f, 2f);
-        AugmentFx.Ring(pos + Vector3.up * 0.05f, OverheatColor, radius, 0.4f, 0.12f, 1, 0.45f);
+        if (AugmentFx.V2("FX2_Burst") == null) AugmentFx.Ring(pos + Vector3.up * 0.05f, OverheatColor, radius, 0.4f, 0.12f, 1, 0.45f);   // [v2] 터짐 프리팹에 바닥 고리가 있음
         if (serum) { AugmentFx.Ring(mid, CFracture, radius * 0.8f, 0.45f, 0.06f, 2); AugmentFx.Sparks(mid, CFracture, 10, 4f, 0.4f); }
         foreach (var e in EnemiesIn(mid, radius))
         {
@@ -1046,8 +1046,19 @@ public partial class AugmentRuntime : MonoBehaviour
     IEnumerator GasCloud(Vector3 pos, float seconds)
     {
         Vector3 at = pos + (PFeet - PPos);
-        var fx = AugmentFx.Smoke(at + Vector3.up * 0.3f, GasColor, 0.8f, seconds + 1f);
-        if (fx != null)
+        // [2026-11-27] 만화풍 2톤 검붉은 연기 구름 (뭉치 모양이 매번 다름 · 0.5초 과열 박자에 속이 달아오름) — 메뉴 EventHorizon/이펙트 v2 만들기
+        FxSmokePulse pulse = null;
+        GameObject fx = null;
+        var gasPrefab = Resources.Load<GameObject>("KeywordFx/KW2_Gas_Cloud");
+        if (gasPrefab != null)
+        {
+            fx = Instantiate(gasPrefab, at + Vector3.up * 0.75f, Quaternion.identity);   // 뭉치 범위 가운데 = 판정 상자 가운데(발 + 0.6)
+            pulse = fx.GetComponent<FxSmokePulse>();
+            foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true)) { ps.Clear(true); ps.Play(true); }
+            Destroy(fx, seconds + 2.5f);
+        }
+        else fx = AugmentFx.Smoke(at + Vector3.up * 0.3f, GasColor, 0.8f, seconds + 1f);   // 예전 연기
+        if (fx != null && gasPrefab == null)
             foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
             {
                 var sh = ps.shape;
@@ -1062,6 +1073,7 @@ public partial class AugmentRuntime : MonoBehaviour
         while (Time.time < end)
         {
             foreach (var e in EnemiesInBox(at + Vector3.up * 0.6f, new Vector2(GasWidth, GasHeight))) StatusOf(e).AddOverheat(1);
+            if (pulse != null) pulse.Pulse();   // 과열 박자: 구름 속이 달아오름
             yield return new WaitForSeconds(0.5f);
         }
         if (fx != null) foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>()) ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);

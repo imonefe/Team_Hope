@@ -265,7 +265,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5204313148693351687, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 28.007748
+      value: 28.007812
       objectReference: {fileID: 0}
     - target: {fileID: 5522553732493958236, guid: e6b93bc8075e21541a44eda51b345741, type: 3}
       propertyPath: dialogueSets.Array.size
