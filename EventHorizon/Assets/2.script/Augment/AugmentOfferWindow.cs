@@ -79,7 +79,25 @@ public class AugmentOfferWindow : ShopWindow
         public Image[] pips;
     }
 
+    /// <summary>[2026-11-26] 사이버웨어가 아닌 카드 (다음 방 고르기 · 스탯 카드) — 같은 창 · 같은 연출로 띄운다</summary>
+    public class CardView
+    {
+        public string header;        // 카드 윗띠 글자 (등급 등)
+        public Color color = Color.white;   // 윗띠 · 테두리 색
+        public Sprite icon;
+        public string name;
+        public string body;          // 가운데 설명 (리치 텍스트)
+        public string footerLeft;    // 아래 왼쪽 (예: 대가)
+        public string footerRight;   // 아래 오른쪽
+    }
+
     readonly Card[] cards = new Card[CardCount];
+    readonly Vector2[] origPos = new Vector2[CardCount];   // [2026-11-26] 에디터에 놓인 3장 자리 (장 수에 따라 다시 배치)
+    CardView[] customCards;                  // null 이면 사이버웨어 카드
+    System.Action<int> customChoose;
+    string customTitle, customSubtitle;
+    bool Custom => customCards != null;
+    bool Has(int i) => i >= 0 && i < CardCount && (Custom ? customCards[i] != null : offers[i] != null);
     readonly ItemData[] offers = new ItemData[CardCount];
     readonly OwnedRow[] rows = new OwnedRow[8];
     int selected;
@@ -106,6 +124,7 @@ public class AugmentOfferWindow : ShopWindow
             if (t == null) continue;
             var c = new Card { root = (RectTransform)t };
             c.basePos = c.root.anchoredPosition;
+            origPos[i] = c.basePos;
             c.selectFrame = t.Find("SelectFrame")?.gameObject;
             c.border = t.Find("Border")?.GetComponent<Image>();
             var body = t.Find("Body");
@@ -158,7 +177,7 @@ public class AugmentOfferWindow : ShopWindow
         if (hoverArmed || (Input.mousePosition - hoverMouseRef).sqrMagnitude < 16f) return;
         hoverArmed = true;
         for (int i = 0; i < CardCount; i++)
-            if (offers[i] != null && cards[i] != null && UIUtil.MouseOver(cards[i].root) && selected != i) { selected = i; RefreshAll(); break; }
+            if (Has(i) && cards[i] != null && UIUtil.MouseOver(cards[i].root) && selected != i) { selected = i; RefreshAll(); break; }
     }
 
     // 마우스를 올리면 그 카드를 선택 (누르면 결정)
@@ -166,13 +185,14 @@ public class AugmentOfferWindow : ShopWindow
     {
         var trig = go.GetComponent<UnityEngine.EventSystems.EventTrigger>() ?? go.AddComponent<UnityEngine.EventSystems.EventTrigger>();
         var e = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter };
-        e.callback.AddListener(_ => { if (hoverArmed && offers[idx] != null && selected != idx) { selected = idx; RefreshAll(); } });   // [2026-11-25] 마우스를 실제로 움직인 뒤에만
+        e.callback.AddListener(_ => { if (hoverArmed && Has(idx) && selected != idx) { selected = idx; RefreshAll(); } });   // [2026-11-25] 마우스를 실제로 움직인 뒤에만
         trig.triggers.Add(e);
     }
 
     /// <summary>후보를 뽑아 창을 연다. 후보가 하나도 없으면 열지 않고 false</summary>
     public bool Offer(bool boss)
     {
+        customCards = null; customChoose = null;
         bossReward = boss;
         var used = new HashSet<ItemData>();
         int n = 0;
@@ -187,6 +207,46 @@ public class AugmentOfferWindow : ShopWindow
         DisarmHover();
         Open();
         return true;
+    }
+
+    /// <summary>
+    /// [2026-11-26] 사이버웨어가 아닌 카드 1~3장을 같은 창에 띄운다 (다음 방 고르기 · 스탯 카드).
+    /// 고르면 창을 닫고 onChoose(번호). 이 창은 건너뛰기가 없어서 반드시 하나를 고른다.
+    /// </summary>
+    public bool OfferCustom(string titleText_, string subtitleText_, IList<CardView> views, System.Action<int> onChoose)
+    {
+        if (IsOpen || views == null || views.Count == 0) return false;
+        ReleaseAll();
+        customCards = new CardView[CardCount];
+        int n = 0;
+        for (int i = 0; i < CardCount && i < views.Count; i++) { customCards[i] = views[i]; if (views[i] != null) n++; }
+        if (n == 0) { customCards = null; return false; }
+        customChoose = onChoose;
+        customTitle = titleText_;
+        customSubtitle = subtitleText_;
+        selected = 0;
+        while (selected < CardCount - 1 && !Has(selected)) selected++;
+        DisarmHover();
+        Open();
+        return true;
+    }
+
+    // 카드 장 수에 맞춰 가운데 기준으로 다시 놓는다 (3장 = 에디터 자리 그대로, 2장 = 그 간격의 절반씩 양옆, 1장 = 가운데)
+    void LayoutCards(CardView[] views)
+    {
+        int n = 0;
+        for (int i = 0; i < CardCount; i++) if (views == null || views[i] != null) n++;
+        float step = CardCount > 1 ? (origPos[CardCount - 1].x - origPos[0].x) / (CardCount - 1) : 0f;
+        float mid = (origPos[0].x + origPos[CardCount - 1].x) * 0.5f;
+        int k = 0;
+        for (int i = 0; i < CardCount; i++)
+        {
+            if (cards[i] == null) continue;
+            Vector2 p = origPos[i];
+            if (views != null && views[i] != null) { p.x = mid + (k - (n - 1) * 0.5f) * step; k++; }
+            cards[i].basePos = p;
+            cards[i].root.anchoredPosition = p;
+        }
     }
 
     // [2026-11-21 변경 · 11-24 두트윈으로 교체] 열릴 때: 배경 · 제목 · 보유 목록은 바로 보이고,
@@ -210,6 +270,7 @@ public class AugmentOfferWindow : ShopWindow
     protected override void OnOpened()
     {
         KillTweens();
+        LayoutCards(customCards);   // [2026-11-26] 장 수에 맞춰 자리 (처음 열 때 Build 가 끝난 뒤라 여기서)
         for (int i = 0; i < CardCount; i++)
         {
             var c = cards[i];
@@ -235,7 +296,7 @@ public class AugmentOfferWindow : ShopWindow
             var g = cardGroups[i];
             if (c == null || g == null) continue;
             g.alpha = 0f;
-            g.blocksRaycasts = false;   // 다 나타나기 전에는 마우스로도 고르지 않음 (잘못 누름 방지)
+            g.blocksRaycasts = true;   // [18:21] 나타나는 중에도 누르면 바로 선택 (예전: 다 나타나기 전엔 막음)
             c.root.anchoredPosition = c.basePos + new Vector2(0f, cardDropDistance);
             float at = cardStagger * i;
             // [2026-11-24 변경] 내려오는 동시에 투명 0 → 1, 제자리에 닿는 순간 100%가 되도록 같은 시간 · 같은 곡선
@@ -292,21 +353,11 @@ public class AugmentOfferWindow : ShopWindow
     protected override void Update()
     {
         if (!IsOpen) return;
+        if (ItemSwapWindow.BlocksInput) return;   // [2026-11-26] 교체 창이 위에 떠 있음
         UpdateHoverArm();
         UpdateShardHover();
         // [2026-11-24 변경] 카드가 나오는 중에도 ← → 로 고르기는 바로 됨.
-        // 결정 키(Space · Enter · 1 2 3)는 아직 안 보인 카드를 고르는 실수를 막으려고 '남은 카드를 바로 다 보여 주기'로만 씀
-        if (introPlaying)
-        {
-            int prev = selected;
-            if (Input.GetKeyDown(KeyCode.LeftArrow)) selected = Step(-1);
-            if (Input.GetKeyDown(KeyCode.RightArrow)) selected = Step(+1);
-            for (int i = 0; i < CardCount; i++)
-                if ((Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i)) && offers[i] != null) { selected = i; SkipIntro(); }
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) SkipIntro();
-            if (selected != prev) { RefreshAll(); UIClickSound.PlayClick(); }
-            return;
-        }
+        // [18:21] 카드가 나오는 중에도 결정 키 · 숫자 키 · 클릭은 바로 선택 (예전: 연출 건너뛰기만 했음)
         int before = selected;
         if (Input.GetKeyDown(KeyCode.LeftArrow)) selected = Step(-1);
         if (Input.GetKeyDown(KeyCode.RightArrow)) selected = Step(+1);
@@ -322,29 +373,46 @@ public class AugmentOfferWindow : ShopWindow
         for (int k = 0; k < CardCount; k++)
         {
             s = (s + dir + CardCount) % CardCount;
-            if (offers[s] != null) return s;
+            if (Has(s)) return s;
         }
         return selected;
     }
 
     void Choose(int i)
     {
-        if (!IsOpen || i < 0 || i >= CardCount || offers[i] == null) return;
+        if (!IsOpen || !Has(i)) return;
+        if (ItemSwapWindow.BlocksInput) return;
+        if (introPlaying) SkipIntro();   // [18:21] 연출 중에 골라도 카드 자리 · 투명도를 바로 맞춤
+        if (Custom)
+        {
+            GameSfx.AugmentSelect();
+            var cb = customChoose;
+            customCards = null; customChoose = null;
+            KillTweens();
+            Close();
+            HideShardHover();
+            cb?.Invoke(i);
+            OnFinished?.Invoke();
+            return;
+        }
         var d = offers[i];
         GameSfx.AugmentSelect();   // [2026-11-25] 사이버웨어 선택 소리
         var p = Player();
-        if (p.stats != null && d.effects != null)
-            foreach (var e in d.effects)
-                if (e != null) e.Apply(p.stats, p.go.GetComponent<MonoBehaviour>());
-        Inventory.Instance?.AddPassive(d);
-        RunManager.Instance?.RegisterObtained(d);
-        ReleaseAll();
-        KillTweens();
-        Close();
-        if (p.go != null) ItemPickupEffect.SpawnAugment(p.go.transform.position, d, KeywordGainLine(d));   // [2026-11-25] 일반 아이템보다 크게
-        YoungbokChatter.OnItemPicked();
-        HideShardHover();
-        OnFinished?.Invoke();
+        string gainLine = KeywordGainLine(d);   // 얻기 전 기준으로 미리 (얻은 뒤엔 키워드 수가 바뀜)
+        // [2026-11-26] 8칸 제한 — 가득 차 있으면 교체 창. 포기하면 이번 보상 없음 (이 창엔 건너뛰기가 없어 되돌아가면 갇힘)
+        ItemObtain.Request(d, p.go, r =>
+        {
+            ReleaseAll();
+            KillTweens();
+            Close();
+            if (r != ItemObtain.Result.Declined)
+            {
+                if (p.go != null) ItemPickupEffect.SpawnAugment(p.go.transform.position, d, gainLine);   // [2026-11-25] 일반 아이템보다 크게
+                YoungbokChatter.OnItemPicked();
+            }
+            HideShardHover();
+            OnFinished?.Invoke();
+        });
     }
 
     // [2026-11-25] 왼쪽 아래 증강 파편 칸에 마우스를 올리면 무엇인지 설명
@@ -380,11 +448,9 @@ public class AugmentOfferWindow : ShopWindow
             var d = Pick(used, geeksOdds);
             if (d == null) break;
             used.Add(d);
-            if (p.stats != null && d.effects != null)
-                foreach (var e in d.effects)
-                    if (e != null) e.Apply(p.stats, p.go.GetComponent<MonoBehaviour>());
-            Inventory.Instance?.AddPassive(d);
-            RunManager.Instance?.RegisterObtained(d);
+            // [2026-11-26] 8칸 제한 — 칸이 남으면 바로, 넘치면 교체 창을 차례로 (그건 특전 창 목록에는 안 나옴)
+            if (Inventory.Instance != null && Inventory.Instance.IsFull && !ItemObtain.Owns(d)) { ItemObtain.Request(d, p.go, null); continue; }
+            ItemObtain.Request(d, p.go, null);
             got.Add(d);
         }
         return got;
@@ -469,6 +535,8 @@ public class AugmentOfferWindow : ShopWindow
     // ── 화면 ──
     void RefreshAll()
     {
+        if (Custom) { RefreshCustom(); return; }
+        if (ownedPanel != null && !ownedPanel.gameObject.activeSelf) ownedPanel.gameObject.SetActive(true);   // 일반 카드 모드에서 꺼 둔 것 (아래 RefreshOwned 가 다시 판단)
         SetText(titleText, title);
         SetText(subtitleText, bossReward ? bossSubtitle : roomSubtitle);
         SetText(shardCount, $"× {(RunManager.Instance != null ? RunManager.Instance.Shards : 0)}");
@@ -591,4 +659,49 @@ public class AugmentOfferWindow : ShopWindow
     }
 
     static string Spaced(string s) => string.Join(" ", s.ToCharArray());
+
+    // [2026-11-26] 일반 카드 모드 (다음 방 · 스탯 카드): 보유 키워드 칸은 숨김
+    void RefreshCustom()
+    {
+        SetText(titleText, customTitle);
+        SetText(subtitleText, customSubtitle);
+        SetText(shardCount, $"× {(RunManager.Instance != null ? RunManager.Instance.Shards : 0)}");
+        if (ownedPanel != null) ownedPanel.gameObject.SetActive(false);
+        for (int i = 0; i < CardCount; i++)
+        {
+            var c = cards[i];
+            if (c == null) continue;
+            var v = customCards[i];
+            c.root.gameObject.SetActive(v != null);
+            if (v == null) continue;
+            bool sel = i == selected;
+            ApplySelectScale(c, sel);
+            if (c.selectFrame != null) c.selectFrame.SetActive(sel);
+            if (c.border != null) c.border.color = v.color;
+            if (c.header != null) c.header.color = v.color;
+            SetText(c.headerText, v.header);
+            if (c.icon != null) { c.icon.sprite = v.icon; c.icon.enabled = v.icon != null; }
+            SetText(c.name, v.name);
+            for (int k = 0; k < 2; k++) if (c.chips[k] != null) c.chips[k].SetActive(false);
+            SetText(c.abilityName, "");
+            if (c.abilityName != null) c.abilityName.gameObject.SetActive(false);
+            SetText(c.abilityText, v.body);
+            SetText(c.levelValues, "");
+            SetText(c.footerLeft, v.footerLeft ?? "");
+            SetText(c.footerRight, v.footerRight ?? "");
+        }
+        if (arrow != null && selected >= 0 && selected < CardCount && cards[selected] != null)
+            arrow.anchoredPosition = new Vector2(cards[selected].basePos.x, arrow.anchoredPosition.y);
+    }
+
+    /// <summary>[2026-11-26] 증강 파편 칸의 그림 (다음 방 카드 '사이버웨어 방' 아이콘으로 씀)</summary>
+    public Sprite ShardIcon
+    {
+        get
+        {
+            var box = shardCount != null ? shardCount.transform.parent : (Find("ShardBox"));
+            var img = box != null ? box.Find("Icon")?.GetComponent<Image>() : null;
+            return img != null ? img.sprite : null;
+        }
+    }
 }

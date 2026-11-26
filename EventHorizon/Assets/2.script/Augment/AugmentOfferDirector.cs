@@ -49,7 +49,8 @@ public class AugmentOfferDirector : MonoBehaviour
     public KeyCode testRoomKey = KeyCode.F8;
     public GameObject augmentTestRoom;
 
-    readonly Queue<bool> pending = new Queue<bool>();   // true = 보스 보상
+    enum Req { Room, Boss, Stat }   // [2026-11-26] Stat = 스탯 방 (문 선택에서 고른 보상)
+    readonly Queue<Req> pending = new Queue<Req>();
     readonly HashSet<GameObject> offeredRooms = new HashSet<GameObject>();
     Coroutine runner;
 
@@ -87,17 +88,18 @@ public class AugmentOfferDirector : MonoBehaviour
     /// <summary>[2026-11-21] 튜토리얼 증강 체험 구간에서 (전투방 입장과 같은 확률)</summary>
     public static void RequestTutorialOffer()
     {
-        if (Instance != null) Instance.Enqueue(false);
+        if (Instance != null) Instance.Enqueue(Req.Room);
     }
 
     /// <summary>중간보스 · 보스를 쓰러뜨렸을 때 (BossController)</summary>
     public static void RequestBossOffer()
     {
-        if (Instance != null) Instance.Enqueue(true);
+        if (Instance != null) Instance.Enqueue(Req.Boss);
     }
 
     void HandleRoomLoaded(Room room, bool isStart)
     {
+        var reward = RoomReward.Take();   // [2026-11-26] 문 선택에서 고른 보상 (어느 방이든 한 번 읽으면 사이버웨어로 돌아감)
         if (!offerOnCombatRoom || isStart || room == null) return;
         if (room.isBossRoom) return;
         if (room.GetComponent<MidBossRoomRoster>() != null) return;
@@ -105,10 +107,10 @@ public class AugmentOfferDirector : MonoBehaviour
         if (room.GetComponentInChildren<MonsterSpawner>(true) == null) return;
         if (!offeredRooms.Add(room.gameObject)) return;
         offeredRooms.RemoveWhere(r => r == null);
-        Enqueue(false);
+        Enqueue(reward == RoomRewardKind.Stat ? Req.Stat : Req.Room);
     }
 
-    void Enqueue(bool boss)
+    void Enqueue(Req boss)
     {
         pending.Enqueue(boss);
         if (runner == null) runner = StartCoroutine(Run());
@@ -121,7 +123,8 @@ public class AugmentOfferDirector : MonoBehaviour
     {
         while (pending.Count > 0)
         {
-            bool boss = pending.Dequeue();
+            Req req = pending.Dequeue();
+            bool boss = req == Req.Boss;
             if (boss)
             {
                 // [2026-11-25] 슬로우모션이 다 끝난 다음부터 bossOfferDelay 초 뒤에 연다 (예전: 처치 순간부터 셌음 → 슬로우 끝나자마자 열림)
@@ -132,7 +135,7 @@ public class AugmentOfferDirector : MonoBehaviour
             else yield return new WaitForSecondsRealtime(roomOfferDelay);
             while (!Free()) yield return null;
             if (window == null) break;
-            waitingWindow = window.Offer(boss);
+            waitingWindow = req == Req.Stat ? StatCardOffer.Open(window) : window.Offer(boss);
             while (waitingWindow && window != null && window.IsOpen) yield return null;
             waitingWindow = false;
         }

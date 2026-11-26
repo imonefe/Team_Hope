@@ -100,6 +100,7 @@ public abstract class ShopWindow : MonoBehaviour
     protected virtual void Update()
     {
         if (!IsOpen) return;
+        if (ItemSwapWindow.BlocksInput) return;   // [2026-11-26] 교체 창이 위에 떠 있으면 Esc 등은 그 창이 먼저
         // [2026-11-25] 상점 키보드 조작(고르기 · 사기 · 새로고침 · 탭 · 닫기)에도 버튼 클릭 소리
         if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)
             || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)

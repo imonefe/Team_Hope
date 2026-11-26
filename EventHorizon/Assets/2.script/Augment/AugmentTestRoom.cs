@@ -96,6 +96,9 @@ public class AugmentTestRoom : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) ClearCollected(true);
             return;
         }
+        // [2026-11-26] Ctrl + 숫자는 테스트 마스터 키 — 여기 숫자 키와 같이 돌던 문제 막음
+        //  (예: Ctrl+4 체력 10 피해를 누르면 여기 4 "방 정리"도 같이 돌아 비상식량 · 과부하 3 회복이 피해보다 많았음)
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) return;
         if (Input.GetKeyDown(KeyCode.Alpha1)) Step(+1);
         if (Input.GetKeyDown(KeyCode.Alpha2)) SpawnMonsters();
         if (Input.GetKeyDown(KeyCode.Alpha3)) ToggleHp();

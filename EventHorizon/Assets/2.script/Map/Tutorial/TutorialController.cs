@@ -132,8 +132,10 @@ public class TutorialController : MonoBehaviour
     bool skillUsed;   // [2026-11-18] SkillAndPause 용 (스킬을 썼는지)
     bool attackDone;  // [2026-11-21] AttackSkillPause 용 (허수아비를 다 때렸는지)
     int phase;        // [2026-11-21] CombatBasics 진행 단계 0 공격 · 1 스킬 · 2 무기 교체 · 3 퍼즈 켜기 · 4 퍼즈 중 · 5 증강 고르기 · 6 인벤토리 열기 · 7 인벤토리 안 키워드 설명 [2026-11-25]
-    Tween keywordPulse;   // [2026-11-25] 7단계: 인벤토리 키워드 줄 깜빡임
-    Transform pulseTarget; Vector3 pulseBaseScale;
+    Sequence keywordPulse;   // [2026-11-25] 7단계: 인벤토리 키워드 아이콘 깜빡임
+    // [2026-11-26] 줄 전체 → 키워드 아이콘 하나하나가 각자 제자리에서 커졌다 작아짐
+    readonly List<Transform> pulseTargets = new List<Transform>();
+    readonly List<Vector3> pulseBaseScales = new List<Vector3>();
     Stats watchedDummy;
     PlayerController player;
     bool waitingStart;   // [2026-11-18] 시작 영역에 들어오기 전 (안내 숨김 · 조건 검사 안 함)
@@ -272,10 +274,18 @@ public class TutorialController : MonoBehaviour
             var col = FindObjectOfType<InventoryKeywordColumn>();
             if (col != null)
             {
-                pulseTarget = col.transform; pulseBaseScale = pulseTarget.localScale;
-                keywordPulse = pulseTarget.DOScale(pulseBaseScale * 1.08f, 0.45f)
-                    .SetEase(Ease.InOutSine).SetLoops(4, LoopType.Yoyo).SetUpdate(true)   // [2026-11-25] 두 번만 커졌다 작아짐
-                    .OnComplete(StopKeywordPulse);
+                // 칸(Keyword_○○)의 기준점은 왼쪽 위라서, 가운데 기준인 안쪽 Icon 을 키운다
+                keywordPulse = DOTween.Sequence().SetUpdate(true);
+                foreach (Transform cell in col.transform)
+                {
+                    if (!cell.gameObject.activeSelf) continue;   // 꺼 둔 견본 칸 제외
+                    Transform icon = cell.Find("Icon");
+                    if (icon == null) icon = cell;
+                    pulseTargets.Add(icon); pulseBaseScales.Add(icon.localScale);
+                    keywordPulse.Join(icon.DOScale(icon.localScale * 1.15f, 0.45f)
+                        .SetEase(Ease.InOutSine).SetLoops(4, LoopType.Yoyo));   // [2026-11-25] 두 번만 커졌다 작아짐
+                }
+                keywordPulse.OnComplete(StopKeywordPulse);
             }
         }
     }
@@ -284,7 +294,9 @@ public class TutorialController : MonoBehaviour
     void StopKeywordPulse()
     {
         if (keywordPulse != null) { keywordPulse.Kill(); keywordPulse = null; }
-        if (pulseTarget != null) { pulseTarget.localScale = pulseBaseScale; pulseTarget = null; }
+        for (int i = 0; i < pulseTargets.Count; i++)
+            if (pulseTargets[i] != null) pulseTargets[i].localScale = pulseBaseScales[i];
+        pulseTargets.Clear(); pulseBaseScales.Clear();
     }
 
     bool SkillPressed() =>

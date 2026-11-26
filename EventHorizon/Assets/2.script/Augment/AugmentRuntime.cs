@@ -24,8 +24,8 @@ public partial class AugmentRuntime : MonoBehaviour
     public static readonly Color OverheatColor = new Color(0.91f, 0.33f, 0.16f, 1f);
     /// <summary>과열 폭발 계열이 쓰는 기준 (상한 없음 · 5스택 이상)</summary>
     public const int OverheatBurst = 5;
-    public static float OverheatDuration => Instance != null && Instance.Kw(AugmentKeyword.Overheat) >= 3 ? 6f : 4f;
-    public static int FractureMax => Instance != null && Instance.Kw(AugmentKeyword.Fracture) >= 3 ? 4 : 3;
+    public static float OverheatDuration => Instance != null && Instance.Kw(AugmentKeyword.Overheat) >= AugmentRules.Stage2 ? 6f : 4f;
+    public static int FractureMax => Instance != null && Instance.Kw(AugmentKeyword.Fracture) >= AugmentRules.Stage2 ? 4 : 3;
     /// <summary>[2026-11-23] 탈취 데이터 최대치 (설명 글의 %M데이터% 자리)</summary>
     public static int DataMax => Instance != null ? Instance.FragmentMax : 3;
     public static float FractureDuration => 6f;
@@ -236,9 +236,9 @@ public partial class AugmentRuntime : MonoBehaviour
             }
 
         // 키워드로 정해지는 값
-        CombatEvents.PauseGaugeMultiplier = Kw(AugmentKeyword.Stasis) >= 1 ? 1.1f : 1f;
-        CombatEvents.PauseDurationBonus = Kw(AugmentKeyword.Stasis) >= 5 ? 1f : 0f;
-        CombatEvents.PauseCritBonus = Kw(AugmentKeyword.Stasis) >= 5 ? 0.2f : 0f;
+        CombatEvents.PauseGaugeMultiplier = Kw(AugmentKeyword.Stasis) >= AugmentRules.Stage1 ? 1.1f : 1f;
+        CombatEvents.PauseDurationBonus = Kw(AugmentKeyword.Stasis) >= AugmentRules.Stage3 ? 1f : 0f;
+        CombatEvents.PauseCritBonus = Kw(AugmentKeyword.Stasis) >= AugmentRules.Stage3 ? 0.2f : 0f;
         CombatEvents.DashExtraInvuln = 0f;   // [2026-11-21] 잔상 1개 효과는 '대시하면 잔상'으로 바뀜
         RefreshAdvancedModifiers();
         while (fragments > FragmentMax) RemoveFragmentAt(fragments - 1);
@@ -280,6 +280,11 @@ public partial class AugmentRuntime : MonoBehaviour
 
     bool Has(string ability) => owned.Contains(ability);
 
+    // [2026-11-26] 기획 B-3: 일반 등급 고유 능력은 연출을 조용하게 (AugmentFx 조용한 연출 참고)
+    bool IsCommon(string ability) => owned.Contains(ability) && byAbility.TryGetValue(ability, out var d) && d != null && d.tier == ItemTier.Common;
+    /// <summary>using (QuietIf("능력")) { 연출 } — 그 능력이 일반 등급이면 안의 연출이 옅고 작아지고 꾸밈은 빠짐</summary>
+    AugmentFx.QuietScope QuietIf(string ability) => AugmentFx.Hush(IsCommon(ability));
+
     static float ByLevel(int lv, float a, float b, float c) => lv >= 3 ? c : lv == 2 ? b : a;
 
     // ══════════════ 공용 도우미 ══════════════
@@ -292,7 +297,7 @@ public partial class AugmentRuntime : MonoBehaviour
         return s;
     }
 
-    float ExecuteThreshold => 0.30f + (Kw(AugmentKeyword.Execute) >= 3 ? 0.05f : 0f) + ScaleThresholdBonus();
+    float ExecuteThreshold => 0.30f + (Kw(AugmentKeyword.Execute) >= AugmentRules.Stage2 ? 0.05f : 0f) + ScaleThresholdBonus();
 
     bool IsExecuteTarget(Health h)
     {
@@ -520,8 +525,8 @@ public partial class AugmentRuntime : MonoBehaviour
         }
         // 연격 카운터 · 연격 5개 · 조준 고정
         float spd = 1f + (L("연격 카운터") > 0 ? combo * ByLevel(L("연격 카운터"), 0.02f, 0.03f, 0.04f) : 0f);
-        if (Kw(AugmentKeyword.Combo) >= 5) spd += 0.25f;                   // [2026-11-25] 연격 5: 공격 속도 + 25% (상시)
-        if (Kw(AugmentKeyword.Combo) >= 5 && combo >= 10) spd += 0.30f;
+        if (Kw(AugmentKeyword.Combo) >= AugmentRules.Stage3) spd += 0.25f;                   // [2026-11-25] 연격 5: 공격 속도 + 25% (상시)
+        if (Kw(AugmentKeyword.Combo) >= AugmentRules.Stage3 && combo >= 10) spd += 0.30f;
         CombatEvents.AttackSpeedMultiplier = spd;
         // [2026-11-21 수정] 조준 고정: 연격 5 · 10 에서 평타 판정 · 무기 궤적 · 투사체가 단계적으로 커짐 (눈에 보이게)
         int lvAim = L("조준 고정");
@@ -594,7 +599,7 @@ public partial class AugmentRuntime : MonoBehaviour
             float r = ByLevel(lvTaunt, 4f, 5f, 6f);
             tauntPulse -= Time.deltaTime;
             bool pulseNow = tauntPulse <= 0f;
-            if (pulseNow) { tauntPulse = 0.9f; AugmentFx.Ripple(PFeet, CPlunder, r, 0.9f, 0.03f, 2, 0.4f); }   // 파문: 밖으로 갈수록 옅고 굵게
+            if (pulseNow) { tauntPulse = 0.9f; using (QuietIf("통신_도발")) AugmentFx.Ripple(PFeet, CPlunder, r, 0.9f, 0.03f, 2, 0.4f); }   // 파문: 밖으로 갈수록 옅고 굵게
             foreach (var h in EnemiesIn(PPos, r))
             {
                 if (IsBoss(h)) continue;
@@ -617,12 +622,12 @@ public partial class AugmentRuntime : MonoBehaviour
         // 스택 백업: 끊기기 직전 스택 저장
         comboTurretUsed = false;   // [2026-11-25] 조준 터렛: 연격이 끊기면 다시 소환 가능
         if (TryBackupCombo(before)) { combo = 0; comboTimer = ComboWindow; return; }
-        combo = Kw(AugmentKeyword.Combo) >= 3 ? combo / 2 : 0;
+        combo = Kw(AugmentKeyword.Combo) >= AugmentRules.Stage2 ? combo / 2 : 0;
         comboTimer = ComboWindow;
     }
 
-    float ComboWindow => (GauntletRhythm() ? 4f : 2f) + (Kw(AugmentKeyword.Combo) >= 1 ? 0.5f : 0f);
-    int FragmentMax => (Kw(AugmentKeyword.Plunder) >= 3 ? 5 : 3) + (Has("보급 우선권") ? 1 : 0);
+    float ComboWindow => (GauntletRhythm() ? 4f : 2f) + (Kw(AugmentKeyword.Combo) >= AugmentRules.Stage1 ? 0.5f : 0f);
+    int FragmentMax => (Kw(AugmentKeyword.Plunder) >= AugmentRules.Stage2 ? 5 : 3) + (Has("보급 우선권") ? 1 : 0);
 
     void AddCombo(int n, Vector3 from)
     {
@@ -710,7 +715,7 @@ public partial class AugmentRuntime : MonoBehaviour
         for (int i = Mathf.Min(fragments, fragTimes.Count) - 1; i >= 0; i--) if (fragTimes[i] < before) { idx = i; break; }
         if (idx < 0) return -1;
         int kind = idx < fragKinds.Count ? fragKinds[idx] : 0;
-        bool keep = Kw(AugmentKeyword.Plunder) >= 5 && Random.value < 0.5f;
+        bool keep = Kw(AugmentKeyword.Plunder) >= AugmentRules.Stage3 && Random.value < 0.5f;
         if (!keep) RemoveFragmentAt(idx);
         if (pc != null) AugmentFx.Sparks(PHead, CPlunder, 5, 2f, 0.3f, 2f, 0.12f);
         OnFragmentUsed(kind);
@@ -732,12 +737,12 @@ public partial class AugmentRuntime : MonoBehaviour
         if (st != null && st.fracture > 0)
         {
             mult += 0.05f * st.fracture;
-            if (Kw(AugmentKeyword.Fracture) >= 5 && st.IsMaxFracture) mult += 0.20f;
+            if (Kw(AugmentKeyword.Fracture) >= AugmentRules.Stage3 && st.IsMaxFracture) mult += 0.20f;
         }
         bool exec = IsExecuteTarget(target);
         if (exec)
         {
-            if (Kw(AugmentKeyword.Execute) >= 1) mult += 0.05f;
+            if (Kw(AugmentKeyword.Execute) >= AugmentRules.Stage1) mult += 0.05f;
             int lv = L("처형 프로토콜");
             if (lv > 0) mult += ByLevel(lv, 0.20f, 0.30f, 0.40f);
         }
@@ -746,7 +751,7 @@ public partial class AugmentRuntime : MonoBehaviour
         float hpRatio = PStats != null && pstats.maxHp > 0 ? (float)pstats.currentHp / pstats.maxHp : 1f;
         int lvFuse = L("과부하 퓨즈");
         if (lvFuse > 0 && hpRatio <= 0.5f) mult += ByLevel(lvFuse, 0.15f, 0.22f, 0.30f);
-        if (Kw(AugmentKeyword.Overload) >= 5 && hpRatio <= 0.25f) mult += 0.25f;
+        if (Kw(AugmentKeyword.Overload) >= AugmentRules.Stage3 && hpRatio <= 0.25f) mult += 0.25f;
 
         if (nextAttackBonus > 0f && !CombatEvents.AbilityDamageInProgress) { mult += nextAttackBonus; nextAttackBonus = 0f; }
         mult += AdvancedOutgoing(target, crit, exec);
@@ -758,7 +763,7 @@ public partial class AugmentRuntime : MonoBehaviour
         RefreshPlayer();
         if (pstats == null) return dmg;
         float hpRatio = pstats.maxHp > 0 ? (float)pstats.currentHp / pstats.maxHp : 1f;
-        if (Kw(AugmentKeyword.Overload) >= 1 && hpRatio <= 0.5f) dmg = Mathf.RoundToInt(dmg * 0.95f);
+        if (Kw(AugmentKeyword.Overload) >= AugmentRules.Stage1 && hpRatio <= 0.5f) dmg = Mathf.RoundToInt(dmg * 0.95f);
         return AdvancedIncoming(dmg);
     }
 
@@ -804,7 +809,7 @@ public partial class AugmentRuntime : MonoBehaviour
                     // 무기 끝 노란 별빛 (치명타가 나갈 때까지 반짝임)
                     if (pc != null && critSpark == null)
                     {
-                        critSpark = AugmentFx.Orb(PCenter, CCombo, 0.22f);
+                        using (QuietIf("예측 연산")) critSpark = AugmentFx.Orb(PCenter, CCombo, 0.22f);
                         var f = critSpark.AddComponent<FxFollow>(); f.target = pc.transform; f.offset = (PCenter - PPos) + new Vector3(0.75f * PFacing, 0f, -0.5f);
                     }
                 }
@@ -812,20 +817,23 @@ public partial class AugmentRuntime : MonoBehaviour
             if (critSpark != null) { var f = critSpark.GetComponent<FxFollow>(); if (f != null) f.offset = (PCenter - PPos) + new Vector3(0.75f * PFacing, 0f, -0.5f); }
 
             // 과열
-            if (Kw(AugmentKeyword.Overheat) >= 1 && Random.value < 0.10f) st.AddOverheat(1);
+            if (Kw(AugmentKeyword.Overheat) >= AugmentRules.Stage1 && Random.value < 0.10f) st.AddOverheat(1);
             int lvCoil = L("예열 코일");
             if (lvCoil > 0 && Random.value < ByLevel(lvCoil, 0.35f, 0.52f, 0.70f)) st.AddOverheat(1);   // [2026-11-21] 25 → 35%
 
             // 균열
-            if (Kw(AugmentKeyword.Fracture) >= 1 && hi.isCrit) st.AddFracture(1);
+            if (Kw(AugmentKeyword.Fracture) >= AugmentRules.Stage1 && hi.isCrit) st.AddFracture(1);
             int lvProbe = L("균열 탐침");
             if (lvProbe > 0 && Time.time - st.lastProbe >= ByLevel(lvProbe, 0.5f, 0.35f, 0.25f)) { st.lastProbe = Time.time; st.AddFracture(1); }
             int lvSleep = L("잠재우기");
             if (lvSleep > 0 && ++st.hitCounter % 3 == 0)
             {
                 st.AddFracture(2); Stagger(hi.target);
-                StunEnemy(hi.target, ByLevel(lvSleep, 0.4f, 0.6f, 0.8f), CFracture);
-                AugmentFx.Ring(EC(hi.target), CFracture, 1.1f, 0.3f, 0.07f);
+                using (QuietIf("잠재우기"))
+                {
+                    StunEnemy(hi.target, ByLevel(lvSleep, 0.4f, 0.6f, 0.8f), CFracture);
+                    AugmentFx.Ring(EC(hi.target), CFracture, 1.1f, 0.3f, 0.07f);
+                }
             }
 
             // 설득: 탈취 데이터를 실은 공격 → 크게 날리고, 날아간 적이 다른 적과 부딪치면 둘 다 피해
@@ -840,7 +848,7 @@ public partial class AugmentRuntime : MonoBehaviour
             if (paused && L("멈춘 칼자국") > 0 && pauseMarks.Count < 6)
             {
                 pauseMarks.Add(hi.position);
-                pauseMarkFx.Add(SheathMark(hi.position, Random.Range(-35f, 35f) + (PFacing < 0 ? 180f : 0f)));   // [2026-11-25] 공격용 참격 → 푸른 피격 참격(sword_hit 색 바꿈)이 멈춰 남음
+                using (QuietIf("멈춘 칼자국")) pauseMarkFx.Add(SheathMark(hi.position, Random.Range(-35f, 35f) + (PFacing < 0 ? 180f : 0f)));   // [2026-11-25] 공격용 참격 → 푸른 피격 참격(sword_hit 색 바꿈)이 멈춰 남음
             }
 
             AdvancedOnHit(hi, st, paused);
@@ -860,7 +868,8 @@ public partial class AugmentRuntime : MonoBehaviour
         var en = target.GetComponent<Enemy>();
         if (en != null) en.Fling(new Vector2(dir * 16f, 5f), 0.6f);
         else if (rb != null) rb.velocity = new Vector2(dir * 16f, 5f);
-        AugmentFx.BodyFlash(target, CPlunder, 0.8f, 0.6f);
+        bool quiet = IsCommon("설득");   // [2026-11-26] 조용한 연출 — 코루틴이라 yield 를 감싸지 않고 부를 때마다 감쌈
+        using (AugmentFx.Hush(quiet)) AugmentFx.BodyFlash(target, CPlunder, 0.8f, 0.6f);
         float end = Time.time + 0.6f;
         // [2026-11-25] 날아가는 연출: 초록 빛줄 → 방출 상태 플레이어 연출(잔상 + 등 뒤 세모 파편)과 같은 방식, 색만 회색
         var esprite = target.GetComponentInChildren<SpriteRenderer>();
@@ -868,8 +877,9 @@ public partial class AugmentRuntime : MonoBehaviour
         while (Time.time < end && target != null && !target.IsDead)
         {
             ghostT -= Time.deltaTime; shardT -= Time.deltaTime;
-            if (ghostT <= 0f && esprite != null) { ghostT = 0.08f; AugmentFx.Ghost(esprite, PersuadeGray, 0.35f, 0.5f); }
+            if (ghostT <= 0f && esprite != null) { ghostT = 0.08f; using (AugmentFx.Hush(quiet)) AugmentFx.Ghost(esprite, PersuadeGray, 0.35f, 0.5f); }
             if (shardT <= 0f)
+            using (AugmentFx.Hush(quiet))
             {
                 shardT = 0.05f;
                 var col = target.GetComponent<Collider2D>();
@@ -887,7 +897,7 @@ public partial class AugmentRuntime : MonoBehaviour
                 if (other == target) continue;
                 AbilityHit(other, ratio, target.transform.position, 4f, 2f);
                 AbilityHit(target, ratio, other.transform.position, 1f, 1f);
-                AugmentFx.Burst((EC(target) + EC(other)) * 0.5f, CPlunder, 0.6f);
+                using (AugmentFx.Hush(quiet)) AugmentFx.Burst((EC(target) + EC(other)) * 0.5f, CPlunder, 0.6f);
                 yield break;
             }
             yield return null;
@@ -903,7 +913,7 @@ public partial class AugmentRuntime : MonoBehaviour
         bool executed = st != null && st.lastHitWasExecute;
 
         // 과열 5개: 최대 스택인 적이 쓰러지면 폭발
-        if ((Kw(AugmentKeyword.Overheat) >= 5 || Has("붕괴 탄두")) && maxHeat) Explode(EFeet(h), 2f, 1.0f);   // [2026-11-21] 혈청 주입기도 이 폭발을 일으킴
+        if ((Kw(AugmentKeyword.Overheat) >= AugmentRules.Stage3 || Has("붕괴 탄두")) && maxHeat) Explode(EFeet(h), 2f, 1.0f);   // [2026-11-21] 혈청 주입기도 이 폭발을 일으킴
 
         // 남은 불씨: 과열된 적 처치 → 가장 가까운 적에게 불씨가 튐 (주황 빛줄)
         int lvEmber = L("남은 불씨");
@@ -913,10 +923,12 @@ public partial class AugmentRuntime : MonoBehaviour
             if (best != null)
             {
                 var target = best;
+                bool quiet = IsCommon("남은 불씨");
                 // 불씨가 곡선으로 날아가 맞은 적에 과열
+                using (AugmentFx.Hush(quiet))
                 AugmentFx.Fly(EC(h), best.transform, OverheatColor, 1, 0.4f, () =>
                 {
-                    if (target != null && !target.IsDead) { StatusOf(target).AddOverheat((int)ByLevel(lvEmber, 2, 3, 4)); AugmentFx.Sparks(EC(target), OverheatColor, 8, 3f, 0.35f); }
+                    if (target != null && !target.IsDead) { StatusOf(target).AddOverheat((int)ByLevel(lvEmber, 2, 3, 4)); using (AugmentFx.Hush(quiet)) AugmentFx.Sparks(EC(target), OverheatColor, 8, 3f, 0.35f); }
                 }, 0.24f, false);
             }
         }
@@ -924,12 +936,12 @@ public partial class AugmentRuntime : MonoBehaviour
         // 처형
         if (executed)
         {
-            if (Kw(AugmentKeyword.Execute) >= 5) PauseManager.Instance?.AddGauge(10f);
+            if (Kw(AugmentKeyword.Execute) >= AugmentRules.Stage3) PauseManager.Instance?.AddGauge(10f);
             int lvNext = L("다음 표적");
             if (lvNext > 0 && pstats != null)
             {
                 nextAttackBonus = Mathf.Max(nextAttackBonus, ByLevel(lvNext, 0.30f, 0.45f, 0.60f));
-                StartCoroutine(SpeedBuff(2f, 1.2f, CExec));
+                using (QuietIf("다음 표적")) StartCoroutine(SpeedBuff(2f, 1.2f, CExec));
                 BuffIcon("다음 표적", 2f);
             }
         }
@@ -937,7 +949,7 @@ public partial class AugmentRuntime : MonoBehaviour
         // 탈취 데이터
         // [2026-11-21] 강탈 키워드가 있으면 처치마다 1개 (예전 20% 확률로는 거의 안 쌓였음), 기억 갈고리는 1개 더
         int got = 0;
-        if (Kw(AugmentKeyword.Plunder) >= 1) got++;
+        if (Kw(AugmentKeyword.Plunder) >= AugmentRules.Stage1) got++;
         if (L("기억 갈고리") > 0) got++;
         if (got > 0) AddFragment(got, EC(h), 0);
 
@@ -948,6 +960,7 @@ public partial class AugmentRuntime : MonoBehaviour
     /// <summary>이동 속도 버프 — 그동안 헤네시 몸이 색으로 맥동</summary>
     IEnumerator SpeedBuff(float seconds, float mult, Color c)
     {
+        bool quiet = AugmentFx.Quiet;   // [2026-11-26] 부른 순간의 조용한 연출 여부
         var s = pstats;
         if (s == null) yield break;
         object key = new object();
@@ -955,7 +968,7 @@ public partial class AugmentRuntime : MonoBehaviour
         float end = Time.time + seconds;
         while (Time.time < end)
         {
-            if (pc != null) AugmentFx.BodyFlash(pc, c, 0.45f, 0.2f);
+            if (pc != null) using (AugmentFx.Hush(quiet)) AugmentFx.BodyFlash(pc, c, 0.45f, 0.2f);
             yield return new WaitForSeconds(0.25f);
         }
         if (s != null) s.RemoveSpeedModifier(key);
@@ -983,7 +996,7 @@ public partial class AugmentRuntime : MonoBehaviour
 
     void OnDashStart(Vector3 pos, float dir)
     {
-        float extra = Kw(AugmentKeyword.Afterimage) >= 3 ? 1f : 0f;
+        float extra = Kw(AugmentKeyword.Afterimage) >= AugmentRules.Stage2 ? 1f : 0f;
         int lvCloak = L("잔상 발생기");
         float ratio = lvCloak > 0 ? ByLevel(lvCloak, 0.6f, 0.9f, 1.2f) : 0.6f;
         // [2026-11-21] 잔상 키워드가 있으면 대시 출발 자리에 기본 잔상 (1초 · 공격력 40%) — 잔상 증강이 스텔스 우의 없이도 돌아감
@@ -991,12 +1004,12 @@ public partial class AugmentRuntime : MonoBehaviour
         // [2026-11-22] 스텔스 우의도 다른 잔상과 같은 푸른빛 (나타날 때 푸른 폭발)
         // [2026-11-22] 이번 대시에 고장난 비서 홀로그램이 같은 자리에 서면 잔상 그림은 그리지 않음 (두 그림이 겹쳐 지저분하던 문제) — 피해는 그대로
         bool drawGhost = !SecretaryWillSpawn();
-        if (lvCloak > 0) SpawnAfterimage(pos, 1.5f + extra, ratio, CAfter, true, drawGhost);
-        else if (Kw(AugmentKeyword.Afterimage) >= 1) SpawnAfterimage(pos, 1f + extra, 0.4f, CAfter, false, drawGhost);
+        if (lvCloak > 0) using (QuietIf("잔상 발생기")) SpawnAfterimage(pos, 1.5f + extra, ratio, CAfter, true, drawGhost);
+        else if (Kw(AugmentKeyword.Afterimage) >= AugmentRules.Stage1) SpawnAfterimage(pos, 1f + extra, 0.4f, CAfter, false, drawGhost);
         lastDashTime = Time.time;
 
         // 가스 분사: 대시하는 자리에 작은 붉은 폭발
-        if (L("가스 분사") > 0) AugmentFx.Burst(DashFx(pos), GasColor, 0.45f, 1.4f);
+        if (L("가스 분사") > 0) using (QuietIf("가스 분사")) AugmentFx.Burst(DashFx(pos), GasColor, 0.45f, 1.4f);
 
         // 기억 갈고리: 데이터 하나를 써서 대시 경로를 꿰뚫음 — 청록 잔상이 빠르게 지워지며 이어붙는 대시 잔상
         int lvHook = L("기억 갈고리");
@@ -1006,7 +1019,7 @@ public partial class AugmentRuntime : MonoBehaviour
             pierceUntil = Time.time + 0.3f;
             pierceRatio = ByLevel(lvHook, 0.10f, 0.30f, 0.50f);
             pierced.Clear();
-            AugmentFx.GhostTrail(psprite, CTeal, 0.3f, 0.025f, 0.2f, 0.7f);
+            using (QuietIf("기억 갈고리")) AugmentFx.GhostTrail(psprite, CTeal, 0.3f, 0.025f, 0.2f, 0.7f);
         }
 
         AdvancedOnDashStart(pos, dir);
@@ -1020,7 +1033,7 @@ public partial class AugmentRuntime : MonoBehaviour
     void OnDashEnd(Vector3 pos)
     {
         int lvGas = L("가스 분사");
-        if (lvGas > 0) StartCoroutine(GasCloud(pos, ByLevel(lvGas, 2f, 3f, 4f)));
+        if (lvGas > 0) using (QuietIf("가스 분사")) StartCoroutine(GasCloud(pos, ByLevel(lvGas, 2f, 3f, 4f)));   // 연기는 yield 전에 만들어짐
         AdvancedOnDashEnd(pos);
         Keyword5OnDashEnd(pos);   // [2026-11-25] 과열 5: 대시한 길에 불길
     }
@@ -1067,6 +1080,7 @@ public partial class AugmentRuntime : MonoBehaviour
     IEnumerator Afterimage(Vector3 pos, float life, float ratio, bool canSplit, Color color, bool burst, bool drawGhost = true)
     {
         afterimagesAlive++;
+        bool quiet = AugmentFx.Quiet;   // [2026-11-26] 부른 순간의 조용한 연출 여부
         var ghost = drawGhost ? AugmentFx.Ghost(psprite, color, life, 0.75f, false, psprite != null ? (Vector3?)(psprite.transform.position + (pos - PPos)) : null) : null;
         Vector3 center = pos + (PCenter - PPos);
         if (burst) AugmentFx.Burst(center, color, 0.55f, 1.2f);   // 스텔스 우의: 잔상이 나타날 때 폭발 (잔상 색 = 무채색 흰·회색, 2026-11-23)
@@ -1078,11 +1092,11 @@ public partial class AugmentRuntime : MonoBehaviour
             {
                 if (!hitSet.Add(e)) continue;
                 AbilityHit(e, ratio, pos, 2f, 1f);
-                AugmentFx.Sparks(EC(e), color, 6, 3.5f, 0.25f, 0f, 0.13f);
+                using (AugmentFx.Hush(quiet)) AugmentFx.Sparks(EC(e), color, 6, 3.5f, 0.25f, 0f, 0.13f);
                 OnAfterimageHit(e, ghost != null ? ghost.transform : null);
                 // 잔상 5개: 잔상이 적을 맞히면 잔상 하나 더 (동시에 최대 3)
-                if (canSplit && Kw(AugmentKeyword.Afterimage) >= 5 && afterimagesAlive < 3)
-                    StartCoroutine(Afterimage(EFeet(e) + (PPos - PFeet) + new Vector3(Random.Range(-1f, 1f), 0f, 0f), 1.5f, ratio, false, color, burst, true));
+                if (canSplit && Kw(AugmentKeyword.Afterimage) >= AugmentRules.Stage3 && afterimagesAlive < 3)
+                    using (AugmentFx.Hush(quiet)) StartCoroutine(Afterimage(EFeet(e) + (PPos - PFeet) + new Vector3(Random.Range(-1f, 1f), 0f, 0f), 1.5f, ratio, false, color, burst, true));
             }
             yield return new WaitForSeconds(0.1f);
         }
@@ -1112,7 +1126,7 @@ public partial class AugmentRuntime : MonoBehaviour
             float ratio = ByLevel(lvSheath, 0.5f, 0.75f, 1.0f);
             foreach (var p in pauseMarks)
             {
-                AugmentFx.Burst(p, new Color(0.45f, 0.7f, 1f), 0.5f);
+                using (QuietIf("멈춘 칼자국")) AugmentFx.Burst(p, new Color(0.45f, 0.7f, 1f), 0.5f);
                 foreach (var e in EnemiesIn(p, 1.0f)) AbilityHit(e, ratio, p, 2f, 1f);
             }
             pauseMarks.Clear();
@@ -1121,7 +1135,7 @@ public partial class AugmentRuntime : MonoBehaviour
         }
 
         // 정지 3개: 화면 안 일반 적 경직 (파란 파동)
-        if (Kw(AugmentKeyword.Stasis) >= 3 && Camera.main != null)
+        if (Kw(AugmentKeyword.Stasis) >= AugmentRules.Stage2 && Camera.main != null)
         {
             if (pc != null) AugmentFx.Ring(PCenter, CStasis, 9f, 0.5f, 0.1f);
             foreach (var e in FindObjectsOfType<Enemy>())
@@ -1153,8 +1167,8 @@ public partial class AugmentRuntime : MonoBehaviour
             bool low = pstats.currentHp <= pstats.maxHp * 0.5f;
             heal += Mathf.RoundToInt(pstats.maxHp * (low ? ByLevel(lvCan, 0.08f, 0.11f, 0.15f) : 0.03f));   // [2026-11-25] 회복 축소 (회복 구가 계속 필요하게)
         }
-        if (Kw(AugmentKeyword.Overload) >= 3) heal += Mathf.RoundToInt(lostThisRoom * 0.1f);   // [2026-11-25] 20% → 10%
-        if (heal > 0) HealPlayer(heal, HealGreen);
+        if (Kw(AugmentKeyword.Overload) >= AugmentRules.Stage2) heal += Mathf.RoundToInt(lostThisRoom * 0.1f);   // [2026-11-25] 20% → 10%
+        if (heal > 0) using (AugmentFx.Hush(lvCan > 0 && IsCommon("비상식량") && Kw(AugmentKeyword.Overload) < AugmentRules.Stage2)) HealPlayer(heal, HealGreen);
         lostThisRoom = 0;
         AdvancedOnRoomCleared(room);
     }
@@ -1188,27 +1202,34 @@ public partial class AugmentRuntime : MonoBehaviour
     float organOrbReady;
     void StartOrganRegen(int lvOrgan)
     {
-        StartCoroutine(OrganRegen(ByLevel(lvOrgan, 0.01f, 0.015f, 0.02f)));   // [2026-11-25] 회복 축소
+        bool quiet = IsCommon("비상 이식");
+        StartCoroutine(OrganRegen(ByLevel(lvOrgan, 0.01f, 0.015f, 0.02f), quiet));   // [2026-11-25] 회복 축소
         BuffIcon("비상 이식", 5f);
-        AugmentFx.ScreenPulse(0.25f, 0.2f);
-        if (pc != null) AugmentFx.Ring(PCenter, COverload, 2f, 0.4f, 0.1f, 2);
+        using (AugmentFx.Hush(quiet))
+        {
+            AugmentFx.ScreenPulse(0.25f, 0.2f);
+            if (pc != null) AugmentFx.Ring(PCenter, COverload, 2f, 0.4f, 0.1f, 2);
+        }
     }
 
-    IEnumerator OrganRegen(float perSecond)
+    IEnumerator OrganRegen(float perSecond, bool quiet = false)
     {
         organRegenRunning = true;
-        yield return Regen(5f, perSecond);
+        yield return Regen(5f, perSecond, quiet);
         organRegenRunning = false;
     }
 
-    IEnumerator Regen(float seconds, float perSecond)
+    IEnumerator Regen(float seconds, float perSecond, bool quiet = false)
     {
         for (int i = 0; i < Mathf.RoundToInt(seconds); i++)
         {
             yield return new WaitForSeconds(1f);
             if (pstats == null || pstats.currentHp <= 0) yield break;
-            if (pc != null) AugmentFx.BodyFlash(pc, COverload, 0.5f, 0.3f);
-            HealPlayer(Mathf.Max(1, Mathf.RoundToInt(pstats.maxHp * perSecond)), COverload);
+            using (AugmentFx.Hush(quiet))
+            {
+                if (pc != null) AugmentFx.BodyFlash(pc, COverload, 0.5f, 0.3f);
+                HealPlayer(Mathf.Max(1, Mathf.RoundToInt(pstats.maxHp * perSecond)), COverload);
+            }
         }
     }
 }

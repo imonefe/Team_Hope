@@ -26,6 +26,9 @@ public static class AugmentRules
 {
     public const int MaxLevel = 3;
 
+    /// <summary>[2026-11-26] 사이버웨어의 스탯 증가(StatBoostEffect)를 켤지. false = 스탯은 스탯 방 카드로만 (되돌리려면 true)</summary>
+    public const bool AugmentStatBoost = false;
+
     /// <summary>단계별 주 수치 배율</summary>
     public static float Multiplier(int level)
     {
@@ -240,8 +243,8 @@ public static class AugmentRules
             int n = counts[(int)k];
             if (sb.Length > 0) sb.Append('\n');
             sb.Append($"<color=#{KeywordHex(k)}><b>{KeywordName(k)} {n}</b></color>  ");
-            int next = n < 1 ? 1 : n < 3 ? 3 : n < 5 ? 5 : 0;
-            if (next > 0) sb.Append($"<color=#{MutedHex}>{n}/{next} · 다음</color> {KeywordTierText[(int)k, next == 1 ? 0 : next == 3 ? 1 : 2]}");
+            int next = n < Stage1 ? Stage1 : n < Stage2 ? Stage2 : n < Stage3 ? Stage3 : 0;
+            if (next > 0) sb.Append($"<color=#{MutedHex}>{n}/{next} · 다음</color> {KeywordTierText[(int)k, next == Stage1 ? 0 : next == Stage2 ? 1 : 2]}");
             else sb.Append($"<color=#{MutedHex}>최고 단계 ·</color> {KeywordTierText[(int)k, 2]}");
         }
         return sb.ToString();
@@ -271,11 +274,11 @@ public static class AugmentRules
     /// <summary>키워드 설명 팝업의 본문: 무엇인지 + 기본 기능</summary>
     public static string KeywordPopupBody(AugmentKeyword k) => KeywordBase[(int)k];   // [2026-11-23] '무엇인지' 회색 줄은 빼고 정리본만
 
-    /// <summary>키워드 설명 팝업의 아래 칸: 1 · 3 · 5개 단계 (달성한 단계는 밝게) + 이 키워드를 가진 보유 증강</summary>
+    /// <summary>키워드 설명 팝업의 아래 칸: Stage1 · 2 · 3 (3 · 4 · 5개) 단계 (달성한 단계는 밝게) + 이 키워드를 가진 보유 증강</summary>
     public static string KeywordPopupSteps(AugmentKeyword k, int count, IEnumerable<ItemData> owned)
     {
         var sb = new System.Text.StringBuilder();
-        int[] steps = { 1, 3, 5 };
+        int[] steps = { Stage1, Stage2, Stage3 };
         for (int i = 0; i < 3; i++)
         {
             bool on = count >= steps[i];
@@ -293,8 +296,13 @@ public static class AugmentRules
         return sb.ToString();
     }
 
-    /// <summary>키워드 단계 (1개 · 3개 · 5개). 0이면 아직 없음</summary>
-    public static int KeywordTier(int count) => count >= 5 ? 3 : count >= 3 ? 2 : count >= 1 ? 1 : 0;
+    // [2026-11-26] 키워드 단계 문턱: 1 · 3 · 5개 → 3 · 4 · 5개 (하나만 주워서는 단계 보너스가 켜지지 않게).
+    //  여기 세 값만 바꾸면 효과 · 설명 팝업 · 진행 줄이 모두 따라간다.
+    //  (키워드 기본 기능 — 처형 대상 표시 · 연격 쌓기 · 탈취 데이터 등 — 은 1개부터 그대로)
+    public const int Stage1 = 3, Stage2 = 4, Stage3 = 5;
+
+    /// <summary>키워드 단계 (Stage1 · Stage2 · Stage3 개). 0이면 아직 없음</summary>
+    public static int KeywordTier(int count) => count >= Stage3 ? 3 : count >= Stage2 ? 2 : count >= Stage1 ? 1 : 0;
 
     /// <summary>보유 증강들의 키워드 개수 (키워드 순서대로 8칸)</summary>
     public static int[] CountKeywords(IEnumerable<ItemData> items)

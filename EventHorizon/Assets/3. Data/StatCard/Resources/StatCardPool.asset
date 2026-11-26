@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a318ce2d9f2efc440b65b07df1d45581, type: 3}
+  m_Name: StatCardPool
+  m_EditorClassIdentifier: 
+  cards:
+  - {fileID: 11400000, guid: 4f11c3befceb89e4fb8bed12e8d64e6a, type: 2}
+  - {fileID: 11400000, guid: aa14c726496c25a498beb2b9348da3ac, type: 2}
+  - {fileID: 11400000, guid: 26997a081cf3dba46a909d52c07a7ec5, type: 2}
+  - {fileID: 11400000, guid: ce057bbd5f8e0564e8be58eac86c6976, type: 2}
+  - {fileID: 11400000, guid: 851964e3ff10e514987096162f780a5f, type: 2}
+  - {fileID: 11400000, guid: 58b2da376e42d8447bfe35285b132c6f, type: 2}
+  - {fileID: 11400000, guid: 523e13334a7e0c241808c75de339abda, type: 2}
+  - {fileID: 11400000, guid: 692eb814fe28e664ea5633e27abc643b, type: 2}
+  - {fileID: 11400000, guid: 446a6427c2e435e49b5dec9e052e3946, type: 2}
+  - {fileID: 11400000, guid: 3329d735680f303489ace76612871cfd, type: 2}
+  - {fileID: 11400000, guid: 429d9a9a881057e47bc5ec48d32d4dd9, type: 2}
+  - {fileID: 11400000, guid: 800a1b08dfae7664fb775ef604e7a15b, type: 2}
+  - {fileID: 11400000, guid: 0b072b50c84b09444bde512c62890cec, type: 2}
+  - {fileID: 11400000, guid: 3cd6008447b4e6446ade836fed0ffbc1, type: 2}
+  - {fileID: 11400000, guid: 454c7a1dae881f840bdd3c20a07ee971, type: 2}
+  - {fileID: 11400000, guid: 309becc3893675944bf95aedc1711218, type: 2}
+  - {fileID: 11400000, guid: 09fbfc7a709f87f4a86fc890b14e100d, type: 2}
+  - {fileID: 11400000, guid: 4612a17705b1380458b3ef14a9129c03, type: 2}
+  - {fileID: 11400000, guid: 98fab7f08e84799469f79cce355b33f5, type: 2}
+  - {fileID: 11400000, guid: 66ad14cf16fdda8428dab8368674a78e, type: 2}
+  odds:
+  - 60
+  - 30
+  - 10
+  tradeoffChance: 0.2
+  maxTradeoff: 1

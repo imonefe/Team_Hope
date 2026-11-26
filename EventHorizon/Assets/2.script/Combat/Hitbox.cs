@@ -234,7 +234,8 @@ public class Hitbox : MonoBehaviour
             if (byPlayer && PauseManager.Instance != null && PauseManager.Instance.IsPaused)
                 critChance = Mathf.Max(critChance, PauseManager.Instance.pauseCritChance + CombatEvents.PauseCritBonus);
             if (byPlayer) critChance += CombatEvents.ExtraCrit(target);   // [2026-11-21] 증강
-            isCrit = (byPlayer && CombatEvents.TakeForcedCrit()) || Random.value < critChance;
+            // [2026-11-26] 불리 속성으로 때리면 치명타 불가 (확정 치명타도 소모하지 않고 다음 공격으로 넘김)
+            isCrit = !Disadvantaged(attacker, targetStats) && ((byPlayer && CombatEvents.TakeForcedCrit()) || Random.value < critChance);
             if (isCrit) finalDamage = Mathf.RoundToInt(baseDamage * attacker.critMultiplier);
         }
         finalDamage = Stats.ApplyAdvantageMultiplierWithLog(finalDamage, attacker, targetStats, logTag, target.name);
@@ -254,6 +255,10 @@ public class Hitbox : MonoBehaviour
         if (byPlayer && !target.IsInvulnerable) CombatEvents.RaiseHit(target, finalDamage, isCrit, hitPos, false, CombatEvents.DirectHitSource);   // [2026-11-21] 증강
         return true;
     }
+
+    /// <summary>[2026-11-26] 공격자 속성이 대상에게 불리한지 (속성 배율이 1 미만)</summary>
+    public static bool Disadvantaged(Stats attacker, Stats target)
+        => attacker != null && target != null && Stats.GetAdvantageMultiplier(attacker.advantage, target.advantage) < 1f;
 
     /// <summary>콜라이더가 히트박스(공격 판정) 자체인지 — Hitbox/ProjectileBase/TrapTile 공용</summary>
     public static bool IsHitboxCollider(Collider2D col)
@@ -291,7 +296,9 @@ public class Hitbox : MonoBehaviour
             if (ownerLayer == "Player" && PauseManager.Instance != null && PauseManager.Instance.IsPaused)
                 critChance = Mathf.Max(critChance, PauseManager.Instance.pauseCritChance + CombatEvents.PauseCritBonus);
             if (ownerLayer == "Player") critChance += CombatEvents.ExtraCrit(target);   // [2026-11-21] 증강 (처형 대상 치명타 등)
-            isCrit = forceCrit || (ownerLayer == "Player" && CombatEvents.TakeForcedCrit()) || Random.value < critChance;   // [2026-10-31] 확정 치명타
+            // [2026-11-26] 불리 속성으로 때리면 치명타 불가 (스킬 확정 치명타 포함, 증강 확정 치명타는 소모하지 않고 다음 공격으로 넘김)
+            isCrit = !Disadvantaged(attackerStats, targetStats)
+                     && (forceCrit || (ownerLayer == "Player" && CombatEvents.TakeForcedCrit()) || Random.value < critChance);   // [2026-10-31] 확정 치명타
             if (isCrit)
                 finalDamage = Mathf.RoundToInt(baseDamage * attackerStats.critMultiplier);
         }

@@ -7,7 +7,11 @@ public class KeywordIconHover : MonoBehaviour, IPointerEnterHandler, IPointerExi
     public AugmentKeyword keyword;
     public Sprite icon;
 
-    public void OnPointerEnter(PointerEventData eventData) => ItemInfoPopup.Instance?.ShowKeyword(keyword, icon);
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (ItemSwapWindow.IsOpen) return;   // [18:21] 교체 중에는 키워드 팝업 안 띄움
+        ItemInfoPopup.Instance?.ShowKeyword(keyword, icon);
+    }
     public void OnPointerExit(PointerEventData eventData) => ItemInfoPopup.Instance?.Hide();
     void OnDisable() => ItemInfoPopup.Instance?.Hide();
 }

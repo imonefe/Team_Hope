@@ -45,26 +45,24 @@ public class Item : ProximityInteractable
 
         Stats stats = playerObj.GetComponent<Stats>();
         if (stats == null) return;
+        if (ItemSwapWindow.IsOpen) return;
 
-        if (data.effects != null)
-            foreach (var effect in data.effects)
-                if (effect != null)
-                    effect.Apply(stats, playerObj.GetComponent<MonoBehaviour>());
+        // [2026-11-26] 8칸 제한 — 가득 차 있으면 교체 창. 포기하면 바닥에 그대로 남음 (효과도 그때 적용: ItemObtain)
+        var picker = playerObj;
+        ItemObtain.Request(data, picker, r =>
+        {
+            if (r == ItemObtain.Result.Declined || this == null) return;
+            YoungbokChatter.OnItemPicked();   // [2026-11-09] 한 판 첫 아이템 → 인벤토리 키 안내
 
-        // 인벤토리 UI 목록에 반영 (기존엔 호출이 안 되어 있어서 인벤토리 창이 항상 비어있었음)
-        Inventory.Instance?.AddPassive(data);
-        YoungbokChatter.OnItemPicked();   // [2026-11-09] 한 판 첫 아이템 → 인벤토리 키 안내
+            // 주워서 즉시 파괴되면 OnTriggerExit2D가 안 불릴 수 있으므로, 팝업이 계속 떠있는 채로
+            // 남아있지 않도록 여기서 직접 닫아준다.
+            ItemInfoPopup.Instance?.Hide();
 
-        RunManager.Instance?.RegisterObtained(data);
+            // [2026-10-14 추가] 획득 효과 (등급색 빛·고리·알갱이 + 아이콘 떠오름 + 이름)
+            ItemPickupEffect.Spawn(transform.position, data);
 
-        // 주워서 즉시 파괴되면 OnTriggerExit2D가 안 불릴 수 있으므로, 팝업이 계속 떠있는 채로
-        // 남아있지 않도록 여기서 직접 닫아준다.
-        ItemInfoPopup.Instance?.Hide();
-
-        // [2026-10-14 추가] 획득 효과 (등급색 빛·고리·알갱이 + 아이콘 떠오름 + 이름)
-        ItemPickupEffect.Spawn(transform.position, data);
-
-        Destroy(gameObject);
+            Destroy(gameObject);
+        });
     }
 
     // 획득 범위 진입 — 플레이어 머리 위에 아이템 정보 팝업 표시

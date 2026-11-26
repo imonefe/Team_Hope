@@ -646,6 +646,111 @@ public class MapManager : PersistentSingleton<MapManager>
     readonly Dictionary<MapButton, int> planIndex = new Dictionary<MapButton, int>();
     string planGroup;
 
+    // ───────── [2026-11-26] 문 선택 (노드 지도 대체) ─────────
+    // 포탈 → 증강 고르기 창(일반 카드 모드)에 '다음 방' 카드. 순서는 스테이지 구성(StagePlan) 그대로.
+    //  - 전투 칸: [사이버웨어 방] [스탯 방] — 고른 보상은 RoomReward 에 적어 두고 방에 들어설 때 감독이 창을 연다
+    //  - 중간보스 · 상점 · 보스 칸: 그 방 카드 1장
+    [Header("문 선택 (2026-11-26) — 끄면 예전 노드 지도")]
+    public bool useDoorChoice = true;
+    [Tooltip("'사이버웨어 방' 카드 그림. 비우면 증강 파편 그림")]
+    public Sprite augmentRoomIcon;
+    [Tooltip("'스탯 방' 카드 그림. 비우면 노드 지도의 전투 노드 그림")]
+    public Sprite statRoomIcon;
+
+    bool OpenDoorChoice(StagePlan.Entry next)
+    {
+        var w = AugmentOfferDirector.Instance != null ? AugmentOfferDirector.Instance.window : null;
+        if (w == null || w.IsOpen) return false;
+        int index = StageFlow.Current + 1;
+        bool combat = next.kind == StageKind.Combat;
+        var views = new List<AugmentOfferWindow.CardView>();
+        if (combat)
+        {
+            views.Add(new AugmentOfferWindow.CardView
+            {
+                header = "전 투", color = ShopColors.Hex("B08CE0"),
+                icon = augmentRoomIcon != null ? augmentRoomIcon : w.ShardIcon,
+                name = "사이버웨어 방",
+                body = "방에 들어서면 사이버웨어 3개 중 1개를 고릅니다.",
+            });
+            views.Add(new AugmentOfferWindow.CardView
+            {
+                header = "전 투", color = ShopColors.Gold,
+                icon = statRoomIcon != null ? statRoomIcon : NodeIcon(MapType.Combat),
+                name = "스탯 방",
+                body = "방에 들어서면 스탯 카드 3장 중 1장을 고릅니다.",
+            });
+        }
+        else
+        {
+            MapType t = next.kind == StageKind.Shop ? MapType.Shop : MapType.Boss;
+            string head = next.kind == StageKind.Shop ? "상 점" : next.kind == StageKind.MidBoss ? "중 간 보 스" : "보 스";
+            string hex = next.kind == StageKind.Shop ? "6FA8DC" : next.kind == StageKind.MidBoss ? "E39A4B" : "D9604C";
+            views.Add(new AugmentOfferWindow.CardView
+            {
+                header = head, color = ShopColors.Hex(hex),
+                icon = NodeIcon(t),
+                name = next.label,
+                body = next.roomData != null ? next.roomData.GetDescription() : "",
+            });
+        }
+        string sub = combat ? "보상을 고르세요" : "다음 방";
+        return w.OfferCustom("다음 방", sub, views, i =>
+        {
+            RoomReward.Next = combat && i == 1 ? RoomRewardKind.Stat : RoomRewardKind.Augment;
+            StartCoroutine(EnterPlannedRoutine(index, next));
+        });
+    }
+
+    // 노드 지도 본보기 노드의 그림 (종류별)
+    Sprite NodeIcon(MapType type)
+    {
+        GameObject prefab = planCanvasPrefab;
+        if (prefab == null && stagePools != null && stagePools.Length > 0 && stagePools[0].canvasPrefabs != null && stagePools[0].canvasPrefabs.Length > 0)
+            prefab = stagePools[0].canvasPrefabs[0];
+        if (prefab == null) return null;
+        Sprite fallback = null;
+        foreach (var b in prefab.GetComponentsInChildren<MapButton>(true))
+        {
+            if (b.isStartRoom) continue;
+            Sprite sp = b.icon != null ? b.icon : (b.iconImage != null ? b.iconImage.sprite : null);
+            if (sp == null) continue;
+            MapType t = b.roomData != null ? b.roomData.type : MapType.Combat;
+            if (t == type) return sp;
+            if (fallback == null) fallback = sp;
+        }
+        return fallback;
+    }
+
+    // 문 선택 뒤 그 칸의 방으로 들어간다 (SelectButtonRoutine 의 스테이지 구성 부분과 같은 처리)
+    IEnumerator EnterPlannedRoutine(int index, StagePlan.Entry entry)
+    {
+        selecting = true;
+        if (currentCanvasInstance != null) DestroyPlanCanvas();
+        if (planGroup != entry.group)
+        {
+            planGroup = entry.group;
+            CurrentStageIndex = GroupOrder(entry.group);
+            usedRoomPrefabs.Clear();
+        }
+        GameObject prefab = entry.roomData != null ? entry.roomData.GetRoom(usedRoomPrefabs) : null;
+        if (prefab != null) usedRoomPrefabs.Add(prefab);
+        StageFlow.SetCurrent(index);
+        if (prefab == null)
+        {
+            selecting = false;
+            RoomReward.Next = RoomRewardKind.Augment;
+            if (StageFlow.CurrentIsLast) GameClear();
+            else { ScreenNotice.Show("아직 준비 중인 방이라 건너뜁니다"); OpenMapPlanned(); }
+            yield break;
+        }
+        if (TransitionCanvas.Instance != null)
+            yield return TransitionCanvas.Instance.Transition(() => RoomManager.Instance.LoadRoom(prefab));
+        else
+            RoomManager.Instance.LoadRoom(prefab);
+        selecting = false;
+    }
+
     /// <summary>스테이지 구성으로 진행 중인지</summary>
     public bool PlanActive => StageFlow.Active;
 
@@ -686,6 +791,9 @@ public class MapManager : PersistentSingleton<MapManager>
             else OpenMapPlanned();   // 방이 비어 있는 칸은 건너뜀
             return;
         }
+
+        // [2026-11-26] 문 선택 (노드 지도 대신): 전투 칸 = 사이버웨어 방 / 스탯 방, 중간보스 · 상점 · 보스 = 카드 1장
+        if (useDoorChoice && OpenDoorChoice(next)) return;
 
         if (currentCanvasInstance == null || planGroup != next.group) BuildPlanCanvas(next.group);
         if (currentCanvasInstance == null) return;

@@ -263,6 +263,7 @@ public class ItemShopWindow : ShopWindow
     {
         base.Update();
         if (!IsOpen) return;
+        if (ItemSwapWindow.BlocksInput) return;   // [2026-11-26] 교체 창이 위에 떠 있음
         if (Input.GetKeyDown(KeyCode.LeftArrow)) MoveSelect(-1);
         if (Input.GetKeyDown(KeyCode.RightArrow)) MoveSelect(+1);
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) && selected >= 0) Buy(selected);
@@ -297,18 +298,21 @@ public class ItemShopWindow : ShopWindow
         if (d == null || sold[i]) return;
         var p = Player();
         if (p.stats == null) return;
-        if (!Spend(PriceOf(d))) { NotEnoughMoney(); return; }
+        if (ItemSwapWindow.BlocksInput) return;
+        int price = PriceOf(d);
+        if (Money < price) { NotEnoughMoney(); return; }
 
+        // [2026-11-26] 8칸 제한 — 가득 차 있으면 교체 창. 돈은 실제로 얻을 때만 냄 (포기 = 구매 취소)
         // 바닥 아이템을 줍는 것과 같은 처리 (Item.Pickup 참고)
-        if (d.effects != null)
-            foreach (var e in d.effects)
-                if (e != null) e.Apply(p.stats, p.go.GetComponent<MonoBehaviour>());
-        Inventory.Instance?.AddPassive(d);
-        RunManager.Instance?.ReleaseItem(d, this);
-        RunManager.Instance?.RegisterObtained(d);
-        sold[i] = true;
-        RefreshAll();
-        OnBought();   // [2026-11-20] 인물 대사
+        ItemObtain.Request(d, p.go, r =>
+        {
+            if (r == ItemObtain.Result.Declined || this == null) return;
+            Spend(price);
+            RunManager.Instance?.ReleaseItem(d, this);
+            sold[i] = true;
+            RefreshAll();
+            OnBought();   // [2026-11-20] 인물 대사
+        });
     }
 
     void Refresh()
@@ -457,9 +461,9 @@ public class ItemShopWindow : ShopWindow
         float hp = 0, atk = 0, def = 0, spd = 0, pause = 0, cc = 0, cm = 0;
         foreach (var e in d.effects)
         {
-            if (e is StatBoostEffect sb)
+            if (e is StatBoostEffect sb && sb.Active)   // [2026-11-26] 꺼진 사이버웨어 스탯은 미리 보기에서도 뺌 (제로포인트만 남음)
             {
-                var m = sb.modifier;
+                var m = sb.Effective;
                 hp += m.hp + p.stats.maxHp * m.hpPercent;
                 atk += m.atk + p.stats.Atk * m.atkPercent;
                 def += m.def + p.stats.Def * m.defPercent;

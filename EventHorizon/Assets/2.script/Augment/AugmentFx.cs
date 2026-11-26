@@ -40,6 +40,42 @@ public static class AugmentFx
 
     public const int SortFront = 5140;
 
+    // ══════════════ [2026-11-26] 조용한 연출 (일반 등급 고유 능력) ══════════════
+    // 일반 등급 능력은 숫자 효과 위주라 화려한 연출이 붙으면 '한 번에 여러 능력을 쓰는 캐릭터'처럼 보인다 (기획 B-3).
+    // AugmentRuntime 이 일반 등급 능력 처리 구간을 using (QuietIf("능력")) 로 감싸면 그 안에서 부른 부품은:
+    //   · 꾸밈 부품(Ring · Sparks · BodyFlash · ScreenPulse · HealFx)은 건너뜀
+    //   · 기능 부품(Burst · Ripple · Shard · Fly · Line · Streak · Orb · Ghost · Mark · Stun 별 등)은 옅고(불투명도 QuietAlpha) 작게(QuietSize), 채도 35% 빠짐
+    // 되돌리기: QuietAlpha = QuietSize = 1 이고 꾸밈 부품 건너뛰기를 끄려면 SkipDecor = false
+    public static float QuietAlpha = 0.6f, QuietSize = 0.7f;
+    public static bool SkipDecor = true;
+    public static int QuietDepth;
+    public static bool Quiet => QuietDepth > 0;
+    static bool QuietSkip => QuietDepth > 0 && SkipDecor;
+    static float QA => QuietDepth > 0 ? QuietAlpha : 1f;
+    static float QS(float v) => QuietDepth > 0 ? v * QuietSize : v;
+    /// <summary>조용한 색: 채도 35% 빼고 불투명도 QuietAlpha (반투명 그림용)</summary>
+    static Color QC(Color c)
+    {
+        if (QuietDepth <= 0) return c;
+        float g = c.grayscale; var d = Color.Lerp(c, new Color(g, g, g, c.a), 0.35f);
+        d.a = c.a * QuietAlpha; return d;
+    }
+    /// <summary>조용한 HDR 색: 채도 35% 빼고 밝기 QuietAlpha (가산 재질용)</summary>
+    static Color QH(Color c)
+    {
+        if (QuietDepth <= 0) return c;
+        float g = c.grayscale; var d = Color.Lerp(c, new Color(g, g, g, c.a), 0.35f);
+        return new Color(d.r * QuietAlpha, d.g * QuietAlpha, d.b * QuietAlpha, c.a);
+    }
+    public struct QuietScope : IDisposable
+    {
+        bool on;
+        public QuietScope(bool on) { this.on = on; if (on) QuietDepth++; }
+        public void Dispose() { if (!on) return; on = false; QuietDepth = Mathf.Max(0, QuietDepth - 1); }
+    }
+    /// <summary>using (AugmentFx.Hush(조건)) { ... } — 조건이 참이면 그 안의 연출이 조용해짐. 코루틴 안에서는 yield 를 감싸지 말 것</summary>
+    public static QuietScope Hush(bool on = true) => new QuietScope(on);
+
     /// <summary>연출 위치 오프셋 (AugmentOfferDirector 인스펙터 '연출 위치 조정'에서 바꿈)</summary>
     public static AugmentFxOffsets Offsets = new AugmentFxOffsets();
 
@@ -218,7 +254,7 @@ public static class AugmentFx
     /// <summary>duration 동안 interval 마다 헤네시 그림을 잔상 셰이더로 찍고, 각각은 life 만에 빠르게 지움 → 이어붙은 대시 잔상</summary>
     public static void GhostTrail(SpriteRenderer src, Color c, float duration, float interval = 0.025f, float life = 0.2f, float alpha = 0.7f)
     {
-        if (src != null) Run(GhostTrailRoutine(src, c, duration, interval, life, alpha));
+        if (src != null) Run(GhostTrailRoutine(src, QC(c), duration, interval, life, alpha * QA));
     }
 
     static IEnumerator GhostTrailRoutine(SpriteRenderer src, Color c, float duration, float interval, float life, float alpha)
@@ -238,8 +274,8 @@ public static class AugmentFx
     {
         if (SlashPrefab == null) return Orb(pos, c, 0.3f);
         var fx = UnityEngine.Object.Instantiate(SlashPrefab, pos, Quaternion.Euler(0f, 0f, angle));
-        fx.transform.localScale *= scale;
-        Tint(fx, c, 2.2f);
+        fx.transform.localScale *= QS(scale);
+        Tint(fx, QH(c), 2.2f);
         Run(FreezeLater(fx, freezeAfter));
         return fx;
     }
@@ -286,6 +322,7 @@ public static class AugmentFx
 
     static IEnumerator RippleRoutine(Vector3 center, Color c, float radius, float time, float width, float delay, float yScale)
     {
+        float qa = QA; c = QC(c); radius = QS(radius);   // [2026-11-26] 조용한 연출 (yield 전에 정함)
         if (delay > 0f) yield return new WaitForSeconds(delay);
         var lr = NewLine("FxRipple", 56, width, c, true);
         float t = 0f;
@@ -295,7 +332,7 @@ public static class AugmentFx
             float e = 1f - (1f - k) * (1f - k);
             SetCircle(lr, center, Mathf.Lerp(radius * 0.1f, radius, e), yScale);
             lr.startWidth = lr.endWidth = width * Mathf.Lerp(1f, 3.5f, e);
-            lr.startColor = lr.endColor = A(c, Mathf.Lerp(0.9f, 0f, e));
+            lr.startColor = lr.endColor = A(c, Mathf.Lerp(0.9f, 0f, e) * qa);
             t += Time.deltaTime;
             yield return null;
         }
@@ -307,6 +344,7 @@ public static class AugmentFx
     /// <summary>원형 파동: 반경 0 → radius 로 퍼지며 사라짐. rings 개면 시간차로 여러 겹</summary>
     public static void Ring(Vector3 center, Color c, float radius, float time = 0.45f, float width = 0.09f, int rings = 1, float yScale = 1f)
     {
+        if (QuietSkip) return;   // [2026-11-26] 꾸밈
         for (int i = 0; i < rings; i++) Run(RingRoutine(center, c, radius, time, width, i * 0.09f, yScale));
     }
 
@@ -340,8 +378,9 @@ public static class AugmentFx
     /// <summary>둥근 바닥 범위 (반투명 원판 + 테두리). duration 뒤 사라짐</summary>
     public static GameObject Disc(Vector3 center, float radius, Color c, float duration, float fillAlpha = 0.22f)
     {
+        fillAlpha *= QA; c = QC(c);   // [2026-11-26] 조용한 연출
         var r = NewSprite("FxDisc", Dot, center, A(c, fillAlpha), radius * 2.2f, SortFront - 20);
-        var fc = Circle(r.transform, radius, A(c, 0.85f), 0.06f);
+        var fc = Circle(r.transform, radius, A(c, 0.85f * QA), 0.06f);
         fc.transform.SetParent(r.transform, true);
         Run(FadeOut(r, duration, fillAlpha));
         return r.gameObject;
@@ -367,6 +406,7 @@ public static class AugmentFx
     public static GameObject Burst(Vector3 pos, Color c, float scale = 1f, float life = 1.5f)
     {
         if (ExplosionPrefab == null) { Sparks(pos, c, 10, 4f * scale, 0.4f); Ring(pos, c, 1.2f * scale); return null; }
+        scale = QS(scale); c = QH(c);   // [2026-11-26] 조용한 연출
         var fx = UnityEngine.Object.Instantiate(ExplosionPrefab, pos, Quaternion.identity);
         fx.transform.localScale *= scale;
         foreach (var r in fx.GetComponentsInChildren<ParticleSystemRenderer>(true))
@@ -383,12 +423,13 @@ public static class AugmentFx
     public static GameObject Smoke(Vector3 pos, Color c, float scale, float life)
     {
         if (SmokePrefab == null) return null;
+        float qa = QA; c = QC(c); scale = QS(scale);   // [2026-11-26] 조용한 연출
         var fx = UnityEngine.Object.Instantiate(SmokePrefab, pos, Quaternion.identity);
         fx.transform.localScale *= scale;
         foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
         {
             var main = ps.main;
-            main.startColor = new ParticleSystem.MinMaxGradient(new Color(c.r, c.g, c.b, main.startColor.color.a));
+            main.startColor = new ParticleSystem.MinMaxGradient(new Color(c.r, c.g, c.b, main.startColor.color.a * qa));
         }
         if (life > 0f) UnityEngine.Object.Destroy(fx, life);
         return fx;
@@ -398,6 +439,7 @@ public static class AugmentFx
     public static void Strike(Vector3 pos, Color c, float scale = 1f, int facing = 1)
     {
         if (StrikePrefab == null) { Burst(pos, c, scale * 0.6f, 1.2f); return; }
+        scale = QS(scale); c = QH(c);   // [2026-11-26] 조용한 연출
         var fx = UnityEngine.Object.Instantiate(StrikePrefab, pos, Quaternion.identity);
         var s = fx.transform.localScale * scale; s.x = Mathf.Abs(s.x) * (facing < 0 ? -1 : 1);
         fx.transform.localScale = s;
@@ -422,6 +464,7 @@ public static class AugmentFx
     /// <summary>회복 이펙트 (색만 바꿈)</summary>
     public static void HealFx(Transform at, Color c)
     {
+        if (QuietSkip) return;   // [2026-11-26] 꾸밈 (회복 숫자는 그대로 뜸)
         if (HealPrefab == null || at == null) { if (at != null) Sparks(at.position + Vector3.up, c, 8, 1.5f, 0.6f, -1.5f); return; }
         var fx = UnityEngine.Object.Instantiate(HealPrefab, at.position, Quaternion.identity, at);
         foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
@@ -435,6 +478,7 @@ public static class AugmentFx
     /// <summary>작은 불티 · 입자: 사방으로 튀었다가 사라짐 (gravity 음수면 위로 떠오름)</summary>
     public static void Sparks(Vector3 pos, Color c, int count, float speed, float life, float gravity = 6f, float size = 0.16f)
     {
+        if (QuietSkip) return;   // [2026-11-26] 꾸밈
         for (int i = 0; i < count; i++)
         {
             Vector2 v = UnityEngine.Random.insideUnitCircle.normalized * speed * UnityEngine.Random.Range(0.4f, 1f);
@@ -444,7 +488,7 @@ public static class AugmentFx
 
     /// <summary>[2026-11-23] 강탈 방출 표식용 파편 — 세모 조각이 돌면서 흩날리고 옅어짐. behind 의 바로 뒤 순서로 그려 '등 뒤'에 보이게</summary>
     public static void Shard(Vector3 pos, Vector2 velocity, Color c, float life, float size, SpriteRenderer behind = null)
-        => Run(ShardRoutine(pos, velocity, c, life, size, behind));
+        => Run(ShardRoutine(pos, velocity, QC(c), life, QS(size), behind));   // [2026-11-26] 조용한 연출
 
     static IEnumerator ShardRoutine(Vector3 pos, Vector2 v, Color c, float life, float size, SpriteRenderer behind)
     {
@@ -494,12 +538,14 @@ public static class AugmentFx
     /// <summary>점(결정)이 from 에서 target 으로 날아감 (휘어지며). 도착하면 onArrive</summary>
     public static void Fly(Vector3 from, Transform target, Color c, int count = 1, float time = 0.45f, Action onArrive = null, float size = 0.22f, bool diamond = true)
     {
+        c = QC(c); size = QS(size);   // [2026-11-26] 조용한 연출
         for (int i = 0; i < count; i++)
             Run(FlyRoutine(from, target, c, time + i * 0.07f, i == 0 ? onArrive : null, size, diamond));
     }
 
     static IEnumerator FlyRoutine(Vector3 from, Transform target, Color c, float time, Action onArrive, float size, bool diamond)
     {
+        bool quiet = Quiet;   // 도착 불티는 이 순간 기준
         var r = NewSprite("FxFly", diamond ? Diamond : Dot, from, c, size);
         float arcH = UnityEngine.Random.Range(1.4f, 2.4f);
         float t = 0f;
@@ -520,7 +566,7 @@ public static class AugmentFx
             yield return null;
         }
         if (r != null) UnityEngine.Object.Destroy(r.gameObject);
-        Sparks(lastTo, c, 4, 1.5f, 0.25f, 0f, 0.1f);
+        if (!(quiet && SkipDecor)) Sparks(lastTo, c, 4, 1.5f, 0.25f, 0f, 0.1f);
         onArrive?.Invoke();
     }
 
@@ -539,6 +585,7 @@ public static class AugmentFx
 
     static IEnumerator LineRoutine(Vector3 a, Vector3 b, Transform ta, Transform tb, Color c, float time, float width)
     {
+        float qa = QA; c = QC(c); width = QS(width);   // [2026-11-26] 조용한 연출
         var lr = NewLine("FxLine", 2, width, c, false);
         float t = 0f;
         while (t < time)
@@ -547,7 +594,7 @@ public static class AugmentFx
             if (ta != null) a = ta.position + Vector3.up * 0.8f;
             if (tb != null) b = tb.position + Vector3.up * 0.8f;
             lr.SetPosition(0, a); lr.SetPosition(1, b);
-            lr.startColor = lr.endColor = A(c, 1f - k);
+            lr.startColor = lr.endColor = A(c, (1f - k) * qa);
             lr.startWidth = lr.endWidth = width * (1f + 0.6f * (1f - k));
             t += Time.deltaTime;
             yield return null;
@@ -563,6 +610,7 @@ public static class AugmentFx
 
     static IEnumerator StreakRoutine(Vector3 a, Vector3 b, Color c, float time, float width)
     {
+        float qa = QA; c = QC(c); width = QS(width);   // [2026-11-26] 조용한 연출
         var lr = NewLine("FxStreak", 2, width, c, false);
         lr.startColor = A(c, 0f); lr.endColor = c;
         float t = 0f;
@@ -578,7 +626,7 @@ public static class AugmentFx
         {
             float k = f / 0.2f;
             lr.SetPosition(0, Vector3.Lerp(a, b, k)); lr.SetPosition(1, b);
-            lr.endColor = A(c, 1f - k);
+            lr.endColor = A(c, (1f - k) * qa);
             lr.startWidth = lr.endWidth = width * (1f - k);
             f += Time.deltaTime;
             yield return null;
@@ -591,10 +639,11 @@ public static class AugmentFx
     /// <summary>제자리에 떠 있는 구체 (밝은 점 + 둘레 원 + 반짝임). 반환된 것을 Destroy 하면 사라짐</summary>
     public static GameObject Orb(Vector3 pos, Color c, float size = 0.5f)
     {
-        var core = NewSprite("FxOrb", Dot, pos, A(c, 0.95f), size);
-        var glow = NewSprite("Glow", Dot, pos, A(c, 0.35f), size * 2.4f, SortFront - 1);
+        float qa = QA; c = QC(c); size = QS(size);   // [2026-11-26] 조용한 연출
+        var core = NewSprite("FxOrb", Dot, pos, A(c, 0.95f * qa), size);
+        var glow = NewSprite("Glow", Dot, pos, A(c, 0.35f * qa), size * 2.4f, SortFront - 1);
         glow.transform.SetParent(core.transform, true);
-        var ring = Circle(core.transform, size * 0.75f, A(c, 0.8f), 0.04f);
+        var ring = Circle(core.transform, size * 0.75f, A(c, 0.8f * qa), 0.04f);
         ring.transform.SetParent(core.transform, true);
         core.gameObject.AddComponent<FxPulse>().Init(size, 0.12f, 5f);
         return core.gameObject;
@@ -606,6 +655,7 @@ public static class AugmentFx
     public static GameObject Mark(Transform target, Color c, float scale = 1f, bool loop = true, float yOffset = 0.9f)
     {
         if (target == null) return null;
+        float qa = QA; scale = QS(scale); c = QC(c);   // [2026-11-26] 조용한 연출
         GameObject fx;
         if (MarkPrefab != null)
         {
@@ -616,13 +666,13 @@ public static class AugmentFx
                 var sm = r.sharedMaterial;
                 if (sm == null || !(sm.HasProperty(RingColorId) || sm.HasProperty(ColorId))) continue;
                 var m = r.material; OwnMaterials(fx, new[] { m });
-                if (m.HasProperty(RingColorId)) m.SetColor(RingColorId, c * 1.6f);
-                if (m.HasProperty(ColorId)) m.SetColor(ColorId, c * 1.6f);
+                if (m.HasProperty(RingColorId)) m.SetColor(RingColorId, c * 1.6f * qa);
+                if (m.HasProperty(ColorId)) m.SetColor(ColorId, c * 1.6f * qa);
             }
             foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
             {
                 var main = ps.main; main.loop = loop;
-                var col = main.startColor.color; main.startColor = new ParticleSystem.MinMaxGradient(new Color(c.r, c.g, c.b, col.a));
+                var col = main.startColor.color; main.startColor = new ParticleSystem.MinMaxGradient(new Color(c.r, c.g, c.b, col.a * qa));
             }
         }
         else
@@ -692,6 +742,7 @@ public static class AugmentFx
     public static FxGhost Ghost(SpriteRenderer src, Color c, float life, float alpha = 0.75f, bool follow = false, Vector3? at = null)
     {
         if (src == null) return null;
+        c = QC(c); alpha *= QA;   // [2026-11-26] 조용한 연출
         var go = new GameObject("FxGhost");
         var r = go.AddComponent<SpriteRenderer>();
         var m = GhostMat;
@@ -718,7 +769,7 @@ public static class AugmentFx
     /// <summary>몸이 색으로 번쩍 (적: SpriteFlash 셰이더 / 헤네시: 잔상 셰이더 덧그림)</summary>
     public static void BodyFlash(Component who, Color c, float amount = 0.7f, float time = 0.25f)
     {
-        if (who == null) return;
+        if (who == null || QuietSkip) return;   // [2026-11-26] 꾸밈
         var e = who.GetComponent<Enemy>();
         if (e != null) { e.TintFlash(c, amount, time); return; }
         var sr = PlayerSprite(who);
@@ -750,7 +801,8 @@ public static class AugmentFx
     {
         var col = target.GetComponent<Collider2D>() ?? target.GetComponentInChildren<Collider2D>();
         var stars = new SpriteRenderer[3];
-        for (int i = 0; i < 3; i++) stars[i] = NewSprite("FxStunStar", Diamond, target.position, c, 0.2f);
+        c = QC(c);   // [2026-11-26] 조용한 연출 (기절은 기능 표시라 남김)
+        for (int i = 0; i < 3; i++) stars[i] = NewSprite("FxStunStar", Diamond, target.position, c, QS(0.2f));
         float t = 0f;
         while (t < time && target != null)
         {
@@ -774,7 +826,7 @@ public static class AugmentFx
     /// <summary>화면 글리치 잠깐 (큰 발동). 장면 전환 중이면 건너뜀</summary>
     public static void ScreenPulse(float amount = 0.35f, float time = 0.18f)
     {
-        if (TransitionCanvas.GlitchBusy) return;
+        if (TransitionCanvas.GlitchBusy || QuietSkip) return;   // [2026-11-26] 꾸밈
         pulseAmount = Mathf.Max(pulseAmount, amount);
         pulseUntil = Mathf.Max(pulseUntil, Time.unscaledTime + time);
         Runner.pulsing = true;

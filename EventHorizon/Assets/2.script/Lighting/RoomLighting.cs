@@ -176,7 +176,12 @@ public static class LightingDarkness
         void OnDestroy()
         {
             if (driver == gameObject) driver = null;
-            if (quitting)
+            // [2026-11-26] 플레이 종료 · 씬 해제 중에는 RenderSettings 가 이미 없어 값을 넣으면 에디터가 멈춤 (Editor.log 'RenderSettings is NULL' 크래시)
+            bool tearingDown = !UnityEngine.SceneManagement.SceneManager.GetActiveScene().isLoaded;
+#if UNITY_EDITOR
+            if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode) tearingDown = true;
+#endif
+            if (quitting || tearingDown)
             {
                 // [2026-10-15] 종료 중: 씬 조명은 유니티가 알아서 원래대로 돌리므로 건드리지 않는다.
                 // 스프라이트 밝기 전역값만은 플레이가 끝나도 편집 화면에 남기 때문에 되돌린다.

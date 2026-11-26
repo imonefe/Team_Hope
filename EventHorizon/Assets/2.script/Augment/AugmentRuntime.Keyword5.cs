@@ -32,6 +32,7 @@ public partial class AugmentRuntime
             if (prefab == null) Debug.LogWarning($"[키워드 연출] Resources/KeywordFx/{name} 가 없음 — 메뉴 Tools/Event Horizon/키워드 연출 프리팹 다시 만들기");
         }
         if (prefab == null) return null;
+        if (AugmentFx.Quiet) scale *= AugmentFx.QuietSize;   // [2026-11-26] 조용한 연출
         var go = Instantiate(prefab, pos, Quaternion.Euler(0f, 0f, angleZ));
         go.transform.localScale = prefab.transform.localScale * scale;
         // 복사본은 스크립트를 뺐으므로 재생을 직접 시작 (원본에서 스크립트가 재생시키던 이펙트 대비)
@@ -47,7 +48,7 @@ public partial class AugmentRuntime
         if (pc == null) return;
 
         // 잔상 5: 점프 · 대시 연속 사용 +1
-        int extra = Kw(AugmentKeyword.Afterimage) >= 5 ? 1 : 0;
+        int extra = Kw(AugmentKeyword.Afterimage) >= AugmentRules.Stage3 ? 1 : 0;
         pc.bonusJumps = extra;
         pc.bonusDashes = extra;
 
@@ -64,7 +65,7 @@ public partial class AugmentRuntime
     {
         if (HpRatioP() > 0.5f) return 1f;
         float add = 0f;
-        if (Kw(AugmentKeyword.Overload) >= 5) add += 0.30f;
+        if (Kw(AugmentKeyword.Overload) >= AugmentRules.Stage3) add += 0.30f;
         int lv = L("과부하 퓨즈");
         if (lv > 0) add += ByLevel(lv, 0.15f, 0.20f, 0.25f);
         return Mathf.Min(1.4f, 1f + add);
@@ -77,12 +78,14 @@ public partial class AugmentRuntime
         float before = bodyCur;
         bodyCur = Mathf.MoveTowards(bodyCur, target, Time.deltaTime * 1.5f);
         pc.visualScale = bodyCur;
-        if (target > 1.01f && before <= 1.01f) { AugmentFx.BodyFlash(pc, COverload, 0.8f, 0.35f); CameraFollow.Shake(0.12f, 0.15f); }
+        // [2026-11-26] 과부하 퓨즈만으로 커졌고 그 퓨즈가 일반 등급이면 조용하게 (커질 때 흔들림 · 번쩍임 없음, 맥동 없음 — 몸 크기 변화만)
+        bool quiet = IsCommon("과부하 퓨즈") && Kw(AugmentKeyword.Overload) < AugmentRules.Stage3;
+        if (target > 1.01f && before <= 1.01f && !quiet) { AugmentFx.BodyFlash(pc, COverload, 0.8f, 0.35f); CameraFollow.Shake(0.12f, 0.15f); }
         // 커져 있는 동안 몸이 분홍으로 맥동 (따로 이펙트를 띄우지 않음)
         if (bodyCur > 1.02f && !paused)
         {
             bodyPulse -= Time.deltaTime;
-            if (bodyPulse <= 0f) { bodyPulse = 0.7f; AugmentFx.BodyFlash(pc, COverload, 0.35f, 0.3f); }
+            if (bodyPulse <= 0f) { bodyPulse = 0.7f; if (!quiet) AugmentFx.BodyFlash(pc, COverload, 0.35f, 0.3f); }
         }
     }
 
@@ -569,16 +572,16 @@ public partial class AugmentRuntime
         if (h == null || h.IsDead) return;
 
         // 과열 5: 과열 전염
-        if (Kw(AugmentKeyword.Overheat) >= 5) OverheatSpread(h, StatusOf(h));
+        if (Kw(AugmentKeyword.Overheat) >= AugmentRules.Stage3) OverheatSpread(h, StatusOf(h));
 
         // 처형 5: 체력 10% 이하인 일반 적을 약점 속성으로 공격 → 즉시 처형
         var ts = hi.targetStats != null ? hi.targetStats : h.GetComponent<Stats>();
-        if (Kw(AugmentKeyword.Execute) >= 5 && !IsBoss(h) && ts != null && ts.maxHp > 0
+        if (Kw(AugmentKeyword.Execute) >= AugmentRules.Stage3 && !IsBoss(h) && ts != null && ts.maxHp > 0
             && ts.currentHp > 0 && ts.currentHp <= ts.maxHp * 0.10f && IsWeaknessHit(ts) && executing.Add(h))
             StartCoroutine(ExecuteFinish(h));
 
         // 균열 5: 치명타 → 바닥을 타고 금
-        if (Kw(AugmentKeyword.Fracture) >= 5 && hi.isCrit && Time.time >= crackReady && pc != null)
+        if (Kw(AugmentKeyword.Fracture) >= AugmentRules.Stage3 && hi.isCrit && Time.time >= crackReady && pc != null)
         {
             crackReady = Time.time + 0.8f;
             StartCoroutine(CrackWave(PFeet, PFacing, 0.5f));

@@ -26,3 +26,4 @@ MonoBehaviour:
     spdPercent: 0
     pauseDurationPercent: -0.6
     hpPercent: 0
+  keepWhenAugmentStatsOff: 1

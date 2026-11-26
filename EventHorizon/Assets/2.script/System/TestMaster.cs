@@ -57,10 +57,17 @@ public class TestMaster : MonoBehaviour
             DestroyAllEnemies();
 
         // 4번: 플레이어에게 체력 10 피해
+        // [2026-11-26] 체력 숫자만 빼던 것 → 실제로 맞는 경로(Health.TakeDamage)로 보냄.
+        //  예전엔 증강의 피격 반응(과부하 받는 피해 감소 · 나노 봉합 · 비상 이식 · 과부하로 잃은 체력 기록)이
+        //  전혀 안 돌고, 0이 돼도 죽지 않았음. 넉백 없음 · 피격 무적 무시(연타해도 매번 들어감)
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             if (playerStats != null)
-                playerStats.TakeDamage(10);
+            {
+                Health hp = playerStats.GetComponent<Health>();
+                if (hp != null) hp.TakeDamage(10, 0, 0f, 0f, true);
+                else playerStats.TakeDamage(10);
+            }
             else
                 Debug.LogError("playerStats 연결 안됨");
         }

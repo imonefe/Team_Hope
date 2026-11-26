@@ -108,10 +108,10 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 
 **2.script/Augment/**
 - `AugmentBuffTray` — 체력바 오른쪽 끝에 맞춰, 지금 걸려 있는 '몇 초짜리' 증강 효과를 아이템 아이콘으로 보여 준다.
-- `AugmentFx` — 증강 연출 부품 모음 — 기획서 '연출 기획' 표의 공용 부품을 코드 한 줄로 부르게 한 곳.
+- `AugmentFx` — 증강 연출 부품 모음 — 기획서 '연출 기획' 표의 공용 부품을 코드 한 줄로 부르게 한 곳. [2026-11-26] 조용한 연출(Hush / QuietScope): 일반 등급 고유 능력 연출을 옅고 작게, 꾸밈 부품은 건너뜀.
 - `AugmentOfferDirector` — 증강을 언제 줄지 정하고 고르기 창(AugmentOfferWindow)을 연다.
 - `AugmentOfferWindow` — 증강 고르기 창 — 3개 중 1개.
-- `AugmentRules` — 증강 키워드 8종 (증강 기획서 '키워드 8개와 단계 능력')
+- `AugmentRules` — 증강 키워드 8종 (증강 기획서 '키워드 8개와 단계 능력') [2026-11-26] 단계 문턱 상수 Stage1·2·3 = 3·4·5개.
 - `AugmentRuntime.Advanced` — 증강 고유능력 — 희귀 22 · 영웅 11 · 전설 6.
 - `AugmentRuntime` — 증강 능력을 실제로 돌리는 곳 — 키워드 8종 단계 효과 + 고유능력 59종 전부.
 - `AugmentSandbox` — 연습용 증강 칸 — 튜토리얼 증강 체험에서 얻은 증강을 본 게임으로 가져가지 않게 한다.
@@ -294,6 +294,8 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `TestMaster` — 테스트 단축키 (Ctrl + 숫자)
 
 **2.script/UI/**
+- `ImplantPanelUI` — [2026-11-26] 인벤토리 오른쪽 이식 프레임 (세로 8줄). 끌어다 놓기로 이식 · 해제, 키워드 요약 · 변화 미리 보기. 오브젝트는 Editor/ImplantPanelBuilder 가 씬에 만듦.
+- `ImplantRowUI` · `ImplantDropZone` · `ImplantDrag` — [2026-11-26] 이식 줄 하나 · 인벤토리 판(해제용 놓는 곳) · 끄는 중인 아이템.
 - `ButtonHighlightDeco` — 버튼이 하이라이트 상태(마우스를 올리거나 키보드로 선택)가 되면
 - `ButtonTextColorSync` — 버튼 옆에 붙이면, Button 컴포넌트에 이미 설정된 ColorBlock(Normal/Highlighted/Pressed/
 - `CharacterPanelUI` — 우측(캐릭터 이미지) + 중앙(스킬 3칸 / 스탯 5줄) UI. **[2026-11-25 안 쓰여서 `Assets/unused/` 로 이동]**
@@ -313,7 +315,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `IntroIllustrationCycler` — 인트로 화면 캐릭터 일러스트 교차.
 - `IntroLayout` — 인트로 화면 배치를 한곳에서 조절한다 (화면 1920×1080 기준 px).
 - `Inventory` — 인벤토리 데이터. 패시브·일반 아이템을 관리한다.
-- `InventoryKeywordColumn` — 인벤토리 오른쪽 위에 세로로 늘어선 키워드 아이콘 8개.
+- `InventoryKeywordColumn` — 인벤토리 오른쪽 위에 세로로 늘어선 키워드 아이콘 8개. 마우스를 올리면/클릭하면 그 키워드 사이버웨어만 밝게 (키워드 필터, 2026-11-26).
 - `InventoryUI` — 인벤토리 창 컨트롤러.
 - `ItemInfoPopup` — 아이템 정보 팝업 (공용 싱글턴).
 - `ItemSlotUI` — 인벤토리 슬롯 하나. 아이콘 표시 + 클릭/호버 이벤트를 InventoryUI로 전달한다.
@@ -425,3 +427,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - 씬 · 프리팹 · 데이터 · 코드 어디에서도 참조되지 않는 프리팹 79개 · 스크립트 18개를 원래 폴더 구조 그대로 옮겨 둠 (.meta 같이 이동 → 되돌려도 연결 유지)
 - 목록과 원래 위치: `Assets/unused/README.txt`
 - 월드 아이템 줍기 프리팹(1.Prefab/item/*.prefab)은 전부 여기로 — 사이버웨어는 데이터(3. Data/ItemData)로만 동작
+
+## 이펙트 제작 기준서 (2026-11-26)
+- `이펙트_제작_기준서.md` (이 파일과 같은 폴더) — 메시 · 셰이더 · 파티클 이펙트의 구조 · 수치 · 셰이더 계산 · 색 바꾸는 법. 새 이펙트를 만들거나 색을 바꾸기 전에 먼저 읽을 것 (스프라이트 이펙트는 범위 밖)
+- `Editor/EffectStyleCapture` — 대표 이펙트 22종을 6시점씩 캡처 (메뉴 EventHorizon/이펙트 스타일 캡처, 또는 프로젝트 루트 fx_style.trigger). 결과: 바탕화면 백업/_fx_style/

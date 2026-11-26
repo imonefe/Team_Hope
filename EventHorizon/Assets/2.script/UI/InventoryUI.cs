@@ -117,6 +117,9 @@ public class InventoryUI : MonoBehaviour
 
         int total = Mathf.CeilToInt(itemCount / (float)columns) * columns;
 
+        // [2026-11-26] 사이버웨어는 8칸 고정 — 한도가 화면에 보이게 정확히 8칸만 그린다
+        if (Inventory.MaxItems > 0) return Mathf.Max(itemCount, Inventory.MaxItems);
+
         if (minSlotCount > 0)
         {
             total = Mathf.Max(total, minSlotCount);

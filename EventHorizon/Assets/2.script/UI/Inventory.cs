@@ -21,6 +21,13 @@ public class Inventory : MonoBehaviour
 
     [Header("보유 목록 (획득순)")]
     public List<ItemData> passives = new List<ItemData>();   // 패시브 아이템
+
+    /// <summary>[2026-11-26] 사이버웨어는 8개까지. 가득 찬 채로 새로 얻으면 교체 창 (ItemObtain · ItemSwapWindow)</summary>
+    public const int MaxItems = 8;
+    public bool IsFull => passives.Count >= MaxItems;
+
+    [Tooltip("[2026-11-26 17:31] 가득 찼을 때 인벤토리 안에서 고르는 교체 줄 (InventoryTab 의 ItemSwapWindow). 메뉴 EventHorizon/인벤토리 8칸 배치 · 교체 줄 만들기 가 연결")]
+    public ItemSwapWindow swapWindow;
     // (일반 아이템 목록(generals)/AddGeneral()은 제거됨 — 현재 게임에 존재하는 아이템은
     //  전부 패시브 타입이라 실제로 채워지는 곳이 없던 죽은 기능이었음)
 
@@ -43,6 +50,7 @@ public class Inventory : MonoBehaviour
     {
         // Inventory(매니저)는 인벤토리 창의 자식이 아니라 별도 오브젝트이므로,
         // 창을 SetActive로 꺼도 이 Update()는 계속 돌아서 다시 열 수 있다.
+        if (ItemSwapWindow.IsOpen) return;   // [17:31] 교체 중에는 I 키로 닫히지 않음
         if (panelRoot != null && KeyBindings.Down(KeyAction.Inventory))
         {
             if (IsOpen) Close();
@@ -56,6 +64,7 @@ public class Inventory : MonoBehaviour
     {
         if (GamePause.Has(GamePause.Menu) || GamePause.Has(GamePause.Map) || GamePause.Has(GamePause.GameOver)) return false;
         if (NPC.AnyTalking) return false;
+        if (ItemSwapWindow.IsOpen) return false;   // [2026-11-26] 교체 창이 떠 있으면 열지 않음
         return true;
     }
 
@@ -89,6 +98,9 @@ public class Inventory : MonoBehaviour
         passives.Add(item);
         OnInventoryChanged?.Invoke();
     }
+
+    /// <summary>[2026-11-26] 목록은 그대로인데 내용(강화 단계 등)이 바뀌었을 때 화면 갱신용</summary>
+    public void NotifyChanged() => OnInventoryChanged?.Invoke();
 
     /// <summary>
     /// [2026-11-16 추가] 상점 판매용 — 목록에서만 뺀다. 아이템 효과(능력치 등)는 되돌리지 않는다.
