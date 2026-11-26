@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 /// <summary>
 /// 인벤토리 슬롯 하나. 아이콘 표시 + 클릭/호버 이벤트를 InventoryUI로 전달한다.
@@ -12,6 +13,11 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 {
     [Tooltip("아이콘을 표시할 자식 Image (슬롯 배경 말고 아이콘용)")]
     public Image iconImage;
+
+    [Header("[2026-11-26 v2] 인벤토리 띠: 칸 아래 이름 · 오른쪽 위 별 (인벤토리 칸에서만 보임)")]
+    public TMP_Text nameText;
+    public TMP_Text starsText;
+    static bool namesHidden;
 
     ItemData itemData;
 
@@ -35,6 +41,13 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         SwapPickChanged?.Invoke();
     }
 
+    /// <summary>[v2] 교체 고르기 화면(2열)에서는 칸 아래 이름을 숨김</summary>
+    public static void SetNamesHidden(bool hide)
+    {
+        namesHidden = hide;
+        SwapPickChanged?.Invoke();
+    }
+
     void OnEnable() { SwapPickChanged += ApplyPick; ApplyPick(); }
     void OnDisable() { SwapPickChanged -= ApplyPick; }
 
@@ -46,6 +59,29 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         // [18:27] 교체 중 인벤토리에서 지금 고른 칸만 금색 (확인 창 · 새 사이버웨어 칸처럼 인벤토리 밖 칸은 제외)
         bool on = itemData != null && itemData == swapPick && owner != null && onClick == null;
         bg.color = on ? FocusTint : bgBase;
+        UpdateLabels();
+    }
+
+    // [v2] 이름(등급색, 빈 칸은 '빈 칸') · 별(강화 단계) — 인벤토리 칸(owner 있음)에서만
+    void UpdateLabels()
+    {
+        bool inv = owner != null;
+        if (nameText != null)
+        {
+            nameText.gameObject.SetActive(inv && !namesHidden);
+            if (inv) nameText.text = itemData != null
+                ? $"<color=#{ColorUtility.ToHtmlStringRGB(ShopColors.Tier(itemData.tier))}>{itemData.itemName}</color>"
+                : "<color=#57524C>빈 칸</color>";
+        }
+        if (starsText != null)
+        {
+            starsText.gameObject.SetActive(inv && itemData != null);
+            if (inv && itemData != null)
+            {
+                int lv = RunManager.Instance != null ? Mathf.Max(1, RunManager.Instance.GetAugmentLevel(itemData)) : 1;
+                starsText.text = new string('★', lv);
+            }
+        }
     }
 
     /// <summary>[2026-11-26] 눌렀을 때 대신 할 일 (교체 창의 칸 고르기). 비어 있으면 인벤토리 상세 보기</summary>

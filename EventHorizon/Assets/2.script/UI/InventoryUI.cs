@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// 인벤토리 창 컨트롤러.
@@ -42,6 +43,9 @@ public class InventoryUI : MonoBehaviour
     [Tooltip("최소 칸 수. 0 이면 스크롤 영역에 보이는 줄 수만큼 자동으로 채움")]
     public int minSlotCount = 0;
 
+    [Header("[2026-11-26 v2] 띠 머리글 'inventory  7 / 8'")]
+    public TMP_Text countText;
+
     void Start()
     {
         FindEmptyLabelIfMissing();
@@ -74,12 +78,15 @@ public class InventoryUI : MonoBehaviour
 
         // [2026-10-17 추가] 아이템이 하나라도 있으면 남은 자리를 빈 칸으로 채운다
         int count = Inventory.Instance.passives.Count;
-        if (fillEmptySlots && count > 0)
+        if (fillEmptySlots && (count > 0 || Inventory.MaxItems > 0))   // [v2] 8칸 고정이라 0개여도 빈 칸 8개
         {
             int total = GetFilledSlotCount(count);
             for (int i = count; i < total; i++)
                 CreateItemSlot(null);   // 아이템 없음 → 아이콘 꺼짐, 호버·클릭 반응 없음 (ItemSlotUI)
         }
+
+        if (countText != null)
+            countText.text = $"inventory  <size=66%><color=#8E8A84>{count} / {Inventory.MaxItems}</color></size>";
 
         // 아이템이 하나도 없으면 "아이템 없음" 안내를 켜고, 하나라도 있으면 끈다
         // (안내 글자는 Content 밖에 둬야 함 — Content 자식은 위 ClearChildren에서 매번 지워짐)

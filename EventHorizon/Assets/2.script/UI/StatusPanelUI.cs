@@ -136,7 +136,7 @@ public class StatusPanelUI : MonoBehaviour
             row.bonus.text = "";
             return;
         }
-        row.bonus.text = diff > 0f ? "(+" + diff.ToString(bonusFormat) + ")" : "(-" + (-diff).ToString(bonusFormat) + ")";
+        row.bonus.text = diff > 0f ? "+" + diff.ToString(bonusFormat) : "-" + (-diff).ToString(bonusFormat);   // [v2] 괄호 없이 (시안 1-B)
         row.bonus.color = diff > 0f ? upColor : downColor;
     }
 

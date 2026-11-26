@@ -60,6 +60,36 @@ public class ItemSwapWindow : MonoBehaviour
     bool confirming;
     int focus;   // 0 = 교체, 1 = 취소
 
+    [Header("[v2 3-B] 확인 카드 — 버림 / 획득")]
+    public Image confirmOldIcon, confirmNewIcon;
+    public TMP_Text confirmOldMeta, confirmNewMeta, confirmOldDesc, confirmNewDesc, confirmOldKw, confirmNewKw;
+
+    [Header("[v2 2-A] 교체 고르기 배치 — 열 때 인벤토리 띠를 이 모양으로, 닫으면 원래대로")]
+    public RectTransform swapRect;
+    public Vector2 swapPos = new Vector2(-200f, 0f);
+    public Vector2 swapSize = new Vector2(480f, 920f);
+    public GridLayoutGroup swapGrid;
+    public Vector2 swapCell = new Vector2(176f, 176f);
+    public Vector2 swapSpacing = new Vector2(24f, 24f);
+    public int swapColumns = 2;
+    public int swapPadTop = 100;
+    [Tooltip("교체 중에만 켜는 것 (오른쪽 new / out 비교 판)")]
+    public GameObject[] showWhileSwapping;
+    [Tooltip("교체 고르기 아래 키 안내")]
+    public TMP_Text swapHint;
+
+    [Header("[v2 2-A] new 판 (들어올 것)")]
+    public Image infoNewIcon;
+    public TMP_Text infoNewName, infoNewMeta, infoNewDesc, infoNewKw;
+    [Header("[v2 2-A] out 판 (고른 것)")]
+    public Image infoOutIcon;
+    public TMP_Text infoOutName, infoOutMeta, infoOutDesc, infoOutKw, infoOutShard;
+
+    // 원래 배치 (닫을 때 복원)
+    Vector2 keepPos, keepSize, keepCell, keepSpacing;
+    int keepCols, keepPadTop;
+    bool kept;
+
     static ItemSwapWindow inst;
     static int closedFrame = -1;
 
@@ -130,6 +160,7 @@ public class ItemSwapWindow : MonoBehaviour
         if (confirmYes != null) { confirmYes.onClick.AddListener(Confirm); HookFocus(confirmYes, 0); }
         if (confirmNo != null) { confirmNo.onClick.AddListener(CloseConfirm); HookFocus(confirmNo, 1); }
         if (!open && confirmRoot != null) confirmRoot.SetActive(false);
+        if (!open && showWhileSwapping != null) foreach (var g in showWhileSwapping) if (g != null) g.SetActive(false);
         if (slots != null)
             for (int i = 0; i < slots.Length; i++)
             {
@@ -180,6 +211,10 @@ public class ItemSwapWindow : MonoBehaviour
         if (hideWhileSwapping != null) foreach (var g in hideWhileSwapping) if (g != null) g.SetActive(false);
         if (centerDuringSwap != null)
             foreach (var rt in centerDuringSwap) if (rt != null) rt.anchoredPosition += new Vector2(centerShiftX, 0f);
+        if (showWhileSwapping != null) foreach (var g in showWhileSwapping) if (g != null) g.SetActive(true);
+        ApplySwapLayout(true);
+        ItemSlotUI.SetNamesHidden(true);
+        if (swapHint != null) swapHint.text = $"방향키 고르기     {KeyBindings.KeyName(KeyAction.Interact)} 결정     Esc 포기";
         inv.Open();
     }
 
@@ -190,6 +225,9 @@ public class ItemSwapWindow : MonoBehaviour
         if (hideWhileSwapping != null) foreach (var g in hideWhileSwapping) if (g != null) g.SetActive(true);
         if (centerDuringSwap != null)
             foreach (var rt in centerDuringSwap) if (rt != null) rt.anchoredPosition -= new Vector2(centerShiftX, 0f);
+        if (showWhileSwapping != null) foreach (var g in showWhileSwapping) if (g != null) g.SetActive(false);
+        ApplySwapLayout(false);
+        ItemSlotUI.SetNamesHidden(false);
         if (inv != null) inv.Close();
         if (raisedCanvas != null)
         {
@@ -197,6 +235,95 @@ public class ItemSwapWindow : MonoBehaviour
             raisedCanvas.overrideSorting = savedOverride;
             raisedCanvas = null;
         }
+    }
+
+    // [v2] 띠(8열) ↔ 교체 고르기(2열) 배치 바꾸기
+    void ApplySwapLayout(bool on)
+    {
+        if (on)
+        {
+            if (kept) return;
+            if (swapRect != null) { keepPos = swapRect.anchoredPosition; keepSize = swapRect.sizeDelta; swapRect.anchoredPosition = swapPos; swapRect.sizeDelta = swapSize; }
+            if (swapGrid != null)
+            {
+                keepCell = swapGrid.cellSize; keepSpacing = swapGrid.spacing; keepCols = swapGrid.constraintCount; keepPadTop = swapGrid.padding.top;
+                swapGrid.cellSize = swapCell; swapGrid.spacing = swapSpacing; swapGrid.constraintCount = Mathf.Max(1, swapColumns);
+                swapGrid.padding.top = swapPadTop;
+                LayoutRebuilder.MarkLayoutForRebuild(swapGrid.transform as RectTransform);
+            }
+            kept = true;
+        }
+        else
+        {
+            if (!kept) return;
+            if (swapRect != null) { swapRect.anchoredPosition = keepPos; swapRect.sizeDelta = keepSize; }
+            if (swapGrid != null)
+            {
+                swapGrid.cellSize = keepCell; swapGrid.spacing = keepSpacing; swapGrid.constraintCount = keepCols; swapGrid.padding.top = keepPadTop;
+                LayoutRebuilder.MarkLayoutForRebuild(swapGrid.transform as RectTransform);
+            }
+            kept = false;
+        }
+    }
+
+    // ── [v2] 사이버웨어 한 개 설명 (new / out 판 · 확인 카드 공용) ──
+    static int LevelOf(ItemData d, bool incoming)
+    {
+        // 새로 얻는 것은 아직 보유 단계가 없어 1, 가진 것은 지금 강화 단계
+        int lv = d != null && RunManager.Instance != null ? RunManager.Instance.GetAugmentLevel(d) : 0;
+        return Mathf.Max(1, lv);
+    }
+
+    static string Spaced(string s) => s == null ? "" : string.Join(" ", s.ToCharArray());
+
+    static void Describe(ItemData d, bool incoming, Image icon, TMP_Text name, TMP_Text meta, TMP_Text desc)
+    {
+        int lv = LevelOf(d, incoming);
+        if (icon != null) { UIUtil.SetIcon(icon, d != null ? d.icon : null); icon.preserveAspect = true; }
+        if (name != null) name.text = d == null ? "" : $"<color=#{ColorUtility.ToHtmlStringRGB(ShopColors.Tier(d.tier))}>{d.itemName}</color>";
+        if (meta != null) meta.text = d == null ? "" : $"{Spaced(AugmentRules.TierName(d.tier))} · Lv{lv} <color=#E3C27E>{new string('★', lv)}</color>";
+        if (desc != null) desc.text = d == null ? "" : AugmentRules.AbilityBody(d, lv);
+    }
+
+    // 키워드 개수 변화 "과열 4 → 5  3단계" (d 의 키워드만, 교체한 뒤 기준)
+    static string KeywordChange(ItemData d, int[] before, int[] after)
+    {
+        if (d == null || d.keywords == null || d.keywords.Length == 0) return "";
+        var sb = new System.Text.StringBuilder();
+        var seen = new HashSet<int>();
+        foreach (var kw in d.keywords)
+        {
+            int k = (int)kw;
+            if (!seen.Add(k)) continue;
+            if (sb.Length > 0) sb.Append('\n');
+            sb.Append($"<color=#{AugmentRules.KeywordHex(kw)}>{AugmentRules.KeywordName(kw)} {before[k]} → {after[k]}</color>");
+            int tb = AugmentRules.KeywordTier(before[k]), ta = AugmentRules.KeywordTier(after[k]);
+            if (ta > tb) sb.Append($"  <size=85%><color=#E3C27E>{ta}단계</color></size>");
+            else if (ta < tb) sb.Append($"  <size=85%><color=#D9604C>{(ta > 0 ? ta + "단계" : "단계 없음")}</color></size>");
+        }
+        return sb.ToString();
+    }
+
+    // 지금 · 교체한 뒤 키워드 개수
+    void Counts(ItemData pick, out int[] before, out int[] after)
+    {
+        var owned = Inventory.Instance != null ? Inventory.Instance.passives : null;
+        before = AugmentRules.CountKeywords(owned);
+        var list = owned != null ? new List<ItemData>(owned) : new List<ItemData>();
+        if (pick != null) list.Remove(pick);
+        if (cur.item != null) list.Add(cur.item);
+        after = AugmentRules.CountKeywords(list);
+    }
+
+    void FillInfo(ItemData pick)
+    {
+        int[] b, a;
+        Counts(pick, out b, out a);
+        Describe(cur.item, true, infoNewIcon, infoNewName, infoNewMeta, infoNewDesc);
+        if (infoNewKw != null) infoNewKw.text = KeywordChange(cur.item, b, a);
+        Describe(pick, false, infoOutIcon, infoOutName, infoOutMeta, infoOutDesc);
+        if (infoOutKw != null) infoOutKw.text = KeywordChange(pick, b, a);
+        if (infoOutShard != null) infoOutShard.text = pick != null ? $"+{ItemObtain.DiscardShards(pick)}" : "";
     }
 
     void Fill()
@@ -223,6 +350,7 @@ public class ItemSwapWindow : MonoBehaviour
             info.text = pick == null
                 ? (useInventory ? "버릴 사이버웨어를 인벤토리에서 고르세요" : "버릴 사이버웨어를 고르세요")
                 : $"<color=#E3C27E>{pick.itemName}</color> 을(를) 버리고 파편 <color=#B08CE0>+{ItemObtain.DiscardShards(pick)}</color>";
+        if (useInventory) FillInfo(pick);
         if (swapButton != null) swapButton.interactable = pick != null;
         if (swapGroup != null) swapGroup.alpha = pick != null ? 1f : 0.4f;
     }
@@ -252,9 +380,20 @@ public class ItemSwapWindow : MonoBehaviour
         if (confirmNew != null) confirmNew.SetItem(cur.item, null);
         if (confirmOldName != null) confirmOldName.text = pick.itemName;
         if (confirmNewName != null) confirmNewName.text = cur.item != null ? cur.item.itemName : "";
+        // [v2 3-B] 카드 두 장
+        {
+            int[] b, a;
+            Counts(pick, out b, out a);
+            Describe(pick, false, confirmOldIcon, confirmOldIcon != null ? confirmOldName : null, confirmOldMeta, confirmOldDesc);
+            Describe(cur.item, true, confirmNewIcon, confirmNewIcon != null ? confirmNewName : null, confirmNewMeta, confirmNewDesc);
+            if (confirmOldKw != null) confirmOldKw.text = KeywordChange(pick, b, a);
+            if (confirmNewKw != null) confirmNewKw.text = KeywordChange(cur.item, b, a);
+        }
         if (confirmHint != null) confirmHint.text = $"← → 선택     {KeyBindings.KeyName(KeyAction.Interact)} 결정     Esc 취소";
         SetFocus(0);
-        if (confirmInfo != null) confirmInfo.text = $"파편 <color=#B08CE0>+{ItemObtain.DiscardShards(pick)}</color>";
+        if (confirmInfo != null) confirmInfo.text = confirmOldIcon != null
+            ? $"+{ItemObtain.DiscardShards(pick)}"   // [v2] 옆에 파편 아이콘이 있음
+            : $"파편 <color=#B08CE0>+{ItemObtain.DiscardShards(pick)}</color>";
     }
 
     // [18:21] 버튼에 마우스를 올리면 그 버튼이 골라짐 + 누름 · 올림 반응 (UIButtonJuice)
@@ -303,13 +442,11 @@ public class ItemSwapWindow : MonoBehaviour
         Refresh();
     }
 
-    int gridCols = -1;
+    // [v2] 배치가 바뀌므로 매번 지금 값으로 읽음
     int GridColumns()
     {
-        if (gridCols > 0) return gridCols;
-        var g = GetComponentInChildren<GridLayoutGroup>(true);
-        gridCols = g != null && g.constraint == GridLayoutGroup.Constraint.FixedColumnCount ? Mathf.Max(1, g.constraintCount) : 2;
-        return gridCols;
+        var g = swapGrid != null ? swapGrid : GetComponentInChildren<GridLayoutGroup>(true);
+        return g != null && g.constraint == GridLayoutGroup.Constraint.FixedColumnCount ? Mathf.Max(1, g.constraintCount) : 2;
     }
 
     void Move(int dir)
