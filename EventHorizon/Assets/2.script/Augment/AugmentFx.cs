@@ -923,6 +923,42 @@ public static class AugmentFx
     }
 
     /// <summary>보유 키워드 단계 상승: 오른쪽 아래 키워드 아이콘이 커졌다 돌아오며 빛남 (글자 없음)</summary>
+    /// <summary>[2026-11-28] 모듈 발동 알림 — follow 위(offset)에 모듈 아이콘이 톡 튀어나와 살짝 떠오르며 사라짐 (키워드 색 빛).
+    ///  시간 정지(제로포인트) 중에도 보이게 unscaled 시간. 여러 개가 동시에 뜨면 옆으로 비켜 섬</summary>
+    public static void IconPop(Transform follow, Vector3 offset, Sprite icon, Color c)
+    {
+        if (icon == null || follow == null) return;
+        Run(IconPopRoutine(follow, offset, icon, c));
+    }
+
+    static int iconPopsAlive;
+    static IEnumerator IconPopRoutine(Transform follow, Vector3 offset, Sprite icon, Color c)
+    {
+        const float World = 0.7f, Life = 0.75f, Rise = 0.4f;
+        float side = (iconPopsAlive % 3 == 0 ? 0f : iconPopsAlive % 3 == 1 ? 0.85f : -0.85f);
+        iconPopsAlive++;
+        var glow = NewSprite("FxIconPopGlow", Dot, follow.position + offset, A(c, 0.55f), World * 2.2f, SortFront + 1);
+        var img = NewSprite("FxIconPop", icon, follow.position + offset, Color.white, 1f, SortFront + 2);
+        float bs = Mathf.Max(0.0001f, Mathf.Max(icon.bounds.size.x, icon.bounds.size.y));
+        float baseScale = World / bs;
+        float t = 0f;
+        while (t < Life && img != null && glow != null && follow != null)
+        {
+            t += Time.unscaledDeltaTime;
+            float k = Mathf.Clamp01(t / Life);
+            float pop = k < 0.15f ? Mathf.Lerp(0.5f, 1.15f, k / 0.15f) : Mathf.Lerp(1.15f, 1f, Mathf.Clamp01((k - 0.15f) / 0.15f));
+            float a = k < 0.6f ? 1f : 1f - (k - 0.6f) / 0.4f;
+            Vector3 p = follow.position + offset + new Vector3(side, Rise * Mathf.Sin(k * Mathf.PI * 0.5f), 0f);
+            img.transform.position = p; glow.transform.position = p;
+            img.transform.localScale = Vector3.one * baseScale * pop;
+            img.color = new Color(1f, 1f, 1f, a); glow.color = A(c, 0.55f * a);
+            yield return null;
+        }
+        iconPopsAlive = Mathf.Max(0, iconPopsAlive - 1);
+        if (img != null) UnityEngine.Object.Destroy(img.gameObject);
+        if (glow != null) UnityEngine.Object.Destroy(glow.gameObject);
+    }
+
     public static void HudPop(Sprite icon, Color c, int tier)
     {
         if (icon == null) return;

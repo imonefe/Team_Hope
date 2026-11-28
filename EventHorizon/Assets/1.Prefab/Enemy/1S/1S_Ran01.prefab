@@ -132,7 +132,7 @@ MonoBehaviour:
   laserRenderer: {fileID: 837816507270979284}
   laserLength: 10
   laserColor: {r: 1, g: 0, b: 0, a: 0.8}
-  attackCooldown: 3
+  attackCooldown: 4.2
   attackDuration: 0.8
 --- !u!114 &6316832045232067665
 MonoBehaviour:
@@ -146,8 +146,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 163
-  currentHp: 163
+  maxHp: 145
+  currentHp: 145
   Atk: 11.25
   Def: 3
   spd: 1.5

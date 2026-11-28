@@ -70,7 +70,7 @@ public static class ItemObtain
             rm.AddShards(shards);
             // [17:31] 판매가만큼 파편 — 떨어지는 보랏빛 파편 연출 + 한 줄 안내 (게임이 멈춰 있어도 창이 닫히면 보임)
             if (go != null) CurrencyShardFX.Spawn(go.transform.position, shards * rm.shardFxPerShard, rm.shardColorA, rm.shardColorB);
-            ScreenNotice.Show($"{d.itemName} → 사이버웨어 파편 +{shards}");
+            ScreenNotice.Show($"{d.itemName} → 모듈 조각 +{shards}");
         }
         AugmentRuntime.Instance?.Refresh();
         return shards;

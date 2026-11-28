@@ -23,6 +23,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 950384328d814c83a3b7c10038abd9a9, type: 2}
   keywords:
   - 1
+  summary: "\uD53C\uACA9 \uB2F9\uD588\uC744 \uACBD\uC6B0, \uBC1B\uB294 \uD53C\uD574\uAC00 \uC904\uC5B4\uB4E0\uB2E4."
   abilityName: "\uBC18\uC751 \uCF54\uD305"
   abilityText: "\uc801\uc5d0\uac8c \ud53c\uaca9 \ub2f9\ud588\uc744 \uacbd\uc6b0, \ubc1b\ub294 \ud53c\ud574 - {15/20/25}%. \ub54c\ub9b0 \uc801\uc5d0\uac8c [\uade0\uc5f4]\uc774 2\uac1c \ubd80\uc5ec\ub41c\ub2e4."
   levelValues:

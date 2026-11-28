@@ -328,7 +328,7 @@ public class ItemShopWindow : ShopWindow
     {
         if (selling) { RefreshSell(); return; }
         int money = Money;
-        if (sellBtn != null) SetSecondaryLabel(sellBtn, "<size=80%><color=#E3C27E>[Tab]</color></size> 가진 사이버웨어 팔기");
+        if (sellBtn != null) SetSecondaryLabel(sellBtn, "<size=80%><color=#E3C27E>[Tab]</color></size> 가진 모듈 팔기");
         if (odds != null)
             odds.text = OddsLine();
         for (int i = 0; i < SlotCount; i++)
@@ -409,7 +409,7 @@ public class ItemShopWindow : ShopWindow
             if (c.selectFrame != null) c.selectFrame.SetActive(d != null && i == selected);
             if (d == null)
             {
-                SetText(c.itemName, "팔 사이버웨어 없음");
+                SetText(c.itemName, "팔 모듈 없음");
                 SetText(c.desc, "");
                 SetText(c.badge, "-");
                 SetText(c.price, "-");
@@ -436,7 +436,7 @@ public class ItemShopWindow : ShopWindow
         if (dGrade != null) { dGrade.text = sel != null ? AugmentRules.TierWithLevel(sel.tier, RunManager.Instance != null ? Mathf.Max(1, RunManager.Instance.GetAugmentLevel(sel)) : 1) : ""; if (sel != null) dGrade.color = ShopColors.Tier(sel.tier); }
         SetText(dFlavor, sel != null ? sel.description : "");
         SetText(dEffects, sel != null ? string.Join("\n", EffectText.Collect(sel)) : "");
-        SetText(dStats, sel != null ? $"팔면 사이버웨어 파편 +{SellPriceOf(sel)}\n<color=#{ColorUtility.ToHtmlStringRGB(ShopColors.Down)}>능력과 능력치가 함께 사라집니다</color>" : "");
+        SetText(dStats, sel != null ? $"팔면 모듈 조각 +{SellPriceOf(sel)}\n<color=#{ColorUtility.ToHtmlStringRGB(ShopColors.Down)}>능력과 능력치가 함께 사라집니다</color>" : "");
 
         if (sellBtn != null) SetSecondaryLabel(sellBtn, "<size=80%><color=#E3C27E>[Tab]</color></size> 구매로 돌아가기");
         if (refreshBtn != null)
@@ -444,7 +444,7 @@ public class ItemShopWindow : ShopWindow
             SetSecondaryLabel(refreshBtn, $"<size=80%><color=#E3C27E>[R]</color></size> 다음 쪽 ({sellPage + 1}/{PageCount})");
             refreshBtn.interactable = PageCount > 1;
         }
-        if (odds != null) odds.text = $"가진 사이버웨어 {Owned.Count}개 · 판매가는 등급과 강화 단계에 따라 사이버웨어 파편";
+        if (odds != null) odds.text = $"가진 모듈 {Owned.Count}개 · 판매가는 등급과 강화 단계에 따라 모듈 조각";
     }
 
     static void SetSecondaryLabel(Button b, string label)

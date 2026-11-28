@@ -25,6 +25,7 @@ MonoBehaviour:
   keywords:
   - 4
   - 7
+  summary: "\uCCB4\uB825\uC774 \uB0AE\uC744\uC218\uB85D [\uCC98\uD615 \uB300\uC0C1] \uAE30\uC900\uC774 \uC62C\uB77C\uAC04\uB2E4."
   abilityName: "\uCC98\uD615\uC778\uC758 \uC800\uC6B8"
   abilityText: "\ub0b4 \uccb4\ub825\uc774 \ub0ae\uc744\uc218\ub85d [\ucc98\ud615 \ub300\uc0c1] \uae30\uc900\uc774 + {15/20/25}%."
   levelValues:

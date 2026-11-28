@@ -22,6 +22,8 @@ public class ItemData : ScriptableObject
 
     // [2026-11-21 추가] 증강 고유능력 (증강 기획서 전환표). 화면에는 이게 주 설명, description 은 설정 한 줄
     [Header("증강 고유능력 (2026-11-21)")]
+    [Tooltip("[2026-11-28] 고를 때 맨 위에 크게 보이는 한 줄 요약.\n말투는 고유능력 설명과 같은 규칙 (~했을 경우, · ~라면, · 부여된다 · 얻는다 · ~다.)\n숫자·강화 값은 넣지 않음 (조건 횟수는 됨). [과열] 처럼 키워드는 대괄호")]
+    public string summary;   // [2026-11-28] 플레이 테스트 피드백 — 카드가 무엇인지 한눈에
     [Tooltip("고유능력 이름 (예: 연쇄 발화)")]
     public string abilityName;
     [Tooltip("고유능력 효과 설명")]

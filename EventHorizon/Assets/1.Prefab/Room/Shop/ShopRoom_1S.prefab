@@ -1392,6 +1392,8 @@ MonoBehaviour:
   waitPlayerTimeout: 5
   onceKey: shopIntro
   showControlsGuide: 0
+  stage2IntroKey: 
+  gameClearAfter: 0
 --- !u!1 &4679600995079103631
 GameObject:
   m_ObjectHideFlags: 0

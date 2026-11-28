@@ -44,6 +44,8 @@ public class SwordFlurrySkill : MonoBehaviour, ISkillMaxDamage
     public GameObject[] flurryEffectPrefabs = new GameObject[0];
     public GameObject dashEffectPrefab;          // 돌진 시작 지점에 생성
     public GameObject dashEndEffectPrefab;       // 돌진 끝 지점에 생성
+    [Tooltip("[2026-11-27] 돌진 시작·끝 이펙트를 몇 초 뒤 지울지 (0 = 안 지움)")]
+    public float spawnedFxLifetime = 3f;         // [2026-11-27]
     [Header("캐릭터 모션 — 클립을 직접 넣으면 스킬 동안 플레이어 Animator 위에 덮어서 재생 (컨트롤러는 안 건드림)")]
     public AnimationClip flurryClip;             // 연격 동안 재생
     public bool loopFlurryClip = true;           // 연격 클립 반복
@@ -310,8 +312,17 @@ public class SwordFlurrySkill : MonoBehaviour, ISkillMaxDamage
 
     void SpawnFx(GameObject prefab, Vector3 pos)
     {
-        var fx = Instantiate(prefab, pos, Quaternion.identity);
-        if (facing < 0) { var s = fx.transform.localScale; s.x = -Mathf.Abs(s.x); fx.transform.localScale = s; }
+        // [2026-11-27] 빈 부모(holder)를 X -1 로 뒤집고 그 안에 생성.
+        //  예전엔 이펙트 루트 스케일을 음수로 바꿨는데, FX_RectSlash 애니메이션이 루트 스케일을 키로 잡고 있어
+        //  양수로 덮어써짐 → 왼쪽 돌진 때 가로줄이 반대쪽(오른쪽)으로 나가 거리가 벌어졌음
+        var holder = new GameObject(prefab.name + "_Holder");   // [2026-11-27]
+        holder.transform.position = pos;
+        holder.transform.localScale = new Vector3(facing < 0 ? -1f : 1f, 1f, 1f);   // [2026-11-27]
+        var fx = Instantiate(prefab, holder.transform);
+        fx.transform.localPosition = Vector3.zero;          // [2026-11-27] 예전과 같이 pos 에, 회전 없음, 크기는 프리팹 그대로
+        fx.transform.localRotation = Quaternion.identity;
+        if (facing < 0) RandomSpawner.MirrorParticles(fx);  // [2026-11-27] 뒤집힌 부모 아래 파티클이 안 보이는 문제 보정
+        if (spawnedFxLifetime > 0f) Destroy(holder, spawnedFxLifetime);   // [2026-11-27] 예전엔 안 지워져 계속 남았음
     }
 
     void Trigger(string name)

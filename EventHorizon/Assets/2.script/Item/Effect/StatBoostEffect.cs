@@ -9,7 +9,7 @@ using UnityEngine;
 public class StatBoostEffect : ItemEffect, IAugmentLevelEffect
 {
     public StatModifier modifier;
-    [Tooltip("[2026-11-26] 사이버웨어 스탯 끔(AugmentRules.AugmentStatBoost = false)이어도 이 효과는 켜 둠 — 능력의 일부인 단점 (예: 세 시간의 말미 제로포인트 -60%)")]
+    [Tooltip("[2026-11-26] 모듈 스탯 끔(AugmentRules.AugmentStatBoost = false)이어도 이 효과는 켜 둠 — 능력의 일부인 단점 (예: 세 시간의 말미 제로포인트 -60%)")]
     public bool keepWhenAugmentStatsOff;
 
     // [2026-11-26] 사이버웨어에서 스탯 증가를 뺌 (스탯은 스탯 방 카드로) — AugmentRules.AugmentStatBoost 하나로 켜고 끔

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bab5a1b86ed2fe4ba8d5e9dbfbf9e25, type: 3}
   m_Name: 반응속도 사이버웨어
   m_EditorClassIdentifier: 
-  itemName: 반응속도 사이버웨어
-  description: 반응속도를 높여주는 사이버웨어. 몸이 빨라지고 판단도 빨라진다.
+  itemName: 반응속도 모듈
+  description: 반응속도를 높여주는 모듈. 몸이 빨라지고 판단도 빨라진다.
   icon: {fileID: -1177572294, guid: 74c002325bfceac45ae1dbd64e70dd57, type: 3}
   itemType: 0
   tier: 0
@@ -23,6 +23,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5e4268ecc15c4241aea3a514b6f763b8, type: 2}
   keywords:
   - 3
+  summary: "[\uC5F0\uACA9]\uC774 \uC313\uC77C\uC218\uB85D \uACF5\uACA9 \uC18D\uB3C4\uAC00 \uC624\uB978\uB2E4."
   abilityName: "\uC5F0\uACA9 \uCE74\uC6B4\uD130"
   abilityText: "[\uc5f0\uaca9] 1\uac1c\ub2f9 \uacf5\uaca9 \uc18d\ub3c4 + {2/3/4}%."
   levelValues:

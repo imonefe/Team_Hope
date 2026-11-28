@@ -51,7 +51,7 @@ public class GameOverUI : MonoBehaviour
     [Tooltip("칸 크기 최대 · 최소 (증강이 많으면 작아짐)")]
     public float cellMax = 112f, cellMin = 56f;
     [Tooltip("증강이 하나도 없을 때 그리드 자리에 띄울 글")]
-    public string noAugmentText = "얻은 사이버웨어가 없다.";
+    public string noAugmentText = "얻은 모듈이 없다.";
 
     public static readonly Color[] TierColors =
     {
@@ -119,8 +119,8 @@ public class GameOverUI : MonoBehaviour
         if (Inventory.Instance != null)
             foreach (var d in Inventory.Instance.passives) if (d != null) owned.Add(d);
 
-        if (augmentCountText != null) augmentCountText.text = Cell("얻은 사이버웨어", owned.Count.ToString());
-        if (augmentHeaderText != null) augmentHeaderText.text = owned.Count > 0 ? $"얻은 사이버웨어   <color=#{Muted}>{owned.Count}개</color>" : $"얻은 사이버웨어   <color=#{Muted}>{noAugmentText}</color>";
+        if (augmentCountText != null) augmentCountText.text = Cell("얻은 모듈", owned.Count.ToString());
+        if (augmentHeaderText != null) augmentHeaderText.text = owned.Count > 0 ? $"얻은 모듈   <color=#{Muted}>{owned.Count}개</color>" : $"얻은 모듈   <color=#{Muted}>{noAugmentText}</color>";
 
         if (keywordLineText != null)
         {
@@ -184,6 +184,7 @@ public class GameOverUI : MonoBehaviour
     void OnRetryClicked()
     {
         // [2026-11-01] 판 초기화 후 인트로 씬으로 돌아간다 (예전: 게임 씬을 바로 다시 불러옴)
+        StageFlow.SkipTutorialOnce = true;   // [2026-11-28] 다시하기 = 튜토리얼 건너뛰고 로비부터
         RunManager.ReturnToIntro();
     }
 }

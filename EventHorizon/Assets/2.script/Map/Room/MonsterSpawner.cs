@@ -10,6 +10,11 @@ public class MonsterSpawner : MonoBehaviour
 {
     [Header("스폰 설정")]
     public GameObject enemyPrefab;
+    [Tooltip("[2026-11-28] 이 적이 나올 확률 (0~1). 안 나오면 아래 대신 나올 적이 나옴 (원거리 적 비중 줄이기용)")]
+    [Range(0f, 1f)] public float spawnChance = 1f;
+    [Tooltip("[2026-11-28] 확률에 걸리지 않았을 때 대신 나올 적 (비우면 아무것도 안 나옴)")]
+    public GameObject fallbackPrefab;
+    GameObject chosenPrefab;
     public Transform spawnPoint;
 
     [Header("스폰 이펙트 (선택)")]
@@ -88,6 +93,10 @@ public class MonsterSpawner : MonoBehaviour
             return;
         }
 
+        // [2026-11-28] 나올 적 정하기 (확률에 안 걸리면 대신 나올 적)
+        chosenPrefab = spawnChance >= 1f || Random.value < spawnChance ? enemyPrefab : fallbackPrefab;
+        if (chosenPrefab == null) { hasSpawned = true; return; }   // 아무것도 안 나옴 = 이미 비어 있는 것으로 처리
+
         // 바닥 위치를 먼저 확정 (이펙트와 몬스터가 같은 자리에 나오도록)
         resolvedSpawnPos = GetGroundedPosition(spawnPoint.position);
         ResolveGround(spawnPoint.position);
@@ -118,7 +127,7 @@ public class MonsterSpawner : MonoBehaviour
         if (enemyPrefab == null || spawnPoint == null) return;
 
         hasSpawned = true;
-        GameObject monster = Instantiate(enemyPrefab, resolvedSpawnPos, Quaternion.identity);
+        GameObject monster = Instantiate(chosenPrefab != null ? chosenPrefab : enemyPrefab, resolvedSpawnPos, Quaternion.identity);
         SnapBodyToGround(monster);
         spawnedMonsters.Add(monster);
     }

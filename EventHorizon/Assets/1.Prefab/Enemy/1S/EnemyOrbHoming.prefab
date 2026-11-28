@@ -120,7 +120,7 @@ MonoBehaviour:
   hitEffectPrefab: {fileID: 6604183357208890112, guid: acbe7c2b946c49c3a316e026064631fd, type: 3}
   destroyOnDashContact: 1
   moveSpeed: 7
-  lifetime: 4
+  lifetime: 6
   initialUpTime: 0.2
   homingDelay: 0.1
   turnSpeed: 2.5

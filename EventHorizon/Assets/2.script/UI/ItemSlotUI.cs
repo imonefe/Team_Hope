@@ -33,6 +33,15 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     Color bgBase;
     static readonly Color FocusTint = new Color(0.89f, 0.76f, 0.49f, 1f);   // [18:27] 키보드 · 마우스로 고른 칸 (확인 창 버튼과 같은 금색)
     bool bgSaved;
+    Color? kwTint;   // [2026-11-28] 인벤토리 키워드 칸에 마우스를 올린 동안, 그 키워드를 가진 칸의 프레임 색
+
+    /// <summary>[2026-11-28] 프레임(칸 바탕 Image)에 키워드 색을 입힘. null 이면 원래 색</summary>
+    public void SetKeywordTint(Color? c)
+    {
+        if (kwTint == c) return;
+        kwTint = c;
+        ApplyPick();
+    }
 
     /// <summary>교체 창이 고른 사이버웨어 (null = 없음) — 그 칸만 붉게</summary>
     public static void SetSwapPick(ItemData d)
@@ -58,7 +67,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (!bgSaved) { bgBase = bg.color; bgSaved = true; }
         // [18:27] 교체 중 인벤토리에서 지금 고른 칸만 금색 (확인 창 · 새 사이버웨어 칸처럼 인벤토리 밖 칸은 제외)
         bool on = itemData != null && itemData == swapPick && owner != null && onClick == null;
-        bg.color = on ? FocusTint : bgBase;
+        bg.color = on ? FocusTint : kwTint.HasValue ? new Color(kwTint.Value.r, kwTint.Value.g, kwTint.Value.b, bgBase.a) : bgBase;
         UpdateLabels();
     }
 

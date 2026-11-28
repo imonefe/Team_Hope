@@ -16,6 +16,8 @@ public class StatCardData : ScriptableObject
     [Tooltip("비우면 카드에 그림 없음")]
     public Sprite icon;
     public StatModifier modifier;
+    [Tooltip("[2026-11-28] 카드 아래 설정 글 (세계관 한두 문장, 회색). 비우면 없음")]
+    [TextArea(2, 4)] public string flavor;
 
     public bool IsTradeoff
     {
@@ -42,8 +44,12 @@ public class StatCardData : ScriptableObject
             (neg ? bad : good).Add($"<color=#{(neg ? Bad : Good)}>{l}</color>");
         }
         good.AddRange(bad);
-        return string.Join("\n", good);
+        string body = string.Join("\n", good);
+        // [2026-11-28] 설정 글 (수치 아래, 회색 · 조금 작게)
+        if (!string.IsNullOrEmpty(flavor)) body += $"\n\n<size=85%><color=#{Flavor}>{flavor}</color></size>";
+        return body;
     }
 
+    const string Flavor = "B3AC9F";
     public static string TradeoffMark => $"<color=#{Bad}>대가</color>";
 }

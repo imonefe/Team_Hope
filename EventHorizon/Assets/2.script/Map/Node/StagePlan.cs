@@ -43,7 +43,9 @@ public class StagePlan : ScriptableObject
 /// <summary>[2026-11-21 추가] 스테이지 켜고 끄기 저장 (PlayerPrefs)</summary>
 public static class StageSettings
 {
-    const string Prefix = "StageOn.";
+    // [2026-11-28] 1스테이지 길이 줄임(전투 3칸 기본 꺼짐) → 예전에 저장된 켜고 끈 값이 새 기본값을 덮지 않게 저장 이름을 바꿈
+    // [2026-11-28 오후] 스테이지 구성 다시 정함 (1S 전투·중보·전투·중보·전투·상점·보스 / 2S 전투×3·상점) → 저장 이름 다시 바꿈
+    const string Prefix = "StageOn.v3.";
 
     public static bool IsOn(StagePlan.Entry e) => e != null && PlayerPrefs.GetInt(Prefix + e.id, e.defaultOn ? 1 : 0) == 1;
 
@@ -69,6 +71,10 @@ public static class StageFlow
     public static bool Cleared { get; set; }
     public static IReadOnlyList<StagePlan.Entry> Run => run;
 
+    /// <summary>[2026-11-28] 플테 피드백(7명): 죽고 '다시하기'를 누르면 튜토리얼부터 다시 하던 문제 → 다음 판 한 번은 튜토리얼 칸을 건너뜀.
+    ///  게임오버 '다시하기'만 켬. 다른 길로 인트로에 가면(다음 관람객) 튜토리얼부터</summary>
+    public static bool SkipTutorialOnce;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatics() { run.Clear(); Current = -1; Active = false; Cleared = false; }
 
@@ -78,7 +84,8 @@ public static class StageFlow
         run.Clear(); Current = -1; Cleared = false;
         if (plan != null)
             foreach (var e in plan.entries)
-                if (e != null && StageSettings.IsOn(e)) run.Add(e);
+                if (e != null && StageSettings.IsOn(e) && !(SkipTutorialOnce && e.kind == StageKind.Tutorial)) run.Add(e);
+        SkipTutorialOnce = false;
         Active = run.Count > 0;
         return Active;
     }

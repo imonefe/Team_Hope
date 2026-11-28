@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // [2026-11-16 추가] 보스방 코어 (기획서: 코어가 하나라도 살아 있으면 보스 무적)
-public enum BossCoreKind { Archer, Swordsman, Mage }   // 궁수 · 검사 · 마법사
+public enum BossCoreKind { Archer, Swordsman }   // 궁수 · 검사  ([2026-11-28] 마법사 제거)
 
 /// <summary>
 /// 보스방 코어 1개. 자식 HitBody(Enemy 레이어 + Stats + Health)가 실제로 맞는 몸체이고,

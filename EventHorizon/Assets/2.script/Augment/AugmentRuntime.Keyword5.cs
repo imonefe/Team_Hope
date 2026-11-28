@@ -79,6 +79,7 @@ public partial class AugmentRuntime
         bodyCur = Mathf.MoveTowards(bodyCur, target, Time.deltaTime * 1.5f);
         pc.visualScale = bodyCur;
         // [2026-11-26] 과부하 퓨즈만으로 커졌고 그 퓨즈가 일반 등급이면 조용하게 (커질 때 흔들림 · 번쩍임 없음, 맥동 없음 — 몸 크기 변화만)
+        if (target > 1.01f && before <= 1.01f) Proc("과부하 퓨즈");   // [2026-11-28] 커지는 순간 = 발동
         bool quiet = IsCommon("과부하 퓨즈") && Kw(AugmentKeyword.Overload) < AugmentRules.Stage3;
         if (target > 1.01f && before <= 1.01f && !quiet) { AugmentFx.BodyFlash(pc, COverload, 0.8f, 0.35f); CameraFollow.Shake(0.12f, 0.15f); }
         // 커져 있는 동안 몸이 분홍으로 맥동 (따로 이펙트를 띄우지 않음)
@@ -98,7 +99,7 @@ public partial class AugmentRuntime
         if (tag == null || pc == null || tag.weapon != Weapontype.Sword || tag.combo != 3) return;
         int lvDance = L("검무");
         if (lvDance <= 0 || Time.time - lastFinisher < 0.25f) return;   // 판정이 여러 개 생겨도 한 번만
-        lastFinisher = Time.time;
+        lastFinisher = Time.time; Proc("검무");
         // [2026-11-27] 불처럼 보이게: 불꽃 혀 · 불티 · 연기가 뒤로 남는 새 검기 (메뉴 EventHorizon/이펙트 v2 만들기). 없으면 예전 메쉬 검기
         string waveFx = Resources.Load<GameObject>("KeywordFx/KW2_Heat_Wave") != null ? "KW2_Heat_Wave" : "KW_Dance_SwordWave";
         StartCoroutine(SwordWave(PCenter, tag.facing, 6f, ByLevel(lvDance, 0.5f, 0.75f, 1.0f), (int)ByLevel(lvDance, 1, 2, 3), waveFx, OverheatColor));

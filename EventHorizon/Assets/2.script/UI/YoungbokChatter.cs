@@ -50,7 +50,7 @@ public class YoungbokChatter : MonoBehaviour
     static readonly string[] LinesLegendary = { "저 빛 봤어? 이번 건 진짜다!", "이건... 전설급인데? 내가 넣어 둔 것 중에 이런 게 있었어?" };
     static readonly string[] LinesBox = { "그거 고르느라 사흘 밤 새웠다고.", "꽝이어도 괜찮아. 다음엔 더 좋은 게 나올 거야.", "포장이 엉망이긴 해도, 내용물은 내가 정성껏 담았지!" };
     static readonly string[] LinesCrit = { "방금 거 제대로 꽂혔다!", "약점 정확히 찔렀어. 소름 돋네.", "우왁! 방금 그 한 방, 여기까지 흔들었어!" };
-    const string LineFirstItem = "사이버웨어는 [{0}] 누르면 인벤토리에서 확인할 수 있어.";   // [2026-11-25] 대사 기획서   // [2026-11-09] {0} = 인벤토리 키
+    const string LineFirstItem = "모듈은 [{0}] 누르면 인벤토리에서 확인할 수 있어.";   // [2026-11-25] 대사 기획서   // [2026-11-09] {0} = 인벤토리 키
     static readonly string[] LinesHurt = { "야! 거기 어제 내가 고친 데라고!", "여기서 부품 구하기가 얼마나 어려운지 알아!?", "살살 맞아! 또 내가 고쳐야 되잖아!!" };   // [2026-11-25] 대사 기획서
 
     // ── 확률·시간 ───────────────────────────────────────────

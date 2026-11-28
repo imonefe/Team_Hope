@@ -10,7 +10,7 @@
 |---|---|
 | `0.Scenes/intro.unity` | 첫 화면. `MainMenuController`(새 게임 → SampleScene), `SceneBGM`(인트로 곡) |
 | `0.Scenes/SampleScene.unity` | 본 게임 전부. 방 프리팹을 바꿔 끼우는 방식. `BGM` 오브젝트에 `RoomBGM` · `StageSkyboxColor` |
-| `_Test/**` | 시험용 씬 · 방 · 데이터. **단, `_Test/Room/Room_BossTest.prefab` 은 실제 1스테이지 보스방** (`3. Data/MapData/1S/bosstest.asset` 이 참조). 보스 코어 3개 겉모습 = 검사 `FX_FogSphere_Left`(참격 · 주황 림) · 궁수 `FX_FogSphere_Pierce`(관통 · 청보라) · 마법사 `FX_FogSphere_Strike`(타격 · 진홍). 임시 사각형 그림은 꺼 둠. 부서지면 `BossCore.visual` 꺼짐 + `breakFx`(FX_CoreBreak_*) 생성 |
+| `_Test/**` | 시험용 씬 · 방 · 데이터. **단, `_Test/Room/Room_BossTest.prefab` 은 실제 1스테이지 보스방** (`3. Data/MapData/1S/bosstest.asset` 이 참조). 보스 코어 2개 겉모습 = 검사 `FX_FogSphere_Left`(참격 · 주황 림) · 궁수 `FX_FogSphere_Pierce`(관통 · 청보라). ([2026-11-28] 마법사 · 타격 코어 제거) 임시 사각형 그림은 꺼 둠. 부서지면 `BossCore.visual` 꺼짐 + `breakFx`(FX_CoreBreak_*) 생성 |
 
 ## 2. 게임 진행 흐름
 
@@ -31,11 +31,12 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 
 | 폴더 | 내용 |
 |---|---|
-| `1S/GradRoom_01~07` | 1스테이지(금서고) 전투방. 조명 묶음 `VolumetricTest`(빛줄기 + `RoomLighting`) 포함 |
+| `1S/GradRoom_01~07` | 1스테이지(금서고) 예전 전투방. [2026-11-28] 전투 목록(graduateMap)에서 빠짐 — 지우지 않고 둠 |
+| `1S/new/1S_new_1 · 1S_new_2 · 1S_new_3` | [2026-11-28] 1스테이지 전투방 (지금 나오는 전투방은 이 3개뿐, graduateMap). 조명 묶음 `VolumetricTest` 포함 |
 | `2S/Room2S_01~06`, `Room2S_Boss` | 2스테이지(폐철장) 전투방 · 보스방. `Editor/Stage2RoomBuilder` 로 만듦. Room2S_02 = 쌍둥이 웅덩이(2026-11-25 새 구조, 메뉴 "2스테이지 Room2S_02만 다시 만들기"). Room2S_04 붕괴 계단 / 05 기둥 숲 / 06 고철 산 (2026-11-25, 메뉴 "2스테이지 새 전투방 만들기 (04~06)", 상자·회복 없음, 뒤 타일맵 없음, 발판 끝 2S_tile_1/3). 맨 위 오브젝트에 2S 전용 `RoomLighting`(빛줄기 없음) |
 | `Lobby/LobbyRoom` | **두 스테이지가 같이 쓰는 로비** (방 이름으로 스테이지 구분 불가 → StageFlow 로 구분). 금서고식 `RoomLighting` |
 | `Shop/ShopRoom_1S`, `ShopRoom_2S` | 상점 방 |
-| `MidBoss/midbossRoom/01_mid_boss` | 중간 보스 공용 방 (궁수 · 마법사 · 검사 중 코어 종류에 맞는 보스만 남김). `mid_boss_s01~03` 은 입장 코어가 있는 방 |
+| `MidBoss/midbossRoom/01_mid_boss` | 중간 보스 공용 방 (궁수 · 검사 중 코어 종류에 맞는 보스만 남김). `mid_boss_s01 · s02` 는 입장 코어가 있는 방 ([2026-11-28] 마법사 방 s03 제거) |
 | `Tutorial/TutorialRoom` | 튜토리얼 방 (다시 만드는 옛 메뉴 실행 금지 — CLAUDE.md) |
 | `Test/AugmentTestRoom` | 증강 시험 방 (F8) |
 
@@ -45,7 +46,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 |---|---|
 | 1스테이지 적 | `1.Prefab/Enemy/1S/1S_Atk · Dps · Ran01 · Ran02 · Spd` |
 | 2스테이지 적 | `1.Prefab/Enemy/2S/Enemy_Atk · Dps · Ranged01 · Ranged02 · Spd` (+ `bullet`, `missile` 투사체) |
-| 중간 보스 | `1.Prefab/Enemy/MidBoss/MidBoss_Archer · Mage · Swordsman` (1S · 2S 공용) |
+| 중간 보스 | `1.Prefab/Enemy/MidBoss/MidBoss_Archer · Swordsman` (1S · 2S 공용, [2026-11-28] 마법사 제거) |
 | 1S 보스 | `1.Prefab/Enemy/1S/Boss1_IntroCutscene` |
 | 2S 보스 | `1.Prefab/Enemy/2S/2boss` |
 | 생성기 | `1.Prefab/Enemy/Spawner/1s/1sSp_*`, `Spawner/2s/2sSp_*` |
@@ -107,7 +108,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `EffectPrewarmer` — 이펙트를 미리 한 번 만들어 첫 사용 때 끊김을 줄임 (스스로 생김)
 
 **2.script/Augment/**
-- `AugmentBuffTray` — 체력바 오른쪽 끝에 맞춰, 지금 걸려 있는 '몇 초짜리' 증강 효과를 아이템 아이콘으로 보여 준다.
+- `AugmentBuffTray` — 체력바 오른쪽 끝에 맞춰, 지금 걸려 있는 '몇 초짜리' 증강 효과를 아이템 아이콘으로 보여 준다. ([2026-11-28] 씬 오브젝트를 꺼 둠 = 안 보임)
 - `AugmentFx` — 증강 연출 부품 모음 — 기획서 '연출 기획' 표의 공용 부품을 코드 한 줄로 부르게 한 곳. [2026-11-26] 조용한 연출(Hush / QuietScope): 일반 등급 고유 능력 연출을 옅고 작게, 꾸밈 부품은 건너뜀.
 - `AugmentOfferDirector` — 증강을 언제 줄지 정하고 고르기 창(AugmentOfferWindow)을 연다.
 - `AugmentOfferWindow` — 증강 고르기 창 — 3개 중 1개.
@@ -148,7 +149,6 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `BossController` — 모든 보스의 공통 기반 (처치 → 슬로우 · 증강 · 재화)
 - `BossCore` — 보스방 코어 1개. 자식 HitBody(Enemy 레이어 + Stats + Health)가 실제로 맞는 몸체이고,
 - `BossCoreShield` — 보스방에 1개. 방 안의 보스(BossController)를 찾아
-- `MageMidBoss` — 타격(마법사) 중간보스 — 테스트판 (애니메이션·이펙트 없음, 색 박스 + 머리 위 글자).
 - `MidBossController` — 중간보스 공용 컨트롤러.
 - `MidBossTestBase` — 애니메이션·이펙트가 아직 없는 중간보스를 시험하기 위한 공통 부모.
 - `SwordsmanMidBoss` — 참격(검사) 중간보스 — 테스트판 (애니메이션·이펙트 없음, 색 박스 + 머리 위 글자).
@@ -262,6 +262,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 **2.script/Map/Tutorial/**
 - `TutorialController` — 튜토리얼 방 (기획서: 한 방 · 화면 글자 · 해 봐야 다음 구간이 열림 · 건너뛰기 없음).
 - `TutorialZone` — 튜토리얼용 영역 (트리거).
+- `TutorialKeySign` — [2026-11-28] 튜토리얼 배경 키 표시 (구간 시작과 함께 나타나고, 지금 설정된 키를 따라감 · 누르면 번쩍).
 
 **2.script/Player/**
 - `PlayerController` — 플레이어 이동 · 대시 · 공격 · 이펙트
@@ -382,7 +383,7 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `DialogueBeatTestSceneBuilder` — DialogueBeat(대화 연동 연출) 테스트 씬을 자동으로 만들어 주는 에디터 도구.
 - `DialoguePortraitSpineSetup` — 대화창·상점 캔버스의 캐릭터 정지 그림 칸에 스파인 대기 동작을 겹쳐 놓는다. (한 번 실행해 프리팹에 저장)
 - `GeeksPerkCanvasBuilder` — (Editor) GEEKS 2026 특전 창 프리팹을 만든다. 유니티 켜질 때 한 번 자동, 메뉴 "EventHorizon/GEEKS 2026 특전 창 만들기"
-- `CoreBreakFxBuilder` — 보스 코어 부서짐 연출 프리팹 3개(FX_CoreBreak_Slash/Pierce/Strike) · 재질(4. Art/Materials/VFX/CoreBreak) 생성 + 보스방 BossCore.breakFx 연결. 없으면 한 번 자동 실행
+- `CoreBreakFxBuilder` — 보스 코어 부서짐 연출 프리팹 2개(FX_CoreBreak_Slash/Pierce) · 재질(4. Art/Materials/VFX/CoreBreak) 생성 + 보스방 BossCore.breakFx 연결. 없으면 한 번 자동 실행
 - `DoorStageFix` — 방마다 제각각이던 문을 스테이지에 맞게 통일한다. 유니티가 켜질 때 한 번 자동 실행.
 - `EffectPreviewCapture` — (설명 없음)
 - `Plan1116Setup` — 기획서 반영용 1회성 도구.
@@ -403,6 +404,9 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 - `TutorialBackgroundVariants` — 튜토리얼 회로 배경 시안 4종 (셰이더는 같고 재질 값만 다름).
 - `TutorialPropsRebuild` — 튜토리얼 방 소품·문 다시 배치 (새 타일 배치 기준).
 - `TutorialRoomBuilder` — 튜토리얼 방 기초 배치.
+- `TutorialKeySignBuilder` — [2026-11-28] 튜토리얼 배경 키 표시 처음 배치 (메뉴 EventHorizon/튜토리얼 키 표시 만들기 · keysign.trigger).
+- `OfferKeyHintBuilder` — [2026-11-28] 모듈 고르기 창 조작 안내를 전투 화면 KeyHints 패널 모양으로 통일 (메뉴 EventHorizon/모듈 창 조작 안내 통일 · offerhint.trigger). 같은 파일에 모듈 포기 확인 창 GiveUpConfirm (메뉴 EventHorizon/모듈 포기 확인 창 만들기 · offerconfirm.trigger), 키 칸 판 만들기 MakeKeyPanel
+- `SwapKeyHintBuilder` — [2026-11-28] 교체 창(인벤토리 SwapInfo · SwapConfirm) 키 안내를 같은 키 칸 판으로 (메뉴 EventHorizon/교체 창 조작 안내 통일 · swaphint.trigger, 열린 씬에서 실행)
 - `TutorialStepsSetup` — 튜토리얼 구간을 7단계로 정리하는 메뉴 (막이벽·허수아비 등 방 배치는 건드리지 않음)
 - `TutorialTileDataSetup` — 튜토리얼 타일맵을 "데이터 벽"(푸른색 + 데이터 비 + 격자 맥박)으로 바꾸는 메뉴
 - `TutorialZoneEditor` — 튜토리얼 영역(TutorialZone)을 씬 창에서 보고 고치기
@@ -431,3 +435,5 @@ BossController.OnTrueDeath               보스 처치 → BossSlowMotion(15% + 
 ## 이펙트 제작 기준서 (2026-11-26)
 - `이펙트_제작_기준서.md` (이 파일과 같은 폴더) — 메시 · 셰이더 · 파티클 이펙트의 구조 · 수치 · 셰이더 계산 · 색 바꾸는 법. 새 이펙트를 만들거나 색을 바꾸기 전에 먼저 읽을 것 (스프라이트 이펙트는 범위 밖)
 - `Editor/EffectStyleCapture` — 대표 이펙트 22종을 6시점씩 캡처 (메뉴 EventHorizon/이펙트 스타일 캡처, 또는 프로젝트 루트 fx_style.trigger). 결과: 바탕화면 백업/_fx_style/
+
+> [2026-11-28] 상단 메뉴 EventHorizon/ 의 일회용 에디터 도구 36개는 프로젝트 밖 `Claude outputs/에디터도구_보관_20261128/` 로 옮김 (위 표의 *Builder · *Setup · 캡처 도구 중 해당 메뉴를 쓰던 것들). 다시 필요하면 .txt 를 떼고 Assets/Editor 로 되돌리면 된다.

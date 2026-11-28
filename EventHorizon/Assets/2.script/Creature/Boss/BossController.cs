@@ -199,6 +199,7 @@ public abstract class BossController : MonoBehaviour
         // 기존 부활 코루틴이 끝나면서 시작하는 BossLoop()과 두 개가 동시에 같은 Animator를 건드리게 된다.
         // 이게 "가끔 애니메이션이 꼬인다"의 실제 원인 중 하나 — 여기서 완전히 막는다.
         if (state != BossState.Inactive || isReviving) return;
+        if (IsDefeated) return;   // [2026-11-28] 각본 패배로 멈춰 선 보스가 가까이 가거나 맞아서 다시 싸우지 않게
         HasStarted = true;   // [2026-11-18] 보스 체력바 표시용
         OnActivate();
         if (bossLoopCo != null) StopCoroutine(bossLoopCo);
@@ -458,8 +459,13 @@ public abstract class BossController : MonoBehaviour
     /// <summary>보스가 진짜로 사망했을 때 발생 (부활 전 임시 사망 X). 보스 HP UI 등이 구독해서 정리 처리에 사용</summary>
     public event System.Action OnDied;
 
+    /// <summary>[2026-11-28] 넣어 두면 체력이 0이 돼도 죽지 않고 이 연출을 부른다 (1S 보스: 서고의 주인이 되살아나 헤네시를 처형).
+    /// CutsceneSequencer 가 보스전을 시작할 때 자기 '패배 연출'이 있으면 연결한다. 비어 있으면 원래대로 사망.</summary>
+    [System.NonSerialized] public System.Action ScriptedDefeat;
+
     protected virtual void OnTrueDeath()
     {
+        if (ScriptedDefeat != null) { ScriptedDefeatDeath(); return; }
         StopAllCoroutines();
         rigid.velocity = Vector2.zero;
         state = BossState.Inactive;
@@ -495,6 +501,32 @@ public abstract class BossController : MonoBehaviour
 
         // 딜레이 후 오브젝트 제거 (제거되면 Room이 자동으로 포탈 오픈)
         StartCoroutine(DeathRoutine());
+    }
+
+    // [2026-11-28] 각본 패배: 보상은 똑같이 주고, 사망 이펙트 · 제거 없이 제자리에 멈춘 채 연출로 넘긴다
+    void ScriptedDefeatDeath()
+    {
+        StopAllCoroutines();
+        rigid.velocity = Vector2.zero;
+        state = BossState.Inactive;
+        IsDefeated = true;   // 보스 체력바 정리
+        rigid.simulated = true;
+        if (spriteRenderer != null) spriteRenderer.enabled = true;
+        if (animator != null) animator.speed = 1f;
+
+        OnDied?.Invoke();
+        if (countAsBossKill) RunManager.Instance?.RegisterBossKilled();
+        RunManager.Instance?.DropRandomCurrency(transform.position, minCurrencyDrop, maxCurrencyDrop);
+        int shards = countAsBossKill ? bossShardDrop : midBossShardDrop;
+        RunManager.Instance?.DropShards(transform.position, 1f, shards, shards);
+        AugmentOfferDirector.RequestBossOffer();   // 이긴 보상은 처형 전에 받는다
+        BossSlowMotion.Play(transform);
+        var bh = GetComponent<Health>();
+        if (bh != null) CombatEvents.RaiseKilled(bh, transform.position);
+
+        var act = ScriptedDefeat;
+        ScriptedDefeat = null;
+        act();
     }
 
     IEnumerator DeathRoutine()

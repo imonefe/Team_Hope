@@ -24,6 +24,9 @@ public class GameSfx : ScriptableObject
     [Tooltip("상점 · 설정 · 크레딧 등 창이 열릴 때")]
     public AudioClip windowOpen;
     [Range(0f, 1f)] public float windowOpenVolume = 0.6f;
+    [Tooltip("[2026-11-28] 모듈이 발동할 때 (머리 위 아이콘과 함께). 비우면 소리 없음")]
+    public AudioClip moduleProc;
+    [Range(0f, 1f)] public float moduleProcVolume = 0.45f;
     [Tooltip("같은 소리가 이 시간(초) 안에 또 불리면 생략")]
     public float sameSoundGap = 0.08f;
 
@@ -38,7 +41,7 @@ public class GameSfx : ScriptableObject
         }
     }
 
-    static float tHurt = -10f, tSpawn = -10f, tDeath = -10f, tSelect = -10f, tWindow = -10f;
+    static float tHurt = -10f, tSpawn = -10f, tDeath = -10f, tSelect = -10f, tWindow = -10f, tProc = -10f;
 
     static void Play(AudioClip clip, float volume, ref float last, SfxTier tier)
     {
@@ -53,5 +56,6 @@ public class GameSfx : ScriptableObject
     public static void EnemySpawn() { var s = I; if (s != null) Play(s.enemySpawn, s.enemySpawnVolume, ref tSpawn, SfxTier.Ambient); }
     public static void EnemyDeath() { var s = I; if (s != null) Play(s.enemyDeath, s.enemyDeathVolume, ref tDeath, SfxTier.Ambient); }
     public static void AugmentSelect() { var s = I; if (s != null) Play(s.augmentSelect, s.augmentSelectVolume, ref tSelect, SfxTier.Critical); }
+    public static void ModuleProc() { var s = I; if (s != null) Play(s.moduleProc, s.moduleProcVolume, ref tProc, SfxTier.Action); }   // [2026-11-28]
     public static void WindowOpen() { var s = I; if (s != null) Play(s.windowOpen, s.windowOpenVolume, ref tWindow, SfxTier.Action); }
 }

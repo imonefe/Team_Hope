@@ -19,7 +19,7 @@ public class AugmentUpgradeWindow : ShopWindow
 
     [Header("증강 강화 (2026-11-21)")]
     [Tooltip("증강 파편이 모자랄 때 화면 알림")]
-    public string notEnoughShardsNotice = "사이버웨어 파편이 부족합니다";
+    public string notEnoughShardsNotice = "모듈 조각이 부족합니다";
     [Tooltip("파편 표시 색 (위쪽 동전 그림·비용 동전 그림에 입힘)")]
     public Color shardTint = new Color(0.69f, 0.55f, 0.88f, 1f);
 
@@ -225,10 +225,10 @@ public class AugmentUpgradeWindow : ShopWindow
 
         if (owned.Count == 0)
         {
-            SetText(dName, "보유한 사이버웨어가 없습니다");
+            SetText(dName, "보유한 모듈이 없습니다");
             SetText(dLevel, "");
-            SetText(dEffects, "전투방에 들어서거나 보스를 쓰러뜨리면 사이버웨어를 고를 수 있습니다");
-            SetText(dStats, $"보유 사이버웨어 파편  {shards:#,0}");
+            SetText(dEffects, "전투방에 들어서거나 보스를 쓰러뜨리면 모듈을 고를 수 있습니다");
+            SetText(dStats, $"보유 모듈 조각  {shards:#,0}");
             return;
         }
 
@@ -244,7 +244,7 @@ public class AugmentUpgradeWindow : ShopWindow
 
         string abName = "강화 값";
         SetText(dStats, scost < 0
-            ? $"{abName}  {ValueAt(sd, slv)}\n보유 사이버웨어 파편  {shards:#,0}"
-            : $"{abName}  {ValueAt(sd, slv)} → <color=#{up}>{ValueAt(sd, slv + 1)}</color>\n남은 사이버웨어 파편  {shards:#,0} → {Mathf.Max(0, shards - scost):#,0}");
+            ? $"{abName}  {ValueAt(sd, slv)}\n보유 모듈 조각  {shards:#,0}"
+            : $"{abName}  {ValueAt(sd, slv)} → <color=#{up}>{ValueAt(sd, slv + 1)}</color>\n남은 모듈 조각  {shards:#,0} → {Mathf.Max(0, shards - scost):#,0}");
     }
 }

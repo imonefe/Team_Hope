@@ -20,10 +20,10 @@ public class InventoryKeywordGrid : MonoBehaviour
     [Range(0f, 1f)] public float emptyAlpha = 0.3f;
     [Header("키워드 필터")]
     public bool useFilter = true;
-    [Range(0f, 1f)] public float filterDimAlpha = 0.3f;
+    [Range(0f, 1f)] public float filterDimAlpha = 0.12f;   // [2026-11-28] 0.3 → 0.12 (더 어둡게)
     [Tooltip("고정한 칸 바탕 색 진하기 (키워드 색)")]
     [Range(0f, 1f)] public float pinnedBackAlpha = 0.22f;
-    [Tooltip("사이버웨어 칸들이 들어가는 Content (InventoryUI.generalContent)")]
+    [Tooltip("모듈 칸들이 들어가는 Content (InventoryUI.generalContent)")]
     public Transform slotContent;
 
     class Cell { public CanvasGroup group; public TMP_Text label; public Image[] pips; public Image back; public Color backBase; }
@@ -136,6 +136,8 @@ public class InventoryKeywordGrid : MonoBehaviour
             var ui = slot.GetComponent<ItemSlotUI>();
             if (ui == null) continue;
             float a = k < 0 || Has(ui.Item, k) ? 1f : filterDimAlpha;
+            // [2026-11-28] 마우스를 올린 동안(고정 클릭 말고) 그 키워드를 가진 칸 프레임에 키워드 색
+            ui.SetKeywordTint(hoverK >= 0 && k == hoverK && Has(ui.Item, k) ? AugmentFx.KwColor((AugmentKeyword)k) : (Color?)null);
             var g = slot.GetComponent<CanvasGroup>();
             if (g == null) { if (a >= 1f) continue; g = slot.gameObject.AddComponent<CanvasGroup>(); }
             g.alpha = a;

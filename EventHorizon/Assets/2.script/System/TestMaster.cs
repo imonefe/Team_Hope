@@ -83,7 +83,7 @@ public class TestMaster : MonoBehaviour
             {
                 RunManager.Instance.AddCurrency(9000);
                 RunManager.Instance.AddShards(9000);
-                ScreenNotice.Show("테스트: 재화 · 사이버웨어 파편 각각 9000개");
+                ScreenNotice.Show("테스트: 재화 · 모듈 조각 각각 9000개");
             }
             else Debug.LogError("RunManager 없음");
         }

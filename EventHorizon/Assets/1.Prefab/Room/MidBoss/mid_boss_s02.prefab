@@ -29596,7 +29596,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6461935743359242118
 Transform:
   m_ObjectHideFlags: 0
@@ -29824,6 +29824,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8889128838659554578}
     m_Modifications:
+    - target: {fileID: 2326528474356635241, guid: 10234c324ce00a445ba102ebc404b476, type: 3}
+      propertyPath: enemyPrefab
+      value: 
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 1361984288244511298, guid: 10234c324ce00a445ba102ebc404b476, type: 3}
       propertyPath: m_LocalPosition.x
       value: 57.852
@@ -29980,6 +29984,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8889128838659554578}
     m_Modifications:
+    - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
+      propertyPath: enemyPrefab
+      value: 
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 1361984288244511298, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 61.852
@@ -30097,7 +30105,7 @@ PrefabInstance:
     - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: enemyPrefab
       value: 
-      objectReference: {fileID: 7577396951191576110, guid: c2271372f09f7a14cbada6ae543b4e03, type: 3}
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: triggerCollider
       value: 
@@ -30167,7 +30175,7 @@ PrefabInstance:
     - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: enemyPrefab
       value: 
-      objectReference: {fileID: 7577396951191576110, guid: c2271372f09f7a14cbada6ae543b4e03, type: 3}
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: triggerCollider
       value: 
@@ -30432,7 +30440,7 @@ PrefabInstance:
     - target: {fileID: 2326528474356635241, guid: 10234c324ce00a445ba102ebc404b476, type: 3}
       propertyPath: enemyPrefab
       value: 
-      objectReference: {fileID: 7577396951191576110, guid: c2271372f09f7a14cbada6ae543b4e03, type: 3}
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 2326528474356635241, guid: 10234c324ce00a445ba102ebc404b476, type: 3}
       propertyPath: triggerCollider
       value: 
@@ -30455,6 +30463,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8889128838659554578}
     m_Modifications:
+    - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
+      propertyPath: enemyPrefab
+      value: 
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 1361984288244511298, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 53.852
@@ -30572,7 +30584,7 @@ PrefabInstance:
     - target: {fileID: 2326528474356635241, guid: 10234c324ce00a445ba102ebc404b476, type: 3}
       propertyPath: enemyPrefab
       value: 
-      objectReference: {fileID: 7577396951191576110, guid: c2271372f09f7a14cbada6ae543b4e03, type: 3}
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 2326528474356635241, guid: 10234c324ce00a445ba102ebc404b476, type: 3}
       propertyPath: triggerCollider
       value: 
@@ -30642,7 +30654,7 @@ PrefabInstance:
     - target: {fileID: 2326528474356635241, guid: 9c671e371fc970d41af792fc2d0fd5f8, type: 3}
       propertyPath: enemyPrefab
       value: 
-      objectReference: {fileID: 7577396951191576110, guid: c2271372f09f7a14cbada6ae543b4e03, type: 3}
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 2326528474356635241, guid: 9c671e371fc970d41af792fc2d0fd5f8, type: 3}
       propertyPath: triggerCollider
       value: 
@@ -30712,7 +30724,7 @@ PrefabInstance:
     - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: enemyPrefab
       value: 
-      objectReference: {fileID: 7577396951191576110, guid: c2271372f09f7a14cbada6ae543b4e03, type: 3}
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: triggerCollider
       value: 
@@ -30946,7 +30958,7 @@ PrefabInstance:
     - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: enemyPrefab
       value: 
-      objectReference: {fileID: 7577396951191576110, guid: c2271372f09f7a14cbada6ae543b4e03, type: 3}
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: triggerCollider
       value: 
@@ -31051,6 +31063,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8889128838659554578}
     m_Modifications:
+    - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
+      propertyPath: enemyPrefab
+      value: 
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 1361984288244511298, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 65.852
@@ -31277,6 +31293,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8889128838659554578}
     m_Modifications:
+    - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
+      propertyPath: enemyPrefab
+      value: 
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 1361984288244511298, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 89.852
@@ -31347,6 +31367,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8889128838659554578}
     m_Modifications:
+    - target: {fileID: 2326528474356635241, guid: 9c671e371fc970d41af792fc2d0fd5f8, type: 3}
+      propertyPath: enemyPrefab
+      value: 
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 1361984288244511298, guid: 9c671e371fc970d41af792fc2d0fd5f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 67.852
@@ -31417,6 +31441,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8889128838659554578}
     m_Modifications:
+    - target: {fileID: 2326528474356635241, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
+      propertyPath: enemyPrefab
+      value: 
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 1361984288244511298, guid: 3467003b7f855264493b3ea33e88019d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 77.852
@@ -31569,6 +31597,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8889128838659554578}
     m_Modifications:
+    - target: {fileID: 2326528474356635241, guid: 10234c324ce00a445ba102ebc404b476, type: 3}
+      propertyPath: enemyPrefab
+      value: 
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 1361984288244511298, guid: 10234c324ce00a445ba102ebc404b476, type: 3}
       propertyPath: m_LocalPosition.x
       value: 77.852
@@ -31686,7 +31718,7 @@ PrefabInstance:
     - target: {fileID: 2326528474356635241, guid: 9c671e371fc970d41af792fc2d0fd5f8, type: 3}
       propertyPath: enemyPrefab
       value: 
-      objectReference: {fileID: 7577396951191576110, guid: c2271372f09f7a14cbada6ae543b4e03, type: 3}
+      objectReference: {fileID: 5366704872317069322, guid: 873ead7e080b5e942b995407f1807bf5, type: 3}
     - target: {fileID: 2326528474356635241, guid: 9c671e371fc970d41af792fc2d0fd5f8, type: 3}
       propertyPath: triggerCollider
       value: 

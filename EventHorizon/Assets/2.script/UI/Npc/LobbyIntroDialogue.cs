@@ -25,6 +25,12 @@ public class LobbyIntroDialogue : MonoBehaviour
     public string onceKey = "";
     [Tooltip("[2026-11-20] 대화가 끝나면 화면 가운데 조작법 창을 띄움 (로비 프롤로그용)")]
     public bool showControlsGuide = true;
+    [Tooltip("[2026-11-28] 2스테이지(StagePlan 그룹 2S)에서 이 방에 들어오면 introKey 대신 이 대사 세트를 재생 (조작법 창·특전 창은 띄우지 않음). 비우면 스테이지 상관없이 introKey")]
+    public string stage2IntroKey = "";
+    [Tooltip("[2026-11-28] 대화가 끝나면 게임 클리어 화면을 띄움 (2S 상점 = 데모 엔딩용)")]
+    public bool gameClearAfter = false;
+
+    static bool InStage2 => StageFlow.Active && StageFlow.CurrentEntry != null && StageFlow.CurrentEntry.group == "2S";
 
     string OnceRecord => "Story." + onceKey;
 
@@ -48,15 +54,23 @@ public class LobbyIntroDialogue : MonoBehaviour
         // 다른 대화가 이미 열려 있으면 끝날 때까지 기다림
         while (NPC.AnyTalking) yield return null;
 
-        npc.SetCondition(introKey, player);
+        bool stage2 = InStage2 && !string.IsNullOrEmpty(stage2IntroKey);
+        npc.SetCondition(stage2 ? stage2IntroKey : introKey, player);
         if (!string.IsNullOrEmpty(onceKey) && RunManager.Instance != null) RunManager.Instance.SetUpgradeLevel(OnceRecord, 1);
-        if (!showControlsGuide) yield break;
+        bool guide = showControlsGuide && !stage2;
+        if (!guide && !gameClearAfter) yield break;
 
         // [2026-11-11] 프롤로그가 끝나면 화면 가운데 조작법 창 (ControlsGuidePopup)
         // 대화가 실제로 열릴 때까지 최대 1초 기다린 뒤, 끝날 때까지 기다린다
         for (float w = 0f; !NPC.AnyTalking && w < 1f; w += Time.unscaledDeltaTime) yield return null;
         while (NPC.AnyTalking) yield return null;
         yield return null;   // 대화를 끝낸 키 입력이 지나가도록 한 프레임 쉼
+        if (gameClearAfter)   // [2026-11-28] 2S 상점 데모 엔딩: 대화가 끝나면 바로 클리어 화면
+        {
+            var map = FindObjectOfType<MapManager>();
+            if (map != null) map.GameClear();
+            yield break;
+        }
         yield return GeeksPerkWindow.GrantAndShow();   // [2026-11-25] GEEKS 2026 특전 (설정에서 끄면 건너뜀 · 한 판에 한 번) → 닫히면 조작법 창
         yield return null;
         ControlsGuidePopup.ShowNow();

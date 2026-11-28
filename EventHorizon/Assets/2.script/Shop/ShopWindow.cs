@@ -23,6 +23,8 @@ public abstract class ShopWindow : MonoBehaviour
 
     /// <summary>상점 화면이 열려 있거나 방금(이번 프레임) Esc로 닫혔으면 true — ESC 메뉴가 같이 열리지 않게</summary>
     public static bool BlocksEscape => openCount > 0 || Time.frameCount == closedFrame;
+    /// <summary>[2026-11-28] 상점 · 모듈 고르기 등 이 계열 창이 하나라도 열려 있는지 (인벤토리 I 키 막기)</summary>
+    public static bool AnyOpen => openCount > 0;
 
     [Header("인물 대사 (열 때마다 이 중 하나)")]
     [TextArea] public string[] greetings;

@@ -148,7 +148,7 @@ public class GeeksPerkWindow : MonoBehaviour
         CombatUIGate.Unblock();
         if (lockedPlayer != null) lockedPlayer.ResumeControl(this);
         lockedPlayer = null;
-        YoungbokChatter.OnItemPicked();   // 처음 얻은 물건이면 "사이버웨어는 [I] 누르면…" 안내
+        YoungbokChatter.OnItemPicked();   // 처음 얻은 물건이면 "모듈은 [I] 누르면…" 안내
         if (group != null) group.DOFade(0f, fadeTime).SetUpdate(true).OnComplete(() => Destroy(gameObject));
         else Destroy(gameObject);
     }

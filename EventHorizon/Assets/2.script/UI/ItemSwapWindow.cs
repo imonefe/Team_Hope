@@ -25,10 +25,10 @@ public class ItemSwapWindow : MonoBehaviour
     public TMP_Text title;
     [Tooltip("선택 안내 / 고른 것 → 파편 한 줄")]
     public TMP_Text info;
-    [Tooltip("새로 얻으려는 사이버웨어 칸")]
+    [Tooltip("새로 얻으려는 모듈 칸")]
     public ItemSlotUI newSlot;
     public TMP_Text newName;
-    [Tooltip("(프리팹 창만) 가진 사이버웨어 8칸")]
+    [Tooltip("(프리팹 창만) 가진 모듈 8칸")]
     public ItemSlotUI[] slots;
     [Tooltip("(프리팹 창만) 칸마다 고른 표시 테두리")]
     public GameObject[] frames;
@@ -182,7 +182,7 @@ public class ItemSwapWindow : MonoBehaviour
         cur = queue.Dequeue();
         if (!open)
         {
-            open = true;
+            open = true; stateFrame = Time.frameCount;
             GamePause.Push(PauseKey);
             CombatUIGate.Block();
             if (PlayerController.Instance != null) PlayerController.Instance.LockControl(this);
@@ -329,7 +329,10 @@ public class ItemSwapWindow : MonoBehaviour
     void Fill()
     {
         // [21:58] 요청마다 Esc 안내 (증강 고르기에서 왔으면 돌아가기)
-        if (swapHint != null) swapHint.text = $"방향키 고르기     {KeyBindings.KeyName(KeyAction.Interact)} 결정     Esc {(cur.back ? "돌아가기" : "포기")}";
+        if (swapHint != null) swapHint.text = $"방향키 고르기     Space 결정     Esc {(cur.back ? "돌아가기" : "포기")}";
+        // [2026-11-28] 키 칸 판(SwapKeyHints)의 Esc 설명도 같이
+        var escLabel = swapHint != null ? swapHint.transform.parent.Find("SwapKeyHints/Label_포기")?.GetComponent<TMP_Text>() : null;
+        if (escLabel != null) escLabel.text = cur.back ? "돌아가기" : "포기";
         var owned = Inventory.Instance != null ? Inventory.Instance.passives : null;
         if (newSlot != null) newSlot.SetItem(cur.item, null);
         if (newName != null) newName.text = cur.item != null ? cur.item.itemName : "";
@@ -350,7 +353,7 @@ public class ItemSwapWindow : MonoBehaviour
         ItemSlotUI.SetSwapPick(pick);   // 인벤토리 칸 붉은 표시
         if (info != null)
             info.text = pick == null
-                ? (useInventory ? "버릴 사이버웨어를 인벤토리에서 고르세요" : "버릴 사이버웨어를 고르세요")
+                ? (useInventory ? "버릴 모듈을 인벤토리에서 고르세요" : "버릴 모듈을 고르세요")
                 : $"<color=#E3C27E>{pick.itemName}</color> 을(를) 버리고 파편 <color=#B08CE0>+{ItemObtain.DiscardShards(pick)}</color>";
         if (useInventory) FillInfo(pick);
         if (swapButton != null) swapButton.interactable = pick != null;
@@ -374,7 +377,7 @@ public class ItemSwapWindow : MonoBehaviour
         var owned = Inventory.Instance != null ? Inventory.Instance.passives : null;
         var pick = owned != null && selected >= 0 && selected < owned.Count ? owned[selected] : null;
         if (pick == null) return;
-        confirming = true;
+        confirming = true; stateFrame = Time.frameCount;
         ItemInfoPopup.Instance?.Hide();
         confirmRoot.SetActive(true);
         confirmRoot.transform.SetAsLastSibling();
@@ -391,7 +394,7 @@ public class ItemSwapWindow : MonoBehaviour
             if (confirmOldKw != null) confirmOldKw.text = KeywordChange(pick, b, a);
             if (confirmNewKw != null) confirmNewKw.text = KeywordChange(cur.item, b, a);
         }
-        if (confirmHint != null) confirmHint.text = $"← → 선택     {KeyBindings.KeyName(KeyAction.Interact)} 결정     Esc 취소";
+        if (confirmHint != null) confirmHint.text = $"← → 선택     Space 결정     Esc 취소";
         SetFocus(0);
         if (confirmInfo != null) confirmInfo.text = confirmOldIcon != null
             ? $"+{ItemObtain.DiscardShards(pick)}"   // [v2] 옆에 파편 아이콘이 있음
@@ -425,7 +428,7 @@ public class ItemSwapWindow : MonoBehaviour
 
     void CloseConfirm()
     {
-        confirming = false;
+        confirming = false; stateFrame = Time.frameCount;
         ItemInfoPopup.Instance?.Hide();
         if (confirmRoot != null) confirmRoot.SetActive(false);
     }
@@ -460,6 +463,12 @@ public class ItemSwapWindow : MonoBehaviour
         Refresh();
     }
 
+    // [2026-11-28] 플테 피드백: 선택 키가 창마다 제각각(F / Space) → 이 창도 Space · Enter · F 모두 결정.
+    //  창이 열리거나 확인 창이 바뀐 그 프레임의 키는 무시 (앞 창에서 Space 로 고른 키가 여기서 바로 결정되지 않게)
+    int stateFrame = -1;
+    bool AcceptDown() => Time.frameCount > stateFrame
+        && (KeyBindings.Down(KeyAction.Interact) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter));
+
     void Update()
     {
         if (!open) return;
@@ -467,7 +476,7 @@ public class ItemSwapWindow : MonoBehaviour
         {
             // [18:21] ← → 로 버튼 고르기, 상호작용 키(F)로 결정, Esc 취소
             if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) { UIClickSound.PlayClick(); SetFocus(1 - focus); }
-            if (KeyBindings.Down(KeyAction.Interact)) { UIClickSound.PlayClick(); if (focus == 0) Confirm(); else CloseConfirm(); }
+            if (AcceptDown()) { UIClickSound.PlayClick(); if (focus == 0) Confirm(); else CloseConfirm(); }
             else if (Input.GetKeyDown(KeyCode.Escape)) { UIClickSound.PlayClick(); CloseConfirm(); }
             return;
         }
@@ -479,13 +488,13 @@ public class ItemSwapWindow : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.RightArrow)) { UIClickSound.PlayClick(); MoveGrid(+1); }
             if (Input.GetKeyDown(KeyCode.UpArrow)) { UIClickSound.PlayClick(); MoveGrid(-cols); }
             if (Input.GetKeyDown(KeyCode.DownArrow)) { UIClickSound.PlayClick(); MoveGrid(+cols); }
-            if (KeyBindings.Down(KeyAction.Interact) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) { UIClickSound.PlayClick(); OpenConfirm(); }
+            if (AcceptDown()) { UIClickSound.PlayClick(); OpenConfirm(); }
             else if (Input.GetKeyDown(KeyCode.Escape)) { UIClickSound.PlayClick(); Cancel(); }
             return;
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow)) { UIClickSound.PlayClick(); Move(-1); }
         if (Input.GetKeyDown(KeyCode.RightArrow)) { UIClickSound.PlayClick(); Move(+1); }
-        if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Space)) && selected >= 0) { UIClickSound.PlayClick(); if (useInventory && confirmRoot != null) OpenConfirm(); else Confirm(); }
+        if (AcceptDown() && selected >= 0) { UIClickSound.PlayClick(); if (useInventory && confirmRoot != null) OpenConfirm(); else Confirm(); }
         else if (Input.GetKeyDown(KeyCode.Escape)) { UIClickSound.PlayClick(); Cancel(); }
     }
 

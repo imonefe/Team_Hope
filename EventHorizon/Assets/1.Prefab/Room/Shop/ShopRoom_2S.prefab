@@ -662,11 +662,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npc: {fileID: 6311826398666902549}
-  introKey: shopIntro
+  introKey: demoEnding
   startDelay: 0.8
   waitPlayerTimeout: 5
-  onceKey: shopIntro
+  onceKey: demoEnding
   showControlsGuide: 0
+  stage2IntroKey: 
+  gameClearAfter: 1
 --- !u!1 &4445074828689342532
 GameObject:
   m_ObjectHideFlags: 0

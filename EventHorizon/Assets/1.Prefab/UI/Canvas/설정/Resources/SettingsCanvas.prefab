@@ -12656,7 +12656,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "GEEKS 2026 \ud2b9\uc804 (\uc0ac\uc774\ubc84\uc6e8\uc5b4 5\uac1c)"
+  m_text: "GEEKS 2026 \uD2B9\uC804 (\uBAA8\uB4C8 5\uAC1C)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   m_sharedMaterial: {fileID: 7224087456951919524, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
@@ -12816,7 +12816,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   background: {fileID: 1931665748721157431}
   knob: {fileID: 7577135721061262448}
-  stateText: {fileID: 2531316410537367208}
+  stateText: {fileID: 7544474545320139562}
   onColor: {r: 0.929, g: 0.8, b: 0.522, a: 1}
   offColor: {r: 0.45, g: 0.47, b: 0.53, a: 1}
   onLabel: "\uCF2C"

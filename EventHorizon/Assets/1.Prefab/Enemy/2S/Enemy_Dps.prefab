@@ -126,7 +126,7 @@ MonoBehaviour:
   attackDashDelay: 0
   hitboxFollowAttacker: 0
   attackDashDecelTime: 0.2
-  dashSfx: {fileID: 0}
+  dashSfx: {fileID: 8300000, guid: 1e69affa522343a3926a2da59bcd5207, type: 3}
   dashMaxHeightDiff: 1.2
   dashStopAtLedge: 1
   attackVariations: 1
@@ -155,8 +155,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 310
-  currentHp: 310
+  maxHp: 265
+  currentHp: 265
   Atk: 13.5
   Def: 3
   spd: 1.5

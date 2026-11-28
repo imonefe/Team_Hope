@@ -36,7 +36,7 @@ public class SettingsWindow : MonoBehaviour
     public SettingToggle weaponInfo;
     public SettingToggle keyHints;
     public SettingToggle damageNumbers;
-    [Tooltip("[2026-11-25] GEEKS 2026 특전 (로비 프롤로그 뒤 사이버웨어 5개)")]
+    [Tooltip("[2026-11-25] GEEKS 2026 특전 (로비 프롤로그 뒤 모듈 5개)")]
     public SettingToggle geeksPerk;
 
     [Header("버튼")]

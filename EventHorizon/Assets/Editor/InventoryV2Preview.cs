@@ -103,6 +103,10 @@ public static class InventoryV2Preview
                 if (w != null) w.Offer(false); else Debug.LogWarning("[인벤토리 v2 확인] AugmentOfferWindow 없음");
                 break;
             }
+            case "shot":   // [2026-11-28] shot 이름 초 — 그 시간 뒤 게임 화면을 fxshots/이름.png 로 저장 후 정지
+                pauseAt = EditorApplication.timeSinceStartup + (p.Length > 2 ? float.Parse(p[2], System.Globalization.CultureInfo.InvariantCulture) : 0.5f);
+                shotName = p.Length > 1 ? p[1] : "shot";
+                break;
             case "close":
                 inv.Close();
                 break;
@@ -135,7 +139,8 @@ public static class InventoryV2Preview
             case "sheath": Kw("KW2_Sheath_Hit", front, 0f); break;
             case "coreS": case "coreP": case "coreT":
             {
-                string k = n == "coreS" ? "Slash" : n == "coreP" ? "Pierce" : "Strike";
+                string k = n == "coreS" ? "Slash" : n == "coreP" ? "Pierce" : null;   // [2026-11-28] 타격(마법사) 제거
+                if (k == null) break;
                 var pf = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/1.Prefab/Effect/VFX/FX_CoreBreak_{k}.prefab");
                 if (pf != null) Object.Instantiate(pf, front + Vector3.right * 1.5f, Quaternion.identity);
                 break;

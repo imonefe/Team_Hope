@@ -44,6 +44,8 @@ public enum CutsceneStepType
     ProjectileShot,     // [2026-10-15] 마지막으로 생성한 이펙트 안의 투사체(화살)를 플레이어에게 날리고 카메라가 따라감
     NpcDialogue,        // [2026-10-18] NPC 대화창(F/클릭으로 넘기는 대사)을 열고, 대화가 끝날 때까지 기다림
     SwordSlashKill,     // [2026-10-22] 마지막으로 생성한 검사(SpriteFrameSequence)가 '베는 프레임'에 닿으면, 플레이어를 지나는 선으로 화면 가르기
+    ShowHide,           // [2026-11-28] 대상(보스 등)을 서서히 사라지게 / 나타나게 (스프라이트 · 스파인 투명도)
+    Reposition,         // [2026-11-28] 플레이어를 정한 자리로 옮기고(보스 쪽을 봄) 보스를 처음 자리로 되돌림 — 암전 사이에 쓰는 용도
 }
 
 [System.Serializable]
@@ -202,6 +204,25 @@ public class CutsceneStep
     public Vector2 slashCenterOffset = new Vector2(0f, 0.1f);
     [Tooltip("화면 가르기를 시작한 뒤 다음 단계로 넘어가기까지(초, 실제 시간)")]
     public float cutDelay = 0.14f;
+
+    // SpawnEffect 추가 [2026-11-28]
+    [Tooltip("SpawnEffect: 생성한 그림 연속 재생(SpriteFrameSequence)을 이 프레임에서 멈춰 둔다 (-1 = 안 멈춤). 다음 SwordSlashKill 이 다시 재생")]
+    public int effectHoldFrame = -1;
+
+    // ShowHide [2026-11-28]
+    [Tooltip("ShowHide: 사라지게/나타나게 할 대상 (비우면 보스전 상대 fightBoss)")]
+    public Transform showHideTarget;
+    [Tooltip("ShowHide: 체크 = 나타나게, 해제 = 사라지게")]
+    public bool show = true;
+    public float showHideDuration = 0.4f;
+
+    // Reposition [2026-11-28]
+    [Tooltip("Reposition: 플레이어를 옮길 기준 위치 (비우면 플레이어는 그대로)")]
+    public Transform moveTarget;
+    [Tooltip("Reposition: 기준 위치에서 이만큼 옮긴 곳에 플레이어를 세움")]
+    public Vector2 moveOffset = Vector2.zero;
+    [Tooltip("Reposition: 보스전 상대를 전투 시작 때 자리로 되돌림")]
+    public bool resetBossPosition = true;
 }
 
 public class CutsceneSequencer : MonoBehaviour
@@ -233,6 +254,12 @@ public class CutsceneSequencer : MonoBehaviour
     public int fightFromStep = -1;
     [Tooltip("컷신이 끝나면 싸우기 시작할 보스")]
     public BossController fightBoss;
+
+    [Header("[2026-11-28] 보스 체력 0 → 패배 연출 (보스전으로 바꾼 경우)")]
+    [Tooltip("fightBoss 의 체력이 0이 되면 보스는 죽지 않고, 보스 모듈 보상 창이 닫힌 뒤 이 스텝들을 위에서부터 재생한다. 비우면 보스가 그냥 죽음")]
+    public List<CutsceneStep> defeatSteps = new List<CutsceneStep>();
+    [Tooltip("패배 연출이 끝나면 게임오버 대신 다음 스테이지 칸으로 바로 넘어감 (화면은 어두운 채로)")]
+    public bool defeatGoesToNextStage = true;
 
     [Header("보스방 카메라")]
     [Tooltip("체크하면 재생 동안 보스방 '방 전체 고정' 카메라를 잠시 풀어서 줌/포커스가 먹히게 한다 (끝나면 다시 고정)")]
@@ -323,6 +350,7 @@ public class CutsceneSequencer : MonoBehaviour
         if (proCam != null) savedHalfHeight = proCam.ScreenSizeInWorldCoordinates.y * 0.5f;
 
         bool toFight = fightInsteadOfKill && fightBoss != null && fightFromStep >= 0;
+        AlignBossFocus();   // [2026-11-28]
         for (int i = 0; i < steps.Count; i++)
         {
             if (toFight && i >= fightFromStep) break;   // [2026-11-18] 처형 부분 건너뜀
@@ -333,12 +361,191 @@ public class CutsceneSequencer : MonoBehaviour
 
         playRoutine = null;
         Cleanup(true);
-        if (toFight) fightBoss.Activate();   // [2026-11-18] 조작·카메라를 돌려준 뒤 전투 시작
+        if (toFight)
+        {
+            if (defeatSteps != null && defeatSteps.Count > 0) fightBoss.ScriptedDefeat = PlayDefeat;   // [2026-11-28]
+            bossHome = fightBoss.transform.position; bossHomeSet = true;
+            Debug.Log($"[보스 패배 연출] {fightBoss.name} 전투 시작 — 패배 연출 {(fightBoss.ScriptedDefeat != null ? defeatSteps.Count + "단계 연결됨" : "없음 (그냥 사망)")}");
+            fightBoss.Activate();   // [2026-11-18] 조작·카메라를 돌려준 뒤 전투 시작
+        }
+    }
+
+    // ── [2026-11-28] 보이기 / 숨기기 ──
+    IEnumerator ShowHideStep(CutsceneStep step)
+    {
+        Transform tgt = step.showHideTarget != null ? step.showHideTarget : (fightBoss != null ? fightBoss.transform : null);
+        if (tgt == null) yield break;
+        var srs = tgt.GetComponentsInChildren<SpriteRenderer>(true);
+        var sks = tgt.GetComponentsInChildren<SkeletonRenderer>(true);
+        float from = step.show ? 0f : 1f, to = step.show ? 1f : 0f;
+        float d = Mathf.Max(0.01f, step.showHideDuration);
+        for (float t = 0f; t <= d; t += Time.unscaledDeltaTime)
+        {
+            SetAlpha(srs, sks, Mathf.Lerp(from, to, t / d));
+            yield return null;
+        }
+        SetAlpha(srs, sks, to);
+    }
+
+    static void SetAlpha(SpriteRenderer[] srs, SkeletonRenderer[] sks, float a)
+    {
+        foreach (var s in srs) if (s != null) { var c = s.color; c.a = a; s.color = c; }
+        foreach (var k in sks)
+        {
+            if (k == null || k.Skeleton == null) continue;
+            var c = k.Skeleton.GetColor(); c.a = a; k.Skeleton.SetColor(c);   // 이 프로젝트의 스파인 버전은 색을 GetColor/SetColor 로 다룸
+        }
+    }
+
+    // ── [2026-11-28] 위치 정리 (암전 사이에) ──
+    void RepositionStep(CutsceneStep step)
+    {
+        if (step.resetBossPosition && fightBoss != null && bossHomeSet)
+        {
+            fightBoss.transform.position = bossHome;
+            var brb = fightBoss.GetComponent<Rigidbody2D>();
+            if (brb != null) brb.velocity = Vector2.zero;
+        }
+        Transform player = CurrentPlayerTransform();
+        if (player == null || step.moveTarget == null) { AlignBossFocus(); return; }
+        Vector3 from = player.position;
+        Vector3 to = step.moveTarget.position + (Vector3)step.moveOffset;
+        to.z = from.z;
+        var rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null) { rb.velocity = Vector2.zero; rb.position = to; }   // 물리 몸까지 같이 옮겨야 다음 물리 계산에서 원래 자리로 돌아가지 않음
+        player.position = to;
+        Physics2D.SyncTransforms();
+        Debug.Log($"[보스 패배 연출] 헤네시 자리 {(Vector2)from} → {(Vector2)to} (기준: {step.moveTarget.name})");
+        if (fightBoss != null)   // 보스 쪽을 보게 (크기는 그대로, 방향만)
+        {
+            float dir = Mathf.Sign(fightBoss.transform.position.x - player.position.x);
+            if (dir == 0f) dir = 1f;
+            var s = player.localScale;
+            player.localScale = new Vector3(Mathf.Abs(s.x) * dir, s.y, s.z);
+        }
+        AlignBossFocus();
+    }
+
+    // ── [2026-11-28] 보스를 비추는 카메라 기준점을 실제 보스 그림 가운데에 맞춤 (보스 자리를 옮겨도 컷신 카메라가 어긋나지 않게) ──
+    [Header("[2026-11-28] 보스 비춤 기준점 자동 맞춤")]
+    [Tooltip("카메라가 보스를 비출 때 쓰는 기준점 (CamFocus_Boss). 보스를 비추는 단계 직전마다 '보스 그림 가운데 + 아래 오프셋'으로 옮긴다")]
+    public Transform bossFocusPoint;
+    [Tooltip("보스 그림 (Boss2 의 MeshRenderer). 비우면 맞추지 않음")]
+    public Renderer bossFocusRenderer;
+    [Tooltip("보스 그림 가운데에서 이만큼 옮긴 곳을 비춤 (월드 칸). 0,0 = 그림 한가운데")]
+    public Vector2 bossFocusOffset = Vector2.zero;
+    [Tooltip("얼굴 기준점 (CamFocus_Face). 보스 그림 위쪽 1/4 지점 + 아래 오프셋")]
+    public Transform bossFaceFocusPoint;
+    public Vector2 bossFaceFocusOffset = Vector2.zero;
+    [Tooltip("보스를 비출 때 실제 화면(2D 카메라) 높이의 절반 (월드 칸). 0 = 줌 안 바꿈. 작을수록 크게 잡힘")]
+    public float bossShotHalfHeight = 2.6f;
+    [Tooltip("보스 그림 맨 위(잘린 줄)에서 이만큼 아래까지는 화면에 안 보이게 카메라를 내림 (월드 칸)")]
+    public float bossTopHide = 0.35f;
+
+    // 이 게임은 ProCamera2D 가 3D 카메라에 붙어 있고, 그림은 자식 2D 카메라가 그 크기에 비례해 더 넓게 보여 준다.
+    // ProCamera2D 크기 1 = 실제 2D 화면 몇 칸인지
+    Camera cam2D;
+    float View2DScale()
+    {
+        if (proCam == null) return 1f;
+        if (cam2D == null)
+            foreach (var c in proCam.GetComponentsInChildren<Camera>(true))
+                if (c != proCam.GameCamera && c.orthographic) { cam2D = c; break; }
+        float pc = proCam.ScreenSizeInWorldCoordinates.y * 0.5f;
+        return cam2D != null && pc > 0.001f ? cam2D.orthographicSize / pc : 1f;
+    }
+
+    Vector3 bossHome; bool bossHomeSet;
+
+    void AlignBossFocus() => AlignBossFocus(proCam != null ? proCam.ScreenSizeInWorldCoordinates.y * 0.5f * View2DScale() : 0f);
+
+    void AlignBossFocus(float viewHalf)
+    {
+        if (bossFocusRenderer == null) return;
+        // 이 보스(스파인)는 그림이 오브젝트 위치에서 멀리 떨어져 그려지므로, 오브젝트 위치가 아니라 실제 그림 범위를 기준으로 한다
+        Bounds b = bossFocusRenderer.bounds;
+        Vector3 c; Vector3 face;
+        if (b.size.x > 0.05f && b.size.y > 0.05f) { c = b.center; face = new Vector3(b.center.x, b.max.y - b.size.y * 0.25f, 0f); }
+        else { c = bossFocusRenderer.transform.position; face = c; }
+        if (viewHalf > 0f && b.size.y > 0.05f)   // 보스 위쪽의 잘린 줄이 화면에 안 들어오게: 화면 윗변이 (그림 맨 위 - bossTopHide) 아래에 오도록 카메라를 내림
+        {
+            float maxY = b.max.y - bossTopHide - viewHalf;
+            c.y = Mathf.Min(c.y + bossFocusOffset.y, maxY) - bossFocusOffset.y;
+            face.y = Mathf.Min(face.y + bossFaceFocusOffset.y, maxY) - bossFaceFocusOffset.y;
+        }
+        if (bossFocusPoint != null) bossFocusPoint.position = new Vector3(c.x + bossFocusOffset.x, c.y + bossFocusOffset.y, bossFocusPoint.position.z);
+        if (bossFaceFocusPoint != null) bossFaceFocusPoint.position = new Vector3(face.x + bossFaceFocusOffset.x, face.y + bossFaceFocusOffset.y, bossFaceFocusPoint.position.z);
+        Debug.Log($"[컷신 카메라] 보스 오브젝트 {(Vector2)bossFocusRenderer.transform.position} · 보스 그림 가운데 {(Vector2)b.center} 크기 {(Vector2)b.size} → 보스 비춤 기준점 {(bossFocusPoint != null ? ((Vector2)bossFocusPoint.position).ToString() : "-")}");
+    }
+
+    // ── [2026-11-28] 보스 체력 0 → 패배 연출 ──
+    public void PlayDefeat()
+    {
+        Debug.Log($"[보스 패배 연출] 시작 요청 ({name}, 켜짐={isActiveAndEnabled})");
+        if (!isActiveAndEnabled) { Debug.LogWarning("[보스 패배 연출] 컷신 오브젝트가 꺼져 있어 재생할 수 없음", this); return; }
+        if (playRoutine != null) StopCoroutine(playRoutine);
+        ResolveReferences();
+        playRoutine = StartCoroutine(DefeatRoutine());
+    }
+
+    IEnumerator DefeatRoutine()
+    {
+        // 보스 처치 슬로우 → 보스 모듈 보상 창이 다 끝난 뒤 시작
+        yield return null;
+        float waitLog = 0f;
+        while (BossSlowMotion.IsPlaying || AugmentOfferDirector.IsBusy || GamePause.IsPaused)
+        {
+            waitLog += Time.unscaledDeltaTime;
+            if (waitLog > 3f) { waitLog = 0f; Debug.Log($"[보스 패배 연출] 대기 중 — 슬로모션 {BossSlowMotion.IsPlaying} · 보상 창 {AugmentOfferDirector.IsBusy} · 일시정지 {GamePause.IsPaused} · 컷신 {IsAnyPlaying} · 대화 {NPC.AnyTalking}"); }
+            yield return null;
+        }
+        if (!counted) { counted = true; playingCount++; }
+        if (releaseRoomCamera && CameraFollow.Instance != null) { CameraFollow.Instance.ReleaseRoom(); roomCameraReleased = true; }
+        if (proCam != null) savedHalfHeight = proCam.ScreenSizeInWorldCoordinates.y * 0.5f;
+
+        Debug.Log("[보스 패배 연출] 재생");
+        foreach (var step in defeatSteps)
+        {
+            if (step.runInBackground) backgroundRoutines.Add(StartCoroutine(RunStep(step)));
+            else yield return RunStep(step);
+        }
+        playRoutine = null;
+
+        var map = defeatGoesToNextStage ? MapManager.Instance : null;
+        Debug.Log($"[보스 패배 연출] 끝 → {(map != null && map.PlanActive ? "다음 칸으로" : "그 자리에서 종료")}");
+        if (map != null && map.PlanActive)
+        {
+            keepOverlayOnCleanup = true;    // 어두운 화면 그대로 다음 방으로
+            Cleanup(false);
+            keepOverlayOnCleanup = false;
+            map.GoNext();                   // 다음 칸 (2S 로비) — 이 방은 지워진다
+            CutsceneOverlay.HideAllIfExists(0.6f);
+        }
+        else Cleanup(true);
+    }
+
+    bool keepOverlayOnCleanup;
+
+    // [2026-11-28] 카메라 경계(ProCamera2DNumericBoundaries) 잠시 끄기 / 되돌리기
+    ProCamera2DNumericBoundaries freedBounds; bool freedBoundsWas;
+    void FreeCameraBounds()
+    {
+        if (proCam == null || freedBounds != null) return;
+        var nb = proCam.GetComponent<ProCamera2DNumericBoundaries>();
+        if (nb == null || !nb.UseNumericBoundaries) return;
+        freedBounds = nb; freedBoundsWas = nb.UseNumericBoundaries;
+        nb.UseNumericBoundaries = false;
+    }
+    void RestoreCameraBounds()
+    {
+        if (freedBounds != null) freedBounds.UseNumericBoundaries = freedBoundsWas;
+        freedBounds = null;
     }
 
     // 컷신이 끝나거나 중단될 때 잠금/카메라/화면 덮개를 원래대로
     void Cleanup(bool finished)
     {
+        RestoreCameraBounds();
         if (gameOverTriggered) finished = false;
 
         foreach (var r in backgroundRoutines)
@@ -353,7 +560,7 @@ public class CutsceneSequencer : MonoBehaviour
         }
 
         // 화면 덮개(띠/암전)가 남아 있지 않도록 걷어준다
-        if (!gameOverTriggered) CutsceneOverlay.HideAllIfExists(0.4f);
+        if (!gameOverTriggered && !keepOverlayOnCleanup) CutsceneOverlay.HideAllIfExists(0.4f);
 
         if (restoreCameraOnEnd && proCam != null && !gameOverTriggered)
         {
@@ -407,6 +614,19 @@ public class CutsceneSequencer : MonoBehaviour
                 break;
 
             case CutsceneStepType.FocusOn:
+                if (step.focusTarget != null && (step.focusTarget == bossFocusPoint || step.focusTarget == bossFaceFocusPoint))   // [2026-11-28] 비추기 직전에 실제 그림 자리로 + 줌
+                {
+                    float k = View2DScale();
+                    float pcHalf = proCam != null ? proCam.ScreenSizeInWorldCoordinates.y * 0.5f : 0f;
+                    float half = pcHalf * k;   // 실제 2D 화면 절반 높이
+                    FreeCameraBounds();   // 방 경계 때문에 카메라가 보스 쪽으로 못 가던 문제 → 보스 비추는 동안 경계를 잠시 끔
+                    if (bossShotHalfHeight > 0f && proCam != null) { proCam.Zoom(bossShotHalfHeight / k - pcHalf, step.focusDuration); half = bossShotHalfHeight; }
+                    AlignBossFocus(half);
+                    FocusStep(step);
+                    yield return new WaitForSeconds(step.focusDuration);
+                    if (proCam != null) Debug.Log($"[컷신 카메라] 보스 비춤 후 실제 화면 절반 높이 {(cam2D != null ? cam2D.orthographicSize : -1f):0.00} · 카메라 위치 {(Vector2)proCam.transform.position}");
+                    break;
+                }
                 FocusStep(step);
                 yield return new WaitForSeconds(step.focusDuration);
                 break;
@@ -509,6 +729,14 @@ public class CutsceneSequencer : MonoBehaviour
 
             case CutsceneStepType.NpcDialogue:
                 yield return NpcDialogueStep(step);
+                break;
+
+            case CutsceneStepType.ShowHide:
+                yield return ShowHideStep(step);
+                break;
+
+            case CutsceneStepType.Reposition:
+                RepositionStep(step);
                 break;
         }
     }
@@ -759,6 +987,9 @@ public class CutsceneSequencer : MonoBehaviour
     IEnumerator SwordSlashKillStep(CutsceneStep step)
     {
         SpriteFrameSequence seq = lastSpawnedEffect != null ? lastSpawnedEffect.GetComponentInChildren<SpriteFrameSequence>() : null;
+        if (seq != null && seq.speed <= 0f) seq.speed = 1f;   // [2026-11-28] 멈춰 둔 검사를 여기서 다시 움직여, 베는 동작을 끝까지 본 뒤 벤다
+        float slashStart = Time.realtimeSinceStartup;
+        Debug.Log($"[보스 패배 연출] 검사 베기 시작 — 지금 그림 {(seq != null ? seq.CurrentFrame : -1)}번");
         float waited = 0f;
         while (seq != null && seq.CurrentFrame < step.slashFrame && !seq.Finished && waited < step.slashTimeout)
         {
@@ -766,6 +997,7 @@ public class CutsceneSequencer : MonoBehaviour
             yield return null;
         }
 
+        Debug.Log($"[보스 패배 연출] 검사가 벰 — {Time.realtimeSinceStartup - slashStart:0.00}초 뒤 (그림 {(seq != null ? seq.CurrentFrame : -1)}번)");
         Transform player = CurrentPlayerTransform();
         if (player == null) yield break;
         // [2026-10-22] 몸 중심: 본체 충돌체 → 본체 스프라이트 → 가장 큰 스프라이트 순 (붙어 있는 이펙트 그림에 끌려가지 않게)
@@ -986,6 +1218,17 @@ public class CutsceneSequencer : MonoBehaviour
                 if (names.Contains(tr.name)) tr.gameObject.SetActive(false);
         }
         if (step.effectLifetime > 0f) Destroy(fx, step.effectLifetime);
+        if (step.effectHoldFrame >= 0)   // [2026-11-28] 대사가 이어지는 동안 그림이 먼저 지나가 버리지 않게 멈춰 둠
+        {
+            var seq = fx.GetComponentInChildren<SpriteFrameSequence>();
+            if (seq != null) StartCoroutine(HoldSequence(seq, step.effectHoldFrame));
+        }
+    }
+
+    IEnumerator HoldSequence(SpriteFrameSequence seq, int frame)
+    {
+        while (seq != null && seq.CurrentFrame < frame && !seq.Finished) yield return null;
+        if (seq != null && !seq.Finished) seq.speed = 0f;
     }
 
     // [2026-10-21] 생성한 복사본만 빠르게/느리게 재생 (파티클 딜레이·스파인 동작·애니메이터가 같은 배율로 움직여 타이밍이 안 어긋남)

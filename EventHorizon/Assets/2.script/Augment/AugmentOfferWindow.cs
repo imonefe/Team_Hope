@@ -51,9 +51,11 @@ public class AugmentOfferWindow : ShopWindow
     public Sprite[] keywordIcons = new Sprite[8];
 
     [Header("글자")]
-    public string title = "사이버웨어 선택";
+    public string title = "모듈 선택";
     public string roomSubtitle = "전투방 진입 보상 · 하나를 고르세요";
     public string bossSubtitle = "보스 처치 보상 · 하나를 고르세요";
+    [Tooltip("[2026-11-28] 아직 모듈이 하나도 없을 때(첫 선택) 부제 자리에 나오는 안내")]
+    public string firstSubtitle = "같은 키워드를 3개 이상 모으면, 새로운 능력이 발생합니다.";
     [Tooltip("선택한 카드 크기 배율")]
     public float selectedScale = 1.05f;
 
@@ -110,6 +112,18 @@ public class AugmentOfferWindow : ShopWindow
 
     protected override bool UsesShopFrame => false;
 
+    // ───────── [2026-11-28] Esc = 포기 확인 창 ("모듈 선택을 포기하고 재화(+N)로 변경하시겠습니까?") ─────────
+    //  창 모양은 프리팹 AugmentOfferCanvas / GiveUpConfirm (에디터 메뉴 EventHorizon/모듈 포기 확인 창 만들기 로 만듦, 이후 프리팹에서 직접 수정)
+    [Header("[2026-11-28] 포기 확인")]
+    [Tooltip("포기하면 받는 재화. 0 = 후보 중 가장 높은 등급 모듈을 팔 때 값")]
+    public int giveUpShards = 0;
+    [Tooltip("{0} 자리에 받는 재화 수")]
+    public string giveUpMessage = "모듈 선택을 포기하고 재화(+{0})로 변경하시겠습니까?";
+    GameObject giveUpPanel;
+    TMP_Text giveUpText;
+    bool giveUpOpen;
+    int giveUpFrame;
+
     protected override void Build()
     {
         titleText = FindText("Title");
@@ -117,6 +131,16 @@ public class AugmentOfferWindow : ShopWindow
         arrow = Find("Arrow") as RectTransform;
         shardCount = FindText("ShardBox/Count");
         ownedPanel = Find("Owned") as RectTransform;
+        giveUpPanel = Find("GiveUpConfirm")?.gameObject;
+        giveUpText = FindText("GiveUpConfirm/Box/Message");
+        if (giveUpPanel != null)
+        {
+            giveUpPanel.SetActive(false);
+            var yes = Find("GiveUpConfirm/Box/Yes")?.GetComponent<Button>();
+            var no = Find("GiveUpConfirm/Box/No")?.GetComponent<Button>();
+            if (yes != null) yes.onClick.AddListener(() => { UIClickSound.PlayClick(); GiveUp(); });
+            if (no != null) no.onClick.AddListener(() => { UIClickSound.PlayClick(); HideGiveUp(); });
+        }
 
         for (int i = 0; i < CardCount; i++)
         {
@@ -270,6 +294,7 @@ public class AugmentOfferWindow : ShopWindow
     protected override void OnOpened()
     {
         KillTweens();
+        ShowEscHint(!Custom);   // [2026-11-28] 문 고르기 · 스탯 카드는 Esc 로 포기할 수 없으므로 [Esc] 포기 안내를 숨김
         LayoutCards(customCards);   // [2026-11-26] 장 수에 맞춰 자리 (처음 열 때 Build 가 끝난 뒤라 여기서)
         for (int i = 0; i < CardCount; i++)
         {
@@ -356,7 +381,17 @@ public class AugmentOfferWindow : ShopWindow
         if (ItemSwapWindow.BlocksInput) return;   // [2026-11-26] 교체 창이 위에 떠 있음
         // [22:00] 사이버웨어 고르기 창: Esc = 이번 보상 건너뛰기 (교체 창 Esc 로 돌아온 뒤 나갈 길).
         //  문 고르기 · 스탯 카드(Custom)는 반드시 골라야 하므로 제외
-        if (!Custom && Input.GetKeyDown(KeyCode.Escape)) { UIClickSound.PlayClick(); Skip(); return; }
+        // [2026-11-28] Esc = 바로 건너뛰지 않고 포기 확인 창 (예 → 재화를 받고 닫힘 / 아니요 · Esc → 다시 고르기)
+        if (giveUpOpen)
+        {
+            if (Time.frameCount <= giveUpFrame) return;
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.N)) { UIClickSound.PlayClick(); HideGiveUp(); }
+            else if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)
+                     || Input.GetKeyDown(KeyCode.Y) || KeyBindings.Down(KeyAction.Interact))
+            { UIClickSound.PlayClick(); GiveUp(); }
+            return;
+        }
+        if (!Custom && Input.GetKeyDown(KeyCode.Escape)) { UIClickSound.PlayClick(); AskGiveUp(); return; }
         UpdateHoverArm();
         UpdateShardHover();
         // [2026-11-24 변경] 카드가 나오는 중에도 ← → 로 고르기는 바로 됨.
@@ -389,7 +424,70 @@ public class AugmentOfferWindow : ShopWindow
         KillTweens();
         Close();
         HideShardHover();
+        CountOffer();
         OnFinished?.Invoke();
+    }
+
+    // [2026-11-28] 아래 조작 안내 판(KeyHints)의 [Esc] 포기 칸을 켜고 끔 (판 폭도 맞춤)
+    RectTransform hintPanel; float hintFullWidth = -1f;
+    void ShowEscHint(bool on)
+    {
+        if (hintPanel == null)   // 안내 판이 창 바로 아래가 아닐 수 있어 하위 전체에서 찾음
+            foreach (var r in GetComponentsInChildren<RectTransform>(true))
+                if (r.name == "KeyHints") { hintPanel = r; break; }
+        if (hintPanel == null) return;
+        var key = hintPanel.Find("Key_Esc") as RectTransform;
+        var label = hintPanel.Find("Label_포기") as RectTransform;
+        if (key == null || label == null) return;
+        if (hintFullWidth < 0f) hintFullWidth = hintPanel.sizeDelta.x;
+        key.gameObject.SetActive(on); label.gameObject.SetActive(on);
+        float w = on ? hintFullWidth : key.anchoredPosition.x - 26f + 16f;   // 앞 묶음 끝 + 여백 (빌더의 GroupGap 26 · PadX 16)
+        hintPanel.sizeDelta = new Vector2(w, hintPanel.sizeDelta.y);
+    }
+
+    int GiveUpAmount()
+    {
+        if (giveUpShards > 0) return giveUpShards;
+        int best = 1;
+        foreach (var d in offers) if (d != null) best = Mathf.Max(best, AugmentRules.SellShards(d.tier, 1));
+        return best;
+    }
+
+    void AskGiveUp()
+    {
+        if (giveUpPanel == null) { Skip(); return; }   // 프리팹에 확인 창이 없으면 예전처럼 바로 건너뜀
+        giveUpOpen = true; giveUpFrame = Time.frameCount;
+        if (giveUpText != null) giveUpText.text = string.Format(giveUpMessage, GiveUpAmount());
+        giveUpPanel.SetActive(true);
+        giveUpPanel.transform.SetAsLastSibling();
+    }
+
+    void HideGiveUp()
+    {
+        giveUpOpen = false; giveUpFrame = Time.frameCount;
+        if (giveUpPanel != null) giveUpPanel.SetActive(false);
+    }
+
+    void GiveUp()
+    {
+        if (!giveUpOpen) return;
+        int n = GiveUpAmount();
+        HideGiveUp();
+        var rm = RunManager.Instance;
+        if (rm != null && n > 0)
+        {
+            rm.AddShards(n);
+            var p = Player();
+            if (p.go != null) CurrencyShardFX.Spawn(p.go.transform.position, n * rm.shardFxPerShard, rm.shardColorA, rm.shardColorB);
+            ScreenNotice.Show($"모듈 선택 포기 → 모듈 조각 +{n}");
+        }
+        Skip();
+    }
+
+    /// <summary>[2026-11-28] 모듈 고르기 한 번 끝남 (첫 안내를 다음부터 안 띄움). 튜토리얼 체험은 세지 않음</summary>
+    static void CountOffer()
+    {
+        if (!AugmentSandbox.Active && RunManager.Instance != null) RunManager.Instance.ModuleOffersDone++;
     }
 
     void Choose(int i)
@@ -421,6 +519,7 @@ public class AugmentOfferWindow : ShopWindow
             ReleaseAll();
             KillTweens();
             Close();
+            CountOffer();
             if (r != ItemObtain.Result.Declined)
             {
                 if (p.go != null) ItemPickupEffect.SpawnAugment(p.go.transform.position, d, gainLine);   // [2026-11-25] 일반 아이템보다 크게
@@ -441,8 +540,8 @@ public class AugmentOfferWindow : ShopWindow
         shardHover = over;
         if (!over) { ItemInfoPopup.Instance?.Hide(); return; }
         var iconImg = box.Find("Icon")?.GetComponent<Image>() ?? box.GetComponentInChildren<Image>();
-        ItemInfoPopup.Instance?.ShowInfo(iconImg != null ? iconImg.sprite : null, "사이버웨어 파편",
-            "전투에서 얻는 재화입니다.\n상점의 강화 담당에게 가져가면 가진 사이버웨어를 강화할 수 있습니다 (★ 단계가 올라가고 효과가 강해짐).\n사이버웨어를 팔면 일부를 돌려받습니다.",
+        ItemInfoPopup.Instance?.ShowInfo(iconImg != null ? iconImg.sprite : null, "모듈 조각",
+            "전투에서 얻는 재화입니다.\n상점의 강화 담당에게 가져가면 가진 모듈을 강화할 수 있습니다 (★ 단계가 올라가고 효과가 강해짐).\n모듈을 팔면 일부를 돌려받습니다.",
             $"재화 · 보유 {(RunManager.Instance != null ? RunManager.Instance.Shards : 0)}개", ShopColors.Hex("E3C27E"));
     }
 
@@ -554,7 +653,9 @@ public class AugmentOfferWindow : ShopWindow
         if (Custom) { RefreshCustom(); return; }
         if (ownedPanel != null && !ownedPanel.gameObject.activeSelf) ownedPanel.gameObject.SetActive(true);   // 일반 카드 모드에서 꺼 둔 것 (아래 RefreshOwned 가 다시 판단)
         SetText(titleText, title);
-        SetText(subtitleText, bossReward ? bossSubtitle : roomSubtitle);
+        // [2026-11-28] 이번 판 첫 고르기(GEEKS 특전으로 모듈을 이미 가져도) · 튜토리얼 체험이면 규칙 안내
+        bool firstPick = AugmentSandbox.Active || RunManager.Instance == null || RunManager.Instance.ModuleOffersDone == 0;
+        SetText(subtitleText, firstPick && !string.IsNullOrEmpty(firstSubtitle) ? $"<color=#E3C27E>{firstSubtitle}</color>" : bossReward ? bossSubtitle : roomSubtitle);
         SetText(shardCount, $"× {(RunManager.Instance != null ? RunManager.Instance.Shards : 0)}");
 
         var owned = Inventory.Instance != null ? Inventory.Instance.passives : null;
@@ -597,9 +698,9 @@ public class AugmentOfferWindow : ShopWindow
             SetText(c.abilityName, "");   // [2026-11-21] 고유능력 이름은 보이지 않음 (아이템 이름만)
             if (c.abilityName != null) c.abilityName.gameObject.SetActive(false);
             // [2026-11-23] 증강 서술 규칙: [키워드] 색 · {단계 값} 중 1단계 강조 · 제한 줄. 단계 값이 문장 안에 있으면 '강화' 줄은 비움
-            string lim = AugmentRules.LimitLine(d, 1);
-            SetText(c.abilityText, hasAbility ? AugmentRules.Rich(d.abilityText, 1) + (lim.Length > 0 ? "\n" + lim : "") : d.description);
-            string lv = AugmentRules.HasInlineLevels(d) ? "" : AugmentRules.LevelLine(d, 1);
+            // [2026-11-28] 한 줄 요약 + 세부(지금 단계 값만) + 키워드 뜻 + 고르면 열리는 단계 → AugmentRules.OfferCardBody
+            SetText(c.abilityText, hasAbility || !string.IsNullOrEmpty(d.summary) ? AugmentRules.OfferCardBody(d, counts) : d.description);
+            string lv = AugmentRules.HasInlineLevels(d) || !string.IsNullOrEmpty(d.summary) ? "" : AugmentRules.LevelLine(d, 1);
             SetText(c.levelValues, string.IsNullOrEmpty(lv) ? "" : $"강화  {lv}");
             SetText(c.footerLeft, "");
             SetText(c.footerRight, KeywordDelta(d, counts));

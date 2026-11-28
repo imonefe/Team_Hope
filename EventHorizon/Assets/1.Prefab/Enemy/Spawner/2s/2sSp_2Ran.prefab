@@ -45,6 +45,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 5366704872317069322, guid: 2149c6b1b0977de4ebac671ab3bb69da, type: 3}
+  spawnChance: 0.7
+  fallbackPrefab: {fileID: 7577396951191576110, guid: 9f0c6c9f81e66a3419aa686c28698ce1, type: 3}
   spawnPoint: {fileID: 1361984288244511298}
   spawnEffectPrefab: {fileID: 260016359388483733, guid: 5f94b98c97b40b94eac326b72e5938c9, type: 3}
   snapToGround: 1

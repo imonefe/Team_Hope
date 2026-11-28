@@ -652,7 +652,7 @@ public class MapManager : PersistentSingleton<MapManager>
     //  - 중간보스 · 상점 · 보스 칸: 그 방 카드 1장
     [Header("문 선택 (2026-11-26) — 끄면 예전 노드 지도")]
     public bool useDoorChoice = true;
-    [Tooltip("'사이버웨어 방' 카드 그림. 비우면 증강 파편 그림")]
+    [Tooltip("'모듈 방' 카드 그림. 비우면 노드 지도의 전투 노드 그림 (스탯 방 카드와 같은 그림)")]
     public Sprite augmentRoomIcon;
     [Tooltip("'스탯 방' 카드 그림. 비우면 노드 지도의 전투 노드 그림")]
     public Sprite statRoomIcon;
@@ -663,22 +663,28 @@ public class MapManager : PersistentSingleton<MapManager>
         if (w == null || w.IsOpen) return false;
         int index = StageFlow.Current + 1;
         bool combat = next.kind == StageKind.Combat;
+        bool stage2 = next.group == "2S";
         var views = new List<AugmentOfferWindow.CardView>();
         if (combat)
         {
             views.Add(new AugmentOfferWindow.CardView
             {
                 header = "전 투", color = ShopColors.Hex("B08CE0"),
-                icon = augmentRoomIcon != null ? augmentRoomIcon : w.ShardIcon,
-                name = "사이버웨어 방",
-                body = "방에 들어서면 사이버웨어 3개 중 1개를 고릅니다.",
+                icon = augmentRoomIcon != null ? augmentRoomIcon : NodeIcon(MapType.Combat),   // [2026-11-28] 전투방 카드 두 장 아이콘 통일 (예전: 모듈 조각 그림)
+                name = "모듈 방",
+                // [2026-11-28] 설정 글 + 규칙 (스테이지마다 다른 글)
+                body = DoorBody(stage2 ? "고철 더미 사이로 아직 움직이는 기체들이 있다. 부서진 몸에서도 모듈은 살아 있다."
+                                       : "금서고 경비 기체가 지키는 서가. 쓰러뜨린 기체에서 쓸 만한 모듈을 뜯어 온다.",
+                                "방에 들어서면 모듈 3개 중 1개를 고릅니다."),
             });
             views.Add(new AugmentOfferWindow.CardView
             {
                 header = "전 투", color = ShopColors.Gold,
                 icon = statRoomIcon != null ? statRoomIcon : NodeIcon(MapType.Combat),
                 name = "스탯 방",
-                body = "방에 들어서면 스탯 카드 3장 중 1장을 고릅니다.",
+                body = DoorBody(stage2 ? "반쯤 살아 있는 정비 설비가 남은 구역. 맞는 부품만 찾으면 몸을 보강할 수 있다."
+                                       : "영복이 표시해 둔 정비 거점이 있는 서가. 싸움이 끝나면 몸을 손볼 수 있다.",
+                                "방에 들어서면 스탯 카드 3장 중 1장을 고릅니다."),
             });
         }
         else
@@ -690,8 +696,13 @@ public class MapManager : PersistentSingleton<MapManager>
             {
                 header = head, color = ShopColors.Hex(hex),
                 icon = NodeIcon(t),
-                name = next.label,
-                body = next.roomData != null ? next.roomData.GetDescription() : "",
+                // [2026-11-28] 이름 = 방 데이터의 이름 (없으면 설정 화면 이름에서 앞 번호를 뺀 것), 설명 = 설정 글 + 규칙
+                name = next.roomData != null && !string.IsNullOrEmpty(next.roomData.displayName) ? next.roomData.displayName
+                       : System.Text.RegularExpressions.Regex.Replace(next.label ?? "", @"^\d+\.\s*", ""),
+                body = DoorBody(next.roomData != null ? next.roomData.GetDescription() : "",
+                                next.kind == StageKind.Shop ? "모듈 · 기술 · 정비를 살 수 있습니다."
+                                : next.kind == StageKind.MidBoss ? "코어에 들어가면 중간 보스와 싸웁니다."
+                                : "이 스테이지의 마지막 방입니다."),
             });
         }
         string sub = combat ? "보상을 고르세요" : "다음 방";
@@ -700,6 +711,13 @@ public class MapManager : PersistentSingleton<MapManager>
             RoomReward.Next = combat && i == 1 ? RoomRewardKind.Stat : RoomRewardKind.Augment;
             StartCoroutine(EnterPlannedRoutine(index, next));
         });
+    }
+
+    // [2026-11-28] 문 카드 설명: 설정 글(회색) + 빈 줄 + 규칙 한 줄
+    static string DoorBody(string flavor, string rule)
+    {
+        if (string.IsNullOrEmpty(flavor)) return rule;
+        return $"<color=#B3AC9F>{flavor}</color>\n\n{rule}";
     }
 
     // 노드 지도 본보기 노드의 그림 (종류별)
@@ -978,6 +996,7 @@ public class MapManager : PersistentSingleton<MapManager>
         if (!StageFlow.Active || StageFlow.Cleared || !StageFlow.CurrentIsLast) return;
         StagePlan.Entry e = StageFlow.CurrentEntry;
         if (e == null || e.kind == StageKind.Tutorial) return;   // 튜토리얼은 마무리 대사가 끝난 뒤 판정
+        if (e.kind == StageKind.Shop) return;   // [2026-11-28] 상점이 마지막 칸(2S 데모 엔딩)이면 들어오자마자가 아니라 상점 출구로 나갈 때 클리어 (OpenMapPlanned → 다음 칸 없음)
         GameClear();
     }
 

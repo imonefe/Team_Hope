@@ -27,11 +27,11 @@ MonoBehaviour:
     focusPercent: 0
     hpPercent: 0
   hitboxPrefab: {fileID: 1370623045049217074, guid: 0e05d3174f9f5a44a8e3eac1f399d1d7, type: 3}
-  damageMultiplier: 1.1
-  attackSpeed: 2.64
+  damageMultiplier: 0.8
+  attackSpeed: 1.25
   swapSfx: {fileID: 8300000, guid: 2f5abc9a822a48eaa9e54c64f32bd431, type: 3}
   swapSfxVolume: 0.35
-  pauseGaugePerHit: 3
+  pauseGaugePerHit: 1.4
   swingSfx:
     clips:
     - {fileID: 8300000, guid: c1f22a8643cb4ba1a305eb26950757f3, type: 3}
@@ -78,9 +78,9 @@ MonoBehaviour:
       flipX: 0
       mirrorByScale: 1
       lifetime: 3
-  stackSpeedPerHit: 0.15
-  maxStackSpeed: 3
-  stackResetTime: 5
+  stackSpeedPerHit: 0.06
+  maxStackSpeed: 1.5
+  stackResetTime: 2
   swingSfxSpeedFollow: 1
   swingSfxMaxPitch: 1.5
   chargeTime: 0.3

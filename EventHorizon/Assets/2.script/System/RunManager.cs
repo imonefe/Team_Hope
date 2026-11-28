@@ -243,11 +243,15 @@ public class RunManager : PersistentSingleton<RunManager>
         return $"{m:00}:{s:00}";
     }
 
+    /// <summary>[2026-11-28] 이번 판에서 모듈 고르기 창을 닫은 횟수 (튜토리얼 체험 제외). 0이면 고르기 창에 규칙 안내</summary>
+    public int ModuleOffersDone { get; set; }
+
     // ══════════════ 판 초기화 / 재시작 ══════════════
 
     /// <summary>이번 판 데이터를 전부 처음 상태로 되돌린다.</summary>
     public void ResetRun()
     {
+        ModuleOffersDone = 0;   // [2026-11-28] 모듈 고르기 창 첫 안내용
         obtainedItems.Clear();
         itemHolders.Clear();
         stackCounts.Clear();

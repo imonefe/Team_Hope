@@ -100,9 +100,44 @@ public class RandomSpawner : MonoBehaviour
         go.transform.localPosition = Vector3.zero;
         go.transform.localRotation = prefab.transform.localRotation;
         go.transform.localScale = prefab.transform.localScale;
+        if (followFlip) MirrorParticles(go);   // [2026-11-27] 뒤집힌 holder 안의 파티클이 안 보이던 문제 (왼쪽 S스킬 불꽃)
 
         if (destroyAfter > 0f) Destroy(holder, destroyAfter);
         return go;
+    }
+
+    /// <summary>
+    /// [2026-11-27] 부모가 X -1 로 뒤집혀 있을 때 파티클이 사라지는 문제 보정 (평타 PlayerController.SpawnEffectPiece 와 같은 방식).
+    /// 파티클 오브젝트만 X 스케일을 한 번 더 뒤집어 "위치는 거울처럼, 크기는 양수"로 두고,
+    /// 방향이 있는 값(속도 X · 궤도 · 힘 X · 회전 방향)과 그림(Flip X)은 직접 반전한다.
+    /// 뒤집혀 있지 않은 파티클은 건드리지 않는다.
+    /// </summary>
+    public static void MirrorParticles(GameObject fx)
+    {
+        if (fx == null) return;
+        foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))   // [2026-11-27]
+        {
+            if (ps.transform.lossyScale.x >= 0f) continue;   // [2026-11-27] 부모 쪽에서 이미 양수로 맞춰진 것은 제외
+            Vector3 s = ps.transform.localScale;
+            ps.transform.localScale = new Vector3(-s.x, s.y, s.z);   // [2026-11-27]
+
+            var vel = ps.velocityOverLifetime;
+            if (vel.enabled)
+            {
+                vel.xMultiplier *= -1f;
+                vel.orbitalYMultiplier *= -1f;
+                vel.orbitalZMultiplier *= -1f;
+                vel.orbitalOffsetXMultiplier *= -1f;
+            }
+            var force = ps.forceOverLifetime;
+            if (force.enabled) force.xMultiplier *= -1f;
+            var rol = ps.rotationOverLifetime;
+            if (rol.enabled) rol.zMultiplier *= -1f;
+            var rbs = ps.rotationBySpeed;
+            if (rbs.enabled) rbs.zMultiplier *= -1f;
+            var psr = ps.GetComponent<ParticleSystemRenderer>();
+            if (psr != null) psr.flip = new Vector3(1f - psr.flip.x, psr.flip.y, psr.flip.z);   // [2026-11-27]
+        }
     }
 
     void OnDrawGizmosSelected()

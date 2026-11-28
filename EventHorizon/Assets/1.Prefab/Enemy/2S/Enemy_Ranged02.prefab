@@ -127,7 +127,7 @@ MonoBehaviour:
   attackDashDelay: 0
   hitboxFollowAttacker: 0
   attackDashDecelTime: 0.2
-  dashSfx: {fileID: 0}
+  dashSfx: {fileID: 8300000, guid: 1e69affa522343a3926a2da59bcd5207, type: 3}
   shootSfx: {fileID: 8300000, guid: f60ffc024a9f42cc986e1fe933d82653, type: 3}
   shootSfxVolume: 0.5
   dashMaxHeightDiff: 1.2
@@ -140,7 +140,7 @@ MonoBehaviour:
   laserLength: 10
   laserColor: {r: 1, g: 0, b: 0, a: 0.8}
   aimHoldAfterAttack: 1
-  attackCooldown: 3
+  attackCooldown: 4.2
   attackDuration: 1.1
   attackEndTimeout: 2
   aimAtPlayer: 0
@@ -158,8 +158,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 210
-  currentHp: 210
+  maxHp: 180
+  currentHp: 180
   Atk: 13.5
   Def: 3
   spd: 1.5

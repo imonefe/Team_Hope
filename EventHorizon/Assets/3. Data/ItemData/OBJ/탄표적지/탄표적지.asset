@@ -21,6 +21,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 314a6e3907964e33a236183df126fa0e, type: 2}
   keywords:
   - 4
+  summary: "[\uCC98\uD615 \uB300\uC0C1]\uC5D0\uAC8C \uC8FC\uB294 \uD53C\uD574\uAC00 \uC624\uB978\uB2E4."
   abilityName: "\uCC98\uD615 \uD504\uB85C\uD1A0\uCF5C"
   abilityText: "[\ucc98\ud615 \ub300\uc0c1]\uc5d0\uac8c \uc8fc\ub294 \ud53c\ud574 + {20/30/40}%."
   levelValues:

@@ -26,10 +26,10 @@ public class InventoryKeywordColumn : MonoBehaviour
     [Tooltip("아이콘에 마우스를 올리면 미리 보기, 클릭하면 고정 — 그 키워드가 없는 칸을 어둡게")]
     public bool useFilter = true;
     [Tooltip("필터에 안 맞는 칸(빈 칸 포함)의 진하기")]
-    [Range(0f, 1f)] public float filterDimAlpha = 0.3f;
+    [Range(0f, 1f)] public float filterDimAlpha = 0.12f;   // [2026-11-28] 0.3 → 0.12 (더 어둡게)
     [Tooltip("고정된 키워드 아이콘 뒤 사각형 진하기 (키워드 색)")]
     [Range(0f, 1f)] public float pinnedBackAlpha = 0.25f;
-    [Tooltip("사이버웨어 칸들이 들어가는 Content. 비우면 InventoryUI 의 것을 찾아 씀")]
+    [Tooltip("모듈 칸들이 들어가는 Content. 비우면 InventoryUI 의 것을 찾아 씀")]
     public Transform slotContent;
 
     class Slot { public CanvasGroup group; public TMP_Text count; public Image back; }
@@ -123,6 +123,8 @@ public class InventoryKeywordColumn : MonoBehaviour
             var ui = slot.GetComponent<ItemSlotUI>();
             if (ui == null) continue;
             float a = k < 0 || HasKeyword(ui.Item, k) ? 1f : filterDimAlpha;
+            // [2026-11-28] 마우스를 올린 동안(고정 클릭 말고) 그 키워드를 가진 칸 프레임에 키워드 색
+            ui.SetKeywordTint(hoverK >= 0 && k == hoverK && HasKeyword(ui.Item, k) ? AugmentFx.KwColor((AugmentKeyword)k) : (Color?)null);
             var g = slot.GetComponent<CanvasGroup>();
             if (g == null) { if (a >= 1f) continue; g = slot.gameObject.AddComponent<CanvasGroup>(); }
             g.alpha = a;

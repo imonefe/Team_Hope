@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: "\uACFC\uC5F4 \uD68C\uB85C"
   tier: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: dfd8a513d6de1be49beb51fc0b8d9fc9, type: 3}
   modifier:
     hp: 0
     atk: 0
@@ -28,3 +28,5 @@ MonoBehaviour:
     spdPercent: 0
     pauseDurationPercent: 0
     hpPercent: 0
+  flavor: "\uB0C9\uAC01\uC744 \uD3EC\uAE30\uD558\uACE0 \uCD9C\uB825\uC744 \uB04C\uC5B4\uC62C\uB9B0\uB2E4.
+    \uC7A5\uAC11 \uD2C8\uC73C\uB85C \uC5F4\uAE30\uAC00 \uC0C8\uC5B4 \uB098\uC628\uB2E4."

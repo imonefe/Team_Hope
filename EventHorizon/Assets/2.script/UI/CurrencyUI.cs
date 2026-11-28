@@ -26,8 +26,8 @@ public class CurrencyUI : MonoBehaviour
     public bool hoverInfo = true;
     public string currencyTitle = "재화";
     [TextArea] public string currencyDesc = "적을 처치하면 얻습니다. 상점에서 물건을 살 때 씁니다.";
-    public string shardTitle = "사이버웨어 파편";
-    [TextArea] public string shardDesc = "보스 · 정예 적에게서 얻습니다. 상점에서 가진 사이버웨어를 강화할 때 씁니다.";
+    public string shardTitle = "모듈 조각";
+    [TextArea] public string shardDesc = "보스 · 정예 적에게서 얻습니다. 상점에서 가진 모듈을 강화할 때 씁니다.";
 
     bool subscribed = false;
     bool hovering;

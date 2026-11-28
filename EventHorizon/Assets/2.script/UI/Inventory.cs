@@ -65,6 +65,7 @@ public class Inventory : MonoBehaviour
         if (GamePause.Has(GamePause.Menu) || GamePause.Has(GamePause.Map) || GamePause.Has(GamePause.GameOver)) return false;
         if (NPC.AnyTalking) return false;
         if (ItemSwapWindow.IsOpen) return false;   // [2026-11-26] 교체 창이 떠 있으면 열지 않음
+        if (ShopWindow.AnyOpen) return false;      // [2026-11-28] 플테 버그: 상점 화면에서 I 키로 인벤토리가 열림
         return true;
     }
 

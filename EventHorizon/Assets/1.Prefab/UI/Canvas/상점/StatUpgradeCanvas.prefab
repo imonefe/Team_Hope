@@ -4676,7 +4676,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC0AC\uC774\uBC84\uC6E8\uC5B4 \uAC15\uD654"
+  m_text: "\uBAA8\uB4C8 \uAC15\uD654"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
   m_sharedMaterial: {fileID: 3690161315226194230, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
@@ -5314,7 +5314,7 @@ MonoBehaviour:
   - "\uC624, \uB354 \uB2E8\uB2E8\uD574\uC84C\uB2E4. \uB0B4 \uC19C\uC528 \uC88B\uC9C0?"
   poorLines:
   - "\uC5B4\uC774, \uB098\uB3C4 \uC790\uC120\uC0AC\uC5C5\uC740 \uC548 \uD574."
-  notEnoughShardsNotice: "\uC0AC\uC774\uBC84\uC6E8\uC5B4 \uD30C\uD3B8\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4"
+  notEnoughShardsNotice: "\uBAA8\uB4C8 \uC870\uAC01\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4"
   shardTint: {r: 0.69, g: 0.55, b: 0.88, a: 1}
 --- !u!1 &1889001317591269851
 GameObject:
@@ -6847,7 +6847,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uBCF4\uC720 \uC0AC\uC774\uBC84\uC6E8\uC5B4 \uD30C\uD3B8"
+  m_text: "\uBCF4\uC720 \uBAA8\uB4C8 \uC870\uAC01"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
   m_sharedMaterial: {fileID: 7224087456951919524, guid: e5ad9a4c838346609dc6a2e7960ba58c, type: 2}
@@ -13659,7 +13659,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC120\uD0DD\uD55C \uC0AC\uC774\uBC84\uC6E8\uC5B4"
+  m_text: "\uC120\uD0DD\uD55C \uBAA8\uB4C8"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}
   m_sharedMaterial: {fileID: 3690161315226194230, guid: 095aaea2af71b5346b72b43f6c621582, type: 2}

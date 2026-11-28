@@ -158,6 +158,8 @@ public class TutorialController : MonoBehaviour
     }
 
     public Step Current => index >= 0 && index < steps.Count ? steps[index] : null;
+    /// <summary>[2026-11-28] 지금 진행 중인 구간 번호 (시작 영역에 들어오기 전 · 끝난 뒤는 -1) — 배경 키 표시(TutorialKeySign)가 씀</summary>
+    public int ActiveStep => waitingStart || Current == null ? -1 : index;
 
     // [2026-11-18 수정] 구간 전환: 시작 영역이 있으면 들어올 때까지 안내를 숨기고 기다린다
     void Begin(int i)
@@ -216,8 +218,16 @@ public class TutorialController : MonoBehaviour
             if (guideText != null) guideText.text = line;
             YoungbokChatter.ShowGuide(speakerName, line, hideSpeakerFace, guideTopCenter);
             if (holdLast && i == lines.Length - 1) break;
+            // [2026-11-28] 플테 피드백(4명): 안내가 너무 빨리 넘어감 → 글이 길면 더 오래 (한 글자 0.12초 + 1.5초, 최소 storyLineSeconds),
+            //  다 읽었으면 상호작용 키(F)로 바로 넘김
+            float wait = Mathf.Max(storyLineSeconds, 1.5f + VisibleLength(lines[i]) * 0.12f);
             float t = 0f;
-            while (t < storyLineSeconds) { t += Time.deltaTime; yield return null; }
+            while (t < wait)
+            {
+                t += Time.deltaTime;
+                if (t > 0.4f && KeyBindings.Down(KeyAction.Interact)) break;
+                yield return null;
+            }
         }
         storyLines = null;
         if (!holdLast) RefreshText();
@@ -310,6 +320,14 @@ public class TutorialController : MonoBehaviour
         if (s == null || string.IsNullOrEmpty(s.keyHint)) return line;
         string hex = ColorUtility.ToHtmlStringRGB(keyHintColor);
         return line + $"\n<size={keyHintSizePercent}%><color=#{hex}>" + Keys(s.keyHint) + "</color></size>";
+    }
+
+    /// <summary>[2026-11-28] 화면에 보이는 글자 수 (태그 · {동작} 자리 제외)</summary>
+    static int VisibleLength(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return 0;
+        s = System.Text.RegularExpressions.Regex.Replace(s, @"<[^>]*>|\{[^}]*\}", "x");
+        return s.Replace(" ", "").Replace("\n", "").Length;
     }
 
     /// <summary>{Jump} 처럼 쓴 동작 이름을 지금 설정된 키 이름으로 바꾼다</summary>

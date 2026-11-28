@@ -249,8 +249,9 @@ public partial class AugmentRuntime : MonoBehaviour
         for (int k = 0; k < 8; k++)
         {
             int tb = AugmentRules.KeywordTier(before[k]), ta = AugmentRules.KeywordTier(kw[k]);
-            if (ta > tb && ta >= 2)
+            if (ta > tb)   // [2026-11-28] 3개(1단계)도 알림 + 무엇이 열렸는지 글자로 (예전: 4·5개만, 글자 없음)
             {
+                ScreenNotice.Show($"{AugmentRules.KeywordName((AugmentKeyword)k)} {kw[k]}개 달성 — {AugmentRules.KeywordTierShort[k, ta - 1]}");
                 var c = KC((AugmentKeyword)k);
                 AugmentFx.HudPop(KeywordIcon((AugmentKeyword)k), c, ta - 1);
                 if (pc != null) AugmentFx.Ring(PFeet, c, 3.2f, 0.6f, 0.12f, 2, 0.45f);
@@ -283,7 +284,23 @@ public partial class AugmentRuntime : MonoBehaviour
     // [2026-11-26] 기획 B-3: 일반 등급 고유 능력은 연출을 조용하게 (AugmentFx 조용한 연출 참고)
     bool IsCommon(string ability) => owned.Contains(ability) && byAbility.TryGetValue(ability, out var d) && d != null && d.tier == ItemTier.Common;
     /// <summary>using (QuietIf("능력")) { 연출 } — 그 능력이 일반 등급이면 안의 연출이 옅고 작아지고 꾸밈은 빠짐</summary>
-    AugmentFx.QuietScope QuietIf(string ability) => AugmentFx.Hush(IsCommon(ability));
+    AugmentFx.QuietScope QuietIf(string ability) { Proc(ability); return AugmentFx.Hush(IsCommon(ability)); }   // [2026-11-28] 연출 = 발동 → 발동 알림도
+
+    // ───────── [2026-11-28] 모듈 발동 알림 (플레이 테스트 피드백: 얻은 것이 터지는지 모르겠다) ─────────
+    //  모듈이 발동하면 헤네시 머리 위에 그 모듈 아이콘이 잠깐 떠오르고(키워드 색 빛), 발동 소리(GameSfx.moduleProc)가 난다.
+    //  같은 모듈은 ProcGap 초에 한 번만 (계속 발동하는 능력이 화면을 덮지 않게). 상시 수치 능력(피해 + n% 등)은 부르지 않음.
+    const float ProcGap = 2f;
+    readonly Dictionary<string, float> procAt = new Dictionary<string, float>();
+    void Proc(string ability)
+    {
+        if (string.IsNullOrEmpty(ability) || pc == null || !byAbility.TryGetValue(ability, out var d) || d == null) return;
+        if (procAt.TryGetValue(ability, out var last) && Time.unscaledTime - last < ProcGap) return;
+        procAt[ability] = Time.unscaledTime;
+        Color c = d.keywords != null && d.keywords.Length > 0 ? KC(d.keywords[0]) : ShopColors.Hex(AugmentRules.AbilityHex);
+        // [2026-11-28 수정] 머리 위 아이콘은 난잡하다는 피드백 → 끔. 발동 소리만 남김 (다시 켜려면 아래 줄 주석 해제)
+        // AugmentFx.IconPop(pc.transform, PHead - pc.transform.position + Vector3.up * 0.55f, d.icon, c);
+        GameSfx.ModuleProc();
+    }
 
     static float ByLevel(int lv, float a, float b, float c) => lv >= 3 ? c : lv == 2 ? b : a;
 
@@ -420,8 +437,9 @@ public partial class AugmentRuntime : MonoBehaviour
     void LateUpdate()
     {
         if (pc == null) return;
-        bool showFrag = FragmentMax > 0 && UsesData();
-        bool showCombo = Kw(AugmentKeyword.Combo) > 0;
+        // [2026-11-28 수정] 스택이 0이면 빈 칸(어두운 결정 · 빈 반원)도 안 보이게
+        bool showFrag = FragmentMax > 0 && UsesData() && fragments > 0;
+        bool showCombo = Kw(AugmentKeyword.Combo) > 0 && (combo > 0 || savedCombo > 0);
         bool showRecall = recall > 0;
         if (!showFrag && !showCombo && !showRecall) { if (headRoot != null) headRoot.gameObject.SetActive(false); return; }
         EnsureHead();
@@ -442,8 +460,8 @@ public partial class AugmentRuntime : MonoBehaviour
         {
             var r = crystals[i];
             bool on = i < cmax;
-            r.gameObject.SetActive(on);
-            if (!on) continue;
+            r.gameObject.SetActive(on && i < fragments);   // [2026-11-28] 빈 칸은 숨김
+            if (!on || i >= fragments) continue;
             float a = Time.time * 1.6f + i * Mathf.PI * 2f / cmax;
             r.transform.position = head + new Vector3(Mathf.Cos(a) * 0.62f, Mathf.Sin(a) * 0.18f, Mathf.Sin(a) < 0 ? -0.6f : 0.3f);
             bool lit = i < fragments;
@@ -459,7 +477,7 @@ public partial class AugmentRuntime : MonoBehaviour
         Vector3 feet = PFeet;
         if (showCombo)
         {
-            DrawArc(comboArcBack, feet, 1f);
+            comboArcBack.positionCount = 0;   // [2026-11-28] 빈 반원 바탕은 안 그림
             float fill = combo / 10f;
             DrawArc(comboArc, feet, fill);
             Color cc = combo >= 10 ? Color.Lerp(CCombo, Color.white, 0.4f + 0.3f * Mathf.Sin(Time.time * 12f)) : CCombo;
@@ -533,7 +551,7 @@ public partial class AugmentRuntime : MonoBehaviour
         float aim = 1f;
         if (lvAim > 0 && combo >= 10) aim += ByLevel(lvAim, 0.30f, 0.45f, 0.60f);
         else if (lvAim > 0 && combo >= 5) aim += ByLevel(lvAim, 0.15f, 0.22f, 0.30f);
-        if (lvAim > 0 && aim > aimShown + 0.01f && pc != null) { AugmentFx.Ring(PCenter, CCombo, 1.8f, 0.3f, 0.1f, 2); AugmentFx.BodyFlash(pc, CCombo, 0.6f, 0.25f); }
+        if (lvAim > 0 && aim > aimShown + 0.01f && pc != null) { Proc("조준 고정"); AugmentFx.Ring(PCenter, CCombo, 1.8f, 0.3f, 0.1f, 2); AugmentFx.BodyFlash(pc, CCombo, 0.6f, 0.25f); }
         aimShown = aim;
         CombatEvents.PlayerProjectileScale = aim;
         CombatEvents.SwingScale = 1f;   // [2026-11-21] 무기 궤적은 키우지 않음 (검 1타 · 망치 이펙트가 커지면 안 보이는 문제) → 판정만 AimScale 로
@@ -642,7 +660,7 @@ public partial class AugmentRuntime : MonoBehaviour
             int lvT = L("조준 터렛");
             if (lvT > 0 && !comboTurretUsed)
             {
-                comboTurretUsed = true;
+                comboTurretUsed = true; Proc("조준 터렛"); 
                 SpawnTurret(ByLevel(lvT, 0.40f, 0.60f, 0.80f), CCombo);
             }
         }
@@ -819,12 +837,12 @@ public partial class AugmentRuntime : MonoBehaviour
             // 과열
             if (Kw(AugmentKeyword.Overheat) >= AugmentRules.Stage1 && Random.value < 0.10f) st.AddOverheat(1);
             int lvCoil = L("예열 코일");
-            if (lvCoil > 0 && Random.value < ByLevel(lvCoil, 0.35f, 0.52f, 0.70f)) st.AddOverheat(1);   // [2026-11-21] 25 → 35%
+            if (lvCoil > 0 && Random.value < ByLevel(lvCoil, 0.35f, 0.52f, 0.70f)) { st.AddOverheat(1); Proc("예열 코일"); }   // [2026-11-21] 25 → 35%
 
             // 균열
             if (Kw(AugmentKeyword.Fracture) >= AugmentRules.Stage1 && hi.isCrit) st.AddFracture(1);
             int lvProbe = L("균열 탐침");
-            if (lvProbe > 0 && Time.time - st.lastProbe >= ByLevel(lvProbe, 0.5f, 0.35f, 0.25f)) { st.lastProbe = Time.time; st.AddFracture(1); }
+            if (lvProbe > 0 && Time.time - st.lastProbe >= ByLevel(lvProbe, 0.5f, 0.35f, 0.25f)) { st.lastProbe = Time.time; st.AddFracture(1); Proc("균열 탐침"); }
             int lvSleep = L("잠재우기");
             if (lvSleep > 0 && ++st.hitCounter % 3 == 0)
             {
@@ -840,7 +858,7 @@ public partial class AugmentRuntime : MonoBehaviour
             int lvPersuade = L("설득");
             if (lvPersuade > 0 && Time.time >= persuadeReady && FragmentsBefore(AttackStart(hi)) > 0 && !IsBoss(hi.target) && UseFragment(AttackStart(hi)))   // 이번 공격으로 얻은 데이터는 이번 공격에 안 씀
             {
-                persuadeReady = Time.time + 1f;   // [2026-11-23] B안: 방출 중에만 쓰므로 2초 → 1초
+                persuadeReady = Time.time + 1f; Proc("설득");    // [2026-11-23] B안: 방출 중에만 쓰므로 2초 → 1초
                 StartCoroutine(Persuade(hi.target, ByLevel(lvPersuade, 1.0f, 1.5f, 2.0f)));
             }
 
@@ -913,6 +931,7 @@ public partial class AugmentRuntime : MonoBehaviour
         bool executed = st != null && st.lastHitWasExecute;
 
         // 과열 5개: 최대 스택인 적이 쓰러지면 폭발
+        if (Has("붕괴 탄두") && maxHeat) Proc("붕괴 탄두");
         if ((Kw(AugmentKeyword.Overheat) >= AugmentRules.Stage3 || Has("붕괴 탄두")) && maxHeat) Explode(EFeet(h), 2f, 1.0f);   // [2026-11-21] 혈청 주입기도 이 폭발을 일으킴
 
         // 남은 불씨: 과열된 적 처치 → 가장 가까운 적에게 불씨가 튐 (주황 빛줄)
@@ -922,7 +941,7 @@ public partial class AugmentRuntime : MonoBehaviour
             var best = Nearest(pos, 6f, h);
             if (best != null)
             {
-                var target = best;
+                var target = best; Proc("남은 불씨"); 
                 bool quiet = IsCommon("남은 불씨");
                 // 불씨가 곡선으로 날아가 맞은 적에 과열
                 using (AugmentFx.Hush(quiet))
@@ -999,6 +1018,7 @@ public partial class AugmentRuntime : MonoBehaviour
         float extra = Kw(AugmentKeyword.Afterimage) >= AugmentRules.Stage2 ? 1f : 0f;
         int lvCloak = L("잔상 발생기");
         float ratio = lvCloak > 0 ? ByLevel(lvCloak, 0.6f, 0.9f, 1.2f) : 0.6f;
+        if (lvCloak > 0) Proc("잔상 발생기");
         // [2026-11-21] 잔상 키워드가 있으면 대시 출발 자리에 기본 잔상 (1초 · 공격력 40%) — 잔상 증강이 스텔스 우의 없이도 돌아감
         //  스텔스 우의가 있으면 그 잔상이 강해짐 (1.5초 · 60~120%, 붉은색 + 나타날 때 붉은 폭발)
         // [2026-11-22] 스텔스 우의도 다른 잔상과 같은 푸른빛 (나타날 때 푸른 폭발)
@@ -1015,7 +1035,7 @@ public partial class AugmentRuntime : MonoBehaviour
         int lvHook = L("기억 갈고리");
         if (lvHook > 0 && Time.time >= hookReady && UseFragment())
         {
-            hookReady = Time.time + 1.5f;   // [2026-11-22] 대시마다 데이터를 써 버리지 않게 1.5초에 한 번
+            hookReady = Time.time + 1.5f; Proc("기억 갈고리");    // [2026-11-22] 대시마다 데이터를 써 버리지 않게 1.5초에 한 번
             pierceUntil = Time.time + 0.3f;
             pierceRatio = ByLevel(lvHook, 0.10f, 0.30f, 0.50f);
             pierced.Clear();
@@ -1125,7 +1145,7 @@ public partial class AugmentRuntime : MonoBehaviour
         AdvancedOnPauseStart();
         // [2026-11-25] 정리 터렛 (고장난 무동력 연산체): 제로포인트 시작 → 터렛 1개 (플레이어 탄은 제로포인트 중에도 날아감)
         int lvT = L("정리 터렛");
-        if (lvT > 0) SpawnTurret(ByLevel(lvT, 0.40f, 0.60f, 0.80f), CStasis);
+        if (lvT > 0) { SpawnTurret(ByLevel(lvT, 0.40f, 0.60f, 0.80f), CStasis); Proc("정리 터렛"); }
     }
 
     void OnPauseEnd()
@@ -1176,6 +1196,7 @@ public partial class AugmentRuntime : MonoBehaviour
         int lvCan = L("비상식량");
         if (lvCan > 0)
         {
+            Proc("비상식량");
             bool low = pstats.currentHp <= pstats.maxHp * 0.5f;
             heal += Mathf.RoundToInt(pstats.maxHp * (low ? ByLevel(lvCan, 0.08f, 0.11f, 0.15f) : 0.03f));   // [2026-11-25] 회복 축소 (회복 구가 계속 필요하게)
         }

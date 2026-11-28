@@ -7,6 +7,8 @@ public class npcTrigger : ProximityInteractable
 
     [Tooltip("[2026-10-18 추가] 말을 걸 때마다 이 순서대로 대사 세트(conditionKey)를 고른다. 끝까지 가면 처음으로. 비워 두면 예전처럼 첫 번째 대사 세트")]
     public string[] conditionCycle;
+    [Tooltip("[2026-11-28] 2스테이지(StagePlan 그룹 2S)일 때 위 목록 대신 쓰는 대사 세트 순서. 비우면 스테이지 상관없이 위 목록")]
+    public string[] stage2ConditionCycle;
 
     PlayerController nearbyPlayer;
     int cycleIndex;
@@ -18,10 +20,14 @@ public class npcTrigger : ProximityInteractable
 
         // [2026-10-18 추가] 순환 목록이 있으면 다음 대사 세트로
         string key = null;
-        if (conditionCycle != null && conditionCycle.Length > 0)
+        string[] cycle = conditionCycle;
+        if (stage2ConditionCycle != null && stage2ConditionCycle.Length > 0
+            && StageFlow.Active && StageFlow.CurrentEntry != null && StageFlow.CurrentEntry.group == "2S")
+            cycle = stage2ConditionCycle;
+        if (cycle != null && cycle.Length > 0)
         {
-            key = conditionCycle[cycleIndex % conditionCycle.Length];
-            cycleIndex = (cycleIndex + 1) % conditionCycle.Length;
+            key = cycle[cycleIndex % cycle.Length];
+            cycleIndex = (cycleIndex + 1) % cycle.Length;
         }
         npcScript.SetCondition(key, player);
     }

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tier: 0
   type: 2
-  displayName: 
-  description: 
+  displayName: "\uD3D0\uCCA0\uC7A5 \uB178\uC810"
+  description: "\uACE0\uCCA0 \uB354\uBBF8 \uC0AC\uC774\uB85C \uBD88\uBE5B \uD558\uB098\uAC00 \uC0C8\uC5B4 \uB098\uC628\uB2E4. \uC774\uB7F0 \uACF3\uC5D0\uC11C\uB3C4 \uB204\uAD70\uAC00\uB294 \uC7A5\uC0AC\uB97C \uD55C\uB2E4."
   roomPrefabs:
   - {fileID: 3673251831834426535, guid: 832e1d0e666962e47983b2577ebdf16d, type: 3}
   allowRepeat: 1

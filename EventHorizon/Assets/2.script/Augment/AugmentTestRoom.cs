@@ -72,7 +72,7 @@ public class AugmentTestRoom : MonoBehaviour
             killPos = kp.position; killScale = kp.localScale;
             killDummy = kp.gameObject; MakeKillable(killDummy);
         }
-        ScreenNotice.Show("사이버웨어 시험 방 — 1 다음 · 5 강화 · 6 이전 · 2 몬스터 · 3 체력 40%/가득 · 4 방 정리 · 7 방 입장 · Shift+1~8 키워드별 모으기 · Shift+0 모은 것 빼기");
+        ScreenNotice.Show("모듈 시험 방 — 1 다음 · 5 강화 · 6 이전 · 2 몬스터 · 3 체력 40%/가득 · 4 방 정리 · 7 방 입장 · Shift+1~8 키워드별 모으기 · Shift+0 모은 것 빼기");
     }
 
     void MakeKillable(GameObject go)
@@ -121,7 +121,7 @@ public class AugmentTestRoom : MonoBehaviour
         ItemData pick = augments.Find(a => a != null && a.keywords != null && System.Array.IndexOf(a.keywords, k) >= 0 && !inv.Contains(a));
         int have = AugmentRules.CountKeywords(inv)[(int)k];
         string kn = AugmentRules.KeywordName(k);
-        if (pick == null) { ScreenNotice.Show($"{kn} 사이버웨어를 모두 가졌음 ({kn} {have}개)"); return; }
+        if (pick == null) { ScreenNotice.Show($"{kn} 모듈을 모두 가졌음 ({kn} {have}개)"); return; }
 
         var st = PC.GetComponent<Stats>();
         if (collected.Count == 0 && st != null)
@@ -144,7 +144,7 @@ public class AugmentTestRoom : MonoBehaviour
     /// <summary>모은 사이버웨어를 모두 빼고 모으기 전 능력치로 되돌림</summary>
     void ClearCollected(bool notice)
     {
-        if (collected.Count == 0) { if (notice) ScreenNotice.Show("모은 사이버웨어 없음"); return; }
+        if (collected.Count == 0) { if (notice) ScreenNotice.Show("모은 모듈 없음"); return; }
         foreach (var d in collected) { Inventory.Instance?.RemovePassiveAt(-1, d); RunManager.Instance?.ForgetObtained(d); }
         foreach (var c in collectedComps) if (c != null) Destroy(c);
         int n = collected.Count;
@@ -157,7 +157,7 @@ public class AugmentTestRoom : MonoBehaviour
         }
         collectSnap.valid = false;
         AugmentRuntime.Instance?.Refresh();
-        if (notice) ScreenNotice.Show($"모은 사이버웨어 {n}개를 뺐음");
+        if (notice) ScreenNotice.Show($"모은 모듈 {n}개를 뺐음");
     }
 
     IEnumerator Respawn()

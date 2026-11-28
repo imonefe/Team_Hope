@@ -1702,6 +1702,2052 @@ MonoBehaviour:
     slashAngle: 18
     slashCenterOffset: {x: 0, y: 0.1}
     cutDelay: 0.14
+  defeatSteps:
+  - label: "\uc870\uc791 \uc7a0\uae08"
+    type: 7
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uc704\uc544\ub798 \ub760"
+    type: 9
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.6
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uc554\uc804 (\uc9e7\uac8c)"
+    type: 16
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.35
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uae4c\ub9cc \ud654\uba74 \uc7a0\uae50"
+    type: 0
+    runInBackground: 0
+    waitSeconds: 0.25
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uc790\ub9ac \uc815\ub9ac \u2014 \ud5e4\ub124\uc2dc\ub97c \uac80\uc0ac \uc55e\uc5d0 \uc138\uc6b0\uace0 \ubcf4\uc2a4\ub97c \ucc98\uc74c \uc790\ub9ac\ub85c"
+    type: 21
+    runInBackground: 0
+    waitSeconds: 0.5
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+    moveTarget: {fileID: 3934630688952475864}
+    moveOffset: {x: 1.8, y: 0.6}
+    resetBossPosition: 1
+  - label: "\ubc1d\uc544\uc9d0"
+    type: 16
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 0
+    fadeDuration: 0.35
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\ubcf4\uc2a4 \ube44\ucda4"
+    type: 2
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 1100000000000000022}
+    focusDuration: 1
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\ubc88\uca4d \u2014 \ubcf4\uc2a4\uac00 \ubb34\ub108\uc9d0"
+    type: 13
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 0.85, b: 0.5, a: 1}
+    flashPeak: 0.35
+    flashDuration: 0.3
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\ud769\uc5b4\uc9c0\ub294 \ud30c\ud3b8 \uc774\ud399\ud2b8"
+    type: 11
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Knight
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: animation
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 2752178938001293896, guid: 4907020c75e4d7a4bb16da78ab0d6749, type: 3}
+    effectAtPlayer: 0
+    effectAnchor: {fileID: 1100000000000000022}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 2.5
+    effectLifetime: 3
+    effectSpeed: 1
+    effectHierarchyScale: 0
+    effectSortingOrder: 0
+    effectSpineSortingOrder: 0
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+    effectHoldFrame: -1
+  - label: "\ubcf4\uc2a4 \uc0ac\ub77c\uc9d0"
+    type: 20
+    runInBackground: 1
+    waitSeconds: 0.5
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+    show: 0
+    showHideDuration: 0.35
+  - label: "\ud754\ub4e4\ub9bc"
+    type: 5
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.7
+    shakeStrength: 0.8
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: animation
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\ud328\ubc30 \ub300\ud654 1 \u2014 \ud769\uc5b4\uc9c4 \uc8fc\uc778"
+    type: 18
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 4923650035969524571}
+    npcConditionKey: win1a
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\ub2e4\uc2dc \ubaa8\uc774\ub294 \uc5f0\uae30 \uc774\ud399\ud2b8"
+    type: 11
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Knight
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: animation
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 5467047913867359964, guid: c299112eebd912c4a9c2a6cc497dad6b, type: 3}
+    effectAtPlayer: 0
+    effectAnchor: {fileID: 1100000000000000022}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 2
+    effectLifetime: 3
+    effectSpeed: 1
+    effectHierarchyScale: 0
+    effectSortingOrder: 0
+    effectSpineSortingOrder: 0
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+    effectHoldFrame: -1
+  - label: "\ubcf4\uc2a4 \ub2e4\uc2dc \ub098\ud0c0\ub0a8"
+    type: 20
+    runInBackground: 0
+    waitSeconds: 0.5
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+    show: 1
+    showHideDuration: 0.9
+  - label: "\ubc88\uca4d \u2014 \ub2e4\uc2dc \uc9dc \ub9de\ucdb0\uc9d0"
+    type: 13
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 0.85, b: 0.5, a: 1}
+    flashPeak: 0.35
+    flashDuration: 0.3
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\ud328\ubc30 \ub300\ud654 2 \u2014 \ub418\uc0b4\uc544\ub09c \uc8fc\uc778"
+    type: 18
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 4923650035969524571}
+    npcConditionKey: win1b
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uac80\uc0ac \ub4f1\uc7a5 \u2014 \uc6d0\ub798 \uc790\ub9ac \uac80\uc0ac_\ub4f1\uc7a5\uc704\uce58 (\uccab \uadf8\ub9bc\uc5d0\uc11c \uba48\ucdb0 \ub460)"
+    type: 11
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Knight
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: animation
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 7822951830462602962, guid: 6087f4d718f142f7bc27c6653e55b092, type: 3}
+    effectAtPlayer: 0
+    effectAnchor: {fileID: 3934630688952475864}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 12
+    effectSpeed: 1
+    effectHierarchyScale: 0
+    effectSortingOrder: 0
+    effectSpineSortingOrder: 0
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+    effectHoldFrame: 0
+  - label: "\uac80\uc0ac \ube44\ucda4 \u2014 \uac80\uc0ac\uc640 \ud50c\ub808\uc774\uc5b4 \uac00\uc6b4\ub370"
+    type: 2
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.4
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 1
+    spawnedChildName: Knight
+    focusOffset: {x: -0.73, y: 0.6}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: animation
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uac80\uc0ac \ud074\ub85c\uc988\uc5c5"
+    type: 1
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 2.4
+    zoomDuration: 0.4
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Knight
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: animation
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\ud328\ubc30 \ub300\ud654 3 \u2014 \uc0ad\uc81c"
+    type: 18
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 4923650035969524571}
+    npcConditionKey: win2
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uac80\uc0ac\uc758 \uc77c\uaca9 (\uba48\ucd98 \uac80\uc0ac\ub97c \ub2e4\uc2dc \uc6c0\uc9c1\uc5ec \ubca0\ub294 \ud504\ub808\uc784\uc5d0\uc11c \ubcb0)"
+    type: 19
+    runInBackground: 0
+    waitSeconds: 0.35
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: animation
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 28
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uAC15\uD55C \uD754\uB4E4\uB9BC"
+    type: 5
+    runInBackground: 1
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.7
+    shakeStrength: 0.8
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: animation
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uC2AC\uB85C\uBAA8\uC158"
+    type: 4
+    runInBackground: 1
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.3
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.12
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: animation
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uC554\uC804"
+    type: 16
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uC554\uC804 \uC720\uC9C0 (\uC2AC\uB85C\uBAA8\uC158\uC774 \uD480\uB9B4
+      \uB54C\uAE4C\uC9C0)"
+    type: 0
+    runInBackground: 0
+    waitSeconds: 0.5
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 0}
+    npcConditionKey: 
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  - label: "\uB300\uD654 4 \u2014 \uC554\uC804 \uB4A4 \uB3C5\uBC31"
+    type: 18
+    runInBackground: 0
+    waitSeconds: 1
+    zoomSize: 3
+    zoomDuration: 0.5
+    focusTarget: {fileID: 0}
+    focusDuration: 0.6
+    focusOnPlayer: 0
+    exclusiveFocus: 1
+    focusOnSpawned: 0
+    spawnedChildName: Archer
+    focusOffset: {x: 0, y: 0}
+    animator: {fileID: 0}
+    triggerName: 
+    slowMotionScale: 0.2
+    slowMotionHoldSeconds: 1
+    slowMotionRampSeconds: 0.25
+    shakeDuration: 0.3
+    shakeStrength: 0.3
+    shakeRampFrom: 0.02
+    speakerName: 
+    dialogueText: 
+    dialogueHoldSeconds: 2.6
+    letterboxShow: 1
+    letterboxHeight: 0.11
+    letterboxDuration: 0.5
+    spineTarget: {fileID: 0}
+    spineAnimationName: idle
+    spineLoop: 1
+    spineNextAnimation: 
+    waitForSpine: 0
+    effectPrefab: {fileID: 0}
+    effectAtPlayer: 1
+    effectAnchor: {fileID: 0}
+    effectOffset: {x: 0, y: 0, z: 0}
+    effectScale: 1
+    effectLifetime: 6
+    effectSpeed: 1
+    effectHierarchyScale: 1
+    effectSortingOrder: 5100
+    effectSpineSortingOrder: 4004
+    effectHideChildren: 
+    effectFlipSprites: 0
+    punchAmount: 1.5
+    punchInSeconds: 0.08
+    punchHoldSeconds: 0.15
+    punchOutSeconds: 0.4
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashPeak: 0.85
+    flashDuration: 0.35
+    killKnockback: 7
+    killFadeSeconds: 1.2
+    gameOverDelay: 0.6
+    killSource: {fileID: 0}
+    projectileChildName: shotparticle
+    projectileSeconds: 0.9
+    projectileTargetOffset: {x: 0, y: 0.3, z: 0}
+    projectileCameraFollow: 1
+    impactPrefab: {fileID: 0}
+    impactScale: 1
+    projectileFollowParticles: 0
+    projectileFlightTimeScale: 0.06
+    projectileTimeout: 5
+    projectileTrailWidth: 0.22
+    projectileTrailTime: 0.18
+    projectileColor: {r: 1, g: 0.9, b: 0.55, a: 1}
+    projectileHeadSize: 0.45
+    fadeColor: {r: 0, g: 0, b: 0, a: 1}
+    fadeTo: 1
+    fadeDuration: 0.8
+    npc: {fileID: 4923650035969524571}
+    npcConditionKey: end4
+    slashFrame: 9
+    slashTimeout: 6
+    slashAngle: 18
+    slashCenterOffset: {x: 0, y: 0.1}
+    cutDelay: 0.14
+  defeatGoesToNextStage: 1
+  bossFocusPoint: {fileID: 1100000000000000022}
+  bossFocusRenderer: {fileID: 1100000000000000014}
+  bossFocusOffset: {x: 0, y: 0}
+  bossFaceFocusOffset: {x: 0, y: 0}
+  bossFaceFocusPoint: {fileID: 1100000000000000032}
   playOnStart: 1
   fightInsteadOfKill: 1
   fightFromStep: 11
@@ -1967,8 +4013,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed1bd74cd33184da9ceddd9fc887c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 3000
-  currentHp: 3000
+  maxHp: 2400
+  currentHp: 2400
   Atk: 22
   Def: 5
   spd: 5

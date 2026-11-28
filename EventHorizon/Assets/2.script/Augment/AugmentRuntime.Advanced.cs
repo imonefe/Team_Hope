@@ -102,6 +102,7 @@ public partial class AugmentRuntime
     {
         if (!byAbility.TryGetValue(ability, out var d) || d == null) return;
         AugmentBuffTray.Show(ability, d.icon, seconds, cooldown);
+        if (!cooldown || seconds > 0f) Proc(ability);   // [2026-11-28] 아이콘이 뜨는 순간 = 발동
     }
 
     float ScaleThresholdBonus()
@@ -170,7 +171,7 @@ public partial class AugmentRuntime
         int lvCoat = L("반응 코팅");
         if (lvCoat > 0 && dmg > 0)
         {
-            dmg = Mathf.RoundToInt(dmg * (1f - ByLevel(lvCoat, 0.15f, 0.20f, 0.25f)));
+            Proc("반응 코팅"); dmg = Mathf.RoundToInt(dmg * (1f - ByLevel(lvCoat, 0.15f, 0.20f, 0.25f)));
             if (pc != null)
             {
                 AugmentFx.BodyFlash(pc, CFracture, 0.8f, 0.25f);
@@ -205,7 +206,7 @@ public partial class AugmentRuntime
         // 확장 소켓: 데이터가 다 모이면 → 데이터를 모두 써서 이번 스킬은 재사용 대기 없음
         if (free && SocketReady())
         {
-            socketUsed = true;   // [2026-11-23] 데이터는 쓰지 않음
+            socketUsed = true; Proc("확장 소켓");   // [2026-11-23] 데이터는 쓰지 않음
             if (pc != null) { AugmentFx.BodyFlash(pc, CPlunder, 0.8f, 0.3f); AugmentFx.Ring(PCenter, CPlunder, 1.6f, 0.3f, 0.08f, 2); }
         }
         // 혈류 대체 회로: 최대 체력 5% 소모 → 스킬 피해 증가 (체력 10% 이하면 소모·보너스 없음)
@@ -213,6 +214,7 @@ public partial class AugmentRuntime
         if (lvBlood > 0 && pstats != null && pstats.maxHp > 0 && pstats.currentHp > pstats.maxHp * 0.1f)
         {
             int cost = Mathf.Min(Mathf.RoundToInt(pstats.maxHp * 0.05f), pstats.currentHp - 1);
+            if (cost > 0) Proc("혈류 대체 회로");
             if (cost > 0)
             {
                 pstats.TakeDamage(cost);
@@ -227,7 +229,7 @@ public partial class AugmentRuntime
         int lvRead = L("백자 열람 권한");
         if (lvRead > 0 && fragments > 0 && UseFragment())
         {
-            scale += ByLevel(lvRead, 1.0f, 1.5f, 2.0f);
+            scale += ByLevel(lvRead, 1.0f, 1.5f, 2.0f); Proc("백자 열람 권한"); 
             if (pc != null) { AugmentFx.Ring(PCenter, Color.white, 2.5f, 0.4f, 0.1f); AugmentFx.Ring(PCenter, CFracture, 2.3f, 0.45f, 0.07f, 2); }
         }
         return scale;
@@ -288,6 +290,7 @@ public partial class AugmentRuntime
     void AdvancedOnDashStart(Vector3 pos, float dir)
     {
         // 정지 잔상: 퍼즈 중 대시하면 에너지 구체가 멈춰 남음
+        if (Paused && Has("정지 잔상") && stasisOrbs.Count < 8) Proc("정지 잔상");
         if (Paused && Has("정지 잔상") && stasisOrbs.Count < 8)
             stasisOrbs.Add(AugmentFx.Orb(pos + (PCenter - PPos), CStasis, 0.45f));
 
@@ -318,7 +321,7 @@ public partial class AugmentRuntime
         if (observeArmed)
         {
             observeArmed = false;
-            nextAttackBonus = Mathf.Max(nextAttackBonus, ByLevel(L("원거리 관측"), 0.40f, 0.60f, 0.80f));
+            Proc("원거리 관측"); nextAttackBonus = Mathf.Max(nextAttackBonus, ByLevel(L("원거리 관측"), 0.40f, 0.60f, 0.80f));
             if (pc != null) AugmentFx.BodyFlash(pc, CExec, 0.7f, 0.3f);
         }
         if (Has("접속 단자")) { dashFirstHitArmed = true; dashFirstHitUntil = Time.time + 1.5f; }
@@ -359,6 +362,7 @@ public partial class AugmentRuntime
         {
             var hb = tag.GetComponent<Hitbox>();
             if (hb != null) hb.damage *= 2;
+            Proc("과충전 망치");
             AugmentFx.Ring(PFeet, HpRatioP() <= 0.5f ? COverload : new Color(1f, 0.85f, 0.5f), 2.5f, 0.35f, 0.12f, 2, 0.4f);
         }
         // 빼앗은 기술: 근접 적의 기술 = 다음 공격 범위 2배 / 원거리 적의 기술 = 다음 공격에 정면 참격
@@ -371,12 +375,12 @@ public partial class AugmentRuntime
         if (rangedSlash)
         {
             rangedSlash = false;
-            StartCoroutine(PierceSlash(PCenter, f, 6f, ByLevel(L("빼앗은 기술"), 0.5f, 0.75f, 1.0f), new Color(0.3f, 0.95f, 0.95f), 1.4f));
+            Proc("빼앗은 기술"); StartCoroutine(PierceSlash(PCenter, f, 6f, ByLevel(L("빼앗은 기술"), 0.5f, 0.75f, 1.0f), new Color(0.3f, 0.95f, 0.95f), 1.4f));
         }
         // 박자 칼날: 연격 10에서 충전된 다음 공격 = 관통 빛줄기 (거리 4m)
         if (bladeCharged && Has("박자 칼날"))
         {
-            bladeCharged = false;
+            bladeCharged = false; Proc("박자 칼날");
             // [2026-11-27] 막대 빛줄기(돌진용 '선' 이펙트) 대신 창처럼 찌르는 원뿔 에너지 — 연격 노랑 (프리팹: 메뉴 EventHorizon/이펙트 v2 만들기)
             float beatRatio = ByLevel(L("박자 칼날"), 0.75f, 1.12f, 1.5f);
             if (Resources.Load<GameObject>("KeywordFx/KW2_Beat_Cone") != null) StartCoroutine(BeatCone(PCenter, f, 4f, beatRatio, new Color(1f, 0.85f, 0.25f)));
@@ -559,7 +563,7 @@ public partial class AugmentRuntime
         if (dashFirstHitArmed && Time.time < dashFirstHitUntil)
         {
             dashFirstHitArmed = false;
-            extra += (int)ByLevel(L("접속 단자"), 2, 3, 4);
+            extra += (int)ByLevel(L("접속 단자"), 2, 3, 4); Proc("접속 단자"); 
             if (pc != null) { AugmentFx.Ring(PCenter, CCombo, 1.4f, 0.3f, 0.1f, 2); AugmentFx.Sparks(hi.position, CCombo, 10, 4f, 0.3f, 0f, 0.15f); }
         }
         return extra;
@@ -579,7 +583,7 @@ public partial class AugmentRuntime
         if (paused && Has("잠깐의 휴식")) restDeferred += Mathf.Max(0, hi.damage);
         // 히어로 착지: 연격 5 이상(Lv2 4, Lv3 3)이면 공격마다 과열 1 확정
         int lvHero = L("히어로 착지");
-        if (lvHero > 0 && combo >= (int)ByLevel(lvHero, 5, 4, 3)) st.AddOverheat(1);
+        if (lvHero > 0 && combo >= (int)ByLevel(lvHero, 5, 4, 3)) { st.AddOverheat(1); Proc("히어로 착지"); }
 
         // 검무: [2026-11-25] 검 3타에 불타는 검기가 날아가 과열을 부여 → AugmentRuntime.Keyword5.cs (근접 타격 자체의 과열은 뺌)
 
@@ -587,7 +591,7 @@ public partial class AugmentRuntime
         int lvWedge = L("쐐기 각인");
         if (lvWedge > 0 && hi.isCrit && st.IsMaxFracture)
         {
-            st.ClearFracture();
+            st.ClearFracture(); Proc("쐐기 각인");
             AugmentFx.Shatter(EC(h), CFracture, 0.7f);
             AugmentFx.Sparks(EC(h), CFracture, 14, 5f, 0.4f);
             AbilityHit(h, ByLevel(lvWedge, 2f, 3f, 4f), PPos, 3f, 1.5f);
@@ -597,7 +601,7 @@ public partial class AugmentRuntime
         int lvHammer = L("과충전 망치");
         if (lvHammer > 0 && hi.swing != null && hi.swing.weapon == Weapontype.Hammer && hi.swing.charged && HpRatioP() <= 0.5f)
         {
-            StunEnemy(h, ByLevel(lvHammer, 0.8f, 1.0f, 1.2f), COverload);
+            Proc("과충전 망치"); StunEnemy(h, ByLevel(lvHammer, 0.8f, 1.0f, 1.2f), COverload);
             AugmentFx.Sparks(EC(h), COverload, 10, 6f, 0.2f, 0f, 0.1f);   // 분홍 전기
         }
 
@@ -607,6 +611,7 @@ public partial class AugmentRuntime
         {
             if (++rhythmCount % 5 == 0)
             {
+                Proc("강철 리듬");
                 AugmentFx.Burst(PCenter, CCombo, 0.9f);
                 AugmentFx.Ripple(PCenter, CCombo, 2.6f, 0.4f, 0.08f, 2);
                 CameraFollow.Shake(0.2f, 0.15f);
@@ -618,7 +623,7 @@ public partial class AugmentRuntime
         int lvUnknown = L("불명의 데이터");
         if (lvUnknown > 0 && FragmentsBefore(AttackStart(hi)) > 0 && Time.time >= unknownReady && !h.IsDead && UseFragment(AttackStart(hi)))
         {
-            unknownReady = Time.time + 0.8f;
+            unknownReady = Time.time + 0.8f; Proc("불명의 데이터"); 
             int n = lvUnknown >= 3 ? 2 : 1;
             var pool = new List<int> { 0, 1, 2, 3 };
             for (int i = 0; i < n && pool.Count > 0; i++)
@@ -639,11 +644,11 @@ public partial class AugmentRuntime
         int lv404 = L("404");
         if (lv404 > 0 && !h.IsDead && !IsBoss(h) && IsExecuteTarget(h) && Random.value < ByLevel(lv404, 0.15f, 0.22f, 0.30f))
         {
-            Delete404(h);
+            Proc("404"); Delete404(h);
             return;
         }
         // 마지막 한 줄: 기준 이하 일반 적은 즉시 처치 + 퍼즈 게이지 +5
-        if (!h.IsDead && InstantKillReady(h)) LastLine(h);
+        if (!h.IsDead && InstantKillReady(h)) { Proc("마지막 한 줄"); LastLine(h); }
     }
 
     void AdvancedOnAbilityHit(CombatEvents.HitInfo hi, EnemyStatus st)
@@ -695,6 +700,7 @@ public partial class AugmentRuntime
         // 번제: 과열된 적 처치 → 그 자리에 {3/4/5}초 불길
         // [2026-11-24] 체력 회복 제거 (회복은 과부하 키워드 전용) — 대신 단계마다 불길이 오래 남음
         int lvAltar = L("번제");
+        if (lvAltar > 0 && overheated) Proc("번제");
         if (lvAltar > 0 && overheated)
             StartCoroutine(FireFloor(EFeet(h), ByLevel(lvAltar, 3f, 4f, 5f)));
         // 수집가의 불꽃: 과열 5스택 이상인 적이 쓰러지면 데이터 1개 (불꽃 속에서 결정)
@@ -713,7 +719,7 @@ public partial class AugmentRuntime
         if (paused && lvPatent > 0)
         {
             AddFragment(2, c, 0);
-            queuedGauge += ByLevel(lvPatent, 5f, 8f, 10f);
+            Proc("특이점 조항"); queuedGauge += ByLevel(lvPatent, 5f, 8f, 10f);
             if (pc != null) AugmentFx.Fly(c, pc.transform, CStasis, 3, 0.5f, null, 0.14f, false);
         }
         if (weakTarget != null && weakTarget.Health == h) { if (weakMark != null) Destroy(weakMark); weakTarget = null; }
@@ -728,6 +734,7 @@ public partial class AugmentRuntime
 
     void CollectorData(Vector3 pos)
     {
+        Proc("수집가의 불꽃");
         AugmentFx.Sparks(pos, OverheatColor, 8, 3.5f, 0.4f, -1f);
         AddFragment(1, pos, 0);
     }
@@ -760,7 +767,7 @@ public partial class AugmentRuntime
     {
         int lv = L("연쇄 발화");
         if (lv <= 0 || st == null || after < OverheatBurst || before >= OverheatBurst || st.chainArmed || Time.time < st.explodeImmuneUntil) return;
-        StartCoroutine(ChainIgnite(st, ByLevel(lv, 1.2f, 1.8f, 2.4f)));
+        Proc("연쇄 발화"); StartCoroutine(ChainIgnite(st, ByLevel(lv, 1.2f, 1.8f, 2.4f)));
     }
 
     IEnumerator ChainIgnite(EnemyStatus st, float ratio)
@@ -809,7 +816,7 @@ public partial class AugmentRuntime
         // 잔향 공명: 잔상이 사라질 때 폭발 (하늘색 음파 링 여러 겹)
         int lv = L("잔향 공명");
         if (lv <= 0) return;
-        AugmentFx.Burst(center, CloakRed, 0.7f, 1.4f);   // 붉은 폭발 (파문은 쓰지 않음)
+        Proc("잔향 공명"); AugmentFx.Burst(center, CloakRed, 0.7f, 1.4f);   // 붉은 폭발 (파문은 쓰지 않음)
         AugmentFx.Sparks(center, CloakRed, 10, 4f, 0.35f, 2f, 0.14f);
         foreach (var e in EnemiesIn(center, 1.5f)) AbilityHit(e, ByLevel(lv, 0.8f, 1.2f, 1.6f), center, 3f, 1.5f);
     }
@@ -838,6 +845,7 @@ public partial class AugmentRuntime
 
         // 역류 탄도: 친 투사체가 쏜 적에게 2배 속도로 돌아감
         float ratioShot = ByLevel(L("역류 탄도"), 1.5f, 2.25f, 3f);
+        if (captured.Count > 0) Proc("역류 탄도");
         foreach (var c in captured) StartCoroutine(ReturnShot(c, ratioShot));
         captured.Clear();
         foreach (var kv in shotRings) if (kv.Value != null) Destroy(kv.Value.gameObject);
@@ -848,6 +856,7 @@ public partial class AugmentRuntime
         int lvHor = L("사건의 지평선");
         if (lvHor > 0 && horizonHits.Count > 0)
         {
+            Proc("사건의 지평선");
             float mult = ByLevel(lvHor, 1.5f, 2f, 2.5f);
             bool any = false;
             foreach (var st in horizonHits)
@@ -1087,7 +1096,7 @@ public partial class AugmentRuntime
             foreach (var e in EnemiesIn(PCenter, 1.2f))
                 if (lensHit.Add(e))
                 {
-                    AbilityHit(e, ByLevel(lvLens, 1f, 1.5f, 2f), PPos, 1f, 0.5f);
+                    Proc("궤적 예측"); AbilityHit(e, ByLevel(lvLens, 1f, 1.5f, 2f), PPos, 1f, 0.5f);
                     AugmentFx.Streak(EC(e) + new Vector3(-PFacing * 0.9f, 0.4f, 0f), EC(e) + new Vector3(PFacing * 0.9f, -0.3f, 0f), CStasis, 0.08f, 0.2f);
                     AugmentFx.Sparks(EC(e), CStasis, 8, 4f, 0.3f, 0f, 0.13f);
                 }
@@ -1101,7 +1110,7 @@ public partial class AugmentRuntime
                 if (reflected.Add(e))
                 {
                     StatusOf(e).AddFracture(1);
-                    AbilityHit(e, ByLevel(lvRef, 0.30f, 0.45f, 0.60f), PPos, 1f, 0.5f);
+                    Proc("파편 반사"); AbilityHit(e, ByLevel(lvRef, 0.30f, 0.45f, 0.60f), PPos, 1f, 0.5f);
                     AugmentFx.Sparks(EC(e), CFracture, 8, 5f, 0.3f);
                 }
         }
@@ -1117,7 +1126,7 @@ public partial class AugmentRuntime
                 barrierTick -= Time.deltaTime;
                 if (barrierTick <= 0f)
                 {
-                    barrierTick = 1f;
+                    barrierTick = 1f; Proc("치유 결계");
                     if (low)
                     {
                         foreach (var e in EnemiesIn(PPos, 3f)) { AbilityHit(e, ByLevel(lvBarrier, 0.15f, 0.22f, 0.30f), PPos, 0.5f, 0.2f); AugmentFx.Sparks(EC(e), COverload, 4, 3f, 0.25f, 0f, 0.12f); }
@@ -1140,7 +1149,7 @@ public partial class AugmentRuntime
             if (replayTimer <= 0f)
             {
                 replayTimer = ByLevel(lvReplay, 3f, 2.5f, 2f);
-                if (replayTemplate != null && Time.time - replayAt < 3f) StartCoroutine(ReplaySwing());
+                if (replayTemplate != null && Time.time - replayAt < 3f) { Proc("현상 재생"); StartCoroutine(ReplaySwing()); }
             }
         }
 
@@ -1158,6 +1167,7 @@ public partial class AugmentRuntime
             restRing.radius = Mathf.Lerp(0.2f, 1.1f, Mathf.Clamp01(restStill));
             if (restStill >= 1f && pstats != null)
             {
+                Proc("잠깐의 휴식");
                 restStill = 0f;
                 HealPlayer(Mathf.Max(1, Mathf.RoundToInt(pstats.maxHp * ByLevel(lvRest, 0.01f, 0.015f, 0.02f))), HealGreen);
                 AugmentFx.Ring(PFeet, HealGreen, 1.3f, 0.3f, 0.08f, 1, 0.35f);

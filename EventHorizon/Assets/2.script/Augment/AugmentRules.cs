@@ -174,7 +174,10 @@ public static class AugmentRules
     }
 
     /// <summary>[키워드] 와 {단계 값} 을 색 글자로 바꾼다. level 0 이면 단계 값을 모두 같은 밝기로</summary>
-    public static string Rich(string text, int level)
+    public static string Rich(string text, int level) => Rich(text, level, false);
+
+    /// <summary>[2026-11-28] currentOnly = true 면 {10%/30%/50%} 중 지금 단계 값 하나만 보여 준다 (고르기 카드용 — 읽을 양 줄이기)</summary>
+    public static string Rich(string text, int level, bool currentOnly)
     {
         if (string.IsNullOrEmpty(text)) return "";
         // [2026-11-23] %M균열% · %M데이터% (−1 · −2) → 지금 최대치 숫자 (설명 규칙 '스택 풀차징 = M')
@@ -194,6 +197,8 @@ public static class AugmentRules
         s = LvTag.Replace(s, m =>
         {
             string[] parts = m.Groups[1].Value.Split('/');
+            if (currentOnly && level >= 1 && parts.Length > 1)   // [2026-11-28]
+                return $"<color=#FFFFFF><b>{parts[Mathf.Min(level, parts.Length) - 1]}</b></color>";
             for (int i = 0; i < parts.Length; i++)
                 parts[i] = level <= 0 ? parts[i]
                          : (i + 1 == level ? $"<color=#FFFFFF><b>{parts[i]}</b></color>" : $"<color=#{ValueDimHex}>{parts[i]}</color>");
@@ -266,7 +271,7 @@ public static class AugmentRules
         "대시 사용 시 분신이 생기며 적에게 직접 영향을 준다.",
         "적을 공격했을 경우 1개 획득.\n2초 동안 공격하지 않으면 연격 값은 사라진다.",
         "일정 체력 이하인 적을 처형 대상으로 지정한다.",
-        "적 처치 시 + 1. 강탈을 모두 얻었을 경우 '방출' 상태로 전환된다.\n해당 경우에 탈취 데이터를 소모하는 사이버웨어가 발동한다.",
+        "적 처치 시 + 1. 강탈을 모두 얻었을 경우 '방출' 상태로 전환된다.\n해당 경우에 탈취 데이터를 소모하는 모듈이 발동한다.",
         "제로포인트 게이지를 채우거나, 사용됐을 경우에 발동한다.",
         "체력이 낮을 경우에 발동한다.",
     };
@@ -328,6 +333,91 @@ public static class AugmentRules
         { "제로포인트 게이지 충전 + 10%.", "제로포인트가 풀렸을 경우, 화면 안의 일반 적이 0.5초 동안 경직된다.", "제로포인트 시간 + 1초. 제로포인트 중일 경우, 치명타 확률 + 20%. 제로포인트가 풀렸을 경우, 시간 충격파가 화면 안의 적에게 공격력의 80% 피해를 주고 밀어낸다." },
         { "체력이 50% 이하라면, 받는 피해 - 5%.", "과부하로 잃은 체력의 10%를 방을 정리했을 경우 다시 얻는다.", "체력이 25% 이하라면, 공격력 + 25%. 체력이 50% 이하라면, 몸과 공격 범위가 1.3배로 커진다." },
     };
+
+    // ───────── [2026-11-28] 고르기 카드 글 (플레이 테스트 피드백: 사이버웨어가 뭔지 모르겠다) ─────────
+    //  카드 = ① 한 줄 요약(크게) ② 세부 문장(작게, 지금 단계 값만) ③ 키워드 뜻 한 줄 ④ 이걸 고르면 열리는 단계
+    //  말투는 KeywordTierText 와 같은 규칙: ~했을 경우, · ~라면, · 부여된다 · 얻는다 · + n% · ~다.
+
+    /// <summary>[2026-11-28] 키워드 뜻 한 줄 (카드 아래에 자동으로 붙음). 처형 대상 · 탈취 데이터 · 방출 · 제로포인트 같은 공통 용어도 여기서 설명</summary>
+    public static readonly string[] KeywordLine =
+    {
+        "적에게 쌓이는 불씨다. 0.5초마다 공격력의 2% 피해를 준다.",
+        "적에게 새기는 금이다. 1개당 받는 피해 + 5%.",
+        "헤네시가 남기는 분신이다. 분신도 적을 공격한다.",
+        "적을 공격했을 경우, 1개 얻는다. 2초 동안 공격하지 않으면 사라진다.",
+        "체력이 30% 이하인 적은 처형 대상이 된다.",
+        "적을 처치했을 경우, 탈취 데이터를 얻는다. 가득 차면 방출 상태가 되어 데이터를 쓴다.",
+        "제로포인트(시간 정지)를 채우거나 사용했을 경우, 발동한다.",
+        "체력이 낮을 경우, 발동한다.",
+    };
+
+    /// <summary>[2026-11-28] 단계 능력 짧은 이름 [키워드, 단계 0·1·2] — 카드의 '고르면 열림' 줄</summary>
+    public static readonly string[,] KeywordTierShort =
+    {
+        { "공격에 과열 자동 부여", "과열 유지 + 2초", "과열 폭발 · 옮겨붙기" },
+        { "치명타에 균열 부여", "균열 최대 4", "균열 최대 시 피해 + 20% · 금 뻗기" },
+        { "대시 시 잔상", "잔상 유지 + 1초", "잔상 연쇄 · 점프·대시 1번 더" },
+        { "연격 유지 + 0.5초", "연격이 끊겨도 절반 유지", "공격 속도 + 25%" },
+        { "처형 대상 피해 + 5%", "처형 기준 + 5%", "약점 속성으로 즉시 처형" },
+        { "처치 시 탈취 데이터", "탈취 데이터 최대 5", "데이터 아끼기 · 홀로그램" },
+        { "제로포인트 충전 + 10%", "풀릴 때 적 경직", "시간 충격파 · 치명타 + 20%" },
+        { "체력 50% 이하 받는 피해 - 5%", "잃은 체력 일부 회복", "체력 25% 이하 공격력 + 25%" },
+    };
+
+    /// <summary>[2026-11-28] 고르기 카드 본문 (요약이 없는 증강은 예전 문장 그대로)</summary>
+    public static string OfferCardBody(ItemData d, int[] counts)
+    {
+        if (d == null) return "";
+        string lim = LimitLine(d, 1);
+        if (string.IsNullOrEmpty(d.summary))
+            return !string.IsNullOrEmpty(d.abilityText) ? Rich(d.abilityText, 1) + (lim.Length > 0 ? "\n" + lim : "") : d.description;
+
+        var sb = new System.Text.StringBuilder();
+        // [2026-11-28] 세부 문장이 한 문장이고 요약과 거의 같으면(숫자만 더 있음) 세부 문장 하나만 크게 — 같은 말이 두 번 나오지 않게
+        if (!string.IsNullOrEmpty(d.abilityText) && SameAsSummary(d.summary, d.abilityText))
+            sb.Append($"<size=112%><b><color=#F2EEE6>{Rich(d.abilityText, 1, true)}</color></b></size>");
+        else
+        {
+            sb.Append($"<size=112%><b><color=#F2EEE6>{Rich(d.summary, 0)}</color></b></size>\n<size=35%> </size>\n");
+            if (!string.IsNullOrEmpty(d.abilityText)) sb.Append($"<size=86%><color=#B9B3A8>{Rich(d.abilityText, 1, true)}</color></size>");
+        }
+        if (lim.Length > 0) sb.Append("\n" + lim);
+        if (d.keywords != null && d.keywords.Length > 0)
+        {
+            sb.Append("\n<size=35%> </size>");
+            foreach (var k in d.keywords)
+            {
+                sb.Append($"\n<size=80%><color=#{KeywordHex(k)}><b>{KeywordName(k)}</b></color> <color=#{MutedHex}>{KeywordLine[(int)k]}</color></size>");
+                if (counts == null) continue;
+                // 이걸 고르면 단계가 열리면 ▲ 줄, 아직 멀면 "3개 모으면 ~" (키워드 1개 카드만 — 2개 카드는 글이 넘쳐 글씨가 작아짐)
+                int b = counts[(int)k], a = b + 1, tb = KeywordTier(b), ta = KeywordTier(a);
+                if (ta > tb) sb.Append($"\n<size=84%><color=#{KeywordHex(k)}>▲ {KeywordName(k)} {a}개 달성 — {KeywordTierShort[(int)k, ta - 1]}</color></size>");
+                else if (a < Stage1 && d.keywords.Length == 1) sb.Append($"\n<size=78%><color=#{MutedHex}>{KeywordName(k)} {a}/{Stage1} — {Stage1}개 모으면 {KeywordTierShort[(int)k, 0]}</color></size>");
+            }
+        }
+        return sb.ToString();
+    }
+
+    static readonly System.Text.RegularExpressions.Regex SentenceEnd = new System.Text.RegularExpressions.Regex(@"\.(\s|$)");
+    static readonly System.Text.RegularExpressions.Regex NoiseChars = new System.Text.RegularExpressions.Regex(@"\{[^}]*\}|[\[\]\s,.·%+×\d]");
+
+    /// <summary>[2026-11-28] 세부 문장이 한 문장이고, 요약과 글자 짝(두 글자씩)이 70% 넘게 겹치면 같은 말로 봄</summary>
+    static bool SameAsSummary(string summary, string ability)
+    {
+        if (string.IsNullOrEmpty(summary) || string.IsNullOrEmpty(ability)) return false;
+        if (SentenceEnd.Matches(ability.Trim()).Count > 1) return false;
+        string a = NoiseChars.Replace(summary, ""), b = NoiseChars.Replace(ability, "");
+        if (a.Length < 2 || b.Length < 2) return false;
+        var pairs = new System.Collections.Generic.List<string>();
+        for (int i = 0; i < b.Length - 1; i++) pairs.Add(b.Substring(i, 2));
+        int hit = 0;
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            int j = pairs.IndexOf(a.Substring(i, 2));
+            if (j >= 0) { hit++; pairs.RemoveAt(j); }
+        }
+        return 2f * hit / (a.Length - 1 + b.Length - 1) >= 0.7f;
+    }
 
     /// <summary>"<color=#..>과열</color> · <color=#..>균열</color>" 형태 (키워드 없으면 빈 글자)</summary>
     public static string KeywordsRich(ItemData d)
